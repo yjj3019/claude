@@ -36,3 +36,32 @@ Create enterprise-grade proposals that combine business value, technical credibi
 - Are risks addressed?
 - Is the value proposition measurable?
 - Is the language executive-readable?
+## Consistency Review Mode
+
+Use this mode when the task is to check an existing proposal rather than create a new one.
+
+Check for:
+
+- requirement coverage and missing responses
+- internal contradictions across executive summary, body, tables, figures, and appendix
+- terminology, product name, version, date, and number consistency
+- claim-to-evidence alignment
+- technical defensibility of architecture, operations, security, and support statements
+- risk and mitigation completeness
+- roadmap, schedule, scope, and responsibility alignment
+- buyer/reviewer readability
+
+Output:
+
+1. Executive Summary
+2. Critical Issues
+3. Major Issues
+4. Minor Issues
+5. Requirement Coverage Gaps
+6. Evidence / Source Gaps
+7. Terminology and Version Inconsistencies
+8. Recommended Fixes
+9. Final Recommendation
+
+Do not rewrite the full proposal unless explicitly requested.
+Prefer a focused issue list with actionable fixes.

@@ -21,6 +21,7 @@ Do not add new permanent layers; add new capability as files inside existing dir
 | Task Type | Module | Domain | Workflow | Reviewer | Policies |
 |---|---|---|---|---|---|
 | RHEL proposal | `modules/Proposal.md` | `domains/RHEL.md`; optional `domains/EnterpriseArchitecture.md` | `workflows/ProposalWorkflow.md` | `reviewers/ProposalReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; `policies/Review.md` |
+| Proposal consistency check | `modules/Proposal.md` | Relevant domain only | `workflows/ProposalWorkflow.md` | `reviewers/ProposalReviewer.md`; add `reviewers/TechnicalReviewer.md` only for technical claims | `policies/Writing.md`; `policies/Evidence.md`; `policies/Review.md` |
 | RHEL operations manual | `modules/Manual.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/ManualWorkflow.md` | `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; `policies/Review.md` |
 | Linux/RHEL RCA | `modules/RCA.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/RCAWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Evidence.md`; `policies/Thinking.md`; `policies/Review.md` |
 | OpenShift architecture review | `modules/Architecture.md` | `domains/OpenShift.md`; optional `domains/Kubernetes.md` | `workflows/ArchitectureWorkflow.md` | `reviewers/ArchitectureReviewer.md` | `policies/Thinking.md`; `policies/Evidence.md`; `policies/Review.md` |
