@@ -24,59 +24,41 @@ When these conflict:
 
 ---
 
-## Core Kernel
+## Kernel (single source — do not duplicate here)
 
-1. Restate the operational problem before solving non-trivial tasks.
-2. Separate facts, assumptions, inferences, and recommendations.
-3. Prefer verified evidence over memory whenever possible.
-4. Unsupported claims must be marked as `[unverified]` or stated as uncertainty.
-5. Confidence must be proportional to evidence.
-6. For non-trivial technical work, consider at least one competing hypothesis or alternative.
-7. Revise conclusions when evidence contradicts earlier assumptions.
-8. Ask clarifying questions only when missing information would materially change the answer.
-9. For technical work, identify version, scope, prerequisites, limitations, and operational impact.
-10. For recommendations, include trade-offs, risks, and failure modes.
-11. Review substantial outputs once before final delivery.
-12. Avoid unnecessary over-analysis for low-risk tasks.
+Load and follow, in order: `kernel/CoreKernel.md` → `kernel/MetaRules.md` → `kernel/Checklist.md`.
+Facts/rules live only in those files; edit them there, not in this adapter.
 
 ---
 
-## Meta Rules
+## Precedence vs. Workspace AGENTS.md
 
-- Apply rules in proportion to task risk and complexity.
-- Simple tasks get direct answers.
-- Complex or high-risk tasks get structured reasoning.
-- Stop when additional analysis is unlikely to change the conclusion.
-- Review happens after drafting, not as an infinite loop.
+This directory sits inside the `C:\AI-Codding` workspace, whose root `CLAUDE.md` imports `AGENTS.md`
+(session protocol, model tiering, sub-agent handoff, gates). Both load together here. Order:
 
----
-
-## Reasoning Checklist
-
-Before finalizing substantial work, check:
-
-- Did I solve the real operational problem?
-- Did I distinguish evidence from assumptions?
-- Did I mark unsupported claims?
-- Is confidence proportional to evidence?
-- Did I consider an alternative explanation where appropriate?
-- Did I identify risks and failure modes?
-- Is the output actionable?
-- Did I avoid overclaiming?
+1. `AGENTS.md` governs process — session start, Plan Mode gate, Definition of Done, handoff contract.
+2. This file's Kernel/Permanent Priority governs reasoning quality on the technical content produced.
+They are complementary, not competing: AGENTS.md decides *how the work is run*, FEF decides *how the
+output reasons*. If a conflict ever surfaces, AGENTS.md process rules win; report the conflict rather
+than silently picking one.
 
 ---
 
 ## Module Loading
 
-Use only the relevant modules.
+Load only the module(s)/domain(s) relevant to the current task — never load all of them.
 
-Examples:
-
-- Proposal work → `modules/Proposal.md`
-- Manual/SOP work → `modules/Manual.md`
-- RCA/debugging → `modules/RCA.md`
-- RHEL work → `domains/RHEL.md`
-- OpenShift work → `domains/OpenShift.md`
-- Prompt work → `modules/PromptEngineering.md`
+| Task type | Module | Task type | Domain |
+|---|---|---|---|
+| Proposal | `modules/Proposal.md` | RHEL | `domains/RHEL.md` |
+| Manual/SOP | `modules/Manual.md` | OpenShift | `domains/OpenShift.md` |
+| RCA/debugging | `modules/RCA.md` | Kubernetes | `domains/Kubernetes.md` |
+| Research | `modules/Research.md` | Ansible | `domains/Ansible.md` |
+| Architecture | `modules/Architecture.md` | Linux (general) | `domains/Linux.md` |
+| Prompt engineering | `modules/PromptEngineering.md` | Satellite | `domains/Satellite.md` |
+| Presentation | `modules/Presentation.md` | AI/LLM | `domains/AI.md` |
+| Blog | `modules/Blog.md` | Enterprise Architecture | `domains/EnterpriseArchitecture.md` |
+| Executive Summary | `modules/ExecutiveSummary.md` | Tesla | `domains/Tesla.md` |
+| Meeting notes | `modules/Meeting.md` | | |
 
 Do not load irrelevant domain packs.
