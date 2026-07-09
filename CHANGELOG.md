@@ -9,6 +9,9 @@
 - Added context and model usage guides for builder/reviewer/architect workflows.
 - Added proposal consistency review mode to Proposal module, workflow, reviewer, and loading map.
 - Added Golden Test 011 for proposal consistency check evaluation.
+- Added GT011 fixture, answer key, and runner protocol for GT001/GT011.
+- Removed orphan EngineeringPrinciples and Communication policy files.
+- Simplified model usage guide to avoid pack-routing duplication with loading-map.
 
 ## v1.0.0
 

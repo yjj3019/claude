@@ -1,4 +1,4 @@
-﻿# Golden Test 011: Proposal Consistency Check
+# Golden Test 011: Proposal Consistency Check
 
 ## Purpose
 
@@ -51,6 +51,15 @@ Apply Proposal Module Consistency Review Mode, Proposal Workflow Consistency Che
 Add a Domain Pack and Technical Reviewer only if the proposal includes technical, security, compliance, operational, or version-sensitive claims.
 Check the proposal for internal consistency, requirement coverage, claim/evidence alignment, terminology/version/number consistency, and submission risk.
 ```
+
+
+## Runner Protocol
+
+- Run baseline and FEF variants in the same model/environment.
+- Provide the same scenario, RFP/excerpt, and constraints to both variants.
+- For FEF runs, inject or make available the exact files named in the FEF prompt; do not silently substitute packs.
+- Keep generation settings fixed across variants where the platform exposes them.
+- Remove variant labels and randomize output order before scoring.
 
 ## Scoring Rubric
 

@@ -1,4 +1,4 @@
-﻿# Model Usage Guide
+# Model Usage Guide
 
 This guide explains how to apply FEF across stronger reviewer models and faster builder models.
 It does not claim that prompts increase model intelligence.
@@ -34,16 +34,18 @@ Reviewer runs at most once per artifact unless the user explicitly asks for anot
 
 ## Task Routing
 
-| Task | Preferred Role | FEF Packs |
-|---|---|---|
-| RHEL proposal draft | Builder | Proposal + RHEL + Proposal Workflow |
-| RHEL proposal final review | Reviewer | Proposal Reviewer + Technical Reviewer if needed |
-| Operations manual draft | Builder | Manual + RHEL/Linux + Manual Workflow |
-| Operations manual safety review | Reviewer | Documentation Reviewer + Technical Reviewer |
-| RCA | Reviewer first, Builder second | RCA + Evidence + Technical Reviewer |
-| Architecture decision | Architect | Architecture + relevant domain + Decision/Evidence |
-| Research brief | Builder then Reviewer if external | Research + Evidence |
-| Prompt/framework improvement | Architect | PromptEngineering + Review |
+Use this table only to choose the model role. Use `docs/loading-map.md` for FEF pack selection.
+
+| Task | Preferred Role |
+|---|---|
+| RHEL proposal draft | Builder |
+| RHEL proposal final review | Reviewer |
+| Operations manual draft | Builder |
+| Operations manual safety review | Reviewer |
+| RCA | Reviewer first, Builder second |
+| Architecture decision | Architect |
+| Research brief | Builder then Reviewer if external |
+| Prompt/framework improvement | Architect |
 
 ## Escalation Triggers
 
