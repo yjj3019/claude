@@ -64,6 +64,13 @@ Total: 100 points.
 | Structure completeness | 15 | Produces a coherent 16-slide blueprint with executive, technical, risk, roadmap, and support content |
 | Competitive logic | 10 | Compares rebuild/clone distributions with specific, defensible enterprise criteria |
 
+
+## Evaluator Notes
+
+- A dimension score must never exceed its maximum points.
+- Factual accuracy should be checked against official Red Hat or primary sources when lifecycle, support, certification, or feature claims appear.
+- If factual claims are not source-checked, cap factual accuracy at 15/25.
+- `[unverified]` is correct for unsupported claims, but excessive tagging that makes the proposal unusable should lose points.
 ## Failure Modes
 
 Record each occurrence:
