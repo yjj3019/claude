@@ -27,8 +27,9 @@ When reviewing an existing proposal, identify:
 - missing responses to stated requirements
 - inconsistent product names, versions, dates, quantities, and terminology
 - claims that exceed the evidence provided
+- roadmap or delivery commitments that depend on out-of-scope work, hidden prerequisites, or customer-owned remediation
 - technical statements that require domain reviewer validation
-- risks, assumptions, dependencies, or exclusions that are hidden or incomplete
+- risks, assumptions, dependencies, exclusions, or customer responsibilities that are hidden, appendix-only, or incomplete
 
 Output severity:
 

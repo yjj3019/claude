@@ -13,6 +13,7 @@
 - Added fixed prompt files for GT001 and GT011 baseline/FEF runs.
 - Added GT001 result worksheet for 5x baseline/FEF evaluation runs.
 - Added GT011 result worksheet for proposal consistency evaluation runs.
+- Added GT001/GT011 follow-up guidance for evidence-sensitive claims and hidden dependency review.
 - Removed orphan EngineeringPrinciples and Communication policy files.
 - Simplified model usage guide to avoid pack-routing duplication with loading-map.
 

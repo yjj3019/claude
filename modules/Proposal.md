@@ -47,8 +47,8 @@ Check for:
 - terminology, product name, version, date, and number consistency
 - claim-to-evidence alignment
 - technical defensibility of architecture, operations, security, and support statements
-- risk and mitigation completeness
-- roadmap, schedule, scope, and responsibility alignment
+- risk, mitigation, hidden dependency, and exclusion completeness
+- roadmap, schedule, scope, dependency, assumption, exclusion, and responsibility alignment
 - buyer/reviewer readability
 
 Output:
@@ -63,5 +63,22 @@ Output:
 8. Recommended Fixes
 9. Final Recommendation
 
+Hidden dependencies or exclusions in appendices must be surfaced when they affect schedule, scope, cost, migration feasibility, or customer responsibilities.
+
 Do not rewrite the full proposal unless explicitly requested.
 Prefer a focused issue list with actionable fixes.
+## Evidence-Sensitive Proposal Claims
+
+For proposal drafts and reviews, treat the following as evidence-sensitive claims:
+
+- lifecycle, support period, certification, compliance, security, benchmark, or numeric claims
+- claims of zero downtime, no service interruption, full automation, complete coverage, or guaranteed risk reduction
+- competitive claims against alternative products or distributions
+
+If an evidence-sensitive claim lacks a cited source, date, version/scope, or customer-provided basis:
+
+- mark it as `[unverified]`, or
+- rewrite it as an assumption to be validated, or
+- move it to an evidence/source gap.
+
+Do not present unsupported dates, certifications, or guarantees as facts.

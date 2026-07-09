@@ -115,3 +115,21 @@ Any numeric, lifecycle, certification, support, or competitive claim used in pro
 
 Claims without this evidence must be marked `[unverified]` or removed.
 The domain pack must not be used to launder unsupported proposal facts.
+## Proposal Source Requirements
+
+For RHEL proposal work, do not state lifecycle dates, EUS/ELS availability, certification coverage, FIPS/compliance status, support entitlement, or competitive claims as facts unless the proposal includes or requests verifiable source material.
+
+Minimum acceptable source metadata:
+
+- source URL or customer-provided source name
+- accessed date or source publication date
+- RHEL major/minor version scope
+- claim scope and limitation
+
+If sources are unavailable during drafting, use wording such as:
+
+- `[unverified] This should be validated against current Red Hat lifecycle documentation.`
+- `Assumption: ...; validation required before submission.`
+- `Source required before customer-facing use.`
+
+For public-sector or restricted-network proposals, also flag claims that depend on online services, external telemetry, cloud connectivity, or certification interpretation.
