@@ -53,6 +53,12 @@ Check the proposal for internal consistency, requirement coverage, claim/evidenc
 ```
 
 
+
+## Fixed Prompt Files
+
+- Baseline: `tests/prompts/GT011-baseline.md`
+- FEF: `tests/prompts/GT011-fef.md`
+
 ## Runner Protocol
 
 - Run baseline and FEF variants in the same model/environment.

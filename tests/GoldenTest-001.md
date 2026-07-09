@@ -52,6 +52,12 @@ Create a 16-slide proposal blueprint for the scenario and RFP excerpt.
 ```
 
 
+
+## Fixed Prompt Files
+
+- Baseline: `tests/prompts/GT001-baseline.md`
+- FEF: `tests/prompts/GT001-fef.md`
+
 ## Runner Protocol
 
 - Run baseline and FEF variants in the same model/environment.
