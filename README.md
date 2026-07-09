@@ -1,53 +1,72 @@
-# fable5
+좋습니다.
 
-"GPT-5(Fable5) Thinking Mode" 프롬프트를 검토·축약해 Claude Code `.claude/skills/`용으로
-재구성한 규칙 파일 3종. 전역 CLAUDE.md가 아닌 개별 스킬로 분리해 필요할 때만 명시 호출한다.
+이제부터는 **실제로 Claude에서 사용할 수 있는 형태**로 드리겠습니다.
 
-> 참고: 모델의 지능·추론 능력은 시스템 프롬프트로 이식되지 않는다. 아래 파일들은
-> Fable5의 "지능"이 아니라 **행동 규칙**을 정리한 것이며, 실제 추론 품질은 모델 자체
-> (Opus 4.8 / Sonnet 5 등) 선택에 따라 결정된다.
+우선 첫 번째 산출물인 **FEF Core Kernel v1.0 (CLAUDE.md 초안)**을 Markdown 파일로 만들었습니다.
 
-## 파일 구성
+### 다운로드
 
-| 파일 | 호출 조건 | 요약 |
-|---|---|---|
-| [`deep-reasoning.md`](./deep-reasoning.md) | 고난도 설계 판단·아키텍처 결정·인시던트 분석·상충 정보 판정 | Fact/Inference/Opinion/Recommendation 라벨링, 근거 부족 시 3분할 명시, 비교 시 판정 기준 우선 정의, hedging 남발 방지 |
-| [`tech-validation.md`](./tech-validation.md) | RHEL/OpenShift/Linux 기술 문서 작성·검토, 릴리스노트 분석 | 벤더 문서 우선 근거 서열, 버전·지원상태 필수 명시, 제품 경계(RHEL/OCP/Satellite 등) 혼용 금지, 5축 문서 검증 |
-| [`proposal-mode.md`](./proposal-mode.md) | 제안서·제안 슬라이드·경쟁 포지셔닝 문서 작성 | Why/Why now/가치/차별성 체크리스트(조건부), 모호 표현 금지·정량화 우선, score-docs와 역할 분리(서식은 score-docs, 논리는 본 스킬) |
+**📄 [FEF_Core_Kernel_v1.0_Claude.md](sandbox:/mnt/data/FEF_Core_Kernel_v1.0_Claude.md)**
 
-## 설치 위치
+---
 
-프로젝트 공유(git 커밋) 기준:
+## 앞으로 제공할 산출물도 모두 파일 형태로 만들겠습니다.
 
+제가 추천하는 최종 구조는 다음과 같습니다.
+
+```text
+FEF/
+
+├── CLAUDE.md                  ⭐ 항상 적용되는 Core Kernel
+│
+├── modules/
+│   ├── proposal.md
+│   ├── manual.md
+│   ├── research.md
+│   ├── architecture.md
+│   ├── rca.md
+│   ├── prompt.md
+│   ├── rhel.md
+│   ├── openshift.md
+│   └── tesla.md
+│
+├── policies/
+│   ├── evidence.md
+│   ├── thinking.md
+│   ├── review.md
+│   └── writing.md
+│
+├── tests/
+│   ├── GT-001-RHEL-Proposal.md
+│   ├── GT-002-RCA.md
+│   ├── GT-003-Manual.md
+│   ├── ...
+│
+└── docs/
+    ├── Installation.md
+    ├── Usage.md
+    └── Best-Practices.md
 ```
-.claude/skills/
-├── deep-reasoning.md
-├── tech-validation.md
-└── proposal-mode.md
-```
 
-전역 적용이 필요하면 `~/.claude/skills/`(Windows: `C:\Users\user\.claude\skills\`)에 배치한다.
+## 제가 추천하는 다음 단계
 
-## CLAUDE.md 연동
+지금부터는 프롬프트 하나를 계속 키우는 방식이 아니라 **실제 사용할 수 있는 Framework**를 구축하는 것이 좋습니다.
 
-본 파일들은 200줄 하네스 예산 보호를 위해 전역 CLAUDE.md에는 포함하지 않는다.
-대신 트리거 한 줄만 추가해 참조한다.
+제가 순서대로 만들어드리겠습니다.
 
-```
-- 고난도 판단 시 skills/deep-reasoning.md 참조
-- RHEL/OCP 기술 진술 검증 시 skills/tech-validation.md 참조
-- 제안서 작성 시 skills/proposal-mode.md + score-docs 병행 참조
-```
+1. ✅ **CLAUDE.md (Core Kernel)** ← 완료
+2. **Proposal Module**
+3. **Manual Module**
+4. **Research Module**
+5. **RHEL Module**
+6. **OpenShift Module**
+7. **Evidence Policy**
+8. **Thinking Policy**
+9. **Review Policy**
+10. **Golden Test Suite (10개)**
+11. **Claude Code 적용 가이드**
+12. **Claude Desktop / Projects 적용 가이드**
 
-## 원본 대비 변경 사항
+이렇게 되면 단순한 프롬프트가 아니라, **Claude Opus 4.8 / Sonnet 5를 위한 재사용 가능한 FEF(Framework)**가 완성됩니다.
 
-- 중복 규칙(불확실성 표현 반복 등) 통합
-- 부정 명령(Never X) 다수를 조건부·긍정형으로 완화
-- "모든 권고에 trade-off/대안 포함" 규칙을 고위험 판단에 한정 — 응답 미니멀리즘 원칙과 충돌 방지
-- 근거 서열·제품 경계 규칙은 기존 release-note 요약 파이프라인과 DRY 유지
-
-## 변경 이력
-
-| 날짜 | 내용 |
-|---|---|
-| 2026-07-08 | 최초 등록. Notion `Custom Skill` 페이지에도 동일 내용 기록 |
+제 생각에는 이 정도 수준이면 일반적인 프롬프트를 넘어 **실제 업무에 바로 적용 가능한 전문 프레임워크**가 될 수 있습니다.
