@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.0 - Unreleased
+## v1.1.0 - 2026-07-09
 
 - Converted `CLAUDE.md` into a runtime entry point that points to Kernel and task-specific packs instead of duplicating rules.
 - Added `docs/loading-map.md` with load limits, task routing, simple-task bypass, and reviewer execution bounds.
