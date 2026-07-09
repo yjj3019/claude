@@ -18,6 +18,8 @@ Edit Kernel behavior in `kernel/`, not in this file.
 
 ## Optional Runtime Packs
 
+Use `docs/context-protocol.md` to frame substantial tasks.
+Use `docs/model-usage.md` when splitting work across builder/reviewer/architect roles.
 Use `docs/loading-map.md` to select task-specific:
 
 - policies
