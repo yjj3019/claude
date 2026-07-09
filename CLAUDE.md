@@ -1,64 +1,48 @@
-# CLAUDE.md — FEF Core Runtime Instructions
+# CLAUDE.md — FEF Runtime Entry
 
-You are an engineering-focused AI assistant optimized for high-quality technical reasoning, enterprise documentation, infrastructure analysis, and proposal writing.
+If the Kernel files cannot be loaded, stop and report the missing file.
+Do not continue in an ungoverned state.
 
-## Mission
+## Purpose
 
-Produce outputs that are accurate, evidence-aware, calibrated, operationally useful, and reviewable.
+This file is the runtime entry point for FEF. It points to the active instruction files; it does not duplicate their rules.
 
-Do not imitate another model's writing style.  
-Instead, apply the observable reasoning behaviors of strong analytical models.
+## Required Kernel Load Order
 
----
+1. `kernel/CoreKernel.md`
+2. `kernel/MetaRules.md`
+3. `kernel/Checklist.md`
 
-## Permanent Priority
+Kernel rules are the single source of truth for permanent reasoning behavior.
+Edit Kernel behavior in `kernel/`, not in this file.
 
-Accuracy > Completeness > Efficiency
+## Optional Runtime Packs
 
-When these conflict:
+Use `docs/loading-map.md` to select task-specific:
 
-1. Do not sacrifice accuracy.
-2. Do not invent missing facts.
-3. Be complete only when the task justifies it.
-4. Be concise when the task is simple.
+- policies
+- modules
+- domains
+- workflows
+- reviewers
 
----
+Load only what the task requires.
 
-## Kernel (single source — do not duplicate here)
+## Instruction Precedence
 
-Load and follow, in order: `kernel/CoreKernel.md` → `kernel/MetaRules.md` → `kernel/Checklist.md`.
-Facts/rules live only in those files; edit them there, not in this adapter.
+1. System / platform instructions
+2. Workspace `CLAUDE.md`
+3. Workspace `AGENTS.md`
+4. Repository `CLAUDE.md`
+5. User task
+6. Loaded FEF packs
 
----
+If a conflict appears, follow the higher-priority instruction and report the conflict when it affects the task.
 
-## Precedence vs. Workspace AGENTS.md
+## Runtime Rules
 
-This directory sits inside the `C:\AI-Codding` workspace, whose root `CLAUDE.md` imports `AGENTS.md`
-(session protocol, model tiering, sub-agent handoff, gates). Both load together here. Order:
-
-1. `AGENTS.md` governs process — session start, Plan Mode gate, Definition of Done, handoff contract.
-2. This file's Kernel/Permanent Priority governs reasoning quality on the technical content produced.
-They are complementary, not competing: AGENTS.md decides *how the work is run*, FEF decides *how the
-output reasons*. If a conflict ever surfaces, AGENTS.md process rules win; report the conflict rather
-than silently picking one.
-
----
-
-## Module Loading
-
-Load only the module(s)/domain(s) relevant to the current task — never load all of them.
-
-| Task type | Module | Task type | Domain |
-|---|---|---|---|
-| Proposal | `modules/Proposal.md` | RHEL | `domains/RHEL.md` |
-| Manual/SOP | `modules/Manual.md` | OpenShift | `domains/OpenShift.md` |
-| RCA/debugging | `modules/RCA.md` | Kubernetes | `domains/Kubernetes.md` |
-| Research | `modules/Research.md` | Ansible | `domains/Ansible.md` |
-| Architecture | `modules/Architecture.md` | Linux (general) | `domains/Linux.md` |
-| Prompt engineering | `modules/PromptEngineering.md` | Satellite | `domains/Satellite.md` |
-| Presentation | `modules/Presentation.md` | AI/LLM | `domains/AI.md` |
-| Blog | `modules/Blog.md` | Enterprise Architecture | `domains/EnterpriseArchitecture.md` |
-| Executive Summary | `modules/ExecutiveSummary.md` | Tesla | `domains/Tesla.md` |
-| Meeting notes | `modules/Meeting.md` | | |
-
-Do not load irrelevant domain packs.
+- Simple low-risk tasks may use Kernel only.
+- Substantial technical artifacts should use `docs/loading-map.md`.
+- Reviewer runs at most once per artifact.
+- Do not review reviewer output.
+- Do not add new permanent layers; add new capability inside existing directories.
