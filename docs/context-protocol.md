@@ -1,4 +1,4 @@
-﻿# Context Protocol
+# Context Protocol
 
 This protocol helps FEF convert a surface request into the real operational problem.
 It is a lightweight interpretation guide, not a new reasoning layer.
@@ -45,16 +45,17 @@ Do not assume internet connectivity, public cloud access, or unrestricted packag
 
 ## Context Reframing Examples
 
-### RHEL proposal consistency check
+### Proposal consistency check
 
 Surface request:
-"Check this RHEL9 proposal for consistency."
+"Check this proposal for consistency."
 
 Operational problem:
-Verify that the proposal is technically accurate, requirement-aligned, evidence-backed, and defensible for public-sector review.
+Verify that the proposal is internally consistent, requirement-aligned, evidence-backed, technically defensible, and suitable for its target reviewer or buyer.
 
 Use:
-Proposal Module + RHEL Domain + Proposal Reviewer + Technical Reviewer if version-sensitive claims appear.
+Proposal Module + relevant Domain Pack + Proposal Reviewer.
+Add Technical Reviewer only when the proposal contains version-sensitive, operational, security, compliance, or architecture claims.
 
 ### Operations manual
 
