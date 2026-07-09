@@ -8,6 +8,7 @@
 - Reworked `tests/GoldenTest-001.md` into an operational RHEL proposal A/B evaluation asset.
 - Added context and model usage guides for builder/reviewer/architect workflows.
 - Added proposal consistency review mode to Proposal module, workflow, reviewer, and loading map.
+- Added Golden Test 011 for proposal consistency check evaluation.
 
 ## v1.0.0
 
