@@ -11,6 +11,7 @@
 - Added Golden Test 011 for proposal consistency check evaluation.
 - Added GT011 fixture, answer key, and runner protocol for GT001/GT011.
 - Added fixed prompt files for GT001 and GT011 baseline/FEF runs.
+- Added GT001 result worksheet for 5x baseline/FEF evaluation runs.
 - Removed orphan EngineeringPrinciples and Communication policy files.
 - Simplified model usage guide to avoid pack-routing duplication with loading-map.
 
