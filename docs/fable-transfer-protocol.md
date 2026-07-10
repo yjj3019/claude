@@ -1,4 +1,4 @@
-﻿# Fable Transfer Protocol
+# Fable Transfer Protocol
 
 This protocol defines how to use scarce Fable5 review capacity to improve Opus/Sonnet workflows through FEF.
 
@@ -8,6 +8,8 @@ It transfers observable engineering behaviors, not personality, identity, or hid
 ## Purpose
 
 Use Fable5 as a calibration and failure-analysis source.
+Use `docs/fable-pattern-bank.md` to store extracted patterns before promotion.
+Use `docs/fable-distillation-prompts.md` to ask Fable5 for reusable behavior patterns.
 Use Opus/Sonnet as the daily execution models.
 Use FEF as the persistent memory of what was learned.
 
