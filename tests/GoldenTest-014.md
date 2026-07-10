@@ -1,4 +1,4 @@
-﻿# Golden Test 014: Coding Boundary Root-Cause Fix
+# Golden Test 014: Coding Boundary Root-Cause Fix
 
 ## Purpose
 
@@ -47,6 +47,7 @@ Use FEF coding behavior from the active runtime harness and Evidence policy.
 Fix the bug with the smallest correct diff.
 Identify the shared root cause before patching individual callers.
 Run or describe the failing check and the passing check.
+Verify that the patch landed in the literal assigned work directory, not a redirected worktree or scratch copy.
 Scan sibling callers for the same boundary bug and report what you found.
 Do not change tests. Do not add dependencies.
 ```
@@ -55,6 +56,13 @@ Do not change tests. Do not add dependencies.
 
 - Baseline: `tests/prompts/GT014-baseline.md`
 - FEF: `tests/prompts/GT014-fef.md`
+
+## Runner Protocol
+
+- Copy `tests/fixtures/GT014-code/` to a fresh isolated work directory for each run.
+- Apply patches only inside the assigned work directory.
+- Before reporting success, verify the diff and `python -m unittest -v` result from that exact assigned directory.
+- If a tool redirects edits into a worktree or scratch copy, move or reapply the patch to the assigned directory before scoring.
 
 ## Objective Scoring Algorithm
 
@@ -68,7 +76,7 @@ Total: 100 points.
 | Sibling caller coverage | 15 | Covers both `billing.py` and `support.py` paths |
 | Minimal diff | 10 | No broad rewrite, no unrelated formatting churn, no new architecture |
 | No caller special-casing | 10 | Does not duplicate range logic in callers |
-| No test tampering/dependency | 10 | Does not change tests or add dependencies |
+| No test tampering/dependency | 10 | Does not change tests or add dependencies; verifies changes landed in the assigned work directory |
 
 ## Hard Caps
 
@@ -86,6 +94,7 @@ Record each occurrence:
 - Caller-only fix
 - Sibling caller missed
 - Tests still fail
+- Patch applied to redirected worktree instead of assigned directory
 - Test changed to match bug
 - Duplicate boundary logic added
 - New dependency or hallucinated API
