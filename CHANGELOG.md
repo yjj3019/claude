@@ -4,6 +4,7 @@
 
 - Added S-Core OSSLab style guidance to the Blog module.
 - Added technical blog post routing to the loading map.
+- Added Fable transfer protocol for using Fable5 feedback to improve Opus/Sonnet workflows without impersonation.
 
 ## v1.1.0 - 2026-07-09
 

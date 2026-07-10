@@ -12,6 +12,8 @@ Use model capability deliberately:
 
 FEF should improve consistency, calibration, and reviewability across both roles.
 
+Use `docs/fable-transfer-protocol.md` when Fable5 feedback is used to improve Opus/Sonnet behavior.
+
 ## Role Split
 
 | Role | Best Use | Avoid |

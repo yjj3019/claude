@@ -20,6 +20,7 @@ Edit Kernel behavior in `kernel/`, not in this file.
 
 Use `docs/context-protocol.md` to frame substantial tasks.
 Use `docs/model-usage.md` when splitting work across builder/reviewer/architect roles.
+Use `docs/fable-transfer-protocol.md` only when converting Fable5 feedback into reusable FEF improvements.
 Use `docs/loading-map.md` to select task-specific:
 
 - policies
