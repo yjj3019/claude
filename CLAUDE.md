@@ -16,6 +16,9 @@ This file is the runtime entry point for FEF. It points to the active instructio
 Kernel rules are the single source of truth for permanent reasoning behavior.
 Edit Kernel behavior in `kernel/`, not in this file.
 
+## Session Memory Bootstrap
+
+At the start of a new session, read this `CLAUDE.md` first and treat its instructions as persistent working memory for the session. Then load the files it references according to the Autoload Protocol below. This is repo-level memory bootstrap, not model fine-tuning or hidden memory mutation.
 ## Autoload Protocol
 
 This file is the single runtime entry point. For each task:
@@ -53,4 +56,6 @@ If a conflict appears, follow the higher-priority instruction and report the con
 - Reviewer runs at most once per artifact.
 - Do not review reviewer output.
 - Do not add new permanent layers; add new capability inside existing directories.
+
+
 

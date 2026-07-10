@@ -18,6 +18,10 @@ It provides:
 - golden tests
 - Claude Code / Claude Projects usage guides
 
+## Memory Bootstrap
+
+Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` as the persistent working-memory bootstrap, then load only the supporting files it names for the task.
+
 ## Recommended Usage
 
 For Claude Code, copy this repository into your Claude working directory and use `CLAUDE.md` as the always-loaded instruction file.
@@ -47,3 +51,4 @@ FEF_Claude_Framework/
 - Prefer evidence over confident recall.
 - Reduce hallucination by requiring uncertainty markers.
 - Improve consistency through review and golden tests.
+
