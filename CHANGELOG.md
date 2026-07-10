@@ -1,13 +1,17 @@
 # Changelog
 
-## v1.1.1 - Unreleased
+## v1.1.1 - 2026-07-10
 
 - Added S-Core OSSLab style guidance to the Blog module.
 - Added technical blog post routing to the loading map.
 - Added Fable transfer protocol for using Fable5 feedback to improve Opus/Sonnet workflows without impersonation.
 - Added Fable pattern bank and distillation prompts for extracting reusable Fable5 judgment patterns.
 - Promoted core Fable patterns into Evidence policy and Proposal reviewer guidance.
-
+- Added coding-focused golden tests GT012, GT013, and GT014.
+- Recorded GT012, GT013, and GT014 coding evaluation results comparing Fable5, Opus+FEF, and Sonnet+FEF.
+- Added coding transfer findings summary for observed Opus/Sonnet behavior against Fable5 reference runs.
+- Tightened GT014 runner protocol to verify patches land in the assigned work directory.
+- Added `.gitignore` entries for temporary work directories and Python cache files.
 ## v1.1.0 - 2026-07-09
 
 - Converted `CLAUDE.md` into a runtime entry point that points to Kernel and task-specific packs instead of duplicating rules.
