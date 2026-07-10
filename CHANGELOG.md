@@ -6,6 +6,7 @@
 - Added technical blog post routing to the loading map.
 - Added Fable transfer protocol for using Fable5 feedback to improve Opus/Sonnet workflows without impersonation.
 - Added Fable pattern bank and distillation prompts for extracting reusable Fable5 judgment patterns.
+- Promoted core Fable patterns into Evidence policy and Proposal reviewer guidance.
 
 ## v1.1.0 - 2026-07-09
 

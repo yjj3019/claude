@@ -31,3 +31,5 @@ Unknown:
 - Unsupported claims must not be written as facts.
 - Conflicting evidence must be disclosed.
 - If evidence is missing, say what would be needed to verify.
+- Actionable findings must include the narrowest available location: section, page, table, log line, file, or line number.
+- Use scoped verification placeholders for unverifiable facts, for example `[검증 필요: 대상]`; do not over-tag ordinary prose.
