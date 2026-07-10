@@ -16,18 +16,22 @@ This file is the runtime entry point for FEF. It points to the active instructio
 Kernel rules are the single source of truth for permanent reasoning behavior.
 Edit Kernel behavior in `kernel/`, not in this file.
 
+## Autoload Protocol
+
+This file is the single runtime entry point. For each task:
+
+1. Always load the Required Kernel files below, in order.
+2. For simple low-risk tasks, answer with Kernel only.
+3. For substantial tasks, load `docs/loading-map.md` and follow its selected packs.
+4. Load only the files named by the loading map: policies, modules, domains, workflows, reviewers.
+5. If a selected file is missing, stop and report the missing file. Do not substitute silently.
+
 ## Optional Runtime Packs
 
 Use `docs/context-protocol.md` to frame substantial tasks.
-Use `docs/model-usage.md` when splitting work across builder/reviewer/architect roles.
+Use `docs/model-usage.md` only when splitting work across builder/reviewer/architect roles.
 Use `docs/fable-transfer-protocol.md` only when converting Fable5 feedback into reusable FEF improvements.
-Use `docs/loading-map.md` to select task-specific:
-
-- policies
-- modules
-- domains
-- workflows
-- reviewers
+Use `docs/loading-map.md` as the routing table for task-specific packs.
 
 Load only what the task requires.
 
@@ -49,3 +53,4 @@ If a conflict appears, follow the higher-priority instruction and report the con
 - Reviewer runs at most once per artifact.
 - Do not review reviewer output.
 - Do not add new permanent layers; add new capability inside existing directories.
+
