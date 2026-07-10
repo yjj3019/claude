@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.1 - Unreleased
+
+- Added S-Core OSSLab style guidance to the Blog module.
+- Added technical blog post routing to the loading map.
+
 ## v1.1.0 - 2026-07-09
 
 - Converted `CLAUDE.md` into a runtime entry point that points to Kernel and task-specific packs instead of duplicating rules.

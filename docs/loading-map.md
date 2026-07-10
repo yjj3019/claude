@@ -26,6 +26,7 @@ Do not add new permanent layers; add new capability as files inside existing dir
 | Linux/RHEL RCA | `modules/RCA.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/RCAWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Evidence.md`; `policies/Thinking.md`; `policies/Review.md` |
 | OpenShift architecture review | `modules/Architecture.md` | `domains/OpenShift.md`; optional `domains/Kubernetes.md` | `workflows/ArchitectureWorkflow.md` | `reviewers/ArchitectureReviewer.md` | `policies/Thinking.md`; `policies/Evidence.md`; `policies/Review.md` |
 | Technical research brief | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; optional `policies/Calibration.md` |
+| Technical blog post | `modules/Blog.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy posts | Optional `reviewers/TechnicalReviewer.md` for technical claims | `policies/Writing.md`; `policies/Evidence.md`; optional `policies/Review.md` |
 | Prompt review | `modules/PromptEngineering.md` | None | `workflows/PromptWorkflow.md` | `reviewers/PromptReviewer.md` | `policies/Thinking.md`; `policies/Review.md` |
 
 ## Selection Rules
