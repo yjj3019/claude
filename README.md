@@ -28,6 +28,15 @@ For Claude Code, copy this repository into your Claude working directory and use
 
 For Claude Projects, paste `CLAUDE.md` into Project Instructions and upload selected modules/domains as Project Knowledge.
 
+## Git-Based Setup
+
+```powershell
+git clone https://github.com/yjj3019/claude.git
+cd claude
+```
+
+Start Claude Code from this directory, or set this directory as the workspace root. Claude should use `CLAUDE.md` as the runtime bootstrap. `AGENTS.md` is included as a lightweight repository entry point for tools that look for an `AGENTS.md` file.
+
 ## Directory Layout
 
 ```text
