@@ -65,6 +65,8 @@ FEF_Claude_Framework/
 
 ## Validate
 
+GitHub Actions runs the same validator on every push and pull request. Run it locally with:
+
 ```powershell
 python scripts/validate_framework.py
 ```

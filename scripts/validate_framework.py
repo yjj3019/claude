@@ -16,7 +16,10 @@ REQUIRED_KERNEL = [
     "kernel/Checklist.md",
 ]
 LIMITS = {"modules": 1, "domains": 2, "workflows": 1, "reviewers": 1, "policies": 3}
-PATH_RE = re.compile(r"`((?:kernel|policies|modules|domains|reviewers|workflows|docs)/[^`]+\.md)`")
+PATH_RE = re.compile(
+    r"`((?:(?:kernel|policies|modules|domains|reviewers|workflows|docs|tests|examples)/[^`]+|"
+    r"(?:CLAUDE|AGENTS|README|CHANGELOG|ROADMAP|CONTRIBUTING))\.md)`"
+)
 TEST_HEADER_RE = re.compile(r"^# Golden Test (\d{3}):", re.MULTILINE)
 REQUIRED_PACKS = [
     "policies/FileHandling.md",
@@ -97,7 +100,7 @@ def validate_golden_tests(errors: list[str]) -> None:
 
 
 def validate_runtime_terms(errors: list[str]) -> None:
-    sources = [CLAUDE, LOADING_MAP, *(ROOT / "kernel").glob("*.md")]
+    sources = [CLAUDE, LOADING_MAP, *(ROOT / "kernel").glob("*.md"), *(ROOT / "policies").glob("*.md")]
     for source in sources:
         if not source.is_file():
             continue
@@ -108,7 +111,7 @@ def validate_runtime_terms(errors: list[str]) -> None:
 
 
 def validate_no_wrapper_policy(errors: list[str]) -> None:
-    prohibited = {"operationalintegrity", "corepolicyset"}
+    prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
     for path in (ROOT / "policies").glob("*.md"):
         if re.sub(r"[^a-z]", "", path.stem.lower()) in prohibited:
             fail(f"wrapper policy bypass is prohibited: {path.relative_to(ROOT)}", errors)

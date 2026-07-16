@@ -98,6 +98,8 @@ A candidate behavior may enter FEF only when all conditions are met:
 7. A removal condition is defined.
 8. Negative-control tests show no disproportionate cost on simple tasks.
 
+This gate applies to behaviors learned from any external model or reviewer, not only Fable5.
+
 ## Fable Review Prompt Template
 
 Use this when asking Fable5 to improve FEF from a failed output:
