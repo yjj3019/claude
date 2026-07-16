@@ -1,0 +1,84 @@
+{
+  "limits": {"policies": 3, "modules": 1, "domains": 2, "workflows": 1, "reviewers": 1},
+  "high_risk_keywords": ["production", "security", "customer", "public sector", "운영", "보안", "고객", "공공"],
+  "domains": [
+    {"path": "domains/RHEL.md", "keywords": ["rhel", "red hat enterprise linux", "레드햇", "커널"]},
+    {"path": "domains/OpenShift.md", "keywords": ["openshift", "오픈시프트"]},
+    {"path": "domains/Kubernetes.md", "keywords": ["kubernetes", "k8s", "쿠버네티스"]},
+    {"path": "domains/Linux.md", "keywords": ["linux", "리눅스"]},
+    {"path": "domains/Ansible.md", "keywords": ["ansible", "앤서블"]},
+    {"path": "domains/Satellite.md", "keywords": ["satellite", "새틀라이트"]}
+  ],
+  "routes": [
+    {
+      "id": "proposal_consistency",
+      "label": "Proposal consistency check",
+      "keywords": ["proposal consistency", "consistency review", "제안서 일관성", "제안서 검토"],
+      "module": "modules/Proposal.md",
+      "workflow": "workflows/ProposalWorkflow.md",
+      "reviewer": "reviewers/ProposalConsistencyReviewer.md",
+      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "risk_level": "high"
+    },
+    {
+      "id": "rca",
+      "label": "Linux/RHEL RCA",
+      "keywords": ["root cause", "incident", "outage", "rca", "장애 원인", "장애 분석", "근본 원인"],
+      "module": "modules/RCA.md",
+      "workflow": "workflows/RCAWorkflow.md",
+      "reviewer": "reviewers/TechnicalReviewer.md",
+      "policies": ["policies/Evidence.md", "policies/Thinking.md", "policies/Review.md"],
+      "risk_level": "high"
+    },
+    {
+      "id": "coding",
+      "label": "Code modification",
+      "keywords": ["fix code", "bug fix", "debug", "patch", "코드 수정", "버그", "디버그", "최소 변경"],
+      "module": "modules/Coding.md",
+      "workflow": "workflows/CodingWorkflow.md",
+      "reviewer": "reviewers/CodeChangeReviewer.md",
+      "policies": ["policies/FileHandling.md", "policies/ToolExecution.md"],
+      "risk_level": "medium"
+    },
+    {
+      "id": "proposal",
+      "label": "Proposal",
+      "keywords": ["proposal", "rfp", "제안서", "제안 요청"],
+      "module": "modules/Proposal.md",
+      "workflow": "workflows/ProposalWorkflow.md",
+      "reviewer": "reviewers/ProposalReviewer.md",
+      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "risk_level": "medium"
+    },
+    {
+      "id": "research",
+      "label": "Current-version research",
+      "keywords": ["research", "release impact", "new feature", "current version", "기술 조사", "신규 기능", "최신 버전"],
+      "module": "modules/Research.md",
+      "workflow": "workflows/ResearchWorkflow.md",
+      "reviewer": null,
+      "policies": ["policies/Evidence.md", "policies/Freshness.md", "policies/Calibration.md"],
+      "risk_level": "medium"
+    },
+    {
+      "id": "manual",
+      "label": "Operations manual",
+      "keywords": ["operations manual", "runbook", "sop", "운영 매뉴얼", "절차서"],
+      "module": "modules/Manual.md",
+      "workflow": "workflows/ManualWorkflow.md",
+      "reviewer": "reviewers/DocumentationReviewer.md",
+      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "risk_level": "medium"
+    },
+    {
+      "id": "prompt_review",
+      "label": "Prompt review",
+      "keywords": ["prompt review", "improve prompt", "프롬프트 검토", "프롬프트 개선"],
+      "module": "modules/PromptEngineering.md",
+      "workflow": "workflows/PromptWorkflow.md",
+      "reviewer": "reviewers/PromptReviewer.md",
+      "policies": ["policies/Thinking.md", "policies/Review.md"],
+      "risk_level": "low"
+    }
+  ]
+}

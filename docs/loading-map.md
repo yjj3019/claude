@@ -12,7 +12,7 @@ Maximum load per task:
 - Reviewer: 1
 - Policies: up to 3
 
-Simple low-risk questions may skip this map and use the Kernel only. A reviewer runs at most once per artifact. Do not review reviewer output. Do not add new permanent layers; add capabilities as files inside existing directories.
+Simple low-risk questions may skip this map and use the Kernel only. Select at most one Reviewer file per artifact. Run it at most once, only after a draft exists. Do not pass Reviewer output or the revised artifact through another Reviewer. Do not add new permanent layers; add capabilities as files inside existing directories.
 
 ## Task Map
 
@@ -39,6 +39,12 @@ Simple low-risk questions may skip this map and use the Kernel only. A reviewer 
 5. Skip workflows for short rewrites, definitions, and low-risk answers.
 6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
 7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
+8. For proposal work, select `ProposalReviewer` for general proposal quality, `TechnicalReviewer` when technical claims are the primary review target, or the combined `ProposalConsistencyReviewer` for the mapped consistency-check task. Never load two of them for one artifact.
+
+## Policy Classes
+
+- Integrity Policies: Evidence, FileHandling, Freshness, ToolExecution, and selected safety or security rules. These preserve truthful evidence, execution, and risk boundaries.
+- Preference Policies: Writing, Review, Calibration, Thinking, and Decision. Explicit user output constraints override these defaults.
 
 ## Policy Selection Rules
 

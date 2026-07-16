@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {"id":"001","task":"proposal","workflow":"writing","domains":["RHEL"],"mode":"manual","required_files":["tests/GoldenTest-001.md","tests/prompts/GT001-baseline.md","tests/prompts/GT001-fef.md"]},
+    {"id":"002","task":"manual","workflow":"writing","domains":["Linux"],"mode":"manual","required_files":["tests/GoldenTest-002.md"]},
+    {"id":"003","task":"rca","workflow":"troubleshooting","domains":["Linux"],"mode":"manual","required_files":["tests/GoldenTest-003.md"]},
+    {"id":"004","task":"research","workflow":"analysis","domains":["OpenShift"],"mode":"manual","required_files":["tests/GoldenTest-004.md"]},
+    {"id":"005","task":"architecture","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-005.md"]},
+    {"id":"006","task":"research","workflow":"writing","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-006.md"]},
+    {"id":"007","task":"prompt","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-007.md"]},
+    {"id":"008","task":"manual","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-008.md"]},
+    {"id":"009","task":"research","workflow":"analysis","domains":["AI"],"mode":"manual","required_files":["tests/GoldenTest-009.md"]},
+    {"id":"010","task":"research","workflow":"writing","domains":["Tesla"],"mode":"manual","required_files":["tests/GoldenTest-010.md"]},
+    {"id":"011","task":"proposal","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-011.md","tests/fixtures/GT011-proposal.md","tests/fixtures/GT011-answer-key.md","tests/prompts/GT011-baseline.md","tests/prompts/GT011-fef.md"]},
+    {"id":"012","task":"coding","workflow":"coding_change","domains":["General"],"mode":"fixture","required_files":["tests/GoldenTest-012.md","tests/fixtures/GT012-code/test_money.py","tests/fixtures/GT012-answer-key.md","tests/prompts/GT012-baseline.md","tests/prompts/GT012-fef.md"]},
+    {"id":"013","task":"coding","workflow":"coding_change","domains":["General"],"mode":"fixture","required_files":["tests/GoldenTest-013.md","tests/fixtures/GT013-code/test_totals.py","tests/fixtures/GT013-answer-key.md","tests/prompts/GT013-baseline.md","tests/prompts/GT013-fef.md"]},
+    {"id":"014","task":"coding","workflow":"coding_change","domains":["General"],"mode":"fixture","required_files":["tests/GoldenTest-014.md","tests/fixtures/GT014-code/test_periods.py","tests/fixtures/GT014-answer-key.md","tests/prompts/GT014-baseline.md","tests/prompts/GT014-fef.md"]},
+    {"id":"015","task":"file_handling","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-015.md"]},
+    {"id":"016","task":"artifact","workflow":"writing","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-016.md"]},
+    {"id":"017","task":"tool_execution","workflow":"troubleshooting","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-017.md"]},
+    {"id":"018","task":"research","workflow":"analysis","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-018.md"]},
+    {"id":"019","task":"instruction_conflict","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-019.md"]},
+    {"id":"020","task":"rewriting","workflow":"writing","domains":["General"],"mode":"static","required_files":["tests/GoldenTest-020.md"]},
+    {"id":"021","task":"output_contract","workflow":"writing","domains":["General"],"mode":"static","required_files":["tests/GoldenTest-021.md"]},
+    {"id":"022","task":"long_context","workflow":"analysis","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-022.md"]}
+  ]
+}

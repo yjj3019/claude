@@ -71,3 +71,43 @@ GitHub Actions runs the same validator on every push and pull request. Run it lo
 python scripts/validate_framework.py
 ```
 
+## Task Routing Examples
+
+### RHEL incident RCA
+
+- Request: “RHEL 커널 장애 원인을 분석하고 고객 RCA를 작성해줘.”
+- Packs: RCA Module, RHEL Domain, RCA Workflow, Technical Reviewer, Evidence/Thinking/Review policies.
+- Why: incident/RCA and RHEL keywords; customer-facing work raises risk.
+- Abbreviated output: observed facts, hypotheses, root cause, corrective actions, verification gaps.
+- Verification: one Technical Reviewer pass after the draft.
+
+### OpenShift feature proposal
+
+- Request: “OpenShift 신규 기능을 조사해 고객 제안서로 정리해줘.”
+- Packs: Proposal Module, OpenShift Domain, Proposal Workflow, Proposal Reviewer, Writing/Evidence/Review policies.
+- Why: proposal intent wins over the secondary research keyword; OpenShift selects the Domain.
+- Abbreviated output: requirement mapping, scoped feature claims, value, risks, evidence gaps.
+- Verification: current claims still require Freshness verification when applicable.
+
+### Minimal code fix
+
+- Request: “이 Python 버그를 최소 변경으로 수정하고 테스트해줘.”
+- Packs: Coding Module and Workflow, optional Code Change Reviewer, FileHandling/ToolExecution policies.
+- Why: bug/minimal-change keywords map to the shared-root-cause coding route.
+- Abbreviated output: root cause, patch, caller scan, test result, remaining risk.
+- Verification: inspect the actual repository diff and run the narrowest relevant test.
+
+Preview routing without an API:
+
+```powershell
+python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
+```
+
+## Install and Operate
+
+- [Claude Projects setup](docs/ClaudeProjects.md)
+- [Claude Code setup](docs/ClaudeCode.md)
+- [Harness scripts](scripts/README.md)
+- [Golden Test coverage](docs/golden-test-coverage.md)
+- [Release and versioning](docs/release-process.md)
+

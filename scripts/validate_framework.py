@@ -21,6 +21,7 @@ PATH_RE = re.compile(
     r"(?:CLAUDE|AGENTS|README|CHANGELOG|ROADMAP|CONTRIBUTING))\.md)`"
 )
 TEST_HEADER_RE = re.compile(r"^# Golden Test (\d{3}):", re.MULTILINE)
+MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 REQUIRED_PACKS = [
     "policies/FileHandling.md",
     "policies/ToolExecution.md",
@@ -49,6 +50,13 @@ def validate_references(errors: list[str]) -> None:
             for rel in PATH_RE.findall(line):
                 if not (ROOT / rel).is_file():
                     fail(f"{source.relative_to(ROOT)}:{line_number} references missing file: {rel}", errors)
+            for target in MARKDOWN_LINK_RE.findall(line):
+                target = target.split("#", 1)[0]
+                if not target or "://" in target or target.startswith("mailto:"):
+                    continue
+                resolved = (source.parent / target).resolve()
+                if not resolved.exists():
+                    fail(f"{source.relative_to(ROOT)}:{line_number} has broken Markdown link: {target}", errors)
 
 
 def validate_loading_map(errors: list[str]) -> None:

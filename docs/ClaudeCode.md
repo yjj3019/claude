@@ -3,19 +3,23 @@
 Recommended structure:
 
 ```text
-project/
+project-root/
 ├── CLAUDE.md
-└── fef/
-    ├── modules/
-    ├── domains/
-    ├── policies/
-    └── reviewers/
+├── kernel/
+├── policies/
+├── modules/
+├── domains/
+├── workflows/
+├── reviewers/
+└── docs/
 ```
 
-Use `CLAUDE.md` as the permanent kernel.
+Start Claude Code from `project-root/` so it can discover `CLAUDE.md` and its relative Pack paths. Keep the copied directory layout intact.
 
 Mention modules explicitly in the prompt:
 
 - "Use Proposal Module."
 - "Use RCA Workflow."
 - "Use RHEL Domain Pack."
+
+Before use, run `python scripts/validate_repository.py` in the framework repository. For task previews, run `python scripts/detect_task.py --task "..."`; the result is advisory, not an automatic replacement for task judgment.

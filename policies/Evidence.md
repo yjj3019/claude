@@ -49,3 +49,7 @@ Unknown:
 - Current or version-sensitive claims require the applicable product, version, scope, verification date, and source.
 - Prefer paraphrase and quote only the minimum text needed to preserve technical meaning.
 - Preserve exact errors, logs, configuration values, and code fragments when they are necessary evidence.
+
+## External-facing Wording
+
+Use `[unverified]` as an internal analysis marker or in technical research, RCA, and internal validation reports when useful. In proposals, executive reports, blogs, email, presentations, and customer deliverables, convert it to natural wording such as “confirmation required,” “not confirmed in public sources,” or “the available evidence is insufficient to conclude.” Do not hide the evidence gap.

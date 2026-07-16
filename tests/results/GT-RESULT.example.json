@@ -1,0 +1,8 @@
+{
+  "test_id": "GT020",
+  "baseline": {"score": 3.0, "critical_error": false},
+  "framework": {"score": 4.0, "critical_error": false},
+  "dimensions": {"proportionality": 4, "user_output_contract": 5},
+  "verdict": "not_run",
+  "notes": "Schema example only; no model run is claimed."
+}

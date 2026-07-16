@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added deterministic Korean/English task routing with JSON output, safe unmapped fallback, Pack-path checks, and load-limit validation.
+- Added repository and Golden Test validate-only harnesses, coverage metadata, Scorecard anchors, a critical-error gate, and JSON result schema.
+- Clarified Reviewer selection/execution, Integrity versus Preference Policy precedence, and external-facing wording for unverified claims.
+- Expanded Claude Projects, Claude Code, scripts, CI, Semantic Versioning, and release onboarding.
+
 ## v1.2.0 - 2026-07-16
 
 - Fixed the loading-map reviewer-count conflict by introducing a single combined Proposal Consistency Reviewer.

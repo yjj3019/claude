@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["test_id", "baseline", "framework", "dimensions", "verdict"],
+  "properties": {
+    "test_id": {"type": "string", "pattern": "^GT[0-9]{3}$"},
+    "baseline": {"$ref": "#/$defs/variant"},
+    "framework": {"$ref": "#/$defs/variant"},
+    "dimensions": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1, "maximum": 5}},
+    "verdict": {"enum": ["pass", "fail", "not_run"]},
+    "notes": {"type": "string"}
+  },
+  "$defs": {
+    "variant": {
+      "type": "object",
+      "required": ["score", "critical_error"],
+      "properties": {
+        "score": {"type": "number", "minimum": 1, "maximum": 5},
+        "critical_error": {"type": "boolean"}
+      }
+    }
+  }
+}
