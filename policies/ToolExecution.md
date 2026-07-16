@@ -1,5 +1,9 @@
 # Tool Execution Policy
 
+## Trigger
+
+Load this policy when the task requires commands, tests, builds, deployments, external actions, or tool calls.
+
 ## Purpose
 
 Make command and tool use observable, bounded, and verifiable.
@@ -8,7 +12,7 @@ Make command and tool use observable, bounded, and verifiable.
 
 - Use available tools to verify facts and state changes that should not be guessed.
 - Inspect command output, exit status, changed files, and generated artifacts before reporting success.
-- If a command fails, identify the likely cause and retry with a materially different method no more than two times unless the task requires deeper diagnosis.
+- If a command fails, identify the likely cause and use only limited retries with a materially different method.
 - Do not repeat the same failed command without a reason.
 - If execution remains blocked, report the failure, evidence, attempted methods, and safest next action.
 

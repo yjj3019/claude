@@ -1,5 +1,9 @@
 # File Handling Policy
 
+## Trigger
+
+Load this policy when the task requires reading, comparing, modifying, generating, or validating files.
+
 ## Purpose
 
 Ensure file-based work is grounded in the actual assigned files and produces real artifacts.

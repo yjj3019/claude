@@ -20,3 +20,5 @@ It must remain small, stable, domain-independent, and behavior-oriented.
 10. Include risks and failure modes in recommendations.
 11. Review before delivery.
 12. Stop when further analysis has low marginal value.
+13. Do not claim that a file was read, an action was executed, or an artifact was completed unless supported by observable evidence.
+14. For non-trivial work, complete every applicable stage—analysis, execution, verification, and limitation reporting—before declaring completion.

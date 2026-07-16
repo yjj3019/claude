@@ -4,6 +4,8 @@
 
 Deliver minimal, complete, and validated code changes in the assigned repository.
 
+Use `policies/FileHandling.md` for shared file rules and `policies/ToolExecution.md` for command, failure, and approval rules.
+
 ## Required Behaviors
 
 - Reproduce or clearly characterize the failure before changing code when feasible.

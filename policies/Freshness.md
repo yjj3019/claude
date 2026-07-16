@@ -1,5 +1,9 @@
 # Freshness Policy
 
+## Trigger
+
+Load this policy when claims depend on current versions, lifecycle, CVE status, support matrices, product policy, subscription rules, regulations, pricing, or release state.
+
 ## Purpose
 
 Prevent outdated or version-ambiguous claims in time-sensitive engineering work.

@@ -84,3 +84,13 @@ Stop context expansion when:
 - the next action is actionable
 - more questioning would delay a useful draft
 - additional context would not change the recommendation
+
+## Context Checkpoints
+
+For long or multi-stage tasks:
+
+1. Preserve the active objective, constraints, target files, and completion criteria.
+2. Before each major stage, re-check the current task contract.
+3. After tool calls, external results, or major context shifts, verify that the next action still serves the original objective.
+4. Do not silently replace earlier user constraints with later assumptions.
+5. Before delivery, compare the result against the original task contract.

@@ -10,6 +10,10 @@
 - Expanded Prompt Engineering Module and Prompt Workflow with runtime contracts, action boundaries, injection resistance, portability, and evaluation criteria.
 - Added a project-specific `CLAUDE.md` template without replacing the FEF runtime entry.
 - Added automated framework structure and loading-map validation with GitHub Actions.
+- Added operational-integrity Kernel rules for evidence-backed completion.
+- Added trigger-based policy selection, context checkpoints, and a model-independent distillation gate.
+- Added Golden Tests 015-022 for file truthfulness, artifact completion, tool failures, freshness, instruction conflicts, proportionality, output contracts, and long-context retention.
+- Expanded validation for required runtime packs, Golden Test IDs, and prohibited model-specific Runtime modes.
 
 ## v1.1.1 - 2026-07-10
 

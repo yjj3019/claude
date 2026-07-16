@@ -1,22 +1,24 @@
 # Proposal Consistency Reviewer
 
-Perform one combined review pass covering proposal quality, internal consistency, requirement coverage, and technical credibility.
+Perform one combined review pass. Use `policies/Evidence.md` and `policies/Freshness.md` for technical fact and currency checks.
 
-## Review Dimensions
+## Review Contract
 
-- executive clarity and business logic
-- measurable value and differentiation
-- requirement coverage from source requirement to proposal response
-- contradictions between sections
-- terminology, product name, version, date, number, and quantity consistency
-- claim-to-evidence alignment
-- version-sensitive technical accuracy
-- operational feasibility and missing prerequisites
-- security, compliance, lifecycle, support, and architecture claims
-- implementation dependencies, exclusions, customer responsibilities, and hidden remediation
-- roadmap or delivery commitments that rely on out-of-scope work
-- executive and technical message alignment
-- at least one practical resolution path or decision question for each material contradiction
+### 1. Requirement alignment
+
+- Does the proposal satisfy the stated customer requirements, scope, and exclusions?
+
+### 2. Internal consistency
+
+- Are versions, quantities, architecture, schedules, responsibilities, and terminology consistent across sections?
+
+### 3. Claim integrity
+
+- Are material technical and commercial claims supported, scoped, and current where required?
+
+### 4. Delivery risk
+
+- Are unresolved assumptions, dependencies, operational constraints, and implementation risks visible?
 
 ## Severity
 

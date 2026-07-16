@@ -3,7 +3,7 @@
 This protocol defines how to use scarce Fable5 review capacity to improve Opus/Sonnet workflows through FEF.
 
 It does not instruct any model to impersonate Fable5.
-It transfers observable engineering behaviors, not personality, identity, or hidden chain-of-thought.
+It transfers observable engineering behaviors, not personality, identity, or hidden chain-of-thought. The same process applies to useful behavior observed from any external model or evaluator.
 
 ## Purpose
 
@@ -84,6 +84,19 @@ When Fable5 identifies a failure, convert it using this format:
 6. Removal condition: when to delete or simplify it
 
 If no test or observable behavior exists, do not add the rule.
+
+## Distillation Gate
+
+A candidate behavior may enter FEF only when all conditions are met:
+
+1. A repeated failure is documented.
+2. The candidate behavior is observable.
+3. A minimal rule can be stated.
+4. The narrowest owning file is identified.
+5. A Golden Test can detect improvement and regression.
+6. The rule does not duplicate an existing Kernel, Policy, Workflow, Module, or Reviewer contract.
+7. A removal condition is defined.
+8. Negative-control tests show no disproportionate cost on simple tasks.
 
 ## Fable Review Prompt Template
 

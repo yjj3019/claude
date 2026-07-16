@@ -37,3 +37,22 @@ Simple low-risk questions may skip this map and use the Kernel only. A reviewer 
 5. Skip workflows for short rewrites, definitions, and low-risk answers.
 6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
 7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
+
+## Policy Selection Rules
+
+Load no policy by default unless the task trigger requires it.
+
+| Trigger | Required policy |
+|---|---|
+| External factual or technical claims | `policies/Evidence.md` |
+| Current, version-sensitive, lifecycle, CVE, support, subscription, or policy claims | `policies/Freshness.md` |
+| Reading, modifying, comparing, generating, or validating files | `policies/FileHandling.md` |
+| Executing commands, tests, builds, deployments, or tool actions | `policies/ToolExecution.md` |
+| High-impact deliverable requiring a formal review pass | `policies/Review.md` |
+
+Maximum policies per task: 3. When more than three triggers apply:
+
+1. Preserve policies tied to observable execution risk.
+2. Prefer a selected Workflow or Reviewer for task-specific checks.
+3. Do not load a policy whose rules are already fully enforced by the selected Workflow or Reviewer.
+4. Do not create wrapper policies merely to bypass the policy limit.
