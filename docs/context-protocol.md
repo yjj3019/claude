@@ -1,7 +1,6 @@
 # Context Protocol
 
-This protocol helps FEF convert a surface request into the real operational problem.
-It is a lightweight interpretation guide, not a new reasoning layer.
+This protocol helps FEF convert a surface request into the real operational problem. It is a lightweight interpretation guide, not a new reasoning layer.
 
 ## Purpose
 
@@ -23,7 +22,7 @@ Keep this frame brief. Do not expose long internal reasoning.
 
 ## Ask or Proceed Rule
 
-Ask a clarifying question only when the missing detail would materially change the output.
+Ask a clarifying question only when the missing detail would materially change the output. When several independent details are all essential, ask them together in one concise group.
 
 Otherwise:
 
@@ -47,37 +46,35 @@ Do not assume internet connectivity, public cloud access, or unrestricted packag
 
 ### Proposal consistency check
 
-Surface request:
-"Check this proposal for consistency."
+Surface request: "Check this proposal for consistency."
 
-Operational problem:
-Verify that the proposal is internally consistent, requirement-aligned, evidence-backed, technically defensible, and suitable for its target reviewer or buyer.
+Operational problem: Verify that the proposal is internally consistent, requirement-aligned, evidence-backed, technically defensible, and suitable for its target reviewer or buyer.
 
-Use:
-Proposal Module + relevant Domain Pack + Proposal Reviewer.
-Add Technical Reviewer only when the proposal contains version-sensitive, operational, security, compliance, or architecture claims.
+Use: Proposal Module + relevant Domain Pack + `ProposalConsistencyReviewer`. The combined reviewer covers both proposal consistency and version-sensitive technical claims in one pass.
 
 ### Operations manual
 
-Surface request:
-"Make an install manual."
+Surface request: "Make an install manual."
 
-Operational problem:
-Create a reproducible procedure with prerequisites, validation, rollback, and troubleshooting for the target environment.
+Operational problem: Create a reproducible procedure with prerequisites, validation, rollback, and troubleshooting for the target environment.
 
-Use:
-Manual Module + relevant domain + Documentation Reviewer.
+Use: Manual Module + relevant domain + Documentation Reviewer.
 
 ### RCA
 
-Surface request:
-"Analyze this log."
+Surface request: "Analyze this log."
 
-Operational problem:
-Separate observed facts from hypotheses, identify likely root cause, state confidence, and recommend immediate and preventive actions.
+Operational problem: Separate observed facts from hypotheses, identify likely root cause, state confidence, and recommend immediate and preventive actions.
 
-Use:
-RCA Module + Evidence Policy + Technical Reviewer.
+Use: RCA Module + Evidence Policy + Technical Reviewer.
+
+### Code change
+
+Surface request: "Fix this code."
+
+Operational problem: Reproduce the defect, identify the narrowest root cause, apply the smallest complete change in the assigned worktree, and validate behavior without unrelated refactoring.
+
+Use: Coding Module + Coding Workflow + File Handling and Tool Execution policies. Add Code Change Reviewer only for substantial or high-risk changes.
 
 ## Stop Conditions
 

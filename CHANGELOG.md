@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.0 - 2026-07-16
+
+- Fixed the loading-map reviewer-count conflict by introducing a single combined Proposal Consistency Reviewer.
+- Clarified instruction precedence and separated instruction authority from evidence priority.
+- Added graded missing-pack behavior for critical, required, and optional runtime files.
+- Added Freshness, File Handling, and Tool Execution policies.
+- Added Coding Module, Coding Workflow, and Code Change Reviewer.
+- Expanded Prompt Engineering Module and Prompt Workflow with runtime contracts, action boundaries, injection resistance, portability, and evaluation criteria.
+- Added a project-specific `CLAUDE.md` template without replacing the FEF runtime entry.
+- Added automated framework structure and loading-map validation with GitHub Actions.
+
 ## v1.1.1 - 2026-07-10
 
 - Added S-Core OSSLab style guidance to the Blog module.
