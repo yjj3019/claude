@@ -21,6 +21,7 @@
     {"id":"019","task":"instruction_conflict","workflow":"review","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-019.md"]},
     {"id":"020","task":"rewriting","workflow":"writing","domains":["General"],"mode":"static","required_files":["tests/GoldenTest-020.md"]},
     {"id":"021","task":"output_contract","workflow":"writing","domains":["General"],"mode":"static","required_files":["tests/GoldenTest-021.md"]},
-    {"id":"022","task":"long_context","workflow":"analysis","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-022.md"]}
+    {"id":"022","task":"long_context","workflow":"analysis","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-022.md"]},
+    {"id":"023","task":"turn_completion","workflow":"troubleshooting","domains":["General"],"mode":"manual","required_files":["tests/GoldenTest-023.md"]}
   ]
 }

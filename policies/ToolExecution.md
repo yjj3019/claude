@@ -11,12 +11,14 @@ Make command and tool use observable, bounded, and verifiable.
 ## Execution Rules
 
 - Use available tools to verify facts and state changes that should not be guessed.
+- Treat analysis, review, diagnosis, and status requests as read-only unless the user also requests a change.
 - Inspect command output, exit status, changed files, and generated artifacts before reporting success.
 - If a command fails, identify the likely cause and use only limited retries with a materially different method.
 - Do not repeat the same failed command without a reason.
 - Do not report failed or unverified execution as successful.
 - If execution remains blocked, report the failure, evidence, attempted methods, and safest next action.
 - After execution, report the actual result, affected target, and unresolved failures.
+- Before ending, execute any remaining safe, in-scope action already promised or required by the task; stop only when the task is complete or blocked on input only the user can provide.
 
 ## Approval Boundary
 

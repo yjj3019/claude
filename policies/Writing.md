@@ -6,10 +6,12 @@ Write clearly, directly, and technically.
 
 Prefer:
 
+- the outcome first, especially after long-running work
 - precise statements
 - structured sections
 - reusable wording
 - operational relevance
+- complete sentences that do not depend on temporary working shorthand
 
 Avoid:
 
