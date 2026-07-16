@@ -2,7 +2,7 @@
 
 ## Trigger
 
-Load this policy when the task requires reading, comparing, modifying, generating, or validating files.
+Load this policy when the task requires reading, comparing, modifying, generating, or validating files or repositories.
 
 ## Purpose
 

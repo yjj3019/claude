@@ -34,7 +34,7 @@ For each task:
 
 - Use `docs/context-protocol.md` to frame substantial tasks.
 - Use `docs/model-usage.md` only when splitting work across builder, reviewer, or architect roles.
-- Use `docs/fable-transfer-protocol.md` only when converting Fable5 feedback into reusable FEF improvements.
+- Use `docs/fable-transfer-protocol.md` only when converting external-model or reviewer feedback into reusable FEF improvements.
 - Use `docs/loading-map.md` as the routing table for task-specific packs.
 
 Load only what the task requires.

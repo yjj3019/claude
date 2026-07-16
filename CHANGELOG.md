@@ -14,6 +14,7 @@
 - Added trigger-based policy selection, context checkpoints, and a model-independent distillation gate.
 - Added Golden Tests 015-022 for file truthfulness, artifact completion, tool failures, freshness, instruction conflicts, proportionality, output contracts, and long-context retention.
 - Expanded validation for required runtime packs, Golden Test IDs, and prohibited model-specific Runtime modes.
+- Updated README, AGENTS, Roadmap, task routing, reviewer contracts, and CI coverage for the integrated v1.2 runtime.
 
 ## v1.1.1 - 2026-07-10
 

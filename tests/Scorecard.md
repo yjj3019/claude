@@ -14,13 +14,12 @@ Score 1-5.
 - Completeness
 - Conciseness
 - Review quality
-- File handling truthfulness
-- Tool usage accuracy
-- Completion and artifact integrity
-- Actual modification location
-- Verification evidence
+- File and artifact truthfulness
+- Execution verification
+- Completion integrity
 - Freshness and scope
 - User output contract
+- Proportionality
 - Long-context constraint retention
 
 ## Success

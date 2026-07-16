@@ -14,7 +14,9 @@ Make command and tool use observable, bounded, and verifiable.
 - Inspect command output, exit status, changed files, and generated artifacts before reporting success.
 - If a command fails, identify the likely cause and use only limited retries with a materially different method.
 - Do not repeat the same failed command without a reason.
+- Do not report failed or unverified execution as successful.
 - If execution remains blocked, report the failure, evidence, attempted methods, and safest next action.
+- After execution, report the actual result, affected target, and unresolved failures.
 
 ## Approval Boundary
 

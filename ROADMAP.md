@@ -18,10 +18,12 @@
 - Operational integrity and evidence-backed completion
 - Trigger-based file, tool, freshness, and evidence policies
 - Coding pack and proposal reviewer conflict resolution
+- Context checkpoints and model-independent distillation gate
 - Golden Tests for execution integrity and proportionality
 - Framework structure validation and CI
 
 ## v2.0
-- Automated evaluation templates
+- Automated Golden Test runner
 - Scoring reports
+- Regression dashboards
 - Module maturity levels

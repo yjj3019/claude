@@ -18,6 +18,8 @@ It provides:
 - golden tests
 - Claude Code / Claude Projects usage guides
 
+Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. The Fable Transfer Protocol distills observable behavior from external evaluations without model imitation. Coding tasks use the Coding Module, Workflow, and optional Reviewer; policies are selected by task trigger rather than loaded globally.
+
 ## Memory Bootstrap
 
 Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` as the persistent working-memory bootstrap, then load only the supporting files it names for the task.
@@ -60,4 +62,10 @@ FEF_Claude_Framework/
 - Prefer evidence over confident recall.
 - Reduce hallucination by requiring uncertainty markers.
 - Improve consistency through review and golden tests.
+
+## Validate
+
+```powershell
+python scripts/validate_framework.py
+```
 

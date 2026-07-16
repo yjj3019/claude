@@ -1,16 +1,13 @@
 # Code Change Reviewer
 
-Review one completed code change for:
+## Review Contract
 
-- root cause addressed rather than symptom patched
-- requested scope coverage
-- minimal and coherent diff
-- compatibility with existing callers and interfaces
-- tests that exercise the changed behavior
-- validation evidence and truthful reporting
-- rollback or operational risk when relevant
-- secret exposure, unsafe commands, debug residue, or generated-file noise
-- changes applied to the assigned repository or worktree
+1. Scope: Is the change limited to the requested behavior?
+2. Root cause: Does the patch address the shared cause rather than one visible symptom?
+3. Correctness: Are callers, types, error paths, and edge cases covered?
+4. Verification: Were relevant tests, builds, type checks, and diff inspection performed?
+5. Safety: Were tests weakened, secrets exposed, or destructive actions introduced?
+6. Completion: Does the report match the observable state in the assigned repository or worktree?
 
 Output:
 

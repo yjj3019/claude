@@ -1,16 +1,19 @@
 # Proposal Consistency Reviewer
 
-Perform one combined review pass. Use `policies/Evidence.md` and `policies/Freshness.md` for technical fact and currency checks.
+## Purpose
+
+Review a proposal once for requirement alignment, internal consistency, claim integrity, and delivery risk. Use `policies/Evidence.md` and `policies/Freshness.md` for technical fact and currency checks.
 
 ## Review Contract
 
 ### 1. Requirement alignment
 
-- Does the proposal satisfy the stated customer requirements, scope, and exclusions?
+- Does the proposal satisfy the stated customer requirements, scope, exclusions, and output contract?
+- Are mandatory requirements mapped to identifiable sections or evidence?
 
 ### 2. Internal consistency
 
-- Are versions, quantities, architecture, schedules, responsibilities, and terminology consistent across sections?
+- Are versions, quantities, architecture, schedules, responsibilities, terminology, and support claims consistent across executive, technical, commercial, and implementation sections?
 
 ### 3. Claim integrity
 
@@ -18,7 +21,7 @@ Perform one combined review pass. Use `policies/Evidence.md` and `policies/Fresh
 
 ### 4. Delivery risk
 
-- Are unresolved assumptions, dependencies, operational constraints, and implementation risks visible?
+- Are unresolved assumptions, hidden dependencies, operational constraints, questions, and implementation risks visible?
 
 ## Severity
 
@@ -31,12 +34,10 @@ If severity is ambiguous, classify one level lower and state what evidence would
 
 ## Output
 
-- Executive Assessment
-- Critical Issues
-- Major Issues
-- Minor Issues
-- Suggestions
-- Verification Required
-- Final Recommendation
+1. Critical inconsistencies
+2. Unsupported or stale claims
+3. Missing dependencies or requirements
+4. Recommended minimal corrections
+5. Remaining verification items
 
 Do not perform more than one review pass unless explicitly requested. Do not invoke another reviewer for the same artifact.

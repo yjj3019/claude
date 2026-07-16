@@ -40,19 +40,22 @@ def validate_required_files(errors: list[str]) -> None:
 
 
 def validate_references(errors: list[str]) -> None:
-    for source in [CLAUDE, LOADING_MAP]:
-        if not source.is_file():
-            continue
-        text = source.read_text(encoding="utf-8")
-        for rel in sorted(set(PATH_RE.findall(text))):
-            if not (ROOT / rel).is_file():
-                fail(f"{source.relative_to(ROOT)} references missing file: {rel}", errors)
+    for source in ROOT.rglob("*.md"):
+        text = source.read_text(encoding="utf-8-sig")
+        for line_number, line in enumerate(text.splitlines(), 1):
+            for rel in PATH_RE.findall(line):
+                if not (ROOT / rel).is_file():
+                    fail(f"{source.relative_to(ROOT)}:{line_number} references missing file: {rel}", errors)
 
 
 def validate_loading_map(errors: list[str]) -> None:
     if not LOADING_MAP.is_file():
         return
-    task_map = LOADING_MAP.read_text(encoding="utf-8").split("## Task Map", 1)[1].split("\n## ", 1)[0]
+    text = LOADING_MAP.read_text(encoding="utf-8")
+    if "## Task Map" not in text:
+        fail("docs/loading-map.md: missing Task Map section", errors)
+        return
+    task_map = text.split("## Task Map", 1)[1].split("\n## ", 1)[0]
     lines = task_map.splitlines()
     rows = [line for line in lines if line.startswith("|") and "---" not in line]
     for row in rows[2:]:
@@ -70,6 +73,12 @@ def validate_loading_map(errors: list[str]) -> None:
         for category, limit in LIMITS.items():
             if counts[category] > limit:
                 fail(f"{task}: {category} count {counts[category]} exceeds limit {limit}", errors)
+        if task == "Proposal consistency check" and refs.count("reviewers/ProposalConsistencyReviewer.md") != 1:
+            fail("Proposal consistency check must use only reviewers/ProposalConsistencyReviewer.md", errors)
+        if task == "Code modification":
+            for rel in ["modules/Coding.md", "workflows/CodingWorkflow.md"]:
+                if rel not in refs:
+                    fail(f"Code modification route missing: {rel}", errors)
 
 
 def validate_golden_tests(errors: list[str]) -> None:
@@ -98,6 +107,13 @@ def validate_runtime_terms(errors: list[str]) -> None:
                 fail(f"prohibited model-specific Runtime term in {source.relative_to(ROOT)}: {term}", errors)
 
 
+def validate_no_wrapper_policy(errors: list[str]) -> None:
+    prohibited = {"operationalintegrity", "corepolicyset"}
+    for path in (ROOT / "policies").glob("*.md"):
+        if re.sub(r"[^a-z]", "", path.stem.lower()) in prohibited:
+            fail(f"wrapper policy bypass is prohibited: {path.relative_to(ROOT)}", errors)
+
+
 def main() -> int:
     errors: list[str] = []
     validate_required_files(errors)
@@ -105,6 +121,7 @@ def main() -> int:
     validate_loading_map(errors)
     validate_golden_tests(errors)
     validate_runtime_terms(errors)
+    validate_no_wrapper_policy(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:

@@ -11,12 +11,13 @@ This repository is a reusable guidance root for Claude-oriented engineering work
 ## Guidance Layout
 
 - `kernel/` contains always-on reasoning behavior.
-- `policies/` contains evidence, decision, review, writing, calibration, and thinking rules.
-- `modules/` contains task-specific behavior.
+- `policies/` includes trigger-loaded Evidence, FileHandling, ToolExecution, and Freshness rules.
+- `modules/` contains task-specific behavior, including the Coding pack.
 - `domains/` contains domain-specific knowledge packs.
 - `reviewers/` contains focused review prompts.
 - `workflows/` contains reusable task workflows.
 - `tests/` contains golden tests and fixtures.
+- `scripts/validate_framework.py` checks framework structure and routing.
 
 ## Use Rule
 

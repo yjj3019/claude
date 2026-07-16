@@ -1,4 +1,9 @@
 ﻿work/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.coverage
+.tmp/
+temp/
+*.zip
 

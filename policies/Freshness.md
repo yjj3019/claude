@@ -36,4 +36,5 @@ For version-sensitive claims, record the narrowest relevant scope:
 - Do not infer current support status from an old document or community discussion.
 - When current verification is unavailable, state the limitation and mark the claim `[unverified]`; do not present remembered status as current fact.
 - If the user explicitly prohibits external lookup, respect that constraint and identify which claims remain unverified.
+- Distinguish current support policy from observed technical behavior.
 - Freshness determines when to verify. `policies/Evidence.md` determines which evidence to trust.

@@ -434,17 +434,17 @@ Minimal rule:
 - Bug fix = failing reproduction/check + root-cause fix + one same-pattern scan.
 
 Target FEF file:
-- `reviewers/CodeReviewer.md` only if code review becomes a supported FEF task.
+- `reviewers/CodeChangeReviewer.md` when code review is the selected FEF task.
 - Main coding behavior belongs in the runtime harness, not duplicated in FEF.
 
 Test method:
-- Future GT015 code fixture.
+- Coding Golden Tests 012-014.
 
 Do not add:
-- Do not create a full coding module until GT015 exists.
+- Do not duplicate shared file and tool rules inside the Coding pack.
 
 Status:
-- Candidate
+- Promoted to the Coding Module, Workflow, and Code Change Reviewer.
 
 ## Minimal Promotion Queue
 
