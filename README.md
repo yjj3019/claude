@@ -55,6 +55,8 @@ FEF_Claude_Framework/
 └── examples/
 ```
 
+Naming note: FEF `workflows/` contains Markdown task procedures loaded as prompts. Claude Code `.claude/workflows/` contains executable dynamic-workflow scripts. They are unrelated, and FEF does not ship dynamic workflows.
+
 ## Design Philosophy
 
 - Keep the kernel small.

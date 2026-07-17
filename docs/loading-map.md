@@ -2,6 +2,8 @@
 
 This file selects task-specific FEF packs. It is a routing table, not a new reasoning layer.
 
+Here, `workflows/` means Markdown task procedures loaded as prompts, not executable Claude Code `.claude/workflows/` dynamic workflows.
+
 ## Load Limits
 
 Maximum load per task:
@@ -27,7 +29,7 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 | Technical blog post | `modules/Blog.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy posts | Optional `reviewers/TechnicalReviewer.md` for technical claims | `policies/Writing.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Prompt review | `modules/PromptEngineering.md` | None | `workflows/PromptWorkflow.md` | `reviewers/PromptReviewer.md` | `policies/Thinking.md`; `policies/Review.md`; optional `policies/Evidence.md` |
 | Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | `workflows/CodingWorkflow.md` | Optional `reviewers/CodeChangeReviewer.md` for substantial or high-risk changes | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
-| File-backed technical analysis | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
+| File-backed technical analysis (manual-selection only; no keyword route) | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
 | Current-version research | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
 
 ## Selection Rules

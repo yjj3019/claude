@@ -13,6 +13,7 @@
     {
       "id": "proposal_consistency",
       "label": "Proposal consistency check",
+      "loading_map_tasks": ["Proposal consistency check"],
       "keywords": ["proposal consistency", "consistency review", "제안서 일관성", "제안서 검토"],
       "module": "modules/Proposal.md",
       "workflow": "workflows/ProposalWorkflow.md",
@@ -23,6 +24,7 @@
     {
       "id": "rca",
       "label": "Linux/RHEL RCA",
+      "loading_map_tasks": ["Linux/RHEL RCA"],
       "keywords": ["root cause", "incident", "outage", "rca", "장애 원인", "장애 분석", "근본 원인"],
       "module": "modules/RCA.md",
       "workflow": "workflows/RCAWorkflow.md",
@@ -33,6 +35,7 @@
     {
       "id": "coding",
       "label": "Code modification",
+      "loading_map_tasks": ["Code modification"],
       "keywords": ["fix code", "bug fix", "debug", "patch", "코드 수정", "버그", "디버그", "최소 변경"],
       "module": "modules/Coding.md",
       "workflow": "workflows/CodingWorkflow.md",
@@ -43,6 +46,7 @@
     {
       "id": "proposal",
       "label": "Proposal",
+      "loading_map_tasks": ["RHEL proposal"],
       "keywords": ["proposal", "rfp", "제안서", "제안 요청"],
       "module": "modules/Proposal.md",
       "workflow": "workflows/ProposalWorkflow.md",
@@ -53,6 +57,7 @@
     {
       "id": "research",
       "label": "Current-version research",
+      "loading_map_tasks": ["Technical research brief", "Current-version research"],
       "keywords": ["research", "release impact", "new feature", "current version", "기술 조사", "신규 기능", "최신 버전"],
       "module": "modules/Research.md",
       "workflow": "workflows/ResearchWorkflow.md",
@@ -63,6 +68,7 @@
     {
       "id": "manual",
       "label": "Operations manual",
+      "loading_map_tasks": ["RHEL operations manual"],
       "keywords": ["operations manual", "runbook", "sop", "운영 매뉴얼", "절차서"],
       "module": "modules/Manual.md",
       "workflow": "workflows/ManualWorkflow.md",
@@ -73,11 +79,34 @@
     {
       "id": "prompt_review",
       "label": "Prompt review",
+      "loading_map_tasks": ["Prompt review"],
       "keywords": ["prompt review", "improve prompt", "프롬프트 검토", "프롬프트 개선"],
       "module": "modules/PromptEngineering.md",
       "workflow": "workflows/PromptWorkflow.md",
       "reviewer": "reviewers/PromptReviewer.md",
       "policies": ["policies/Thinking.md", "policies/Review.md"],
+      "risk_level": "low"
+    },
+    {
+      "id": "architecture_review",
+      "label": "OpenShift architecture review",
+      "loading_map_tasks": ["OpenShift architecture review"],
+      "keywords": ["architecture review", "아키텍처 검토", "아키텍처 리뷰"],
+      "module": "modules/Architecture.md",
+      "workflow": "workflows/ArchitectureWorkflow.md",
+      "reviewer": "reviewers/ArchitectureReviewer.md",
+      "policies": ["policies/Thinking.md", "policies/Evidence.md", "policies/Review.md"],
+      "risk_level": "medium"
+    },
+    {
+      "id": "technical_blog",
+      "label": "Technical blog post",
+      "loading_map_tasks": ["Technical blog post"],
+      "keywords": ["blog", "블로그"],
+      "module": "modules/Blog.md",
+      "workflow": "workflows/ResearchWorkflow.md",
+      "reviewer": "reviewers/TechnicalReviewer.md",
+      "policies": ["policies/Writing.md", "policies/Evidence.md"],
       "risk_level": "low"
     }
   ]

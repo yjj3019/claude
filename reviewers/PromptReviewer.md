@@ -1,5 +1,9 @@
 # Prompt Reviewer
 
+## Purpose
+
+Review a prompt once for clarity, bounded behavior, and measurable output requirements.
+
 Review for:
 
 - ambiguity
