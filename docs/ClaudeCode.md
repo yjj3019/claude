@@ -16,6 +16,8 @@ project-root/
 
 Start Claude Code from `project-root/` so it can discover `CLAUDE.md` and its relative Pack paths. Keep the copied directory layout intact.
 
+Naming note: FEF `workflows/` contains Markdown task procedures loaded as prompts. Claude Code `.claude/workflows/` contains executable dynamic-workflow scripts. They are unrelated, and FEF does not ship dynamic workflows.
+
 Mention modules explicitly in the prompt:
 
 - "Use Proposal Module."

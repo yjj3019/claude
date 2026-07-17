@@ -2,6 +2,8 @@
 
 This file selects task-specific FEF packs. It is a routing table, not a new reasoning layer.
 
+Here, `workflows/` means Markdown task procedures loaded as prompts, not executable Claude Code `.claude/workflows/` dynamic workflows.
+
 ## Load Limits
 
 Maximum load per task:
