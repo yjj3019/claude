@@ -6,6 +6,7 @@ import re
 import sys
 from pathlib import Path
 
+from generate_agents import AGENTS, expected_agents
 from sync_kernel import synchronized_text
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,25 @@ def validate_inlined_kernel(errors: list[str]) -> None:
         return
     if text != expected:
         fail("CLAUDE.md inlined Kernel is out of sync; run python scripts/sync_kernel.py", errors)
+
+
+def validate_generated_agents(errors: list[str]) -> None:
+    try:
+        expected = expected_agents()
+    except ValueError as error:
+        fail(str(error), errors)
+        return
+    actual = {path.name: path.read_text(encoding="utf-8-sig") for path in AGENTS.glob("*.md")} if AGENTS.is_dir() else {}
+    missing = sorted(set(expected) - set(actual))
+    extra = sorted(set(actual) - set(expected))
+    stale = sorted(name for name in expected.keys() & actual.keys() if expected[name] != actual[name])
+    if missing or extra or stale:
+        details = "; ".join(filter(None, [
+            f"missing: {', '.join(missing)}" if missing else "",
+            f"extra: {', '.join(extra)}" if extra else "",
+            f"stale: {', '.join(stale)}" if stale else "",
+        ]))
+        fail(f"generated reviewer agents are out of sync ({details}); run python scripts/generate_agents.py", errors)
 
 
 def validate_references(errors: list[str]) -> None:
@@ -144,6 +164,7 @@ def main() -> int:
     errors: list[str] = []
     validate_required_files(errors)
     validate_inlined_kernel(errors)
+    validate_generated_agents(errors)
     validate_references(errors)
     validate_loading_map(errors)
     validate_golden_tests(errors)

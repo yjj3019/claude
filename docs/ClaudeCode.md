@@ -23,3 +23,7 @@ Mention modules explicitly in the prompt:
 - "Use RHEL Domain Pack."
 
 Before use, run `python scripts/validate_repository.py` in the framework repository. For task previews, run `python scripts/detect_task.py --task "..."`; the result is advisory, not an automatic replacement for task judgment.
+
+## Native Reviewer Subagents
+
+Reviewer prompts are available as read-only Claude Code subagents such as `@agent-technical-reviewer`. Files in `reviewers/` remain the source of truth and continue to work unchanged in Claude Projects. Run `python scripts/generate_agents.py` after editing a reviewer to synchronize `.claude/agents/`.
