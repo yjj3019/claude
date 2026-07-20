@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.
+- Distinguished checkpoint verification from one-time artifact review and documented single-session, subagent, team, and external-automation selection.
+- Added model/effort operating examples and Golden Test 024 for proportional runtime governance.
 - Added deterministic Korean/English task routing with JSON output, safe unmapped fallback, Pack-path checks, and load-limit validation.
 - Added repository and Golden Test validate-only harnesses, coverage metadata, Scorecard anchors, a critical-error gate, and JSON result schema.
 - Clarified Reviewer selection/execution, Integrity versus Preference Policy precedence, and external-facing wording for unverified claims.

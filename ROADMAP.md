@@ -31,6 +31,7 @@
 - Repository and Golden Test validate-only harness
 - Coverage metadata, Scorecard anchors, and JSON result schema
 - Expanded onboarding, CI, and release process
+- Proportional execution routing and checkpoint-verifier separation
 
 ## Planned
 
