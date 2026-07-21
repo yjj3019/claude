@@ -64,15 +64,19 @@ def analyze(candidates: list[dict], references: list[dict], *, ngram_size: int, 
                 "exact_hash_match": exact_hash, "normalized_ngram_overlap_count": len(overlap),
                 "minhash_similarity": round(similarity, 6), "failed": pair_failed,
             })
+    semantic = {"status": "not_run", "reason": "no_local_embedding_evidence"}
     return {
         "valid": not failed,
+        "complete": False,
+        "promotion_eligible": False,
+        "promotion_blockers": ["semantic_similarity_not_run", "private_holdout_provenance_not_verified"],
         "candidate_count": len(candidates), "reference_count": len(references),
         "ngram_size": ngram_size, "minhash_similarity_ceiling": ceiling,
         "canary_hits": [
             {"candidate_path": item["path"], "values": [c for c in canaries if c.casefold() in item["text"].casefold()]}
             for item in candidates if any(c.casefold() in item["text"].casefold() for c in canaries)
         ],
-        "semantic_similarity": {"status": "not_run", "reason": "no_local_embedding_evidence"},
+        "semantic_similarity": semantic,
         "pairs": pairs,
     }
 

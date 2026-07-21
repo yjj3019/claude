@@ -65,6 +65,8 @@ Keep four provenance classes separate:
 
 Run exact-hash, normalized n-gram, MinHash, and semantic-similarity checks before
 promoting a result. Leaked cases remain diagnostic but do not count toward GO.
+The tracked public-smoke diagnostic baseline is documented in
+`docs/fable-leakage-baseline.md`; it is not private-holdout certification.
 
 ## Run Controls
 

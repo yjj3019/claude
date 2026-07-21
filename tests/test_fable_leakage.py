@@ -18,6 +18,8 @@ class FableLeakageTest(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         result = analyze(candidates, references, ngram_size=3, ceiling=.8, canaries=[])
         self.assertTrue(result["valid"])
+        self.assertFalse(result["complete"])
+        self.assertFalse(result["promotion_eligible"])
         self.assertEqual(result["semantic_similarity"]["status"], "not_run")
 
     def test_ngram_overlap_fails(self):
