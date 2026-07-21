@@ -1,0 +1,18 @@
+{
+  "manifest_version": "1.0",
+  "dataset_id": "replace-with-private-dataset-id",
+  "created_at": "YYYY-MM-DD",
+  "custodian_id": "anonymous-custodian-id",
+  "entries": [
+    {
+      "scenario_id": "PRIVATE-001",
+      "suite": "evidence",
+      "fixture_path": "fixtures/PRIVATE-001.md",
+      "sha256": "replace-with-64-lowercase-hex",
+      "provenance": "private_holdout",
+      "independently_authored": true,
+      "exposed_to_distillation": false,
+      "canary_sha256": "replace-with-hash-of-secret-canary-or-null"
+    }
+  ]
+}

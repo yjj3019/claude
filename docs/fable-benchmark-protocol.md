@@ -67,6 +67,10 @@ Run exact-hash, normalized n-gram, MinHash, and semantic-similarity checks befor
 promoting a result. Leaked cases remain diagnostic but do not count toward GO.
 The tracked public-smoke diagnostic baseline is documented in
 `docs/fable-leakage-baseline.md`; it is not private-holdout certification.
+Private fixtures and their manifest stay under `.local/fable/holdout/`. Start from
+`config/fable-holdout-manifest.example.json`, store only canary hashes in the
+manifest, and validate it with `scripts/validate_fable_holdout.py`. The example is
+structural documentation and is not a real holdout dataset.
 
 ## Run Controls
 
