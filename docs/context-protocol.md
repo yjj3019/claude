@@ -94,3 +94,9 @@ For long or multi-stage tasks:
 3. After tool calls, external results, or major context shifts, verify that the next action still serves the original objective.
 4. Do not silently replace earlier user constraints with later assumptions.
 5. Before delivery, compare the result against the original task contract.
+
+## Checkpoint Verification
+
+For long or multi-stage work, a checkpoint verifier may compare the current state with the original task contract. It reports only pass/fail, missing requirements, observed file or command evidence, and scope drift. It does not rewrite the deliverable or judge prose quality.
+
+A reviewer is different: it evaluates a completed draft or artifact once for task-specific quality. Do not send reviewer output through another reviewer. Use checkpoint verification during execution and at the completion gate; use a reviewer only after a draft exists and only when task risk justifies it.

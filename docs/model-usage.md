@@ -22,6 +22,30 @@ Use `docs/fable-transfer-protocol.md` when Fable5 feedback is used to improve Op
 | Reviewer | technical correctness, proposal logic, evidence discipline, risk review, contradiction detection | rewriting everything when a targeted review is enough |
 | Architect | operating model, trade-off analysis, migration strategy, domain framing | cosmetic edits |
 
+## Execution Shape
+
+Choose the smallest shape that fits the dependency structure:
+
+| Shape | Use when | Avoid when |
+|---|---|---|
+| Single session | Small, sequential, tightly coupled work with a clear target | Independent work would otherwise block the main task |
+| Parallel subagents | Research, repository scans, comparisons, or other independent subtasks | The work is sequential or agents would edit the same files |
+| Agent team | Peers must exchange evidence, challenge competing hypotheses, or coordinate directly | Ordinary delegation and aggregation are enough |
+| External automation | Steps are stable, repeated, triggered externally, or must run unattended | The task is a one-off Markdown workflow |
+
+Keep Markdown files under `workflows/` distinct from executable external automation. A project lesson remains local until repeated evidence, a clear trigger, and a removal condition justify broader promotion; update an existing lesson rather than duplicating it.
+
+## Model and Effort Examples
+
+Model availability and names vary by platform and release; treat these as operating examples, not API contracts.
+
+| Work | Model class | Effort |
+|---|---|---|
+| Simple extraction or recording | Lowest-cost capable model | low |
+| General writing or implementation | Sonnet-class model | medium |
+| Technical judgment or independent review | Opus-class model | high |
+| Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
+
 ## Recommended Flow
 
 For substantial enterprise artifacts:
