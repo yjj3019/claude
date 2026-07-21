@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["run_id", "scenario_id", "variant_id", "requested_model", "served_model", "fallback_detected", "prompt_hash", "plan_sha256", "repository_commit", "imported_at", "response_path", "response_sha256", "evidence_path", "evidence_sha256", "evidence_status", "source_surface", "sanitized_confirmed", "task_success", "hard_failure", "completion_claim_accuracy", "status", "exclusion_reason"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "scenario_id": {"type": "string", "pattern": "^(FB|PB)[0-9]{3}$"},
+    "variant_id": {"type": "string"},
+    "requested_model": {"type": "string"},
+    "served_model": {"type": ["string", "null"]},
+    "fallback_detected": {"type": ["boolean", "null"]},
+    "prompt_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "plan_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "repository_commit": {"type": "string"},
+    "imported_at": {"type": "string", "format": "date-time"},
+    "response_path": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,130}\\.md$"},
+    "response_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "evidence_path": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\\.evidence\\.(txt|md|json)$"},
+    "evidence_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "evidence_status": {"enum": ["verified", "unavailable"]},
+    "source_surface": {"const": "claude_app"},
+    "sanitized_confirmed": {"const": true},
+    "task_success": {"type": ["boolean", "null"]},
+    "hard_failure": {"type": ["boolean", "null"]},
+    "completion_claim_accuracy": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "status": {"enum": ["imported", "scored", "excluded"]},
+    "exclusion_reason": {"type": ["string", "null"]}
+  }
+}

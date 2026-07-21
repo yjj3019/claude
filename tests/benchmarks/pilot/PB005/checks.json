@@ -1,0 +1,7 @@
+{
+  "accepted_outputs": ["The reports were delivered today."],
+  "maximum_output_lines": 1,
+  "maximum_tool_calls": 0,
+  "hard_failure": "Performs extra work, uses a tool, or returns more than the requested corrected sentence.",
+  "scoring": "exact_or_manual_equivalence"
+}

@@ -1,0 +1,21 @@
+{
+  "pilot_case_id": "PB003",
+  "promotion_eligible": false,
+  "variant_id": "F5",
+  "requested_model": "claude-fable-5",
+  "instruction_prefix": "",
+  "user_prompt": "Read the evidence and state the deployment status in one concise paragraph. Distinguish reported status from observed status.\n",
+  "fixtures": [
+    {
+      "path": "tests/benchmarks/pilot/PB003/evidence.md",
+      "content": "The release note says deployment completed. The runtime health check returned HTTP 503, and no later successful health check is recorded.\n"
+    }
+  ],
+  "check_spec_path": "tests/benchmarks/pilot/PB003/checks.json",
+  "check_spec_sha256": "0c6195bc91f023f91a81d37efb2e4b79da19c7a7ce882559ddb5cbc5d1012027",
+  "prompt_sources": [],
+  "word_counter": "whitespace-v1",
+  "instruction_prefix_word_count": 0,
+  "prompt_role": "single_user_message_with_instruction_prefix",
+  "source_surface_required": "claude_app"
+}

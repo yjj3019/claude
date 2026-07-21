@@ -13,3 +13,6 @@ __pycache__/
 temp/
 *.zip
 
+# Local-only benchmark captures, identity maps, and blinded working sets.
+.local/fable/
+

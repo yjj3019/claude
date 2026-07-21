@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["benchmark_id", "version", "primary_effects", "reference_only", "negative_control", "manual_execution", "variants", "execution", "metrics", "gates", "leakage_checks", "pilot_cases", "scenarios"],
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_id": {"type": "string", "pattern": "^FEF-FABLE-COMPARE-[0-9]{3}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "primary_effects": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+    "reference_only": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "negative_control": {
+      "type": "object", "additionalProperties": false,
+      "required": ["artifact_template", "maximum_word_count_difference_percent", "must_not_contain_required_behavior_terms", "record_prompt_hash", "promotion_eligible", "purpose", "construction", "validation_status"],
+      "properties": {
+        "artifact_template": {"type": "string"},
+        "maximum_word_count_difference_percent": {"type": "number", "minimum": 0, "maximum": 10},
+        "must_not_contain_required_behavior_terms": {"const": true},
+        "record_prompt_hash": {"const": true},
+        "promotion_eligible": {"const": false},
+        "purpose": {"const": "attention_load_diagnostic_only"},
+        "construction": {"const": "natural_neutral_corpus"},
+        "validation_status": {"const": "candidate_not_promotion_gate"}
+      }
+    },
+    "manual_execution": {"type": "object"},
+    "variants": {
+      "type": "array", "minItems": 7,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "model", "framework", "role", "prompt_sources"],
+        "properties": {
+          "id": {"type": "string"}, "model": {"type": "string"},
+          "framework": {"enum": ["reference", "off", "kernel", "routed", "negative_control"]},
+          "role": {"enum": ["reference", "baseline", "treatment", "control"]},
+          "prompt_sources": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "execution": {"type": "object"},
+    "metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["definitions", "exploratory", "unit_of_analysis", "repetitions_role", "pairing_rule", "planned_run_accounting", "excluded_run_rule"],
+      "properties": {
+        "definitions": {"type": "object", "minProperties": 5},
+        "exploratory": {"type": "array", "items": {"type": "string"}},
+        "unit_of_analysis": {"const": "independent_scenario_fixture"},
+        "repetitions_role": {"const": "reliability_estimation_only"},
+        "pairing_rule": {"const": "compare_condition_summaries_within_scenario_not_run_labels"},
+        "planned_run_accounting": {"const": "all_planned_runs_reported"},
+        "excluded_run_rule": {"const": "report_primary_bound_as_failure_and_secondary_complete_case"}
+      }
+    },
+    "gates": {"type": "object"},
+    "leakage_checks": {"type": "object"},
+    "pilot_cases": {
+      "type": "array", "minItems": 2,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "title", "promotion_eligible", "user_prompt_path", "fixture_paths", "check_spec_path", "routed_prompt_sources"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^PB[0-9]{3}$"},
+          "title": {"type": "string", "minLength": 1},
+          "promotion_eligible": {"const": false},
+          "user_prompt_path": {"type": "string"},
+          "fixture_paths": {"type": "array", "items": {"type": "string"}},
+          "check_spec_path": {"type": "string"},
+          "routed_prompt_sources": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        }
+      }
+    },
+    "scenarios": {
+      "type": "array", "minItems": 14,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "suite", "difficulty", "provenance", "required_behaviors", "hard_failures", "automated_checks"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^FB[0-9]{3}$"},
+          "title": {"type": "string", "minLength": 1},
+          "suite": {"type": "string", "minLength": 1},
+          "difficulty": {"enum": ["easy", "medium", "hard"]},
+          "provenance": {"enum": ["distillation", "validation", "private_holdout", "out_of_domain"]},
+          "domain": {"type": "string"},
+          "required_behaviors": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "hard_failures": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "automated_checks": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

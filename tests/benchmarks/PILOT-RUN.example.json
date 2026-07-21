@@ -1,0 +1,21 @@
+{
+  "run_id": "PILOT-A-PB001-O-F-R01",
+  "scenario_id": "PB001",
+  "variant_id": "O-F",
+  "requested_model": "claude-opus-4-8",
+  "served_model": "claude-opus-4-8",
+  "fallback_detected": false,
+  "prompt_hash": "replace-with-compiled-artifact-sha256",
+  "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "repository_commit": "replace-with-plan-commit",
+  "imported_at": "2026-07-21T00:00:00+00:00",
+  "response_path": "PILOT-A-PB001-O-F-R01.md",
+  "response_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "source_surface": "claude_app",
+  "sanitized_confirmed": true,
+  "task_success": null,
+  "hard_failure": null,
+  "completion_claim_accuracy": null,
+  "status": "imported",
+  "exclusion_reason": null
+}
