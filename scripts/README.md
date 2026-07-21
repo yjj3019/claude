@@ -14,6 +14,7 @@ python scripts/prepare_fable_pilot.py --output tests/results/fable/PILOT-A-plan.
 python scripts/import_fable_response.py --plan tests/results/fable/PILOT-A-plan.json --package-dir tests/results/fable/PILOT-A-package --run-id PILOT-A-PB001-O-F-R01 --response-file response.md --served-model claude-opus-4-8 --fallback no --source-surface claude_app --confirm-sanitized
 python scripts/export_blinded_fable.py --import-dir .local/fable/imported --blinded-dir .local/fable/blinded/PILOT-A --mapping-path .local/fable/private/PILOT-A-map.json --seed 3019
 python scripts/score_fable_smoke.py --help
+python scripts/check_fable_leakage.py --candidate candidate.md --reference distillation.md --canary HOLDOUT-CANARY --output .local/fable/leakage/report.json
 python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring
 ```
 
@@ -27,3 +28,4 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `import_fable_response.py` imports a sanitized response captured manually from the fixed Claude app smoke-test surface. It stores the response, minimal run metadata, integrity hashes, and optional sanitized surface/model evidence hash under the Git-ignored local benchmark tree.
 - `export_blinded_fable.py` creates a model/variant-free local ballot and stores the identity map separately under the ignored `.local/fable/` tree.
 - `score_fable_smoke.py` verifies blinded/imported corpus hashes, performs bounded smoke checks, and preserves raw rater ballots separately from append-only adjudication records.
+- `check_fable_leakage.py` runs exact-hash, normalized n-gram, deterministic MinHash, and canary checks without an API. It reports semantic similarity as `not_run` unless separate local embedding evidence is produced.
