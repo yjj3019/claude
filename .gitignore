@@ -1,4 +1,10 @@
 ﻿work/
+
+# Codex agent definitions, generated locally from reviewers/. FEF is consumed
+# through CLAUDE.md and reviewers/*.md; a second copy of the same reviewers in
+# another tool's format would have to be kept in sync by hand, and would drift.
+.codex/
+
 __pycache__/
 *.py[cod]
 .pytest_cache/
