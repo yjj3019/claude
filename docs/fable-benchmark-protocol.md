@@ -89,6 +89,13 @@ After collection, run `scripts/audit_fable_batch.py`. A batch is scoring-ready
 only when every planned run has exactly one hash-bound result. Missing and excluded
 runs are reported as failures in the conservative bound; response content is not
 printed by the auditor.
+Aggregate completed runs into the strict scenario-level input shown in
+`config/fable-analysis-input.example.json`, then run
+`scripts/analyze_fable_results.py`. The analyzer averages batch summaries within
+each scenario before paired effects and scenario bootstrap intervals. McNemar is
+reported only when the resulting paired scenario summaries are binary; otherwise
+it is explicitly not applicable. Statistical quality alone never marks promotion
+ready without reliability and final evidence gates.
 
 ## Run Controls
 

@@ -21,6 +21,7 @@ python scripts/prepare_fable_holdout_plan.py --manifest .local/fable/holdout/man
 python scripts/validate_fable_semantic_evidence.py --evidence .local/fable/leakage/semantic.json
 python scripts/preflight_fable_private.py --manifest .local/fable/holdout/manifest.json --lexical-evidence .local/fable/leakage/lexical.json --semantic-evidence .local/fable/leakage/semantic.json --plan .local/fable/holdout/plans/PRIVATE-A.json --canary-file .local/fable/holdout/canaries.txt
 python scripts/audit_fable_batch.py --plan .local/fable/holdout/plans/PRIVATE-A.json --import-dir .local/fable/imported/PRIVATE-A
+python scripts/analyze_fable_results.py --input .local/fable/analysis/scenario-results.json --output .local/fable/analysis/statistics.json --seed 3019
 python scripts/audit_fable_batch.py --plan .local/fable/holdout/plans/PRIVATE-A.json --import-dir .local/fable/imported/PRIVATE-A
 python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring
 ```
@@ -41,4 +42,5 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `validate_fable_semantic_evidence.py` verifies that offline semantic-similarity results are hash-bound to every candidate/reference pair and remain below the preregistered threshold. It validates evidence; it does not generate similarity scores.
 - `preflight_fable_private.py` permits manual execution only when holdout intake, recomputed lexical leakage checks, semantic evidence, and every compiled artifact bind to the same private corpus. Execution readiness never implies promotion readiness.
 - `audit_fable_batch.py` audits planned-versus-imported run coverage, metadata and response hashes, exclusions, and conservative missing-as-failure bounds without printing response content.
+- `analyze_fable_results.py` calculates scenario-level paired effects, hierarchical scenario bootstrap intervals, exact McNemar results when summaries remain binary, and Holm-adjusted p-values. Repetitions and batches are not counted as independent scenarios.
 - `audit_fable_batch.py` audits planned-versus-imported run coverage, metadata and response hashes, exclusions, and conservative missing-as-failure bounds without printing response content.
