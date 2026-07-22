@@ -2,19 +2,20 @@
 
 ## Current Status
 
-- Session closed: 2026-07-21 20:55 KST
+- Session closed: 2026-07-22 20:15 KST
 - Branch: `main`
-- Remote state: pushed through `410bdaa`
-- Fable benchmark: contract valid; 42 benchmark tests pass; PILOT-A stale check passes
-- Promotion status: not ready; actual manual runs, private holdout data, semantic leakage evidence, and two independent scored batches remain
+- Remote state: pushed through `3be73c0`
+- Fable benchmark: contract valid; 68 benchmark tests pass; PILOT-A stale check passes
+- Implemented: private holdout v1.1 intake, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, and scenario-level statistics
+- Promotion status: not ready; actual private data, local semantic evidence, manual runs, two scored batches, rater reliability, placebo validation, and final evidence gate remain
 - Ignored user file: `scratch_notion_ai_simple.md` was not modified or committed
 
 ## Next Session
 
-1. Place independently maintained private fixtures under `.local/fable/holdout/`.
-2. Create a local manifest from `config/fable-holdout-manifest.example.json` and run `scripts/validate_fable_holdout.py`.
-3. Run leakage checks with secret canaries and separately produced semantic-similarity evidence.
-4. Execute the Claude app manual batches only after the holdout intake gate passes.
+1. Implement rater-reliability calculation and the final `GO / CONDITIONAL_GO / NO_GO` evidence gate.
+2. Independently author private fixtures under `.local/fable/holdout/` and validate the v1.1 manifest.
+3. Produce local lexical, secret-canary, and offline semantic-similarity evidence; require private preflight PASS.
+4. Execute and audit two independent Claude-app batches, score blinded outputs, calculate reliability/statistics, then run the final evidence gate.
 
 ## Notion Log URL
 
