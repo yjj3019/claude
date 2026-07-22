@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 import scripts.prepare_fable_holdout_plan as compiler
 import scripts.validate_fable_holdout as holdout
+from scripts.import_fable_response import import_response
+from scripts.export_blinded_fable import export_blinded
 
 
 class FableHoldoutPlanTest(unittest.TestCase):
@@ -59,6 +61,31 @@ class FableHoldoutPlanTest(unittest.TestCase):
         self.assertTrue(any(item["path"] == "modules/Research.md" for item in artifact["source_metadata"]))
         neutral = json.loads((root / "plans" / "private-a-package" / "artifacts" / "P-0-O-N.json").read_text(encoding="utf-8"))
         self.assertEqual(len(neutral["instruction_prefix"].split()), len(artifact["instruction_prefix"].split()))
+
+    def test_compiled_run_imports_through_shared_boundary(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "plan.json"
+        plan = self.compile(root, manifest, output)
+        run = next(item for item in plan["runs"] if item["variant_id"] == "O-F")
+        response = root / "response.md"
+        response.write_text("Sanitized private benchmark response.", encoding="utf-8")
+        result = import_response(
+            plan, run_id=run["run_id"], response_file=response,
+            package_dir=root / "plan-package", output_dir=root / "imported",
+            served_model=run["requested_model"], fallback_detected=False,
+            source_surface="claude_app", sanitized_confirmed=True, allowed_root=root,
+        )
+        self.assertEqual(result["scenario_id"], run["scenario_id"])
+        self.assertEqual(result["status"], "imported")
+        export = export_blinded(
+            root / "imported", root / "blinded", root / "private" / "map.json",
+            seed=19, allowed_root=root,
+        )
+        self.assertEqual(export["eligible_responses"], 1)
+        ballot = json.loads((root / "blinded" / "ballot.json").read_text(encoding="utf-8"))
+        self.assertEqual(ballot[0]["scenario_id"], run["scenario_id"])
+        self.assertNotIn("variant_id", ballot[0])
 
     def test_rejects_underfilled_intake(self):
         temp, root, manifest = self.make_dataset(1)

@@ -9,10 +9,10 @@ import random
 from pathlib import Path
 
 try:
-    from scripts.prepare_fable_pilot import CONFIG, matched_neutral_prompt, read_sources, word_count
+    from scripts.prepare_fable_pilot import CONFIG, git_output, matched_neutral_prompt, read_sources, word_count
     from scripts.validate_fable_holdout import LOCAL_HOLDOUT, contained, validate
 except ModuleNotFoundError:  # Direct script execution places scripts/ on sys.path.
-    from prepare_fable_pilot import CONFIG, matched_neutral_prompt, read_sources, word_count
+    from prepare_fable_pilot import CONFIG, git_output, matched_neutral_prompt, read_sources, word_count
     from validate_fable_holdout import LOCAL_HOLDOUT, contained, validate
 
 
@@ -51,6 +51,7 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
     if not batch_id or any(character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for character in batch_id):
         raise ValueError("batch_id is unsafe")
     variants = config["variants"]
+    repository_commit = git_output("rev-parse", "HEAD")
     routes = {item["id"]: item for item in json.loads((CONFIG.parent / "routes.json").read_text(encoding="utf-8-sig"))["routes"]}
     package = output.with_name(f"{output.stem}-package")
     artifacts_dir = package / "artifacts"
@@ -86,13 +87,22 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
             artifact_raw = (json.dumps(artifact, ensure_ascii=False, indent=2) + "\n").encode()
             artifact_path = artifacts_dir / f"{artifact_id}.json"
             artifact_path.write_bytes(artifact_raw)
-            artifacts.append({"artifact_id": artifact_id, "path": str(artifact_path.relative_to(output.parent)), "sha256": sha256(artifact_raw)})
+            artifact_relative = str(artifact_path.relative_to(package))
+            artifact_hash = sha256(artifact_raw)
+            artifacts.append({"artifact_id": artifact_id, "path": str(artifact_path.relative_to(output.parent)), "sha256": artifact_hash})
             for repetition in range(1, repetitions + 1):
-                runs.append({"run_id": f"{batch_id}-{artifact_id}-R{repetition:02d}", "artifact_id": artifact_id})
+                runs.append({
+                    "run_id": f"{batch_id}-{artifact_id}-R{repetition:02d}", "artifact_id": artifact_id,
+                    "scenario_id": entry["scenario_id"], "variant_id": variant["id"],
+                    "requested_model": variant["model"], "artifact_path": artifact_relative,
+                    "prompt_hash": artifact_hash, "repository_commit": repository_commit,
+                    "source_surface_required": "claude_app",
+                })
     random.Random(seed).shuffle(runs)
     plan = {
         "benchmark_id": config["benchmark_id"], "dataset_id": manifest["dataset_id"], "batch_id": batch_id,
-        "seed": seed, "manifest_sha256": sha256(manifest_raw), "artifact_count": len(artifacts),
+        "seed": seed, "manifest_sha256": sha256(manifest_raw), "repository_commit": repository_commit,
+        "artifact_count": len(artifacts),
         "run_count": len(runs), "repetitions": repetitions, "artifacts": artifacts, "runs": runs,
         "surface": "claude_app", "manual_execution_only": True, "responses_imported": 0,
         "intake_gate_ready": True, "benchmark_promotion_ready": False,

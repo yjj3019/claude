@@ -151,7 +151,7 @@ def import_response(plan: dict, *, run_id: str, response_file: Path, package_dir
     status = "excluded" if exclusion_reason else "imported"
     plan_hash = sha256_bytes(json.dumps(plan, sort_keys=True, separators=(",", ":")).encode("utf-8"))
     result = {
-        "run_id": run_id, "scenario_id": run["pilot_case_id"],
+        "run_id": run_id, "scenario_id": run.get("scenario_id", run.get("pilot_case_id")),
         "variant_id": run["variant_id"], "requested_model": run["requested_model"],
         "served_model": served_model, "fallback_detected": fallback_detected,
         "prompt_hash": run["prompt_hash"], "plan_sha256": plan_hash,

@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "properties": {
     "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
-    "scenario_id": {"type": "string", "pattern": "^(FB|PB)[0-9]{3}$"},
+    "scenario_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$"},
     "variant_id": {"type": "string"},
     "requested_model": {"type": "string"},
     "served_model": {"type": ["string", "null"]},
