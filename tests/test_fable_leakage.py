@@ -21,6 +21,8 @@ class FableLeakageTest(unittest.TestCase):
         self.assertFalse(result["complete"])
         self.assertFalse(result["promotion_eligible"])
         self.assertEqual(result["semantic_similarity"]["status"], "not_run")
+        self.assertEqual(result["candidates"][0]["sha256"], candidates[0]["sha256"])
+        self.assertEqual(result["references"][0]["sha256"], references[0]["sha256"])
 
     def test_ngram_overlap_fails(self):
         temp, candidates, references = self.records("start shared phrase appears here end", "shared phrase appears here today")

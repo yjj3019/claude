@@ -71,11 +71,14 @@ def analyze(candidates: list[dict], references: list[dict], *, ngram_size: int, 
         "promotion_eligible": False,
         "promotion_blockers": ["semantic_similarity_not_run", "private_holdout_provenance_not_verified"],
         "candidate_count": len(candidates), "reference_count": len(references),
+        "candidates": [{"path": item["path"], "sha256": item["sha256"]} for item in candidates],
+        "references": [{"path": item["path"], "sha256": item["sha256"]} for item in references],
         "ngram_size": ngram_size, "minhash_similarity_ceiling": ceiling,
         "canary_hits": [
             {"candidate_path": item["path"], "values": [c for c in canaries if c.casefold() in item["text"].casefold()]}
             for item in candidates if any(c.casefold() in item["text"].casefold() for c in canaries)
         ],
+        "canary_sha256s": sorted(hashlib.sha256(item.encode("utf-8")).hexdigest() for item in canaries),
         "semantic_similarity": semantic,
         "pairs": pairs,
     }

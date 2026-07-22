@@ -18,6 +18,7 @@ python scripts/check_fable_leakage.py --candidate candidate.md --reference disti
 python scripts/validate_fable_holdout.py --manifest .local/fable/holdout/manifest.json
 python scripts/prepare_fable_holdout_plan.py --manifest .local/fable/holdout/manifest.json --output .local/fable/holdout/plans/PRIVATE-A.json --batch-id PRIVATE-A --seed 3019
 python scripts/validate_fable_semantic_evidence.py --evidence .local/fable/leakage/semantic.json
+python scripts/preflight_fable_private.py --manifest .local/fable/holdout/manifest.json --lexical-evidence .local/fable/leakage/lexical.json --semantic-evidence .local/fable/leakage/semantic.json --plan .local/fable/holdout/plans/PRIVATE-A.json --canary-file .local/fable/holdout/canaries.txt
 python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring
 ```
 
@@ -35,3 +36,4 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `validate_fable_holdout.py` validates local-only holdout provenance, hashes, containment, canary hashes, and minimum independent scenario counts without printing fixture content.
 - `prepare_fable_holdout_plan.py` compiles only intake-ready local holdouts into manual Claude-app execution artifacts. It resolves routed FEF sources from `config/routes.json` and excludes evaluator checks and canaries from the execution package.
 - `validate_fable_semantic_evidence.py` verifies that offline semantic-similarity results are hash-bound to every candidate/reference pair and remain below the preregistered threshold. It validates evidence; it does not generate similarity scores.
+- `preflight_fable_private.py` permits manual execution only when holdout intake, recomputed lexical leakage checks, semantic evidence, and every compiled artifact bind to the same private corpus. Execution readiness never implies promotion readiness.

@@ -80,6 +80,11 @@ tool, stored under `.local/fable/leakage/`, and validated with
 `scripts/validate_fable_semantic_evidence.py`. A complete result binds every
 candidate/reference pair to file hashes; validation alone never marks the overall
 benchmark promotion-ready.
+Before opening any manual Claude-app run, execute
+`scripts/preflight_fable_private.py`. It recomputes lexical checks and requires the
+holdout manifest, semantic matrix, reference corpus, and compiled plan to share
+the same file hashes. `execution_ready` means only that collection may start; it
+does not satisfy scoring, independent-batch, reliability, or promotion gates.
 
 ## Run Controls
 
