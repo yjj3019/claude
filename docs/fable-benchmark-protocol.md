@@ -85,6 +85,10 @@ Before opening any manual Claude-app run, execute
 holdout manifest, semantic matrix, reference corpus, and compiled plan to share
 the same file hashes. `execution_ready` means only that collection may start; it
 does not satisfy scoring, independent-batch, reliability, or promotion gates.
+After collection, run `scripts/audit_fable_batch.py`. A batch is scoring-ready
+only when every planned run has exactly one hash-bound result. Missing and excluded
+runs are reported as failures in the conservative bound; response content is not
+printed by the auditor.
 
 ## Run Controls
 
