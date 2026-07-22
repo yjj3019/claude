@@ -28,6 +28,45 @@ def contained(path: Path, root: Path) -> bool:
         return False
 
 
+def validate_artifact(spec: object, *, label: str, manifest_dir: Path, errors: list[str], require_json_object: bool = False) -> None:
+    if not isinstance(spec, dict):
+        errors.append(f"{label} must contain path and sha256")
+        return
+    relative, expected = spec.get("path"), spec.get("sha256")
+    if not isinstance(expected, str) or not SHA256.fullmatch(expected):
+        errors.append(f"{label}.sha256 must be lowercase SHA-256")
+    if not isinstance(relative, str) or Path(relative).is_absolute():
+        errors.append(f"{label}.path must be relative")
+        return
+    path = (manifest_dir / relative).resolve()
+    if not contained(path, LOCAL_HOLDOUT):
+        errors.append(f"{label}.path escapes local holdout root")
+        return
+    allowed = {".json"} if require_json_object else {".md", ".txt", ".json"}
+    if path.suffix.lower() not in allowed or not path.is_file():
+        errors.append(f"{label}.path must reference an existing allowed UTF-8 file")
+        return
+    raw = path.read_bytes()
+    if len(raw) > 1_000_000:
+        errors.append(f"{label} exceeds 1 MB")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        errors.append(f"{label} is not UTF-8")
+        text = ""
+    if any(pattern.search(raw) for pattern in SECRET_PATTERNS):
+        errors.append(f"{label} contains a possible credential")
+    if isinstance(expected, str) and SHA256.fullmatch(expected) and hashlib.sha256(raw).hexdigest() != expected:
+        errors.append(f"{label} hash mismatch")
+    if require_json_object and text:
+        try:
+            parsed = json.loads(text)
+            if not isinstance(parsed, dict):
+                errors.append(f"{label} must be a JSON object")
+        except json.JSONDecodeError:
+            errors.append(f"{label} is invalid JSON")
+
+
 def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
     errors, warnings = [], []
     resolved_manifest = manifest_path.resolve()
@@ -38,8 +77,8 @@ def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         return {"valid": False, "intake_gate_ready": False, "errors": [f"manifest unreadable: {exc}"], "warnings": []}
     entries = data.get("entries")
-    if data.get("manifest_version") != "1.0" or not isinstance(entries, list) or not entries:
-        errors.append("manifest_version 1.0 and a non-empty entries array are required")
+    if data.get("manifest_version") != "1.1" or not isinstance(entries, list) or not entries:
+        errors.append("manifest_version 1.1 and a non-empty entries array are required")
         entries = entries if isinstance(entries, list) else []
     for field in ("dataset_id", "custodian_id"):
         if not isinstance(data.get(field), str) or not SAFE_ID.fullmatch(data[field]):
@@ -66,34 +105,17 @@ def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
             suites[suite] += 1
         if entry.get("provenance") != "private_holdout" or entry.get("independently_authored") is not True or entry.get("exposed_to_distillation") is not False:
             errors.append(f"{label} lacks private, independent, unexposed provenance")
-        expected = entry.get("sha256")
         canary_hash = entry.get("canary_sha256")
-        if not isinstance(expected, str) or not SHA256.fullmatch(expected):
-            errors.append(f"{label}.sha256 must be lowercase SHA-256")
         if canary_hash is not None and (not isinstance(canary_hash, str) or not SHA256.fullmatch(canary_hash)):
             errors.append(f"{label}.canary_sha256 must be null or lowercase SHA-256")
-        relative = entry.get("fixture_path")
-        if not isinstance(relative, str) or Path(relative).is_absolute():
-            errors.append(f"{label}.fixture_path must be relative")
-            continue
-        fixture = (resolved_manifest.parent / relative).resolve()
-        if not contained(fixture, LOCAL_HOLDOUT):
-            errors.append(f"{label}.fixture_path escapes local holdout root")
-            continue
-        if fixture.suffix.lower() not in {".md", ".txt", ".json"} or not fixture.is_file():
-            errors.append(f"{label}.fixture_path must reference an existing .md/.txt/.json file")
-            continue
-        raw = fixture.read_bytes()
-        if len(raw) > 1_000_000:
-            errors.append(f"{label} fixture exceeds 1 MB")
-        try:
-            raw.decode("utf-8-sig")
-        except UnicodeDecodeError:
-            errors.append(f"{label} fixture is not UTF-8")
-        if any(pattern.search(raw) for pattern in SECRET_PATTERNS):
-            errors.append(f"{label} fixture contains a possible credential")
-        if isinstance(expected, str) and SHA256.fullmatch(expected) and hashlib.sha256(raw).hexdigest() != expected:
-            errors.append(f"{label} fixture hash mismatch")
+        validate_artifact(entry.get("user_prompt"), label=f"{label}.user_prompt", manifest_dir=resolved_manifest.parent, errors=errors)
+        validate_artifact(entry.get("check_spec"), label=f"{label}.check_spec", manifest_dir=resolved_manifest.parent, errors=errors, require_json_object=True)
+        fixture_files = entry.get("fixture_files")
+        if not isinstance(fixture_files, list):
+            errors.append(f"{label}.fixture_files must be an array (empty is allowed)")
+        else:
+            for fixture_index, fixture_spec in enumerate(fixture_files):
+                validate_artifact(fixture_spec, label=f"{label}.fixture_files[{fixture_index}]", manifest_dir=resolved_manifest.parent, errors=errors)
     underfilled = {suite: count for suite, count in suites.items() if count < minimum_per_suite}
     if underfilled:
         warnings.append(f"suites below {minimum_per_suite} independent scenarios: {underfilled}")

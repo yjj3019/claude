@@ -1,5 +1,5 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "1.1",
   "dataset_id": "replace-with-private-dataset-id",
   "created_at": "YYYY-MM-DD",
   "custodian_id": "anonymous-custodian-id",
@@ -7,8 +7,11 @@
     {
       "scenario_id": "PRIVATE-001",
       "suite": "evidence",
-      "fixture_path": "fixtures/PRIVATE-001.md",
-      "sha256": "replace-with-64-lowercase-hex",
+      "user_prompt": {"path": "PRIVATE-001/prompt.md", "sha256": "replace-with-64-lowercase-hex"},
+      "fixture_files": [
+        {"path": "PRIVATE-001/evidence.md", "sha256": "replace-with-64-lowercase-hex"}
+      ],
+      "check_spec": {"path": "PRIVATE-001/checks.json", "sha256": "replace-with-64-lowercase-hex"},
       "provenance": "private_holdout",
       "independently_authored": true,
       "exposed_to_distillation": false,

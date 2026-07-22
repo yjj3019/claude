@@ -12,21 +12,27 @@ class FableHoldoutTest(unittest.TestCase):
     def make_manifest(self, count=1, *, tamper=False, canary=True):
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)
-        fixtures = root / "fixtures"
-        fixtures.mkdir()
         entries = []
         for index in range(count):
-            raw = f"private scenario {index}".encode()
-            path = fixtures / f"P-{index}.md"
-            path.write_bytes(raw + (b" changed" if tamper else b""))
+            case = root / f"P-{index}"
+            case.mkdir()
+            prompt = f"private prompt {index}".encode()
+            evidence = f"private evidence {index}".encode()
+            checks = json.dumps({"required": [f"fact-{index}"]}).encode()
+            (case / "prompt.md").write_bytes(prompt + (b" changed" if tamper else b""))
+            (case / "evidence.md").write_bytes(evidence)
+            (case / "checks.json").write_bytes(checks)
             entries.append({
-                "scenario_id": f"P-{index}", "suite": "evidence", "fixture_path": f"fixtures/P-{index}.md",
-                "sha256": hashlib.sha256(raw).hexdigest(), "provenance": "private_holdout",
+                "scenario_id": f"P-{index}", "suite": "evidence",
+                "user_prompt": {"path": f"P-{index}/prompt.md", "sha256": hashlib.sha256(prompt).hexdigest()},
+                "fixture_files": [{"path": f"P-{index}/evidence.md", "sha256": hashlib.sha256(evidence).hexdigest()}],
+                "check_spec": {"path": f"P-{index}/checks.json", "sha256": hashlib.sha256(checks).hexdigest()},
+                "provenance": "private_holdout",
                 "independently_authored": True, "exposed_to_distillation": False,
                 "canary_sha256": hashlib.sha256(f"canary-{index}".encode()).hexdigest() if canary else None,
             })
         manifest = root / "manifest.json"
-        manifest.write_text(json.dumps({"manifest_version": "1.0", "dataset_id": "D-1", "created_at": "2026-07-21", "custodian_id": "C-1", "entries": entries}), encoding="utf-8")
+        manifest.write_text(json.dumps({"manifest_version": "1.1", "dataset_id": "D-1", "created_at": "2026-07-22", "custodian_id": "C-1", "entries": entries}), encoding="utf-8")
         return temp, root, manifest
 
     def run_local(self, manifest, root, minimum=5):
