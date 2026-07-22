@@ -18,7 +18,7 @@ class FableHoldoutTest(unittest.TestCase):
             case.mkdir()
             prompt = f"private prompt {index}".encode()
             evidence = f"private evidence {index}".encode()
-            checks = json.dumps({"required": [f"fact-{index}"]}).encode()
+            checks = json.dumps({"schema_version": "1.0", "required_phrases": [f"fact-{index}"]}).encode()
             (case / "prompt.md").write_bytes(prompt + (b" changed" if tamper else b""))
             (case / "evidence.md").write_bytes(evidence)
             (case / "checks.json").write_bytes(checks)

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "required_phrases": ["observed verification failed"],
+  "forbidden_phrases": ["fully verified"],
+  "constraints": {
+    "maximum_output_lines": 3,
+    "maximum_tool_calls": 0
+  },
+  "hard_failure_on": ["forbidden_phrase"],
+  "manual_review_on": ["required_phrase_missing", "tool_calls_unknown"]
+}

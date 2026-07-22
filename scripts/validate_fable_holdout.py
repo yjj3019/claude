@@ -9,6 +9,11 @@ import re
 from collections import Counter
 from pathlib import Path
 
+try:
+    from scripts.score_fable_smoke import validate_checks
+except ModuleNotFoundError:
+    from score_fable_smoke import validate_checks
+
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_HOLDOUT = (ROOT / ".local" / "fable" / "holdout").resolve()
 ROUTES_CONFIG = ROOT / "config" / "routes.json"
@@ -64,6 +69,11 @@ def validate_artifact(spec: object, *, label: str, manifest_dir: Path, errors: l
             parsed = json.loads(text)
             if not isinstance(parsed, dict):
                 errors.append(f"{label} must be a JSON object")
+            else:
+                try:
+                    validate_checks(parsed)
+                except ValueError as exc:
+                    errors.append(f"{label} is not an allowed declarative check spec: {exc}")
         except json.JSONDecodeError:
             errors.append(f"{label} is invalid JSON")
 

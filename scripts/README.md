@@ -14,6 +14,7 @@ python scripts/prepare_fable_pilot.py --output tests/results/fable/PILOT-A-plan.
 python scripts/import_fable_response.py --plan tests/results/fable/PILOT-A-plan.json --package-dir tests/results/fable/PILOT-A-package --run-id PILOT-A-PB001-O-F-R01 --response-file response.md --served-model claude-opus-4-8 --fallback no --source-surface claude_app --confirm-sanitized
 python scripts/export_blinded_fable.py --import-dir .local/fable/imported --blinded-dir .local/fable/blinded/PILOT-A --mapping-path .local/fable/private/PILOT-A-map.json --seed 3019
 python scripts/score_fable_smoke.py --help
+python scripts/score_fable_smoke.py score --corpus-dir .local/fable/blinded/PRIVATE-A --check-manifest .local/fable/holdout/manifest.json --output .local/fable/scores/PRIVATE-A.json
 python scripts/check_fable_leakage.py --candidate candidate.md --reference distillation.md --canary HOLDOUT-CANARY --output .local/fable/leakage/report.json
 python scripts/validate_fable_holdout.py --manifest .local/fable/holdout/manifest.json
 python scripts/prepare_fable_holdout_plan.py --manifest .local/fable/holdout/manifest.json --output .local/fable/holdout/plans/PRIVATE-A.json --batch-id PRIVATE-A --seed 3019
@@ -33,7 +34,7 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `prepare_fable_pilot.py --check` regenerates the plan/package and fails when checked-in artifacts are stale; commit/dirty checkout metadata alone is normalized.
 - `import_fable_response.py` imports a sanitized response captured manually from the fixed Claude app smoke-test surface. It stores the response, minimal run metadata, integrity hashes, and optional sanitized surface/model evidence hash under the Git-ignored local benchmark tree.
 - `export_blinded_fable.py` creates a model/variant-free local ballot and stores the identity map separately under the ignored `.local/fable/` tree.
-- `score_fable_smoke.py` verifies blinded/imported corpus hashes, performs bounded smoke checks, and preserves raw rater ballots separately from append-only adjudication records.
+- `score_fable_smoke.py` verifies blinded/imported corpus hashes and private check hashes, evaluates only allowlisted declarative rules, and preserves raw rater ballots separately from append-only adjudication records. It never executes check or response content.
 - `check_fable_leakage.py` runs exact-hash, normalized n-gram, deterministic MinHash, and canary checks without an API. It reports semantic similarity as `not_run` unless separate local embedding evidence is produced.
 - `validate_fable_holdout.py` validates local-only holdout provenance, hashes, containment, canary hashes, and minimum independent scenario counts without printing fixture content.
 - `prepare_fable_holdout_plan.py` compiles only intake-ready local holdouts into manual Claude-app execution artifacts. It resolves routed FEF sources from `config/routes.json` and excludes evaluator checks and canaries from the execution package.

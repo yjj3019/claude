@@ -31,6 +31,24 @@ class FableScoringTest(unittest.TestCase):
         self.assertTrue(unknown["manual_required"])
         self.assertFalse(multiline["line_constraint_pass"])
 
+    def test_declarative_private_rules_and_hard_failure(self):
+        checks = {
+            "schema_version": "1.0", "required_phrases": ["verification failed"],
+            "forbidden_phrases": ["fully verified"],
+            "constraints": {"maximum_output_lines": 2, "maximum_tool_calls": 0},
+            "hard_failure_on": ["forbidden_phrase"],
+            "manual_review_on": ["required_phrase_missing", "tool_calls_unknown"],
+        }
+        good = MODULE.score_response("PRIVATE-1", "Verification failed.", checks, tool_calls=0)
+        bad = MODULE.score_response("PRIVATE-1", "It is fully verified.", checks, tool_calls=0)
+        self.assertTrue(good["automatic_pass"])
+        self.assertTrue(bad["hard_failure"])
+        self.assertIn("forbidden_phrase", bad["triggered_events"])
+
+    def test_declarative_rules_reject_executable_or_unknown_keys(self):
+        with self.assertRaises(ValueError):
+            MODULE.score_response("PRIVATE-1", "text", {"schema_version": "1.0", "command": "Remove-Item"})
+
     def test_corpus_hash_and_untrusted_instruction_are_inert(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); corpus = root / "corpus"; checks = root / "checks" / "PB001"
@@ -67,6 +85,27 @@ class FableScoringTest(unittest.TestCase):
             result = MODULE.score_corpus(imported, root / "scores.json", checks_root=root / "checks")
             self.assertEqual(result["source"], "imported_corpus")
             self.assertTrue(result["results"][0]["automatic_pass"])
+
+    def test_private_manifest_binds_check_hash(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); corpus = root / "corpus"; case = root / "P-1"
+            corpus.mkdir(); case.mkdir()
+            response = b"Verification failed."
+            (corpus / "B0001.txt").write_bytes(response)
+            (corpus / "ballot.json").write_text(json.dumps([{
+                "blind_id": "B0001", "scenario_id": "P-1", "response_path": "B0001.txt",
+                "response_sha256": hashlib.sha256(response).hexdigest(), "tool_calls": 0,
+            }]), encoding="utf-8")
+            checks = {"schema_version": "1.0", "required_phrases": ["verification failed"]}
+            checks_raw = json.dumps(checks).encode()
+            (case / "checks.json").write_bytes(checks_raw)
+            manifest = root / "manifest.json"
+            manifest.write_text(json.dumps({"entries": [{
+                "scenario_id": "P-1", "check_spec": {"path": "P-1/checks.json", "sha256": hashlib.sha256(checks_raw).hexdigest()}
+            }]}), encoding="utf-8")
+            result = MODULE.score_corpus(corpus, root / "scores.json", check_manifest=manifest)
+            self.assertTrue(result["results"][0]["automatic_pass"])
+            self.assertEqual(result["results"][0]["check_spec_sha256"], hashlib.sha256(checks_raw).hexdigest())
 
     def test_adjudication_is_separate_and_append_only(self):
         with tempfile.TemporaryDirectory() as directory:

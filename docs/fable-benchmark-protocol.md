@@ -127,6 +127,10 @@ labels. Report weighted kappa or Krippendorff's alpha before adjudication.
 rater ballots. It automates only explicit lexical/exact/format checks; semantic
 equivalence and absent tool-call evidence remain `manual_required`. Adjudication is
 stored separately and requires at least two original ballot hashes.
+Private check specifications use the allowlisted schema in
+`config/fable-checks.schema.json`. Unknown keys, regular expressions, commands,
+scripts, and executable assertions are rejected. The scorer verifies each private
+check file against its manifest hash before reading its declarative rules.
 
 The current O-N/S-N controls cycle a natural, task-irrelevant descriptive corpus to
 match routed-prompt word count. They remain attention-load diagnostics and are

@@ -22,7 +22,7 @@ class FableHoldoutPlanTest(unittest.TestCase):
             values = {
                 "prompt.md": f"private prompt {index}".encode(),
                 "evidence.md": f"private evidence {index}".encode(),
-                "checks.json": json.dumps({"secret_answer": f"answer-{index}"}).encode(),
+                "checks.json": json.dumps({"schema_version": "1.0", "required_phrases": [f"answer-{index}"]}).encode(),
             }
             for name, raw in values.items():
                 (case / name).write_bytes(raw)
