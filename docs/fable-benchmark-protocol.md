@@ -75,6 +75,11 @@ An intake-ready manifest can be compiled with
 `scripts/prepare_fable_holdout_plan.py`. Each entry names a validated `route_id`;
 the compiler resolves its FEF module, policies, workflow, and reviewer from
 `config/routes.json`. Execution artifacts exclude check-spec content and canaries.
+Semantic-similarity evidence must be produced by a separately identified offline
+tool, stored under `.local/fable/leakage/`, and validated with
+`scripts/validate_fable_semantic_evidence.py`. A complete result binds every
+candidate/reference pair to file hashes; validation alone never marks the overall
+benchmark promotion-ready.
 
 ## Run Controls
 

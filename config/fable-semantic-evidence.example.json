@@ -1,0 +1,24 @@
+{
+  "evidence_version": "1.0",
+  "generated_at": "YYYY-MM-DDTHH:MM:SSZ",
+  "tool": {
+    "name": "local-semantic-similarity-tool",
+    "version": "replace-with-version",
+    "model": "replace-with-local-model-and-revision",
+    "offline": true
+  },
+  "threshold": 0.85,
+  "candidates": [
+    {"path": ".local/fable/holdout/PRIVATE-001/prompt.md", "sha256": "replace-with-64-lowercase-hex"}
+  ],
+  "references": [
+    {"path": "docs/fable-pattern-bank.md", "sha256": "replace-with-64-lowercase-hex"}
+  ],
+  "pairs": [
+    {
+      "candidate_sha256": "replace-with-candidate-sha256",
+      "reference_sha256": "replace-with-reference-sha256",
+      "similarity": 0.0
+    }
+  ]
+}
