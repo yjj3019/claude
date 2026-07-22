@@ -23,7 +23,7 @@ class FableHoldoutTest(unittest.TestCase):
             (case / "evidence.md").write_bytes(evidence)
             (case / "checks.json").write_bytes(checks)
             entries.append({
-                "scenario_id": f"P-{index}", "suite": "evidence",
+                "scenario_id": f"P-{index}", "suite": "evidence", "route_id": "research",
                 "user_prompt": {"path": f"P-{index}/prompt.md", "sha256": hashlib.sha256(prompt).hexdigest()},
                 "fixture_files": [{"path": f"P-{index}/evidence.md", "sha256": hashlib.sha256(evidence).hexdigest()}],
                 "check_spec": {"path": f"P-{index}/checks.json", "sha256": hashlib.sha256(checks).hexdigest()},

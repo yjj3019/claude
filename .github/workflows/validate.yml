@@ -21,5 +21,5 @@ jobs:
       - run: python scripts/run_golden_tests.py --validate-only
       - run: python -m unittest tests/test_harness.py
       - run: python scripts/validate_fable_benchmark.py --validate-only
-      - run: python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring tests.test_fable_leakage tests.test_fable_holdout
+      - run: python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring tests.test_fable_leakage tests.test_fable_holdout tests.test_fable_holdout_plan
       - run: python scripts/prepare_fable_pilot.py --check --output tests/results/fable/PILOT-A-plan.json

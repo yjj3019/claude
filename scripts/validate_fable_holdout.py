@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_HOLDOUT = (ROOT / ".local" / "fable" / "holdout").resolve()
+ROUTES_CONFIG = ROOT / "config" / "routes.json"
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -86,6 +87,7 @@ def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
     if not isinstance(data.get("created_at"), str) or not DATE.fullmatch(data["created_at"]):
         errors.append("created_at must use YYYY-MM-DD")
     seen, suites = set(), Counter()
+    route_ids = {route["id"] for route in json.loads(ROUTES_CONFIG.read_text(encoding="utf-8-sig"))["routes"]}
     for index, entry in enumerate(entries):
         label = f"entries[{index}]"
         if not isinstance(entry, dict):
@@ -103,6 +105,8 @@ def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
             errors.append(f"{label}.suite is unsafe")
         else:
             suites[suite] += 1
+        if entry.get("route_id") not in route_ids:
+            errors.append(f"{label}.route_id is not defined in config/routes.json")
         if entry.get("provenance") != "private_holdout" or entry.get("independently_authored") is not True or entry.get("exposed_to_distillation") is not False:
             errors.append(f"{label} lacks private, independent, unexposed provenance")
         canary_hash = entry.get("canary_sha256")

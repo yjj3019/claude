@@ -71,6 +71,10 @@ Private fixtures and their manifest stay under `.local/fable/holdout/`. Start fr
 `config/fable-holdout-manifest.example.json`, store only canary hashes in the
 manifest, and validate it with `scripts/validate_fable_holdout.py`. The example is
 structural documentation and is not a real holdout dataset.
+An intake-ready manifest can be compiled with
+`scripts/prepare_fable_holdout_plan.py`. Each entry names a validated `route_id`;
+the compiler resolves its FEF module, policies, workflow, and reviewer from
+`config/routes.json`. Execution artifacts exclude check-spec content and canaries.
 
 ## Run Controls
 
