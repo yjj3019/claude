@@ -96,7 +96,9 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
                         conservative[metric] = (value * observed + planned - observed) / planned
         indexed[key] = {**row, "conservative_metrics": conservative}
         scenario_batches[(key[1], key[2])].add(key[0])
-    comparisons = {"O-F_minus_O-B": ("O-F", "O-B"), "S-F_minus_S-B": ("S-F", "S-B")}
+    treatment_comparisons = {"O-F_minus_O-B": ("O-F", "O-B"), "S-F_minus_S-B": ("S-F", "S-B")}
+    placebo_comparisons = {"O-N_minus_O-B": ("O-N", "O-B"), "S-N_minus_S-B": ("S-N", "S-B")}
+    comparisons = {**treatment_comparisons, **placebo_comparisons}
     results, raw_p = {}, {}
     for comparison, (treatment, baseline) in comparisons.items():
         scenarios = sorted({scenario for _, scenario, variant in indexed if variant == treatment} &
@@ -104,7 +106,8 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
         complete = [scenario for scenario in scenarios if all((batch, scenario, variant) in indexed
                     for batch, variant in itertools.product(batches, (treatment, baseline)))]
         if len(complete) < config["gates"]["minimum_valid_scenarios_per_suite"]:
-            errors.append(f"{comparison} has fewer than required complete independent scenarios")
+            message = f"{comparison} has fewer than required complete independent scenarios"
+            (errors if comparison in treatment_comparisons else warnings).append(message)
             continue
         metric_results = {}
         for metric, definition in definitions.items():
@@ -130,7 +133,11 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
         comparison, metric = key.split(":", 1)
         results[comparison]["metrics"][metric]["holm_adjusted_p"] = value
     quality_gate = not errors
-    for comparison in results.values():
+    for name in treatment_comparisons:
+        if name not in results:
+            quality_gate = False
+            continue
+        comparison = results[name]
         success = comparison["metrics"]["task_success_rate"]
         failure = comparison["metrics"]["hard_failure_rate"]
         if success["improvement_effect"] < config["gates"]["minimum_success_rate_gain_points"] / 100:
@@ -148,10 +155,31 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
         for metric in config["gates"]["critical_metrics"]:
             if comparison["metrics"][metric]["improvement_effect"] < -config["gates"]["maximum_critical_regression_percentage_points"] / 100:
                 quality_gate = False
+    placebo_signals = {}
+    for name in placebo_comparisons:
+        if name not in results:
+            continue
+        success = results[name]["metrics"]["task_success_rate"]
+        failure = results[name]["metrics"]["hard_failure_rate"]
+        success_signal = (success["improvement_effect"] >= config["gates"]["minimum_success_rate_gain_points"] / 100
+                          and success["bootstrap_95_ci"][0] > 0)
+        failure_signal = (failure["baseline_mean"] > 0 and failure["bootstrap_95_ci"][0] > 0
+                          and failure["improvement_effect"] / failure["baseline_mean"] * 100
+                          >= config["gates"]["minimum_hard_failure_relative_reduction_percent"])
+        placebo_signals[name] = {"task_success_signal": success_signal, "hard_failure_signal": failure_signal}
+    placebo_complete = len(placebo_signals) == len(placebo_comparisons)
+    placebo_gate = placebo_complete and not any(
+        signal for comparison in placebo_signals.values() for signal in comparison.values()
+    )
+    blockers = ["rater_reliability_not_supplied", "final_evidence_gate_not_run"]
+    if not placebo_gate:
+        blockers.append("placebo_gate_not_passed")
     return {"valid": not errors, "quality_gate_pass": quality_gate, "benchmark_promotion_ready": False,
             "unit_of_analysis": "independent_scenario_fixture", "repetitions_treated_as_independent": False,
             "comparisons": results, "errors": errors, "warnings": warnings,
-            "promotion_blockers": ["rater_reliability_not_supplied", "final_evidence_gate_not_run"]}
+            "placebo_gate_pass": placebo_gate,
+            "placebo": {"status": "complete" if placebo_complete else "not_run", "signals": placebo_signals},
+            "promotion_blockers": blockers}
 
 
 def main() -> int:

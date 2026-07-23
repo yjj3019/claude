@@ -9,7 +9,7 @@ class FableAnalysisTest(unittest.TestCase):
         rows = []
         for batch in ("A", "B"):
             for scenario in range(5):
-                for variant in ("O-B", "O-F", "S-B", "S-F"):
+                for variant in ("O-B", "O-F", "O-N", "S-B", "S-F", "S-N"):
                     treatment = variant.endswith("-F")
                     rows.append({
                         "batch_id": batch, "scenario_id": f"P-{scenario}", "variant_id": variant,
@@ -28,6 +28,7 @@ class FableAnalysisTest(unittest.TestCase):
         result = analyze(self.document(), bootstrap_samples=200)
         self.assertTrue(result["valid"])
         self.assertTrue(result["quality_gate_pass"])
+        self.assertTrue(result["placebo_gate_pass"])
         self.assertFalse(result["benchmark_promotion_ready"])
         self.assertEqual(result["comparisons"]["O-F_minus_O-B"]["scenario_count"], 5)
         self.assertFalse(result["repetitions_treated_as_independent"])
@@ -67,6 +68,16 @@ class FableAnalysisTest(unittest.TestCase):
         self.assertFalse(result["quality_gate_pass"])
         treatment = result["comparisons"]["O-F_minus_O-B"]["metrics"]["task_success_rate"]["treatment_mean"]
         self.assertAlmostEqual(treatment, .16)
+
+    def test_treatment_sized_negative_control_effect_fails_placebo(self):
+        document = self.document()
+        for row in document["scenario_results"]:
+            if row["variant_id"].endswith("-N"):
+                row["metrics"]["task_success_rate"] = .8
+                row["metrics"]["hard_failure_rate"] = .1
+        result = analyze(document, bootstrap_samples=200)
+        self.assertFalse(result["placebo_gate_pass"])
+        self.assertEqual(result["placebo"]["status"], "complete")
 
 
 if __name__ == "__main__":

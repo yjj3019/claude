@@ -97,6 +97,12 @@ reported only when the resulting paired scenario summaries are binary; otherwise
 it is explicitly not applicable. Statistical quality alone never marks promotion
 ready without reliability and final evidence gates.
 
+The same analyzer evaluates `O-N` versus `O-B` and `S-N` versus `S-B` as placebo
+comparisons. A neutral control fails the placebo gate when it shows a statistically
+positive task-success gain at the preregistered minimum or a statistically positive
+hard-failure reduction at the preregistered minimum. Missing control comparisons
+remain `not_run` and cannot support `GO`.
+
 ## Run Controls
 
 Use a fresh session for every run. Hold fixtures, permissions, tools, selected
@@ -207,8 +213,7 @@ that appears only in non-blinded subjective scoring.
 This repository provides the benchmark contract, deterministic private-plan
 pipeline, lexical leakage checks, hash-bound semantic-evidence validation,
 response import and blinding, declarative scoring, batch audit, scenario-level
-analysis, and two-rater reliability. It does not ship private fixtures, generate
-semantic-similarity scores, validate the placebo control for promotion, or provide
-a complete blinded adjudication application. The final evidence gate cannot return
-`GO` without an explicit placebo pass. Those remaining capabilities must not be
-represented as completed here.
+analysis with placebo controls, two-rater reliability, and a final evidence gate.
+It does not ship private fixtures, generate semantic-similarity scores, or provide
+a complete blinded adjudication application. Those remaining capabilities must
+not be represented as completed here.
