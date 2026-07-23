@@ -45,6 +45,16 @@ class FableScoringTest(unittest.TestCase):
         self.assertTrue(bad["hard_failure"])
         self.assertIn("forbidden_phrase", bad["triggered_events"])
 
+    def test_numeric_grouping_does_not_trigger_manual_review(self):
+        checks = {
+            "schema_version": "1.0",
+            "required_phrases": ["75886"],
+            "manual_review_on": ["required_phrase_missing"],
+        }
+        result = MODULE.score_response("PRIVATE-1", "75,886 rows remain.", checks)
+        self.assertTrue(result["automatic_pass"])
+        self.assertFalse(result["manual_required"])
+
     def test_declarative_rules_reject_executable_or_unknown_keys(self):
         with self.assertRaises(ValueError):
             MODULE.score_response("PRIVATE-1", "text", {"schema_version": "1.0", "command": "Remove-Item"})

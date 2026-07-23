@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -40,7 +41,8 @@ def _safe_child(parent: Path, name: str) -> Path:
 
 
 def _normalized(text: str) -> str:
-    return " ".join(text.strip().split()).casefold()
+    text = unicodedata.normalize("NFKC", text)
+    return re.sub(r"(?<=\d),(?=\d)", "", " ".join(text.strip().split())).casefold()
 
 
 def validate_checks(checks: dict) -> dict:
