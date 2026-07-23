@@ -2,20 +2,22 @@
 
 ## Current Status
 
-- Session closed: 2026-07-22 20:15 KST
+- Updated: 2026-07-23 KST
 - Branch: `main`
-- Remote state: pushed through `3be73c0`
-- Fable benchmark: contract valid; 68 benchmark tests pass; PILOT-A stale check passes
-- Implemented: private holdout v1.1 intake, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, and scenario-level statistics
-- Promotion status: not ready; actual private data, local semantic evidence, manual runs, two scored batches, rater reliability, placebo validation, and final evidence gate remain
+- Remote state: pushed through `0ac40e3`
+- Fable benchmark: contract, Golden Tests, and framework valid; 77 unit tests pass
+- Implemented: private holdout v1.1 intake, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, scenario-level statistics, numeric phrase normalization, and hash-bound two-rater reliability
+- Diagnostic result: Opus 4.8 and Sonnet 5 were both evidence-faithful on five non-promotional cases; one label-only disagreement was observed
+- Promotion status: not ready; offline semantic evidence, independently verified holdout provenance, two scored batches, placebo validation, and the final evidence gate remain
+- Constraint: API credentials, paid API use, and local LLM/Ollama are excluded; no semantic gate bypass is permitted
 - Ignored user file: `scratch_notion_ai_simple.md` was not modified or committed
 
 ## Next Session
 
-1. Implement rater-reliability calculation and the final `GO / CONDITIONAL_GO / NO_GO` evidence gate.
-2. Independently author private fixtures under `.local/fable/holdout/` and validate the v1.1 manifest.
-3. Produce local lexical, secret-canary, and offline semantic-similarity evidence; require private preflight PASS.
-4. Execute and audit two independent Claude-app batches, score blinded outputs, calculate reliability/statistics, then run the final evidence gate.
+1. Implement the final `GO / CONDITIONAL_GO / NO_GO` evidence gate.
+2. Replace or independently verify the current diagnostic holdout provenance.
+3. Resolve the semantic-similarity requirement without violating the no-API/no-local-LLM constraint, or keep the benchmark diagnostic-only.
+4. Only after private preflight PASS, execute and audit two independent batches, score blinded outputs, calculate reliability/statistics, and run the final evidence gate.
 
 ## Notion Log URL
 

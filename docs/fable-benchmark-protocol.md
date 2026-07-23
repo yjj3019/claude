@@ -204,11 +204,10 @@ that appears only in non-blinded subjective scoring.
 
 ## Current Limit
 
-This repository provides a benchmark contract, scenario metadata, natural matched
-diagnostic controls, schemas, deterministic plan generation with stale-output
-checking, a local importer with model-evidence hashes, blinded export, limited
-automatic smoke scoring, and append-only pre-adjudication records for six
-non-promotional smoke cases. It does not yet provide hidden private fixtures,
-leakage-check executors, validated placebo inference, full semantic scoring, or a
-complete blinded adjudication application. Those missing capabilities must not be
-represented as completed here.
+This repository provides the benchmark contract, deterministic private-plan
+pipeline, lexical leakage checks, hash-bound semantic-evidence validation,
+response import and blinding, declarative scoring, batch audit, scenario-level
+analysis, and two-rater reliability. It does not ship private fixtures, generate
+semantic-similarity scores, validate the placebo control for promotion, or provide
+the final evidence gate or a complete blinded adjudication application. Those
+remaining capabilities must not be represented as completed here.
