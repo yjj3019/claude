@@ -130,6 +130,11 @@ Use observable 0/1/2 anchors for human-rated dimensions:
 Use at least two blinded raters. Randomize answer order and remove model/framework
 labels. Report weighted kappa or Krippendorff's alpha before adjudication.
 
+For two raters, `scripts/calculate_fable_reliability.py` verifies identical
+`blind_id`/dimension coverage and reports quadratic weighted Cohen's kappa with
+the source ballot hashes. A passing reliability result does not by itself make
+the benchmark promotion-ready.
+
 `scripts/score_fable_smoke.py` verifies corpus hashes and creates append-only raw
 rater ballots. It automates only explicit lexical/exact/format checks; semantic
 equivalence and absent tool-call evidence remain `manual_required`. Adjudication is
