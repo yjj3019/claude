@@ -1,0 +1,57 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from scripts.evaluate_fable_gate import evaluate
+
+
+class FableGateTest(unittest.TestCase):
+    def evidence(self, root: Path, *, quality=True, placebo=False):
+        documents = {
+            "analysis": {"valid": True, "quality_gate_pass": quality, "placebo_gate_pass": placebo},
+            "reliability": {"reliability_gate_pass": True},
+            "preflight": {"valid": True, "execution_ready": True},
+            "audit-a": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "A"},
+            "audit-b": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "B"},
+        }
+        paths = {}
+        for name, document in documents.items():
+            paths[name] = root / f"{name}.json"
+            paths[name].write_text(json.dumps(document), encoding="utf-8")
+        return paths
+
+    def test_missing_placebo_is_conditional(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory))
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "CONDITIONAL_GO")
+        self.assertFalse(result["benchmark_promotion_ready"])
+
+    def test_failed_quality_is_no_go(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), quality=False)
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+
+    def test_all_gates_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "GO")
+        self.assertTrue(result["benchmark_promotion_ready"])
+
+    def test_duplicate_batch_is_no_go(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-a"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertFalse(result["valid"])
+
+
+if __name__ == "__main__":
+    unittest.main()

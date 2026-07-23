@@ -23,6 +23,7 @@ python scripts/preflight_fable_private.py --manifest .local/fable/holdout/manife
 python scripts/audit_fable_batch.py --plan .local/fable/holdout/plans/PRIVATE-A.json --import-dir .local/fable/imported/PRIVATE-A
 python scripts/analyze_fable_results.py --input .local/fable/analysis/scenario-results.json --output .local/fable/analysis/statistics.json --seed 3019
 python scripts/calculate_fable_reliability.py --ballot .local/fable/ballots/RATER-1.json --ballot .local/fable/ballots/RATER-2.json --output .local/fable/analysis/reliability.json
+python scripts/evaluate_fable_gate.py --analysis .local/fable/analysis/statistics.json --reliability .local/fable/analysis/reliability.json --preflight .local/fable/analysis/preflight.json --batch-audit .local/fable/analysis/PRIVATE-A-audit.json --batch-audit .local/fable/analysis/PRIVATE-B-audit.json --output .local/fable/analysis/final-gate.json
 python scripts/audit_fable_batch.py --plan .local/fable/holdout/plans/PRIVATE-A.json --import-dir .local/fable/imported/PRIVATE-A
 python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_fable_pilot_check tests.test_fable_response_import tests.test_fable_model_evidence tests.test_fable_blinding tests.test_fable_scoring tests.test_fable_reliability
 ```
@@ -45,3 +46,4 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `audit_fable_batch.py` audits planned-versus-imported run coverage, metadata and response hashes, exclusions, and conservative missing-as-failure bounds without printing response content.
 - `analyze_fable_results.py` calculates scenario-level paired effects, hierarchical scenario bootstrap intervals, exact McNemar results when summaries remain binary, and Holm-adjusted p-values. Repetitions and batches are not counted as independent scenarios.
 - `calculate_fable_reliability.py` validates two blinded ordinal ballots and reports hash-bound quadratic weighted Cohen's kappa against the configured reliability gate.
+- `evaluate_fable_gate.py` combines hash-recorded quality, reliability, private-preflight, and distinct-batch evidence. Failed required evidence returns `NO_GO`; missing placebo evidence limits the verdict to `CONDITIONAL_GO`.

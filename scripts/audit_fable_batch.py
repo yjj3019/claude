@@ -110,6 +110,7 @@ def audit(plan_path: Path, import_dir: Path, *, allowed_root: Path = LOCAL_ROOT)
     return {
         "valid": not errors, "collection_complete": collection_complete,
         "scoring_ready": collection_complete, "benchmark_promotion_ready": False,
+        "batch_id": plan.get("batch_id"), "plan_sha256": expected_plan_hash,
         "planned_runs": total, "observed_results": len(observed), "missing_runs": len(missing),
         "missing_run_ids": missing, "status_counts": dict(statuses),
         "variant_status_counts": {key: dict(value) for key, value in sorted(variants.items())},

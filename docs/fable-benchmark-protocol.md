@@ -209,5 +209,6 @@ pipeline, lexical leakage checks, hash-bound semantic-evidence validation,
 response import and blinding, declarative scoring, batch audit, scenario-level
 analysis, and two-rater reliability. It does not ship private fixtures, generate
 semantic-similarity scores, validate the placebo control for promotion, or provide
-the final evidence gate or a complete blinded adjudication application. Those
-remaining capabilities must not be represented as completed here.
+a complete blinded adjudication application. The final evidence gate cannot return
+`GO` without an explicit placebo pass. Those remaining capabilities must not be
+represented as completed here.
