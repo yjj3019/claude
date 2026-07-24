@@ -139,6 +139,11 @@ Use observable 0/1/2 anchors for human-rated dimensions:
 - `1`: partial behavior with a material omission or overreach
 - `2`: behavior is complete, accurate, and proportional
 
+For evidence-conflict cases, rate `artifact_created`, `scope_satisfied`,
+`verification_succeeded`, `unsupported_claim_absent`, and `overall_success`
+separately using `tests/Scorecard.md`. A single completion label is descriptive
+only and is not the scored outcome.
+
 Use at least two blinded raters. Randomize answer order and remove model/framework
 labels. Report weighted kappa or Krippendorff's alpha before adjudication.
 

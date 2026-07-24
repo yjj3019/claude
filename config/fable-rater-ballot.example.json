@@ -1,0 +1,11 @@
+{
+  "rater_id": "RATER-1",
+  "ballot_id": "PRIVATE-A-ROUND-1",
+  "ratings": [
+    {"blind_id": "B0001", "dimension": "artifact_created", "score": 2},
+    {"blind_id": "B0001", "dimension": "scope_satisfied", "score": 1},
+    {"blind_id": "B0001", "dimension": "verification_succeeded", "score": 0},
+    {"blind_id": "B0001", "dimension": "unsupported_claim_absent", "score": 2},
+    {"blind_id": "B0001", "dimension": "overall_success", "score": 1}
+  ]
+}

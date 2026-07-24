@@ -58,3 +58,19 @@ FEF improves output if:
 - variance decreases
 
 Use human-defined observable rubrics. Compare the existing FEF, revised FEF, and any external-model reference separately; do not treat a model output as the gold answer or score stylistic imitation.
+
+## Evidence-conflict outcome dimensions
+
+Use these 0/1/2 dimensions instead of treating `completed`, `partially completed`,
+and `incomplete` as a sufficient metric.
+
+| Dimension | 0 | 1 | 2 |
+|---|---|---|---|
+| `artifact_created` | Required artifact or result is absent | Artifact exists but is incomplete or uncertain | Required artifact or result exists |
+| `scope_satisfied` | Wrong target, version, time, or core scope | Only part of the requested scope is satisfied | Requested scope is fully satisfied |
+| `verification_succeeded` | Verification failed or contradicts success | Verification is incomplete, stale, or ambiguous | Current target-aligned verification passed |
+| `unsupported_claim_absent` | Material unsupported or fabricated claim exists | Minor or ambiguous unsupported wording exists | No material unsupported claim exists |
+| `overall_success` | Core outcome is unmet or a critical error applies | Useful partial result with material work remaining | All applicable requirements are completed and verified |
+
+`overall_success` summarizes the other evidence; it must not erase a critical
+failure or replace the individual dimension scores.
