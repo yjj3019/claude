@@ -6,14 +6,16 @@ import argparse
 import hashlib
 import itertools
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "fable-benchmark.json"
 SCORES = (0, 1, 2)
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
-def _load_ballot(path: Path) -> tuple[str, dict[tuple[str, str], int], str, list[str]]:
+def _load_ballot(path: Path) -> tuple[str, dict[tuple[str, str], int], str, list[str], str, str]:
     raw = path.read_bytes()
     document = json.loads(raw.decode("utf-8-sig"))
     rater_id, ratings = document.get("rater_id"), document.get("ratings")
@@ -36,7 +38,10 @@ def _load_ballot(path: Path) -> tuple[str, dict[tuple[str, str], int], str, list
     if (not isinstance(batch_ids, list) or len(batch_ids) != len(set(batch_ids))
             or any(not isinstance(item, str) or not item for item in batch_ids)):
         raise ValueError(f"invalid batch_ids in {path}")
-    return rater_id, indexed, hashlib.sha256(raw).hexdigest(), batch_ids
+    dataset_id, manifest_sha256 = document.get("dataset_id"), document.get("manifest_sha256")
+    if not isinstance(dataset_id, str) or not dataset_id or not isinstance(manifest_sha256, str) or not SHA256.fullmatch(manifest_sha256):
+        raise ValueError(f"invalid holdout identity in {path}")
+    return rater_id, indexed, hashlib.sha256(raw).hexdigest(), batch_ids, dataset_id, manifest_sha256
 
 
 def weighted_kappa(left: list[int], right: list[int]) -> float:
@@ -64,6 +69,8 @@ def calculate(ballot_paths: list[Path], config_path: Path = CONFIG) -> dict:
         raise ValueError("ballots must rate identical blind_id/dimension items")
     if ballots[0][3] != ballots[1][3]:
         raise ValueError("ballots must identify identical batch_ids")
+    if ballots[0][4:] != ballots[1][4:]:
+        raise ValueError("ballots must identify the same holdout dataset and manifest")
     keys = sorted(ballots[0][1])
     kappa = weighted_kappa([ballots[0][1][key] for key in keys], [ballots[1][1][key] for key in keys])
     observed_by_rater = [sorted(set(ballot[1].values())) for ballot in ballots]
@@ -71,7 +78,7 @@ def calculate(ballot_paths: list[Path], config_path: Path = CONFIG) -> dict:
     return {
         "schema_version": "1.0", "method": "quadratic_weighted_cohen_kappa",
         "rater_ids": [ballot[0] for ballot in ballots], "ballot_sha256": [ballot[2] for ballot in ballots],
-        "batch_ids": ballots[0][3],
+        "batch_ids": ballots[0][3], "dataset_id": ballots[0][4], "manifest_sha256": ballots[0][5],
         "rated_item_count": len(keys), "score_scale": list(SCORES),
         "observed_scores_by_rater": observed_by_rater,
         "all_raters_observed_full_scale": all(scores == list(SCORES) for scores in observed_by_rater),

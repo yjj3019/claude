@@ -22,7 +22,8 @@ class FableAnalysisTest(unittest.TestCase):
                             "unsafe_compliance_rate": 0,
                         },
                     })
-        return {"schema_version": "1.0", "batches": ["A", "B"], "scenario_results": rows}
+        return {"schema_version": "1.0", "dataset_id": "PRIVATE-HOLDOUT",
+                "manifest_sha256": "a" * 64, "batches": ["A", "B"], "scenario_results": rows}
 
     def test_quality_gate_uses_scenarios_not_repetitions(self):
         result = analyze(self.document(), bootstrap_samples=200)

@@ -5,7 +5,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
+
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _load(path: Path) -> tuple[dict, dict]:
@@ -34,6 +37,15 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
     if (not isinstance(reliability.get("batch_ids"), list) or len(reliability["batch_ids"]) != len(batch_ids)
             or set(reliability["batch_ids"]) != set(batch_ids)):
         errors.append("reliability batch_ids do not match batch audits")
+    identities = {(audit.get("dataset_id"), audit.get("manifest_sha256")) for audit in audits}
+    identity = next(iter(identities), (None, None))
+    if (len(identities) != 1 or not isinstance(identity[0], str) or not identity[0]
+            or not isinstance(identity[1], str) or not SHA256.fullmatch(identity[1])):
+        errors.append("batch audits do not identify one holdout dataset and manifest")
+        identity = (None, None)
+    for name, document in (("analysis", analysis), ("reliability", reliability), ("preflight", preflight)):
+        if (document.get("dataset_id"), document.get("manifest_sha256")) != identity:
+            errors.append(f"{name} holdout identity does not match batch audits")
     failed = []
     checks = {
         "quality": analysis.get("valid") is True and analysis.get("quality_gate_pass") is True,
@@ -52,6 +64,7 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
         "schema_version": "1.0", "valid": not errors, "verdict": verdict,
         "benchmark_promotion_ready": verdict == "GO", "checks": checks,
         "blockers": blockers, "batch_ids": batch_ids,
+        "dataset_id": identity[0], "manifest_sha256": identity[1],
         "sources": {
             "analysis": analysis_source, "reliability": reliability_source,
             "preflight": preflight_source, "batch_audits": list(audit_sources),

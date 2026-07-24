@@ -7,11 +7,13 @@ import itertools
 import json
 import math
 import random
+import re
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "fable-benchmark.json"
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def quantile(values: list[float], probability: float) -> float:
@@ -57,6 +59,11 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
     config = json.loads(config_path.read_text(encoding="utf-8-sig"))
     if document.get("schema_version") != "1.0":
         errors.append("schema_version must be 1.0")
+    dataset_id, manifest_sha256 = document.get("dataset_id"), document.get("manifest_sha256")
+    if not isinstance(dataset_id, str) or not dataset_id:
+        errors.append("dataset_id must be a non-empty string")
+    if not isinstance(manifest_sha256, str) or not SHA256.fullmatch(manifest_sha256):
+        errors.append("manifest_sha256 must be a lowercase SHA-256 digest")
     batches = document.get("batches")
     if not isinstance(batches, list) or len(set(batches)) < config["gates"]["minimum_independent_batches"]:
         errors.append("at least two distinct independent batches are required")
@@ -175,7 +182,7 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
     if not placebo_gate:
         blockers.append("placebo_gate_not_passed")
     return {"valid": not errors, "quality_gate_pass": quality_gate, "benchmark_promotion_ready": False,
-            "batch_ids": batches,
+            "batch_ids": batches, "dataset_id": dataset_id, "manifest_sha256": manifest_sha256,
             "unit_of_analysis": "independent_scenario_fixture", "repetitions_treated_as_independent": False,
             "comparisons": results, "errors": errors, "warnings": warnings,
             "placebo_gate_pass": placebo_gate,

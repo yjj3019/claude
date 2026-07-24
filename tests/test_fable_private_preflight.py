@@ -71,6 +71,8 @@ class FablePrivatePreflightTest(unittest.TestCase):
         result = self.run_preflight(root, manifest, lexical, semantic_path, provenance_path, plan, canary_path)
         self.assertTrue(result["execution_ready"])
         self.assertFalse(result["benchmark_promotion_ready"])
+        self.assertEqual(result["dataset_id"], json.loads(manifest.read_text(encoding="utf-8"))["dataset_id"])
+        self.assertEqual(result["manifest_sha256"], hashlib.sha256(manifest.read_bytes()).hexdigest())
 
     def test_semantic_candidate_omission_blocks_execution(self):
         temp, root, manifest, lexical, semantic_path, provenance_path, plan, canary_path = self.make_bundle()

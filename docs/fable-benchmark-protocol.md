@@ -160,6 +160,9 @@ distribution.
 Both ballots declare the evaluated `batch_ids`. The analyzer carries the same
 identifiers, and the final gate requires them to match the distinct batch-audit
 identifiers exactly; unrelated reliability evidence cannot be substituted.
+Preflight, batch audits, analysis, and reliability outputs also carry the same
+`dataset_id` and `manifest_sha256`; the final gate rejects evidence mixed across
+holdout datasets or manifest versions even when batch identifiers match.
 
 `scripts/score_fable_smoke.py` verifies corpus hashes and creates append-only raw
 rater ballots. It automates only explicit lexical/exact/format checks; semantic

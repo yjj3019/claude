@@ -20,7 +20,8 @@ class FableBatchAuditTest(unittest.TestCase):
                 "requested_model": "claude-opus-4-8", "prompt_hash": "a" * 64,
                 "repository_commit": "commit-1",
             })
-        plan = {"run_count": len(runs), "runs": runs}
+        plan = {"dataset_id": "PRIVATE-HOLDOUT", "manifest_sha256": "a" * 64,
+                "run_count": len(runs), "runs": runs}
         plan_path = root / "plan.json"
         plan_path.write_text(json.dumps(plan), encoding="utf-8")
         plan_hash = canonical_plan_hash(plan)

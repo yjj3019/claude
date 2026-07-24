@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ROOT = (ROOT / ".local" / "fable").resolve()
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def digest(data: bytes) -> str:
@@ -41,6 +42,10 @@ def audit(plan_path: Path, import_dir: Path, *, allowed_root: Path = LOCAL_ROOT)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         return {"valid": False, "collection_complete": False, "scoring_ready": False,
                 "errors": [f"plan unreadable: {exc}"], "warnings": []}
+    if not isinstance(plan.get("dataset_id"), str) or not plan["dataset_id"]:
+        errors.append("plan dataset_id must be a non-empty string")
+    if not isinstance(plan.get("manifest_sha256"), str) or not SHA256.fullmatch(plan["manifest_sha256"]):
+        errors.append("plan manifest_sha256 must be a lowercase SHA-256 digest")
     planned = {}
     for index, run in enumerate(plan.get("runs", [])):
         run_id = run.get("run_id") if isinstance(run, dict) else None
@@ -110,7 +115,8 @@ def audit(plan_path: Path, import_dir: Path, *, allowed_root: Path = LOCAL_ROOT)
     return {
         "valid": not errors, "collection_complete": collection_complete,
         "scoring_ready": collection_complete, "benchmark_promotion_ready": False,
-        "batch_id": plan.get("batch_id"), "plan_sha256": expected_plan_hash,
+        "batch_id": plan.get("batch_id"), "dataset_id": plan.get("dataset_id"),
+        "manifest_sha256": plan.get("manifest_sha256"), "plan_sha256": expected_plan_hash,
         "planned_runs": total, "observed_results": len(observed), "missing_runs": len(missing),
         "missing_run_ids": missing, "status_counts": dict(statuses),
         "variant_status_counts": {key: dict(value) for key, value in sorted(variants.items())},

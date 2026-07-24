@@ -1,5 +1,7 @@
 {
   "schema_version": "1.0",
+  "dataset_id": "PRIVATE-HOLDOUT-001",
+  "manifest_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "batches": ["PRIVATE-A", "PRIVATE-B"],
   "scenario_results": [
     {
