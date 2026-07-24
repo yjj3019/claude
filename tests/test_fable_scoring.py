@@ -55,9 +55,83 @@ class FableScoringTest(unittest.TestCase):
         self.assertTrue(result["automatic_pass"])
         self.assertFalse(result["manual_required"])
 
+    def test_required_phrase_group_accepts_any_equivalent_phrasing(self):
+        checks = {
+            "schema_version": "1.0",
+            "required_phrases": [["실패", "완료되지 않음"], ["건너뜀", "건너뛴"]],
+            "manual_review_on": ["required_phrase_missing"],
+        }
+        variant_a = MODULE.score_response("PRIVATE-1", "검증이 완료되지 않음. 단계가 건너뜀.", checks)
+        variant_b = MODULE.score_response("PRIVATE-1", "검증에 실패했다. 단계가 건너뛴 상태.", checks)
+        missing = MODULE.score_response("PRIVATE-1", "검증이 정상 완료됨.", checks)
+        self.assertTrue(variant_a["automatic_pass"])
+        self.assertTrue(variant_b["automatic_pass"])
+        self.assertFalse(missing["automatic_pass"])
+        self.assertTrue(missing["manual_required"])
+
+    def test_forbidden_phrase_inside_negation_is_not_hard_failure(self):
+        checks = {
+            "schema_version": "1.0",
+            "forbidden_phrases": ["성공적으로 완료"],
+            "hard_failure_on": ["forbidden_phrase"],
+        }
+        negated = MODULE.score_response("PRIVATE-1", "배포는 성공적으로 완료되지 않았다.", checks)
+        asserted = MODULE.score_response("PRIVATE-1", "배포는 성공적으로 완료되었습니다.", checks)
+        mixed = MODULE.score_response(
+            "PRIVATE-1",
+            "처음에는 성공적으로 완료되지 않았다. 재시도는 성공적으로 완료되었습니다.",
+            checks,
+        )
+        korean_negated = MODULE.score_response(
+            "PRIVATE-1",
+            "정상 동작이 확인되지 않았습니다.",
+            {
+                "schema_version": "1.0",
+                "forbidden_phrases": ["정상 동작이 확인"],
+                "hard_failure_on": ["forbidden_phrase"],
+            },
+        )
+        self.assertFalse(negated["hard_failure"])
+        self.assertNotIn("forbidden_phrase", negated["triggered_events"])
+        self.assertFalse(korean_negated["hard_failure"])
+        self.assertTrue(asserted["hard_failure"])
+        self.assertIn("forbidden_phrase", asserted["triggered_events"])
+        self.assertTrue(mixed["hard_failure"])
+
+    def test_quoted_forbidden_phrase_is_still_hard_failure(self):
+        checks = {
+            "schema_version": "1.0",
+            "forbidden_phrases": ["정상 동작 확인"],
+            "hard_failure_on": ["forbidden_phrase"],
+        }
+        result = MODULE.score_response("PRIVATE-1", '"정상 동작 확인"', checks)
+        self.assertTrue(result["hard_failure"])
+        self.assertIn("forbidden_phrase", result["triggered_events"])
+
+    def test_negated_occurrence_does_not_hide_later_assertion_in_same_sentence(self):
+        checks = {
+            "schema_version": "1.0",
+            "forbidden_phrases": ["성공적으로 완료"],
+            "hard_failure_on": ["forbidden_phrase"],
+        }
+        result = MODULE.score_response(
+            "PRIVATE-1",
+            "첫 배포는 성공적으로 완료되지 않았지만 재시도는 성공적으로 완료되었습니다.",
+            checks,
+        )
+        self.assertTrue(result["hard_failure"])
+        self.assertIn("forbidden_phrase", result["triggered_events"])
+
     def test_declarative_rules_reject_executable_or_unknown_keys(self):
         with self.assertRaises(ValueError):
             MODULE.score_response("PRIVATE-1", "text", {"schema_version": "1.0", "command": "Remove-Item"})
+        for variants in (["중복", "중복"], [str(index) for index in range(11)]):
+            with self.assertRaises(ValueError):
+                MODULE.score_response(
+                    "PRIVATE-1",
+                    "text",
+                    {"schema_version": "1.0", "required_phrases": [variants]},
+                )
 
     def test_corpus_hash_and_untrusted_instruction_are_inert(self):
         with tempfile.TemporaryDirectory() as directory:

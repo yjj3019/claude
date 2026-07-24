@@ -49,6 +49,27 @@ def _normalized(text: str) -> str:
     return re.sub(r"(?<=\d),(?=\d)", "", " ".join(text.strip().split())).casefold()
 
 
+def _phrase_variants(item: str | list) -> list:
+    """required_phrases items may be a single phrase or a group of equivalent phrasings."""
+    return item if isinstance(item, list) else [item]
+
+
+# ponytail: local negation heuristic, not real NLP. Upgrade if negation forms
+# exceed these local markers.
+NEGATION_SUFFIXES = (
+    "지 않았", "지 않음", "지 않는", "이 아니", "가 아니", "은 아니", "는 아니",
+    "하지 않", "되지 않", "지 못했", "지 못함", "못했다",
+)
+NEGATION_PREFIXES = ("not ", "n't", "never ", "no longer")
+
+
+def _is_negated(folded: str, start: int, end: int) -> bool:
+    return (
+        any(marker in folded[max(0, start - 20):start] for marker in NEGATION_PREFIXES)
+        or any(marker in folded[end:end + 20] for marker in NEGATION_SUFFIXES)
+    )
+
+
 def validate_checks(checks: dict) -> dict:
     keys = set(checks)
     if checks.get("schema_version") == "1.0":
@@ -71,7 +92,20 @@ def validate_checks(checks: dict) -> dict:
     for field in phrase_fields:
         values = normalized.get(field, [])
         maximum = 20 if field == "accepted_outputs" else 50
-        if not isinstance(values, list) or len(values) > maximum or len(values) != len(set(values)) or any(not isinstance(item, str) or not item.strip() for item in values):
+        if not isinstance(values, list) or len(values) > maximum:
+            raise ValueError(f"{field} must be a bounded list of non-empty strings")
+        if field == "required_phrases":
+            keys = []
+            for item in values:
+                variants = _phrase_variants(item)
+                if (not variants or len(variants) > 10
+                        or any(not isinstance(v, str) or not v.strip() for v in variants)
+                        or len(variants) != len(set(variants))):
+                    raise ValueError(f"{field} must be a bounded list of non-empty strings")
+                keys.append(tuple(variants) if isinstance(item, list) else item)
+            if len(keys) != len(set(keys)):
+                raise ValueError(f"{field} must be a bounded list of non-empty strings")
+        elif len(values) != len(set(values)) or any(not isinstance(item, str) or not item.strip() for item in values):
             raise ValueError(f"{field} must be a bounded list of non-empty strings")
     constraints = normalized.get("constraints", {})
     allowed_constraints = {"maximum_output_lines", "maximum_output_characters", "maximum_tool_calls"}
@@ -96,8 +130,19 @@ def score_response(scenario_id: str, response: str, checks: dict, *, tool_calls:
     """Score text as inert data. No content in response is ever executed or interpreted as instructions."""
     spec = validate_checks(checks)
     folded = _normalized(response)
-    required = {item: _normalized(item) in folded for item in spec.get("required_phrases", [])}
-    forbidden = {item: _normalized(item) in folded for item in spec.get("forbidden_phrases", [])}
+    required = {
+        (" / ".join(item) if isinstance(item, list) else item):
+            any(_normalized(variant) in folded for variant in _phrase_variants(item))
+        for item in spec.get("required_phrases", [])
+    }
+    forbidden = {}
+    for item in spec.get("forbidden_phrases", []):
+        needle = _normalized(item)
+        matches = (match.span() for match in re.finditer(re.escape(needle), folded))
+        forbidden[item] = any(
+            not _is_negated(folded, start, end)
+            for start, end in matches
+        )
     accepted_outputs = spec.get("accepted_outputs", [])
     exact = folded in {_normalized(item) for item in accepted_outputs} if accepted_outputs else None
     constraints = spec.get("constraints", {})
