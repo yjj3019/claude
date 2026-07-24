@@ -9,8 +9,9 @@ from scripts.evaluate_fable_gate import evaluate
 class FableGateTest(unittest.TestCase):
     def evidence(self, root: Path, *, quality=True, placebo=False):
         documents = {
-            "analysis": {"valid": True, "quality_gate_pass": quality, "placebo_gate_pass": placebo},
-            "reliability": {"reliability_gate_pass": True},
+            "analysis": {"valid": True, "quality_gate_pass": quality, "placebo_gate_pass": placebo,
+                         "batch_ids": ["A", "B"]},
+            "reliability": {"reliability_gate_pass": True, "batch_ids": ["A", "B"]},
             "preflight": {"valid": True, "execution_ready": True},
             "audit-a": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "A"},
             "audit-b": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "B"},
@@ -51,6 +52,17 @@ class FableGateTest(unittest.TestCase):
                               [paths["audit-a"], paths["audit-a"]])
         self.assertEqual(result["verdict"], "NO_GO")
         self.assertFalse(result["valid"])
+
+    def test_unrelated_reliability_batches_are_no_go(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            document = json.loads(paths["reliability"].read_text(encoding="utf-8"))
+            document["batch_ids"] = ["X", "Y"]
+            paths["reliability"].write_text(json.dumps(document), encoding="utf-8")
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertIn("reliability batch_ids do not match batch audits", result["errors"] if "errors" in result else result["blockers"])
 
 
 if __name__ == "__main__":

@@ -157,6 +157,9 @@ the benchmark promotion-ready. The result also reports each rater's observed
 scores and whether every rater used the full configured scale; incomplete scale
 coverage is visible but does not automatically invalidate a legitimate rating
 distribution.
+Both ballots declare the evaluated `batch_ids`. The analyzer carries the same
+identifiers, and the final gate requires them to match the distinct batch-audit
+identifiers exactly; unrelated reliability evidence cannot be substituted.
 
 `scripts/score_fable_smoke.py` verifies corpus hashes and creates append-only raw
 rater ballots. It automates only explicit lexical/exact/format checks; semantic

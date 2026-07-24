@@ -11,7 +11,7 @@ class FableReliabilityTest(unittest.TestCase):
         paths = []
         for rater, scores in (("RATER-1", left), ("RATER-2", right)):
             path = root / f"{rater}.json"
-            path.write_text(json.dumps({"rater_id": rater, "ratings": [
+            path.write_text(json.dumps({"rater_id": rater, "batch_ids": ["A", "B"], "ratings": [
                 {"blind_id": f"B{index:04}", "dimension": "quality", "score": score}
                 for index, score in enumerate(scores)
             ]}), encoding="utf-8")
@@ -25,6 +25,7 @@ class FableReliabilityTest(unittest.TestCase):
         self.assertTrue(result["reliability_gate_pass"])
         self.assertTrue(result["all_raters_observed_full_scale"])
         self.assertEqual(result["observed_scores_by_rater"], [[0, 1, 2], [0, 1, 2]])
+        self.assertEqual(result["batch_ids"], ["A", "B"])
         self.assertEqual(len(result["ballot_sha256"]), 2)
         self.assertFalse(result["benchmark_promotion_ready"])
 

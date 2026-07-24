@@ -28,6 +28,12 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
     errors = []
     if len(set(batch_ids)) != len(batch_ids) or any(not isinstance(item, str) or not item for item in batch_ids):
         errors.append("batch audits must identify distinct non-empty batch_id values")
+    if (not isinstance(analysis.get("batch_ids"), list) or len(analysis["batch_ids"]) != len(batch_ids)
+            or set(analysis["batch_ids"]) != set(batch_ids)):
+        errors.append("analysis batch_ids do not match batch audits")
+    if (not isinstance(reliability.get("batch_ids"), list) or len(reliability["batch_ids"]) != len(batch_ids)
+            or set(reliability["batch_ids"]) != set(batch_ids)):
+        errors.append("reliability batch_ids do not match batch audits")
     failed = []
     checks = {
         "quality": analysis.get("valid") is True and analysis.get("quality_gate_pass") is True,

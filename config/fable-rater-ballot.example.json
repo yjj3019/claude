@@ -2,6 +2,7 @@
   "rater_id": "RATER-1",
   "ballot_id": "PRIVATE-A-ROUND-1",
   "rubric_id": "evidence_conflict_v1",
+  "batch_ids": ["PRIVATE-A", "PRIVATE-B"],
   "ratings": [
     {"blind_id": "B0001", "dimension": "artifact_created", "score": 2},
     {"blind_id": "B0001", "dimension": "scope_satisfied", "score": 1},

@@ -175,6 +175,7 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
     if not placebo_gate:
         blockers.append("placebo_gate_not_passed")
     return {"valid": not errors, "quality_gate_pass": quality_gate, "benchmark_promotion_ready": False,
+            "batch_ids": batches,
             "unit_of_analysis": "independent_scenario_fixture", "repetitions_treated_as_independent": False,
             "comparisons": results, "errors": errors, "warnings": warnings,
             "placebo_gate_pass": placebo_gate,
