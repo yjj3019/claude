@@ -60,11 +60,15 @@ def calculate(ballot_paths: list[Path], config_path: Path = CONFIG) -> dict:
         raise ValueError("ballots must rate identical blind_id/dimension items")
     keys = sorted(ballots[0][1])
     kappa = weighted_kappa([ballots[0][1][key] for key in keys], [ballots[1][1][key] for key in keys])
+    observed_by_rater = [sorted(set(ballot[1].values())) for ballot in ballots]
     threshold = json.loads(config_path.read_text(encoding="utf-8-sig"))["gates"]["minimum_inter_rater_reliability"]
     return {
         "schema_version": "1.0", "method": "quadratic_weighted_cohen_kappa",
         "rater_ids": [ballot[0] for ballot in ballots], "ballot_sha256": [ballot[2] for ballot in ballots],
-        "rated_item_count": len(keys), "score_scale": list(SCORES), "reliability": kappa,
+        "rated_item_count": len(keys), "score_scale": list(SCORES),
+        "observed_scores_by_rater": observed_by_rater,
+        "all_raters_observed_full_scale": all(scores == list(SCORES) for scores in observed_by_rater),
+        "reliability": kappa,
         "minimum_required": threshold, "reliability_gate_pass": kappa >= threshold,
         "benchmark_promotion_ready": False,
     }

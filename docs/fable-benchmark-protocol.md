@@ -153,7 +153,10 @@ labels. Report weighted kappa or Krippendorff's alpha before adjudication.
 For two raters, `scripts/calculate_fable_reliability.py` verifies identical
 `blind_id`/dimension coverage and reports quadratic weighted Cohen's kappa with
 the source ballot hashes. A passing reliability result does not by itself make
-the benchmark promotion-ready.
+the benchmark promotion-ready. The result also reports each rater's observed
+scores and whether every rater used the full configured scale; incomplete scale
+coverage is visible but does not automatically invalidate a legitimate rating
+distribution.
 
 `scripts/score_fable_smoke.py` verifies corpus hashes and creates append-only raw
 rater ballots. It automates only explicit lexical/exact/format checks; semantic

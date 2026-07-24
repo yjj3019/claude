@@ -23,11 +23,19 @@ class FableReliabilityTest(unittest.TestCase):
             result = calculate(self.ballots(Path(directory), [0, 1, 2], [0, 1, 2]))
         self.assertEqual(result["reliability"], 1.0)
         self.assertTrue(result["reliability_gate_pass"])
+        self.assertTrue(result["all_raters_observed_full_scale"])
+        self.assertEqual(result["observed_scores_by_rater"], [[0, 1, 2], [0, 1, 2]])
         self.assertEqual(len(result["ballot_sha256"]), 2)
         self.assertFalse(result["benchmark_promotion_ready"])
 
     def test_disagreement_fails(self):
         self.assertLess(weighted_kappa([0, 0, 2, 2], [2, 2, 0, 0]), .70)
+
+    def test_reports_collapsed_observed_scale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = calculate(self.ballots(Path(directory), [0, 1], [0, 1]))
+        self.assertFalse(result["all_raters_observed_full_scale"])
+        self.assertEqual(result["observed_scores_by_rater"], [[0, 1], [0, 1]])
 
     def test_requires_matching_items(self):
         with tempfile.TemporaryDirectory() as directory:
