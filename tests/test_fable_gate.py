@@ -38,6 +38,20 @@ class FableGateTest(unittest.TestCase):
             result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
                               [paths["audit-a"], paths["audit-b"]])
         self.assertEqual(result["verdict"], "NO_GO")
+        self.assertEqual(result["diagnostic_verdict"], "DIAGNOSTIC_INCOMPLETE")
+
+    def test_failed_preflight_can_still_be_diagnostic_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            document = json.loads(paths["preflight"].read_text(encoding="utf-8"))
+            document["valid"] = document["execution_ready"] = False
+            paths["preflight"].write_text(json.dumps(document), encoding="utf-8")
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertFalse(result["benchmark_promotion_ready"])
+        self.assertEqual(result["diagnostic_verdict"], "DIAGNOSTIC_PASS")
+        self.assertTrue(result["diagnostic_ready"])
 
     def test_missing_out_of_domain_evidence_is_no_go(self):
         with tempfile.TemporaryDirectory() as directory:

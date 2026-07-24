@@ -235,6 +235,12 @@ gate remains unstable. Return NO_GO for leakage, unverifiable model
 routing, increased false-completion or fabricated-evidence failures, or improvement
 that appears only in non-blinded subjective scoring.
 
+For single-operator work, the final report may separately return
+`DIAGNOSTIC_PASS` when quality, OOD, reliability, batch collection, and placebo
+checks pass but private preflight does not. This never changes the formal verdict
+or `benchmark_promotion_ready`; it permits diagnostic comparison without claiming
+independent validation.
+
 ## Current Limit
 
 This repository provides the benchmark contract, deterministic private-plan

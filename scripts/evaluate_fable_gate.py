@@ -68,9 +68,16 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
     blockers = [*errors, *(f"{name}_gate_failed" for name in failed)]
     if verdict == "CONDITIONAL_GO":
         blockers.append("placebo_gate_not_passed")
+    diagnostic_checks = {name: checks[name] for name in
+                         ("quality", "out_of_domain", "reliability", "batch_collection", "placebo")}
+    diagnostic_errors = [error for error in errors if not error.startswith("preflight ")]
+    diagnostic_ready = not diagnostic_errors and all(diagnostic_checks.values())
     return {
         "schema_version": "1.0", "valid": not errors, "verdict": verdict,
         "benchmark_promotion_ready": verdict == "GO", "checks": checks,
+        "diagnostic_verdict": "DIAGNOSTIC_PASS" if diagnostic_ready else "DIAGNOSTIC_INCOMPLETE",
+        "diagnostic_ready": diagnostic_ready, "diagnostic_checks": diagnostic_checks,
+        "diagnostic_errors": diagnostic_errors,
         "blockers": blockers, "batch_ids": batch_ids,
         "dataset_id": identity[0], "manifest_sha256": identity[1],
         "sources": {

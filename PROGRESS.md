@@ -4,11 +4,12 @@
 
 - Updated: 2026-07-24 KST
 - Branch: `main`
-- Remote state: pushed through `72cbe1e`; provenance role-separation guard pending verification and push
-- Fable benchmark: contract, Golden Tests, framework, and PILOT-A freshness valid; 93 unit tests pass
+- Remote state: pushed through `a77712e`; single-operator diagnostic verdict pending verification and push
+- Fable benchmark: contract, Golden Tests, framework, and PILOT-A freshness valid; 94 unit tests pass
 - Implemented: private holdout v1.1 intake, hash-bound provenance attestation with custodian/attestor role separation, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, five-axis evidence-conflict outcome rubric, scenario-level and provenance-stratified OOD statistics, numeric phrase normalization, hash-bound two-rater reliability, placebo analysis, and a final evidence gate that rejects mixed dataset/manifest/provenance evidence
 - Diagnostic result: Opus 4.8 and Sonnet 5 were both evidence-faithful on five non-promotional cases; one label-only disagreement was observed
 - Promotion status: not ready; offline semantic evidence, independently verified holdout provenance, and two scored batches remain
+- Single-operator path: diagnostic comparison may complete without independent provenance; it cannot produce formal GO
 - Constraint: API credentials, paid API use, and local LLM/Ollama are excluded; no semantic gate bypass is permitted
 - Ignored user file: `scratch_notion_ai_simple.md` was not modified or committed
 
