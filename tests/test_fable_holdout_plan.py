@@ -88,6 +88,22 @@ class FableHoldoutPlanTest(unittest.TestCase):
         self.assertEqual(ballot[0]["scenario_id"], run["scenario_id"])
         self.assertNotIn("variant_id", ballot[0])
 
+    def test_diagnostic_plan_is_twenty_non_promotional_runs(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            result = compiler.compile_plan(
+                manifest, output, seed=17, batch_id="DIAGNOSTIC-A", diagnostic_only=True,
+            )
+        self.assertTrue(result["diagnostic_only"])
+        self.assertEqual(result["repetitions"], 1)
+        self.assertEqual(result["artifact_count"], 20)
+        self.assertEqual(result["run_count"], 20)
+        self.assertEqual({run["variant_id"] for run in result["runs"]}, {"O-B", "O-F", "S-B", "S-F"})
+        self.assertFalse(result["benchmark_promotion_ready"])
+
     def test_rejects_underfilled_intake(self):
         temp, root, manifest = self.make_dataset(1)
         self.addCleanup(temp.cleanup)

@@ -81,6 +81,9 @@ An intake-ready manifest can be compiled with
 `scripts/prepare_fable_holdout_plan.py`. Each entry names a validated `route_id`;
 the compiler resolves its FEF module, policies, workflow, and reviewer from
 `config/routes.json`. Execution artifacts exclude check-spec content and canaries.
+For a single-operator first pass, `--diagnostic-only` compiles only
+`O-B/O-F/S-B/S-F` once per scenario. With five scenarios this is 20 runs and is
+permanently non-promotional.
 Semantic-similarity evidence must be produced by a separately identified offline
 tool, stored under `.local/fable/leakage/`, and validated with
 `scripts/validate_fable_semantic_evidence.py`. A complete result binds every

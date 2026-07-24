@@ -33,7 +33,8 @@ def routed_sources(route: dict) -> list[str]:
     return list(dict.fromkeys(paths))
 
 
-def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str, repetitions: int | None = None) -> dict:
+def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
+                 repetitions: int | None = None, diagnostic_only: bool = False) -> dict:
     manifest_path, output = manifest_path.resolve(), output.resolve()
     if not contained(output, LOCAL_HOLDOUT):
         raise ValueError("output must stay under .local/fable/holdout")
@@ -45,12 +46,15 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
     manifest_raw = manifest_path.read_bytes()
     manifest = json.loads(manifest_raw.decode("utf-8-sig"))
     config = json.loads(CONFIG.read_text(encoding="utf-8-sig"))
-    repetitions = repetitions or config["execution"]["minimum_repetitions"]
-    if repetitions < config["execution"]["minimum_repetitions"]:
+    if diagnostic_only and repetitions not in {None, 1}:
+        raise ValueError("diagnostic-only plans use exactly one repetition")
+    repetitions = 1 if diagnostic_only else repetitions or config["execution"]["minimum_repetitions"]
+    if not diagnostic_only and repetitions < config["execution"]["minimum_repetitions"]:
         raise ValueError("repetitions cannot be lower than the benchmark minimum")
     if not batch_id or any(character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for character in batch_id):
         raise ValueError("batch_id is unsafe")
-    variants = config["variants"]
+    variants = [variant for variant in config["variants"]
+                if not diagnostic_only or variant["id"] in {"O-B", "O-F", "S-B", "S-F"}]
     repository_commit = git_output("rev-parse", "HEAD")
     routes = {item["id"]: item for item in json.loads((CONFIG.parent / "routes.json").read_text(encoding="utf-8-sig"))["routes"]}
     package = output.with_name(f"{output.stem}-package")
@@ -107,6 +111,7 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
         "artifact_count": len(artifacts),
         "run_count": len(runs), "repetitions": repetitions, "artifacts": artifacts, "runs": runs,
         "surface": "claude_app", "manual_execution_only": True, "responses_imported": 0,
+        "diagnostic_only": diagnostic_only,
         "intake_gate_ready": True, "benchmark_promotion_ready": False,
         "evaluator_assets_in_execution_package": False,
     }
@@ -122,9 +127,11 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=3019)
     parser.add_argument("--batch-id", default="PRIVATE-A")
     parser.add_argument("--repetitions", type=int)
+    parser.add_argument("--diagnostic-only", action="store_true")
     args = parser.parse_args()
-    result = compile_plan(args.manifest, args.output, seed=args.seed, batch_id=args.batch_id, repetitions=args.repetitions)
-    print(json.dumps({key: result[key] for key in ("batch_id", "artifact_count", "run_count", "intake_gate_ready", "benchmark_promotion_ready")}, indent=2))
+    result = compile_plan(args.manifest, args.output, seed=args.seed, batch_id=args.batch_id,
+                          repetitions=args.repetitions, diagnostic_only=args.diagnostic_only)
+    print(json.dumps({key: result[key] for key in ("batch_id", "artifact_count", "run_count", "diagnostic_only", "intake_gate_ready", "benchmark_promotion_ready")}, indent=2))
     return 0
 
 
