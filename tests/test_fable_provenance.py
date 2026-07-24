@@ -36,6 +36,17 @@ class FableProvenanceTest(unittest.TestCase):
         with patch.object(target, "LOCAL_HOLDOUT", root.resolve()):
             self.assertFalse(target.validate(evidence, manifest)["valid"])
 
+    def test_custodian_cannot_self_attest(self):
+        temp, root, manifest, evidence = self.bundle()
+        self.addCleanup(temp.cleanup)
+        document = json.loads(evidence.read_text(encoding="utf-8"))
+        document["attestor_id"] = "C-1"
+        evidence.write_text(json.dumps(document), encoding="utf-8")
+        with patch.object(target, "LOCAL_HOLDOUT", root.resolve()):
+            result = target.validate(evidence, manifest)
+        self.assertFalse(result["valid"])
+        self.assertIn("attestor_id must differ from custodian_id", result["errors"])
+
 
 if __name__ == "__main__":
     unittest.main()

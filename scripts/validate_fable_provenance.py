@@ -44,6 +44,8 @@ def validate(evidence_path: Path, manifest_path: Path) -> dict:
         errors.append("distillation_material_access must be false")
     if not isinstance(evidence.get("attestor_id"), str) or not SAFE_ID.fullmatch(evidence["attestor_id"]):
         errors.append("attestor_id must be a safe opaque ID")
+    elif evidence["attestor_id"] == manifest.get("custodian_id"):
+        errors.append("attestor_id must differ from custodian_id")
     try:
         datetime.fromisoformat(evidence.get("attested_at", "").replace("Z", "+00:00"))
     except (TypeError, ValueError):

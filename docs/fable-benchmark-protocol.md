@@ -74,8 +74,9 @@ structural documentation and is not a real holdout dataset.
 Bind a separate local provenance attestation to the manifest hash with
 `scripts/validate_fable_provenance.py`. The attestation must identify human or
 non-target-model authorship, declare no target-model involvement, and declare no
-access to distillation material. Structural validation does not prove a false
-attestation true.
+access to distillation material. The attestor's opaque ID must differ from the
+dataset custodian's ID; this enforces role separation but does not prove identity
+or make a false attestation true.
 An intake-ready manifest can be compiled with
 `scripts/prepare_fable_holdout_plan.py`. Each entry names a validated `route_id`;
 the compiler resolves its FEF module, policies, workflow, and reviewer from
