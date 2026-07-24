@@ -117,7 +117,7 @@ def validate(manifest_path: Path, minimum_per_suite: int = 5) -> dict:
             suites[suite] += 1
         if entry.get("route_id") not in route_ids:
             errors.append(f"{label}.route_id is not defined in config/routes.json")
-        if entry.get("provenance") != "private_holdout" or entry.get("independently_authored") is not True or entry.get("exposed_to_distillation") is not False:
+        if entry.get("provenance") not in {"private_holdout", "out_of_domain"} or entry.get("independently_authored") is not True or entry.get("exposed_to_distillation") is not False:
             errors.append(f"{label} lacks private, independent, unexposed provenance")
         canary_hash = entry.get("canary_sha256")
         if canary_hash is not None and (not isinstance(canary_hash, str) or not SHA256.fullmatch(canary_hash)):

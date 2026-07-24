@@ -76,7 +76,7 @@ def audit(plan_path: Path, import_dir: Path, *, allowed_root: Path = LOCAL_ROOT)
             continue
         observed[run_id] = metadata
         run = planned[run_id]
-        for field in ("scenario_id", "variant_id", "requested_model", "prompt_hash", "repository_commit"):
+        for field in ("scenario_id", "provenance", "variant_id", "requested_model", "prompt_hash", "repository_commit"):
             expected = run.get(field, run.get("pilot_case_id") if field == "scenario_id" else None)
             if metadata.get(field) != expected:
                 errors.append(f"{run_id} metadata mismatch: {field}")
@@ -112,11 +112,13 @@ def audit(plan_path: Path, import_dir: Path, *, allowed_root: Path = LOCAL_ROOT)
     conservative_failures = len(missing) + statuses["excluded"]
     total = len(planned)
     collection_complete = not errors and not missing
+    scenario_provenance = {run["scenario_id"]: run.get("provenance") for run in planned.values()}
     return {
         "valid": not errors, "collection_complete": collection_complete,
         "scoring_ready": collection_complete, "benchmark_promotion_ready": False,
         "batch_id": plan.get("batch_id"), "dataset_id": plan.get("dataset_id"),
         "manifest_sha256": plan.get("manifest_sha256"), "plan_sha256": expected_plan_hash,
+        "scenario_provenance": dict(sorted(scenario_provenance.items())),
         "planned_runs": total, "observed_results": len(observed), "missing_runs": len(missing),
         "missing_run_ids": missing, "status_counts": dict(statuses),
         "variant_status_counts": {key: dict(value) for key, value in sorted(variants.items())},

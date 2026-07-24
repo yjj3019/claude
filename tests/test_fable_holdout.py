@@ -66,6 +66,14 @@ class FableHoldoutTest(unittest.TestCase):
         self.assertTrue(result["valid"])
         self.assertFalse(result["intake_gate_ready"])
 
+    def test_out_of_domain_provenance_is_allowed(self):
+        temp, root, manifest = self.make_manifest()
+        self.addCleanup(temp.cleanup)
+        document = json.loads(manifest.read_text(encoding="utf-8"))
+        document["entries"][0]["provenance"] = "out_of_domain"
+        manifest.write_text(json.dumps(document), encoding="utf-8")
+        self.assertTrue(self.run_local(manifest, root, minimum=1)["valid"])
+
 
 if __name__ == "__main__":
     unittest.main()

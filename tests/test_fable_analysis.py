@@ -8,11 +8,12 @@ class FableAnalysisTest(unittest.TestCase):
     def document(self):
         rows = []
         for batch in ("A", "B"):
-            for scenario in range(5):
+            for scenario in range(8):
                 for variant in ("O-B", "O-F", "O-N", "S-B", "S-F", "S-N"):
                     treatment = variant.endswith("-F")
                     rows.append({
                         "batch_id": batch, "scenario_id": f"P-{scenario}", "variant_id": variant,
+                        "provenance": "private_holdout" if scenario < 5 else "out_of_domain",
                         "planned_runs": 5, "observed_runs": 5,
                         "metrics": {
                             "task_success_rate": .8 if treatment else .4,
@@ -29,11 +30,11 @@ class FableAnalysisTest(unittest.TestCase):
         result = analyze(self.document(), bootstrap_samples=200)
         self.assertTrue(result["valid"])
         self.assertTrue(result["quality_gate_pass"])
-        self.assertFalse(result["out_of_domain_gate_pass"])
-        self.assertIn("out_of_domain_gate_not_run", result["promotion_blockers"])
+        self.assertTrue(result["out_of_domain_gate_pass"])
         self.assertTrue(result["placebo_gate_pass"])
         self.assertFalse(result["benchmark_promotion_ready"])
-        self.assertEqual(result["comparisons"]["O-F_minus_O-B"]["scenario_count"], 5)
+        self.assertEqual(result["comparisons"]["O-F_minus_O-B"]["scenario_count"], 8)
+        self.assertEqual(result["out_of_domain_comparisons"]["O-F_minus_O-B"]["scenario_count"], 3)
         self.assertFalse(result["repetitions_treated_as_independent"])
         self.assertEqual(
             result["comparisons"]["O-F_minus_O-B"]["metrics"]["task_success_rate"]["mcnemar"]["status"],
@@ -58,7 +59,8 @@ class FableAnalysisTest(unittest.TestCase):
     def test_incomplete_scenario_pair_fails(self):
         document = self.document()
         document["scenario_results"] = [row for row in document["scenario_results"]
-                                        if not (row["batch_id"] == "B" and row["scenario_id"] == "P-4" and row["variant_id"] == "O-F")]
+                                        if not (row["batch_id"] == "B" and int(row["scenario_id"][2:]) >= 4
+                                                and row["variant_id"] == "O-F")]
         self.assertFalse(analyze(document, bootstrap_samples=200)["valid"])
 
     def test_missing_runs_are_conservatively_counted_as_failures(self):
@@ -81,6 +83,16 @@ class FableAnalysisTest(unittest.TestCase):
         result = analyze(document, bootstrap_samples=200)
         self.assertFalse(result["placebo_gate_pass"])
         self.assertEqual(result["placebo"]["status"], "complete")
+
+    def test_out_of_domain_regression_fails_only_ood_gate(self):
+        document = self.document()
+        for row in document["scenario_results"]:
+            if row["provenance"] == "out_of_domain" and row["variant_id"].endswith("-F"):
+                row["metrics"]["task_success_rate"] = .39
+        result = analyze(document, bootstrap_samples=200)
+        self.assertTrue(result["quality_gate_pass"])
+        self.assertFalse(result["out_of_domain_gate_pass"])
+        self.assertIn("out_of_domain_gate_not_passed", result["promotion_blockers"])
 
 
 if __name__ == "__main__":

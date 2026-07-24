@@ -7,6 +7,7 @@
     {
       "batch_id": "PRIVATE-A",
       "scenario_id": "PRIVATE-001",
+      "provenance": "private_holdout",
       "variant_id": "O-B",
       "planned_runs": 5,
       "observed_runs": 5,

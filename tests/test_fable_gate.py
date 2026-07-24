@@ -9,13 +9,14 @@ from scripts.evaluate_fable_gate import evaluate
 class FableGateTest(unittest.TestCase):
     def evidence(self, root: Path, *, quality=True, placebo=False):
         identity = {"dataset_id": "PRIVATE-HOLDOUT", "manifest_sha256": "a" * 64}
+        provenance = {"scenario_provenance": {"P-0": "private_holdout", "P-1": "out_of_domain"}}
         documents = {
             "analysis": {"valid": True, "quality_gate_pass": quality, "placebo_gate_pass": placebo,
-                         "out_of_domain_gate_pass": True, "batch_ids": ["A", "B"], **identity},
+                         "out_of_domain_gate_pass": True, "batch_ids": ["A", "B"], **identity, **provenance},
             "reliability": {"reliability_gate_pass": True, "batch_ids": ["A", "B"], **identity},
-            "preflight": {"valid": True, "execution_ready": True, **identity},
-            "audit-a": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "A", **identity},
-            "audit-b": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "B", **identity},
+            "preflight": {"valid": True, "execution_ready": True, **identity, **provenance},
+            "audit-a": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "A", **identity, **provenance},
+            "audit-b": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "B", **identity, **provenance},
         }
         paths = {}
         for name, document in documents.items():
@@ -86,6 +87,17 @@ class FableGateTest(unittest.TestCase):
                               [paths["audit-a"], paths["audit-b"]])
         self.assertEqual(result["verdict"], "NO_GO")
         self.assertIn("analysis holdout identity does not match batch audits", result["blockers"])
+
+    def test_unbound_provenance_is_no_go(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            document = json.loads(paths["analysis"].read_text(encoding="utf-8"))
+            document["scenario_provenance"]["P-1"] = "private_holdout"
+            paths["analysis"].write_text(json.dumps(document), encoding="utf-8")
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertIn("analysis scenario provenance does not match batch audits", result["blockers"])
 
 
 if __name__ == "__main__":

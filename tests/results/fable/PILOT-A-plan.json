@@ -1,11 +1,11 @@
 {
   "benchmark_id": "FEF-FABLE-COMPARE-001",
-  "benchmark_version": "1.0.0",
+  "benchmark_version": "1.1.0",
   "batch_id": "PILOT-A",
   "seed": 3019,
-  "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+  "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
   "working_tree_clean": false,
-  "config_sha256": "d4cb6c278d9d81c0a2e6ec1f6e927e97dbc6605877dba320ede6fc81fad0ca6a",
+  "config_sha256": "97a3e1be677803445907e7380af1388f06e145be563e4c93aa98e748b8c1f8d8",
   "source_tree_sha256": "9e90d067c00125edd26ac41f2e45ed516f895a33692c88bdf3656e3745beb8d0",
   "repetitions": 5,
   "artifact_count": 54,
@@ -238,7 +238,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-S-N.json",
       "prompt_hash": "bbd16eb9ddb82b7467a4c2f8c345e85b0ae4e14b122a753d5c9cf7bccf7d0e79",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -251,7 +251,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-F5.json",
       "prompt_hash": "fdb6cbd3025b661195b9ec6a4f26807a20fd6a18a5f67aeb1c45ef9214d3dbc6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -264,7 +264,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-O-F.json",
       "prompt_hash": "66b9eb6294e85a56955696c3e26dd8d5a854f6ffc662ead1154e4d483b25a831",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -277,7 +277,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-O-B.json",
       "prompt_hash": "53bc58995fbdc4dfbe50ecb24246b3ee0418e6957659af08475a742c59951da2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -290,7 +290,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-S-F.json",
       "prompt_hash": "f79fa78ee4d8500cf5cd9811ff89297c748dead134f381bae9e06acf67d6fbd3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -303,7 +303,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-S-K.json",
       "prompt_hash": "d13cbfc2623b6437e32011904495f4ce27761d369b4bd4186a3c1dda56cddae5",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -316,7 +316,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-S-F.json",
       "prompt_hash": "01696cc0c3b11fe86891807dea55cdc68b7f89237c19fd028b22d10d2c34c338",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -329,7 +329,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-O-B.json",
       "prompt_hash": "f83a0b41e0a886fa6782ec646cbcd8f6af045facd8183b52f890c4300c2c05d2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -342,7 +342,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-O-F.json",
       "prompt_hash": "910ebbd07980d88569501e6989117966f47604552c974b05d52489d7349f045a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -355,7 +355,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-O-N.json",
       "prompt_hash": "8a3271af0a5e8644c8ff64bd1c99290915ef10f93ae6a358c00af454c2b8ca37",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -368,7 +368,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-O-B.json",
       "prompt_hash": "9a81630acb6dde273fe85135bb5bfddfa4f646c3a44557d90005bf2d235d6fcf",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -381,7 +381,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-S-F.json",
       "prompt_hash": "f79fa78ee4d8500cf5cd9811ff89297c748dead134f381bae9e06acf67d6fbd3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -394,7 +394,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-O-B.json",
       "prompt_hash": "9982406cb0664e3b0e560aacc6fd57e872128e856fb9f1a478e7f9d41cae1431",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -407,7 +407,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-S-N.json",
       "prompt_hash": "1a6d00443cdf1f0b4ca0d2d71e5a2fadb1fce2bde6653dd4aa5705328510f3a7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -420,7 +420,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-O-K.json",
       "prompt_hash": "44bea8d988eb29f57bf44fb4e7ba7ef5087f720adf7a2473e52352b8a0e4978d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -433,7 +433,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-S-K.json",
       "prompt_hash": "d13cbfc2623b6437e32011904495f4ce27761d369b4bd4186a3c1dda56cddae5",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -446,7 +446,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-S-F.json",
       "prompt_hash": "01696cc0c3b11fe86891807dea55cdc68b7f89237c19fd028b22d10d2c34c338",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -459,7 +459,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-F5.json",
       "prompt_hash": "174bc925509ddbf6a737ff282293be04bba652fb3db4e14b861b25d40b104d7e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -472,7 +472,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-S-B.json",
       "prompt_hash": "cdc59228167656007c9c0da64cf651236dd953d473f9ec83a8c7854e757f993f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -485,7 +485,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-O-K.json",
       "prompt_hash": "c663c0d20a421a4fde16b312403abbd6013cb03101f54c0ac3626c727cd76b49",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -498,7 +498,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-S-B.json",
       "prompt_hash": "fa51fa7f5e934fe97e82c43e3de807073bb4ce61bcc64f7f6a359a321cbf9eec",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -511,7 +511,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-S-F.json",
       "prompt_hash": "5df1430b8dbb4c910050cbb781fa66c8a9d3420e45a6f11d44f5946225894c7f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -524,7 +524,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-O-N.json",
       "prompt_hash": "db3e0a9b2ab446884b25da893c0a9d8e8d249d2867f94b4828a53675d0df9662",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -537,7 +537,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-O-F.json",
       "prompt_hash": "84f44d6341bc99e6c6c98a3a47e2cde8e8fac1eeb5033695335e466e6c76b8d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -550,7 +550,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-S-K.json",
       "prompt_hash": "ebd589d669c24beb2f964661ac3cc5a4f355970c14eb37e1a4f57f11b9d3acf6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -563,7 +563,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-S-N.json",
       "prompt_hash": "068879df152420dfa60644a7f120210b718dbec9655016e02b3266f3298cdebc",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -576,7 +576,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-S-F.json",
       "prompt_hash": "f79fa78ee4d8500cf5cd9811ff89297c748dead134f381bae9e06acf67d6fbd3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -589,7 +589,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-S-B.json",
       "prompt_hash": "fa51fa7f5e934fe97e82c43e3de807073bb4ce61bcc64f7f6a359a321cbf9eec",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -602,7 +602,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-O-B.json",
       "prompt_hash": "17a437ff36241ab2de4a6fe1caeb8ea272849768ed269ad15e5118f038c6db1a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -615,7 +615,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-O-F.json",
       "prompt_hash": "84f44d6341bc99e6c6c98a3a47e2cde8e8fac1eeb5033695335e466e6c76b8d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -628,7 +628,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-O-K.json",
       "prompt_hash": "14505a58c6b7c46d7af2536fea3e13cb400c5294387f9f0447c86307580c1b95",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -641,7 +641,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-O-N.json",
       "prompt_hash": "d3a97c92b741c070e27b6e7ce0754e26dc34a2b84c2aab9547a916ce3b014fba",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -654,7 +654,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-F5.json",
       "prompt_hash": "174bc925509ddbf6a737ff282293be04bba652fb3db4e14b861b25d40b104d7e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -667,7 +667,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-S-N.json",
       "prompt_hash": "bbd16eb9ddb82b7467a4c2f8c345e85b0ae4e14b122a753d5c9cf7bccf7d0e79",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -680,7 +680,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-S-N.json",
       "prompt_hash": "52907a7ededa59177d14a5f85874541914027bb482b159ddb757047274de2837",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -693,7 +693,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-S-N.json",
       "prompt_hash": "1a6d00443cdf1f0b4ca0d2d71e5a2fadb1fce2bde6653dd4aa5705328510f3a7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -706,7 +706,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-O-N.json",
       "prompt_hash": "6a4cd223fd5d4e353c3f46bc9737e0629c82913f66819078decba51facf99cca",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -719,7 +719,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-O-B.json",
       "prompt_hash": "c94d834838402d9b04d98bf147b1317eb01cc24f771b1eb420fa493658b9c583",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -732,7 +732,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-O-K.json",
       "prompt_hash": "9b182e3507f51f6e0f796e3eac793425200d8e2cc28aa7ced22e2f3763c5a551",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -745,7 +745,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-S-K.json",
       "prompt_hash": "8574a9db7eb2f89d3750d17ea486101fe7b61d1bb5e6b0abdfadbb0e1efdb5af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -758,7 +758,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-S-B.json",
       "prompt_hash": "84f752ce8ab4ead5ed85e42abb038d40cbf02de73d5537a7cb24d3c79746775d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -771,7 +771,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-S-N.json",
       "prompt_hash": "068879df152420dfa60644a7f120210b718dbec9655016e02b3266f3298cdebc",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -784,7 +784,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-O-N.json",
       "prompt_hash": "6a4cd223fd5d4e353c3f46bc9737e0629c82913f66819078decba51facf99cca",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -797,7 +797,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-O-F.json",
       "prompt_hash": "910ebbd07980d88569501e6989117966f47604552c974b05d52489d7349f045a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -810,7 +810,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-S-K.json",
       "prompt_hash": "55d54efff83b9e54b020397ffdad411f0ff587da72a2470ed5730b9c32435edd",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -823,7 +823,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-S-B.json",
       "prompt_hash": "cdc59228167656007c9c0da64cf651236dd953d473f9ec83a8c7854e757f993f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -836,7 +836,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-S-B.json",
       "prompt_hash": "84f752ce8ab4ead5ed85e42abb038d40cbf02de73d5537a7cb24d3c79746775d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -849,7 +849,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-O-N.json",
       "prompt_hash": "8a3271af0a5e8644c8ff64bd1c99290915ef10f93ae6a358c00af454c2b8ca37",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -862,7 +862,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-S-B.json",
       "prompt_hash": "2d8e7419b62b0a2853d34b808f09a83d27c95e2ea2754d52ae90d46b547c7902",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -875,7 +875,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-S-N.json",
       "prompt_hash": "068879df152420dfa60644a7f120210b718dbec9655016e02b3266f3298cdebc",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -888,7 +888,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-S-F.json",
       "prompt_hash": "f79fa78ee4d8500cf5cd9811ff89297c748dead134f381bae9e06acf67d6fbd3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -901,7 +901,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-S-F.json",
       "prompt_hash": "01696cc0c3b11fe86891807dea55cdc68b7f89237c19fd028b22d10d2c34c338",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -914,7 +914,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-O-K.json",
       "prompt_hash": "ddb49a56d9a9eb1e7a6c535d7a764129c0b30dc3225f1710f0265bcc080b55d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -927,7 +927,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-S-F.json",
       "prompt_hash": "90c041ff4f26881ab09ecbd6937bbf10f10edae44e936655d775f529d8923186",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -940,7 +940,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-O-N.json",
       "prompt_hash": "6a4cd223fd5d4e353c3f46bc9737e0629c82913f66819078decba51facf99cca",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -953,7 +953,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-O-N.json",
       "prompt_hash": "893b56832219c05f2a0934be6c4d6db4d6fb6ea8de6e365dba90e5027ddc9b5e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -966,7 +966,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-O-K.json",
       "prompt_hash": "14505a58c6b7c46d7af2536fea3e13cb400c5294387f9f0447c86307580c1b95",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -979,7 +979,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-O-B.json",
       "prompt_hash": "9a81630acb6dde273fe85135bb5bfddfa4f646c3a44557d90005bf2d235d6fcf",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -992,7 +992,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-O-N.json",
       "prompt_hash": "f5d71eee21a9a219e055ec7eb8fdc6c061053b065c080f4fc9a5345748add04f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1005,7 +1005,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-O-F.json",
       "prompt_hash": "8bcfba9636497cf02bc554c583b2991d909d36a758b5b6ad16341caf0cc33ce3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1018,7 +1018,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-O-N.json",
       "prompt_hash": "f5d71eee21a9a219e055ec7eb8fdc6c061053b065c080f4fc9a5345748add04f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1031,7 +1031,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-O-B.json",
       "prompt_hash": "c94d834838402d9b04d98bf147b1317eb01cc24f771b1eb420fa493658b9c583",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1044,7 +1044,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-F5.json",
       "prompt_hash": "5fb20c50fd17a06d0352f9e7d71a39aab6c21a2e2d3729cfc081302611c01abe",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1057,7 +1057,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-O-N.json",
       "prompt_hash": "d3a97c92b741c070e27b6e7ce0754e26dc34a2b84c2aab9547a916ce3b014fba",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1070,7 +1070,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-S-K.json",
       "prompt_hash": "ebd589d669c24beb2f964661ac3cc5a4f355970c14eb37e1a4f57f11b9d3acf6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1083,7 +1083,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-S-N.json",
       "prompt_hash": "b316818ef77383f19b35efef4e0d5b0d9fe098c0f9a76fddb065d2497b61275a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1096,7 +1096,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-S-B.json",
       "prompt_hash": "fa51fa7f5e934fe97e82c43e3de807073bb4ce61bcc64f7f6a359a321cbf9eec",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1109,7 +1109,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-O-K.json",
       "prompt_hash": "c663c0d20a421a4fde16b312403abbd6013cb03101f54c0ac3626c727cd76b49",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1122,7 +1122,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-S-N.json",
       "prompt_hash": "fad2d7364307a95bc06f0ead05f5f6677c4f35ad4ef24c45a30424124deb5e6e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1135,7 +1135,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-S-B.json",
       "prompt_hash": "cdc59228167656007c9c0da64cf651236dd953d473f9ec83a8c7854e757f993f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1148,7 +1148,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-F5.json",
       "prompt_hash": "b7889bb97d3ec4c8b50d36ae610dafe1095581ff8e53c4669aa4c2a281a83110",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1161,7 +1161,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-O-B.json",
       "prompt_hash": "f83a0b41e0a886fa6782ec646cbcd8f6af045facd8183b52f890c4300c2c05d2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1174,7 +1174,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-O-F.json",
       "prompt_hash": "66b9eb6294e85a56955696c3e26dd8d5a854f6ffc662ead1154e4d483b25a831",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1187,7 +1187,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-O-N.json",
       "prompt_hash": "f5d71eee21a9a219e055ec7eb8fdc6c061053b065c080f4fc9a5345748add04f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1200,7 +1200,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-S-B.json",
       "prompt_hash": "cdc59228167656007c9c0da64cf651236dd953d473f9ec83a8c7854e757f993f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1213,7 +1213,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-O-B.json",
       "prompt_hash": "f83a0b41e0a886fa6782ec646cbcd8f6af045facd8183b52f890c4300c2c05d2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1226,7 +1226,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-O-F.json",
       "prompt_hash": "0b7da356b1cff9846988070fa11892d176079e357b687fc51708351eced3b43d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1239,7 +1239,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-O-F.json",
       "prompt_hash": "8d91b992da97cffaa3ef4c64c3b4d6b739c98f224c0efce3b07d700228ad5689",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1252,7 +1252,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-S-F.json",
       "prompt_hash": "f79fa78ee4d8500cf5cd9811ff89297c748dead134f381bae9e06acf67d6fbd3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1265,7 +1265,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-S-F.json",
       "prompt_hash": "5df1430b8dbb4c910050cbb781fa66c8a9d3420e45a6f11d44f5946225894c7f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1278,7 +1278,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-O-F.json",
       "prompt_hash": "910ebbd07980d88569501e6989117966f47604552c974b05d52489d7349f045a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1291,7 +1291,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-S-B.json",
       "prompt_hash": "2d8e7419b62b0a2853d34b808f09a83d27c95e2ea2754d52ae90d46b547c7902",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1304,7 +1304,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-F5.json",
       "prompt_hash": "b7889bb97d3ec4c8b50d36ae610dafe1095581ff8e53c4669aa4c2a281a83110",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1317,7 +1317,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-O-B.json",
       "prompt_hash": "c94d834838402d9b04d98bf147b1317eb01cc24f771b1eb420fa493658b9c583",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1330,7 +1330,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-O-K.json",
       "prompt_hash": "3a684f7132de6162f34abcb42c430631a91edce250b1efd0e83bd051bde913f7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1343,7 +1343,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-F5.json",
       "prompt_hash": "83f36a96cc5322b3e446eeb7000abf124c506742835a99b1e84884c6c70ea00b",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1356,7 +1356,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-S-F.json",
       "prompt_hash": "5df1430b8dbb4c910050cbb781fa66c8a9d3420e45a6f11d44f5946225894c7f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1369,7 +1369,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-S-F.json",
       "prompt_hash": "90c041ff4f26881ab09ecbd6937bbf10f10edae44e936655d775f529d8923186",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1382,7 +1382,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-S-F.json",
       "prompt_hash": "847b199540050db5be8b7eed53e87028f7d699afbd1ebc3bf8eb927126de3698",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1395,7 +1395,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-F5.json",
       "prompt_hash": "fdb6cbd3025b661195b9ec6a4f26807a20fd6a18a5f67aeb1c45ef9214d3dbc6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1408,7 +1408,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-O-K.json",
       "prompt_hash": "14505a58c6b7c46d7af2536fea3e13cb400c5294387f9f0447c86307580c1b95",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1421,7 +1421,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-O-K.json",
       "prompt_hash": "44bea8d988eb29f57bf44fb4e7ba7ef5087f720adf7a2473e52352b8a0e4978d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1434,7 +1434,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-O-N.json",
       "prompt_hash": "d3a97c92b741c070e27b6e7ce0754e26dc34a2b84c2aab9547a916ce3b014fba",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1447,7 +1447,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-F5.json",
       "prompt_hash": "9bcbe3e2fce7d9fa35de0668aeac4ffdb83c0c44096e1e9a34a32db6622f3752",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1460,7 +1460,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-F5.json",
       "prompt_hash": "9bcbe3e2fce7d9fa35de0668aeac4ffdb83c0c44096e1e9a34a32db6622f3752",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1473,7 +1473,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-F5.json",
       "prompt_hash": "83f36a96cc5322b3e446eeb7000abf124c506742835a99b1e84884c6c70ea00b",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1486,7 +1486,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-F5.json",
       "prompt_hash": "b7889bb97d3ec4c8b50d36ae610dafe1095581ff8e53c4669aa4c2a281a83110",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1499,7 +1499,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-O-B.json",
       "prompt_hash": "c94d834838402d9b04d98bf147b1317eb01cc24f771b1eb420fa493658b9c583",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1512,7 +1512,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-O-K.json",
       "prompt_hash": "14505a58c6b7c46d7af2536fea3e13cb400c5294387f9f0447c86307580c1b95",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1525,7 +1525,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-F5.json",
       "prompt_hash": "b7889bb97d3ec4c8b50d36ae610dafe1095581ff8e53c4669aa4c2a281a83110",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1538,7 +1538,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-S-B.json",
       "prompt_hash": "b3fb3f89b56845b6a119aa689500465bdcd7587951895a80bb7d74cf2e57f9f9",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1551,7 +1551,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-S-N.json",
       "prompt_hash": "52907a7ededa59177d14a5f85874541914027bb482b159ddb757047274de2837",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1564,7 +1564,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-S-B.json",
       "prompt_hash": "b3fb3f89b56845b6a119aa689500465bdcd7587951895a80bb7d74cf2e57f9f9",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1577,7 +1577,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-S-N.json",
       "prompt_hash": "fad2d7364307a95bc06f0ead05f5f6677c4f35ad4ef24c45a30424124deb5e6e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1590,7 +1590,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-O-K.json",
       "prompt_hash": "14505a58c6b7c46d7af2536fea3e13cb400c5294387f9f0447c86307580c1b95",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1603,7 +1603,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-O-B.json",
       "prompt_hash": "53bc58995fbdc4dfbe50ecb24246b3ee0418e6957659af08475a742c59951da2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1616,7 +1616,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-O-K.json",
       "prompt_hash": "9b182e3507f51f6e0f796e3eac793425200d8e2cc28aa7ced22e2f3763c5a551",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1629,7 +1629,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-S-K.json",
       "prompt_hash": "ebd589d669c24beb2f964661ac3cc5a4f355970c14eb37e1a4f57f11b9d3acf6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1642,7 +1642,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-S-K.json",
       "prompt_hash": "d13cbfc2623b6437e32011904495f4ce27761d369b4bd4186a3c1dda56cddae5",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1655,7 +1655,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-S-F.json",
       "prompt_hash": "01696cc0c3b11fe86891807dea55cdc68b7f89237c19fd028b22d10d2c34c338",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1668,7 +1668,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-O-N.json",
       "prompt_hash": "db3e0a9b2ab446884b25da893c0a9d8e8d249d2867f94b4828a53675d0df9662",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1681,7 +1681,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-O-F.json",
       "prompt_hash": "66b9eb6294e85a56955696c3e26dd8d5a854f6ffc662ead1154e4d483b25a831",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1694,7 +1694,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-S-K.json",
       "prompt_hash": "e0e261c5f79384e06ccc8f79681054566ef9f18a7508f325b9e8a3123c60864a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1707,7 +1707,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-S-B.json",
       "prompt_hash": "b0995b264d3e8a27096f2c860ad63d78426c21308a5eea05fa8ea4c7a3e1bd12",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1720,7 +1720,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-F5.json",
       "prompt_hash": "5fb20c50fd17a06d0352f9e7d71a39aab6c21a2e2d3729cfc081302611c01abe",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1733,7 +1733,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-O-F.json",
       "prompt_hash": "910ebbd07980d88569501e6989117966f47604552c974b05d52489d7349f045a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1746,7 +1746,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-S-N.json",
       "prompt_hash": "fad2d7364307a95bc06f0ead05f5f6677c4f35ad4ef24c45a30424124deb5e6e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1759,7 +1759,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-O-K.json",
       "prompt_hash": "3a684f7132de6162f34abcb42c430631a91edce250b1efd0e83bd051bde913f7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1772,7 +1772,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-S-F.json",
       "prompt_hash": "847b199540050db5be8b7eed53e87028f7d699afbd1ebc3bf8eb927126de3698",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1785,7 +1785,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-O-K.json",
       "prompt_hash": "3a684f7132de6162f34abcb42c430631a91edce250b1efd0e83bd051bde913f7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1798,7 +1798,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-S-B.json",
       "prompt_hash": "fa51fa7f5e934fe97e82c43e3de807073bb4ce61bcc64f7f6a359a321cbf9eec",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1811,7 +1811,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-S-N.json",
       "prompt_hash": "b316818ef77383f19b35efef4e0d5b0d9fe098c0f9a76fddb065d2497b61275a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1824,7 +1824,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-O-N.json",
       "prompt_hash": "8a3271af0a5e8644c8ff64bd1c99290915ef10f93ae6a358c00af454c2b8ca37",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1837,7 +1837,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-S-B.json",
       "prompt_hash": "b3fb3f89b56845b6a119aa689500465bdcd7587951895a80bb7d74cf2e57f9f9",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1850,7 +1850,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-S-F.json",
       "prompt_hash": "11efb5e1fbf4af59cc4b79c0267d71ff9a1ae144cff5c6028a2e5ae059c23175",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1863,7 +1863,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-S-F.json",
       "prompt_hash": "847b199540050db5be8b7eed53e87028f7d699afbd1ebc3bf8eb927126de3698",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1876,7 +1876,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-S-N.json",
       "prompt_hash": "1a6d00443cdf1f0b4ca0d2d71e5a2fadb1fce2bde6653dd4aa5705328510f3a7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1889,7 +1889,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-S-B.json",
       "prompt_hash": "b0995b264d3e8a27096f2c860ad63d78426c21308a5eea05fa8ea4c7a3e1bd12",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1902,7 +1902,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-S-F.json",
       "prompt_hash": "90c041ff4f26881ab09ecbd6937bbf10f10edae44e936655d775f529d8923186",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1915,7 +1915,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-S-K.json",
       "prompt_hash": "8574a9db7eb2f89d3750d17ea486101fe7b61d1bb5e6b0abdfadbb0e1efdb5af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1928,7 +1928,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-S-K.json",
       "prompt_hash": "e0e261c5f79384e06ccc8f79681054566ef9f18a7508f325b9e8a3123c60864a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1941,7 +1941,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-S-K.json",
       "prompt_hash": "8574a9db7eb2f89d3750d17ea486101fe7b61d1bb5e6b0abdfadbb0e1efdb5af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1954,7 +1954,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-O-N.json",
       "prompt_hash": "f5d71eee21a9a219e055ec7eb8fdc6c061053b065c080f4fc9a5345748add04f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1967,7 +1967,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-S-F.json",
       "prompt_hash": "11efb5e1fbf4af59cc4b79c0267d71ff9a1ae144cff5c6028a2e5ae059c23175",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1980,7 +1980,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-O-F.json",
       "prompt_hash": "8bcfba9636497cf02bc554c583b2991d909d36a758b5b6ad16341caf0cc33ce3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -1993,7 +1993,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-S-N.json",
       "prompt_hash": "b316818ef77383f19b35efef4e0d5b0d9fe098c0f9a76fddb065d2497b61275a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2006,7 +2006,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-O-K.json",
       "prompt_hash": "44bea8d988eb29f57bf44fb4e7ba7ef5087f720adf7a2473e52352b8a0e4978d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2019,7 +2019,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-O-B.json",
       "prompt_hash": "9982406cb0664e3b0e560aacc6fd57e872128e856fb9f1a478e7f9d41cae1431",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2032,7 +2032,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-O-B.json",
       "prompt_hash": "17a437ff36241ab2de4a6fe1caeb8ea272849768ed269ad15e5118f038c6db1a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2045,7 +2045,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-O-F.json",
       "prompt_hash": "84f44d6341bc99e6c6c98a3a47e2cde8e8fac1eeb5033695335e466e6c76b8d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2058,7 +2058,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-O-K.json",
       "prompt_hash": "c663c0d20a421a4fde16b312403abbd6013cb03101f54c0ac3626c727cd76b49",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2071,7 +2071,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-S-B.json",
       "prompt_hash": "2d8e7419b62b0a2853d34b808f09a83d27c95e2ea2754d52ae90d46b547c7902",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2084,7 +2084,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-S-K.json",
       "prompt_hash": "e0e261c5f79384e06ccc8f79681054566ef9f18a7508f325b9e8a3123c60864a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2097,7 +2097,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-S-F.json",
       "prompt_hash": "5df1430b8dbb4c910050cbb781fa66c8a9d3420e45a6f11d44f5946225894c7f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2110,7 +2110,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-F5.json",
       "prompt_hash": "174bc925509ddbf6a737ff282293be04bba652fb3db4e14b861b25d40b104d7e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2123,7 +2123,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-S-B.json",
       "prompt_hash": "cdc59228167656007c9c0da64cf651236dd953d473f9ec83a8c7854e757f993f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2136,7 +2136,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-O-N.json",
       "prompt_hash": "893b56832219c05f2a0934be6c4d6db4d6fb6ea8de6e365dba90e5027ddc9b5e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2149,7 +2149,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-S-B.json",
       "prompt_hash": "fa51fa7f5e934fe97e82c43e3de807073bb4ce61bcc64f7f6a359a321cbf9eec",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2162,7 +2162,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-O-K.json",
       "prompt_hash": "44bea8d988eb29f57bf44fb4e7ba7ef5087f720adf7a2473e52352b8a0e4978d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2175,7 +2175,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-F5.json",
       "prompt_hash": "174bc925509ddbf6a737ff282293be04bba652fb3db4e14b861b25d40b104d7e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2188,7 +2188,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-O-B.json",
       "prompt_hash": "53bc58995fbdc4dfbe50ecb24246b3ee0418e6957659af08475a742c59951da2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2201,7 +2201,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-O-K.json",
       "prompt_hash": "9b182e3507f51f6e0f796e3eac793425200d8e2cc28aa7ced22e2f3763c5a551",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2214,7 +2214,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-O-B.json",
       "prompt_hash": "9a81630acb6dde273fe85135bb5bfddfa4f646c3a44557d90005bf2d235d6fcf",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2227,7 +2227,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-F5.json",
       "prompt_hash": "5fb20c50fd17a06d0352f9e7d71a39aab6c21a2e2d3729cfc081302611c01abe",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2240,7 +2240,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-S-N.json",
       "prompt_hash": "1a6d00443cdf1f0b4ca0d2d71e5a2fadb1fce2bde6653dd4aa5705328510f3a7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2253,7 +2253,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-F5.json",
       "prompt_hash": "9bcbe3e2fce7d9fa35de0668aeac4ffdb83c0c44096e1e9a34a32db6622f3752",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2266,7 +2266,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-S-F.json",
       "prompt_hash": "90c041ff4f26881ab09ecbd6937bbf10f10edae44e936655d775f529d8923186",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2279,7 +2279,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-S-K.json",
       "prompt_hash": "e0e261c5f79384e06ccc8f79681054566ef9f18a7508f325b9e8a3123c60864a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2292,7 +2292,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-O-B.json",
       "prompt_hash": "9982406cb0664e3b0e560aacc6fd57e872128e856fb9f1a478e7f9d41cae1431",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2305,7 +2305,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-O-F.json",
       "prompt_hash": "8bcfba9636497cf02bc554c583b2991d909d36a758b5b6ad16341caf0cc33ce3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2318,7 +2318,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-F5.json",
       "prompt_hash": "fdb6cbd3025b661195b9ec6a4f26807a20fd6a18a5f67aeb1c45ef9214d3dbc6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2331,7 +2331,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-S-N.json",
       "prompt_hash": "bbd16eb9ddb82b7467a4c2f8c345e85b0ae4e14b122a753d5c9cf7bccf7d0e79",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2344,7 +2344,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-S-N.json",
       "prompt_hash": "1a6d00443cdf1f0b4ca0d2d71e5a2fadb1fce2bde6653dd4aa5705328510f3a7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2357,7 +2357,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-S-B.json",
       "prompt_hash": "b0995b264d3e8a27096f2c860ad63d78426c21308a5eea05fa8ea4c7a3e1bd12",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2370,7 +2370,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-S-K.json",
       "prompt_hash": "55d54efff83b9e54b020397ffdad411f0ff587da72a2470ed5730b9c32435edd",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2383,7 +2383,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-S-K.json",
       "prompt_hash": "ebd589d669c24beb2f964661ac3cc5a4f355970c14eb37e1a4f57f11b9d3acf6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2396,7 +2396,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-O-N.json",
       "prompt_hash": "8a3271af0a5e8644c8ff64bd1c99290915ef10f93ae6a358c00af454c2b8ca37",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2409,7 +2409,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-O-N.json",
       "prompt_hash": "d3a97c92b741c070e27b6e7ce0754e26dc34a2b84c2aab9547a916ce3b014fba",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2422,7 +2422,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-S-K.json",
       "prompt_hash": "d13cbfc2623b6437e32011904495f4ce27761d369b4bd4186a3c1dda56cddae5",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2435,7 +2435,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-S-B.json",
       "prompt_hash": "2d8e7419b62b0a2853d34b808f09a83d27c95e2ea2754d52ae90d46b547c7902",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2448,7 +2448,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-S-F.json",
       "prompt_hash": "90c041ff4f26881ab09ecbd6937bbf10f10edae44e936655d775f529d8923186",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2461,7 +2461,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-O-B.json",
       "prompt_hash": "17a437ff36241ab2de4a6fe1caeb8ea272849768ed269ad15e5118f038c6db1a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2474,7 +2474,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-O-N.json",
       "prompt_hash": "d3a97c92b741c070e27b6e7ce0754e26dc34a2b84c2aab9547a916ce3b014fba",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2487,7 +2487,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-O-F.json",
       "prompt_hash": "0b7da356b1cff9846988070fa11892d176079e357b687fc51708351eced3b43d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2500,7 +2500,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-O-B.json",
       "prompt_hash": "53bc58995fbdc4dfbe50ecb24246b3ee0418e6957659af08475a742c59951da2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2513,7 +2513,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-O-F.json",
       "prompt_hash": "8bcfba9636497cf02bc554c583b2991d909d36a758b5b6ad16341caf0cc33ce3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2526,7 +2526,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-F5.json",
       "prompt_hash": "5fb20c50fd17a06d0352f9e7d71a39aab6c21a2e2d3729cfc081302611c01abe",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2539,7 +2539,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-S-B.json",
       "prompt_hash": "b3fb3f89b56845b6a119aa689500465bdcd7587951895a80bb7d74cf2e57f9f9",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2552,7 +2552,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-O-K.json",
       "prompt_hash": "ddb49a56d9a9eb1e7a6c535d7a764129c0b30dc3225f1710f0265bcc080b55d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2565,7 +2565,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-O-K.json",
       "prompt_hash": "9b182e3507f51f6e0f796e3eac793425200d8e2cc28aa7ced22e2f3763c5a551",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2578,7 +2578,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-O-K.json",
       "prompt_hash": "3a684f7132de6162f34abcb42c430631a91edce250b1efd0e83bd051bde913f7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2591,7 +2591,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB003-S-K.json",
       "prompt_hash": "55d54efff83b9e54b020397ffdad411f0ff587da72a2470ed5730b9c32435edd",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2604,7 +2604,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB003-O-F.json",
       "prompt_hash": "66b9eb6294e85a56955696c3e26dd8d5a854f6ffc662ead1154e4d483b25a831",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2617,7 +2617,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-S-K.json",
       "prompt_hash": "95c5074c166282c2ba7d8242e9a3f154a5cb2e2cb6e266b61ec0eed2424b79af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2630,7 +2630,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-O-N.json",
       "prompt_hash": "f5d71eee21a9a219e055ec7eb8fdc6c061053b065c080f4fc9a5345748add04f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2643,7 +2643,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-S-N.json",
       "prompt_hash": "fad2d7364307a95bc06f0ead05f5f6677c4f35ad4ef24c45a30424124deb5e6e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2656,7 +2656,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-S-B.json",
       "prompt_hash": "b3fb3f89b56845b6a119aa689500465bdcd7587951895a80bb7d74cf2e57f9f9",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2669,7 +2669,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-S-N.json",
       "prompt_hash": "52907a7ededa59177d14a5f85874541914027bb482b159ddb757047274de2837",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2682,7 +2682,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-O-F.json",
       "prompt_hash": "8d91b992da97cffaa3ef4c64c3b4d6b739c98f224c0efce3b07d700228ad5689",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2695,7 +2695,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-S-F.json",
       "prompt_hash": "01696cc0c3b11fe86891807dea55cdc68b7f89237c19fd028b22d10d2c34c338",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2708,7 +2708,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB005-O-F.json",
       "prompt_hash": "84f44d6341bc99e6c6c98a3a47e2cde8e8fac1eeb5033695335e466e6c76b8d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2721,7 +2721,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-O-B.json",
       "prompt_hash": "9982406cb0664e3b0e560aacc6fd57e872128e856fb9f1a478e7f9d41cae1431",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2734,7 +2734,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-O-B.json",
       "prompt_hash": "17a437ff36241ab2de4a6fe1caeb8ea272849768ed269ad15e5118f038c6db1a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2747,7 +2747,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-O-F.json",
       "prompt_hash": "0b7da356b1cff9846988070fa11892d176079e357b687fc51708351eced3b43d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2760,7 +2760,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-F5.json",
       "prompt_hash": "fdb6cbd3025b661195b9ec6a4f26807a20fd6a18a5f67aeb1c45ef9214d3dbc6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2773,7 +2773,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB002-O-B.json",
       "prompt_hash": "53bc58995fbdc4dfbe50ecb24246b3ee0418e6957659af08475a742c59951da2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2786,7 +2786,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-O-N.json",
       "prompt_hash": "6a4cd223fd5d4e353c3f46bc9737e0629c82913f66819078decba51facf99cca",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2799,7 +2799,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-O-N.json",
       "prompt_hash": "db3e0a9b2ab446884b25da893c0a9d8e8d249d2867f94b4828a53675d0df9662",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2812,7 +2812,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-S-K.json",
       "prompt_hash": "8574a9db7eb2f89d3750d17ea486101fe7b61d1bb5e6b0abdfadbb0e1efdb5af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2825,7 +2825,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-S-B.json",
       "prompt_hash": "b0995b264d3e8a27096f2c860ad63d78426c21308a5eea05fa8ea4c7a3e1bd12",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2838,7 +2838,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-O-B.json",
       "prompt_hash": "9a81630acb6dde273fe85135bb5bfddfa4f646c3a44557d90005bf2d235d6fcf",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2851,7 +2851,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-S-F.json",
       "prompt_hash": "847b199540050db5be8b7eed53e87028f7d699afbd1ebc3bf8eb927126de3698",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2864,7 +2864,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-O-K.json",
       "prompt_hash": "9b182e3507f51f6e0f796e3eac793425200d8e2cc28aa7ced22e2f3763c5a551",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2877,7 +2877,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB004-O-F.json",
       "prompt_hash": "8d91b992da97cffaa3ef4c64c3b4d6b739c98f224c0efce3b07d700228ad5689",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2890,7 +2890,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB003-S-N.json",
       "prompt_hash": "068879df152420dfa60644a7f120210b718dbec9655016e02b3266f3298cdebc",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2903,7 +2903,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-S-N.json",
       "prompt_hash": "068879df152420dfa60644a7f120210b718dbec9655016e02b3266f3298cdebc",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2916,7 +2916,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB005-S-N.json",
       "prompt_hash": "b316818ef77383f19b35efef4e0d5b0d9fe098c0f9a76fddb065d2497b61275a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2929,7 +2929,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-O-K.json",
       "prompt_hash": "c663c0d20a421a4fde16b312403abbd6013cb03101f54c0ac3626c727cd76b49",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2942,7 +2942,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-O-K.json",
       "prompt_hash": "c663c0d20a421a4fde16b312403abbd6013cb03101f54c0ac3626c727cd76b49",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2955,7 +2955,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-O-N.json",
       "prompt_hash": "893b56832219c05f2a0934be6c4d6db4d6fb6ea8de6e365dba90e5027ddc9b5e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2968,7 +2968,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-O-F.json",
       "prompt_hash": "8d91b992da97cffaa3ef4c64c3b4d6b739c98f224c0efce3b07d700228ad5689",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2981,7 +2981,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-O-F.json",
       "prompt_hash": "910ebbd07980d88569501e6989117966f47604552c974b05d52489d7349f045a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -2994,7 +2994,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-O-F.json",
       "prompt_hash": "8bcfba9636497cf02bc554c583b2991d909d36a758b5b6ad16341caf0cc33ce3",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3007,7 +3007,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB001-S-B.json",
       "prompt_hash": "84f752ce8ab4ead5ed85e42abb038d40cbf02de73d5537a7cb24d3c79746775d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3020,7 +3020,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-O-K.json",
       "prompt_hash": "ddb49a56d9a9eb1e7a6c535d7a764129c0b30dc3225f1710f0265bcc080b55d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3033,7 +3033,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB006-S-B.json",
       "prompt_hash": "b0995b264d3e8a27096f2c860ad63d78426c21308a5eea05fa8ea4c7a3e1bd12",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3046,7 +3046,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-O-N.json",
       "prompt_hash": "db3e0a9b2ab446884b25da893c0a9d8e8d249d2867f94b4828a53675d0df9662",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3059,7 +3059,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-S-N.json",
       "prompt_hash": "bbd16eb9ddb82b7467a4c2f8c345e85b0ae4e14b122a753d5c9cf7bccf7d0e79",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3072,7 +3072,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-S-F.json",
       "prompt_hash": "11efb5e1fbf4af59cc4b79c0267d71ff9a1ae144cff5c6028a2e5ae059c23175",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3085,7 +3085,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-S-N.json",
       "prompt_hash": "bbd16eb9ddb82b7467a4c2f8c345e85b0ae4e14b122a753d5c9cf7bccf7d0e79",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3098,7 +3098,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-S-K.json",
       "prompt_hash": "95c5074c166282c2ba7d8242e9a3f154a5cb2e2cb6e266b61ec0eed2424b79af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3111,7 +3111,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-O-N.json",
       "prompt_hash": "db3e0a9b2ab446884b25da893c0a9d8e8d249d2867f94b4828a53675d0df9662",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3124,7 +3124,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-S-F.json",
       "prompt_hash": "847b199540050db5be8b7eed53e87028f7d699afbd1ebc3bf8eb927126de3698",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3137,7 +3137,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-S-F.json",
       "prompt_hash": "11efb5e1fbf4af59cc4b79c0267d71ff9a1ae144cff5c6028a2e5ae059c23175",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3150,7 +3150,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-O-B.json",
       "prompt_hash": "9982406cb0664e3b0e560aacc6fd57e872128e856fb9f1a478e7f9d41cae1431",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3163,7 +3163,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-S-K.json",
       "prompt_hash": "55d54efff83b9e54b020397ffdad411f0ff587da72a2470ed5730b9c32435edd",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3176,7 +3176,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-O-K.json",
       "prompt_hash": "44bea8d988eb29f57bf44fb4e7ba7ef5087f720adf7a2473e52352b8a0e4978d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3189,7 +3189,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-F5.json",
       "prompt_hash": "9bcbe3e2fce7d9fa35de0668aeac4ffdb83c0c44096e1e9a34a32db6622f3752",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3202,7 +3202,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB002-O-K.json",
       "prompt_hash": "ddb49a56d9a9eb1e7a6c535d7a764129c0b30dc3225f1710f0265bcc080b55d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3215,7 +3215,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-S-B.json",
       "prompt_hash": "84f752ce8ab4ead5ed85e42abb038d40cbf02de73d5537a7cb24d3c79746775d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3228,7 +3228,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-F5.json",
       "prompt_hash": "83f36a96cc5322b3e446eeb7000abf124c506742835a99b1e84884c6c70ea00b",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3241,7 +3241,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-O-B.json",
       "prompt_hash": "f83a0b41e0a886fa6782ec646cbcd8f6af045facd8183b52f890c4300c2c05d2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3254,7 +3254,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-S-B.json",
       "prompt_hash": "84f752ce8ab4ead5ed85e42abb038d40cbf02de73d5537a7cb24d3c79746775d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3267,7 +3267,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-O-K.json",
       "prompt_hash": "3a684f7132de6162f34abcb42c430631a91edce250b1efd0e83bd051bde913f7",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3280,7 +3280,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-S-K.json",
       "prompt_hash": "95c5074c166282c2ba7d8242e9a3f154a5cb2e2cb6e266b61ec0eed2424b79af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3293,7 +3293,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-F5.json",
       "prompt_hash": "174bc925509ddbf6a737ff282293be04bba652fb3db4e14b861b25d40b104d7e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3306,7 +3306,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-S-N.json",
       "prompt_hash": "b316818ef77383f19b35efef4e0d5b0d9fe098c0f9a76fddb065d2497b61275a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3319,7 +3319,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-O-F.json",
       "prompt_hash": "8d91b992da97cffaa3ef4c64c3b4d6b739c98f224c0efce3b07d700228ad5689",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3332,7 +3332,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-S-K.json",
       "prompt_hash": "95c5074c166282c2ba7d8242e9a3f154a5cb2e2cb6e266b61ec0eed2424b79af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3345,7 +3345,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-O-F.json",
       "prompt_hash": "0b7da356b1cff9846988070fa11892d176079e357b687fc51708351eced3b43d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3358,7 +3358,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-O-B.json",
       "prompt_hash": "9a81630acb6dde273fe85135bb5bfddfa4f646c3a44557d90005bf2d235d6fcf",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3371,7 +3371,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-F5.json",
       "prompt_hash": "9bcbe3e2fce7d9fa35de0668aeac4ffdb83c0c44096e1e9a34a32db6622f3752",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3384,7 +3384,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB006-O-B.json",
       "prompt_hash": "f83a0b41e0a886fa6782ec646cbcd8f6af045facd8183b52f890c4300c2c05d2",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3397,7 +3397,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-O-B.json",
       "prompt_hash": "c94d834838402d9b04d98bf147b1317eb01cc24f771b1eb420fa493658b9c583",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3410,7 +3410,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-S-K.json",
       "prompt_hash": "e0e261c5f79384e06ccc8f79681054566ef9f18a7508f325b9e8a3123c60864a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3423,7 +3423,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-O-B.json",
       "prompt_hash": "17a437ff36241ab2de4a6fe1caeb8ea272849768ed269ad15e5118f038c6db1a",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3436,7 +3436,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-S-F.json",
       "prompt_hash": "11efb5e1fbf4af59cc4b79c0267d71ff9a1ae144cff5c6028a2e5ae059c23175",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3449,7 +3449,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB002-S-B.json",
       "prompt_hash": "2d8e7419b62b0a2853d34b808f09a83d27c95e2ea2754d52ae90d46b547c7902",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3462,7 +3462,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB001-S-K.json",
       "prompt_hash": "8574a9db7eb2f89d3750d17ea486101fe7b61d1bb5e6b0abdfadbb0e1efdb5af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3475,7 +3475,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB005-O-N.json",
       "prompt_hash": "893b56832219c05f2a0934be6c4d6db4d6fb6ea8de6e365dba90e5027ddc9b5e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3488,7 +3488,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB005-O-N.json",
       "prompt_hash": "893b56832219c05f2a0934be6c4d6db4d6fb6ea8de6e365dba90e5027ddc9b5e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3501,7 +3501,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-S-K.json",
       "prompt_hash": "95c5074c166282c2ba7d8242e9a3f154a5cb2e2cb6e266b61ec0eed2424b79af",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3514,7 +3514,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB006-S-N.json",
       "prompt_hash": "fad2d7364307a95bc06f0ead05f5f6677c4f35ad4ef24c45a30424124deb5e6e",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3527,7 +3527,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-O-F.json",
       "prompt_hash": "66b9eb6294e85a56955696c3e26dd8d5a854f6ffc662ead1154e4d483b25a831",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3540,7 +3540,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB004-F5.json",
       "prompt_hash": "83f36a96cc5322b3e446eeb7000abf124c506742835a99b1e84884c6c70ea00b",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3553,7 +3553,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB003-S-K.json",
       "prompt_hash": "55d54efff83b9e54b020397ffdad411f0ff587da72a2470ed5730b9c32435edd",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3566,7 +3566,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB003-S-F.json",
       "prompt_hash": "5df1430b8dbb4c910050cbb781fa66c8a9d3420e45a6f11d44f5946225894c7f",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3579,7 +3579,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB001-F5.json",
       "prompt_hash": "5fb20c50fd17a06d0352f9e7d71a39aab6c21a2e2d3729cfc081302611c01abe",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3592,7 +3592,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB004-F5.json",
       "prompt_hash": "83f36a96cc5322b3e446eeb7000abf124c506742835a99b1e84884c6c70ea00b",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3605,7 +3605,7 @@
       "repetition": 2,
       "artifact_path": "artifacts/PB006-S-K.json",
       "prompt_hash": "d13cbfc2623b6437e32011904495f4ce27761d369b4bd4186a3c1dda56cddae5",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3618,7 +3618,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-O-K.json",
       "prompt_hash": "ddb49a56d9a9eb1e7a6c535d7a764129c0b30dc3225f1710f0265bcc080b55d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3631,7 +3631,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB001-O-F.json",
       "prompt_hash": "0b7da356b1cff9846988070fa11892d176079e357b687fc51708351eced3b43d",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3644,7 +3644,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB004-S-N.json",
       "prompt_hash": "52907a7ededa59177d14a5f85874541914027bb482b159ddb757047274de2837",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3657,7 +3657,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB002-F5.json",
       "prompt_hash": "fdb6cbd3025b661195b9ec6a4f26807a20fd6a18a5f67aeb1c45ef9214d3dbc6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3670,7 +3670,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-F5.json",
       "prompt_hash": "b7889bb97d3ec4c8b50d36ae610dafe1095581ff8e53c4669aa4c2a281a83110",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3683,7 +3683,7 @@
       "repetition": 4,
       "artifact_path": "artifacts/PB001-O-N.json",
       "prompt_hash": "6a4cd223fd5d4e353c3f46bc9737e0629c82913f66819078decba51facf99cca",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3696,7 +3696,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB006-O-N.json",
       "prompt_hash": "8a3271af0a5e8644c8ff64bd1c99290915ef10f93ae6a358c00af454c2b8ca37",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3709,7 +3709,7 @@
       "repetition": 1,
       "artifact_path": "artifacts/PB002-S-K.json",
       "prompt_hash": "ebd589d669c24beb2f964661ac3cc5a4f355970c14eb37e1a4f57f11b9d3acf6",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3722,7 +3722,7 @@
       "repetition": 3,
       "artifact_path": "artifacts/PB005-O-F.json",
       "prompt_hash": "84f44d6341bc99e6c6c98a3a47e2cde8e8fac1eeb5033695335e466e6c76b8d4",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     },
@@ -3735,7 +3735,7 @@
       "repetition": 5,
       "artifact_path": "artifacts/PB004-S-N.json",
       "prompt_hash": "52907a7ededa59177d14a5f85874541914027bb482b159ddb757047274de2837",
-      "repository_commit": "74c1b2c2b238af8348223c322f876db21542f71a",
+      "repository_commit": "2ab65f326fd44725540afc1df6b6f98ca607ca45",
       "source_surface_required": "claude_app",
       "status": "planned"
     }

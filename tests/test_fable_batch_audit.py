@@ -17,6 +17,7 @@ class FableBatchAuditTest(unittest.TestCase):
         for index in range(2):
             runs.append({
                 "run_id": f"B-P-{index}-O-F-R01", "scenario_id": f"P-{index}", "variant_id": "O-F",
+                "provenance": "private_holdout" if index == 0 else "out_of_domain",
                 "requested_model": "claude-opus-4-8", "prompt_hash": "a" * 64,
                 "repository_commit": "commit-1",
             })
@@ -45,6 +46,7 @@ class FableBatchAuditTest(unittest.TestCase):
         self.assertTrue(result["scoring_ready"])
         self.assertEqual(result["conservative_failure_bound"]["count"], 1)
         self.assertFalse(result["benchmark_promotion_ready"])
+        self.assertEqual(result["scenario_provenance"]["P-1"], "out_of_domain")
 
     def test_missing_run_is_valid_but_incomplete_and_bounded_as_failure(self):
         temp, root, plan, imports = self.make_batch(("imported",))

@@ -80,6 +80,7 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
             artifact_id = f"{entry['scenario_id']}-{variant['id']}"
             artifact = {
                 "artifact_id": artifact_id, "scenario_id": entry["scenario_id"], "suite": entry["suite"],
+                "provenance": entry["provenance"],
                 "variant_id": variant["id"], "requested_model": variant["model"],
                 "instruction_prefix": instruction_prefix, "user_prompt": prompt, "fixtures": fixtures,
                 "source_metadata": sources, "evaluator_check_sha256": sha256(checks_raw),
@@ -94,6 +95,7 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
                 runs.append({
                     "run_id": f"{batch_id}-{artifact_id}-R{repetition:02d}", "artifact_id": artifact_id,
                     "scenario_id": entry["scenario_id"], "variant_id": variant["id"],
+                    "provenance": entry["provenance"],
                     "requested_model": variant["model"], "artifact_path": artifact_relative,
                     "prompt_hash": artifact_hash, "repository_commit": repository_commit,
                     "source_surface_required": "claude_app",

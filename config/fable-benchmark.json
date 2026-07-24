@@ -1,6 +1,6 @@
 {
   "benchmark_id": "FEF-FABLE-COMPARE-001",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "primary_effects": ["O-F_minus_O-B", "S-F_minus_S-B"],
   "reference_only": ["F5"],
   "negative_control": {
@@ -69,6 +69,7 @@
     "maximum_p95_latency_increase_percent": 15,
     "minimum_independent_batches": 2,
     "minimum_valid_scenarios_per_suite": 5,
+    "minimum_out_of_domain_scenarios": 3,
     "require_private_holdout": true,
     "require_confidence_interval_lower_bound_above_zero": true
   },

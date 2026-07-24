@@ -46,6 +46,13 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
     for name, document in (("analysis", analysis), ("reliability", reliability), ("preflight", preflight)):
         if (document.get("dataset_id"), document.get("manifest_sha256")) != identity:
             errors.append(f"{name} holdout identity does not match batch audits")
+    provenance_maps = [audit.get("scenario_provenance") for audit in audits]
+    if any(not isinstance(item, dict) for item in provenance_maps) or any(item != provenance_maps[0] for item in provenance_maps[1:]):
+        errors.append("batch audits do not share one scenario provenance map")
+    elif analysis.get("scenario_provenance") != provenance_maps[0]:
+        errors.append("analysis scenario provenance does not match batch audits")
+    if preflight.get("scenario_provenance") != provenance_maps[0]:
+        errors.append("preflight scenario provenance does not match batch audits")
     failed = []
     checks = {
         "quality": analysis.get("valid") is True and analysis.get("quality_gate_pass") is True,

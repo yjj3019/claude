@@ -54,6 +54,7 @@ class FableHoldoutPlanTest(unittest.TestCase):
         self.assertEqual(result["artifact_count"], 45)
         self.assertEqual(result["run_count"], 225)
         self.assertFalse(result["benchmark_promotion_ready"])
+        self.assertEqual(result["runs"][0]["provenance"], "private_holdout")
         artifact = json.loads((root / "plans" / "private-a-package" / "artifacts" / "P-0-O-F.json").read_text(encoding="utf-8"))
         rendered = json.dumps(artifact)
         self.assertNotIn("answer-0", rendered)

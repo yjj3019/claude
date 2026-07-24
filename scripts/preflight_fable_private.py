@@ -36,7 +36,7 @@ def manifest_artifacts(manifest_path: Path, manifest: dict) -> dict[str, Path]:
 def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: Path, provenance_path: Path,
                        plan_path: Path, canary_path: Path) -> dict:
     errors, checks = [], {}
-    dataset_id, manifest_digest = None, None
+    dataset_id, manifest_digest, scenario_provenance = None, None, {}
     manifest_path, lexical_path, semantic_path, plan_path, canary_path = map(Path.resolve, (manifest_path, lexical_path, semantic_path, plan_path, canary_path))
     if not all(contained(path, LOCAL_HOLDOUT) for path in (manifest_path, plan_path, canary_path)):
         errors.append("manifest, plan, and canary file must stay under .local/fable/holdout")
@@ -51,6 +51,7 @@ def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: P
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
         dataset_id, manifest_digest = manifest.get("dataset_id"), sha256(manifest_path)
+        scenario_provenance = {entry["scenario_id"]: entry["provenance"] for entry in manifest["entries"]}
         expected = manifest_artifacts(manifest_path, manifest)
         canaries = [line.strip() for line in canary_path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
         expected_canary_hashes = {entry["canary_sha256"] for entry in manifest["entries"]}
@@ -101,6 +102,9 @@ def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: P
             errors.append("plan is not bound to the current holdout manifest")
         if plan.get("dataset_id") != dataset_id:
             errors.append("plan is not bound to the current holdout dataset")
+        plan_provenance = {run.get("scenario_id"): run.get("provenance") for run in plan.get("runs", [])}
+        if plan_provenance != scenario_provenance:
+            errors.append("plan scenario provenance does not match the holdout manifest")
         if plan.get("intake_gate_ready") is not True or plan.get("benchmark_promotion_ready") is not False:
             errors.append("plan readiness flags are invalid")
         artifacts = plan.get("artifacts", [])
@@ -116,6 +120,7 @@ def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: P
         errors.append(f"execution plan cannot be validated: {exc}")
     return {"valid": not errors, "execution_ready": not errors, "benchmark_promotion_ready": False,
             "dataset_id": dataset_id, "manifest_sha256": manifest_digest,
+            "scenario_provenance": dict(sorted(scenario_provenance.items())),
             "checks": checks, "errors": errors}
 
 

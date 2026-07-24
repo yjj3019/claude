@@ -151,6 +151,8 @@ def validate(data: dict | None = None) -> dict:
         errors.append("GO gate must require at least two independent batches")
     if gates.get("minimum_valid_scenarios_per_suite", 0) < 5:
         errors.append("GO gate must require at least five independent scenarios per suite")
+    if gates.get("minimum_out_of_domain_scenarios", 0) < 3:
+        errors.append("GO gate must require at least three out-of-domain scenarios")
     critical_metrics = gates.get("critical_metrics", [])
     if not isinstance(critical_metrics, list) or len(critical_metrics) < 3:
         errors.append("GO gate must define critical_metrics")

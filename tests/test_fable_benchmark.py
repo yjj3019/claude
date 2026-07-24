@@ -23,6 +23,7 @@ class FableBenchmarkContractTest(unittest.TestCase):
         self.assertTrue(result["valid"], result["errors"])
         self.assertEqual(result["variant_count"], 9)
         self.assertGreaterEqual(result["scenario_count"], 14)
+        self.assertEqual(self.config["gates"]["minimum_out_of_domain_scenarios"], 3)
 
     def test_holdout_and_transfer_are_covered(self):
         result = MODULE.validate()
