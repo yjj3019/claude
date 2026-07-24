@@ -10,10 +10,12 @@ from pathlib import Path
 try:
     from scripts.check_fable_leakage import analyze, load_texts
     from scripts.validate_fable_holdout import LOCAL_HOLDOUT, contained, validate as validate_holdout
+    from scripts.validate_fable_provenance import validate as validate_provenance
     from scripts.validate_fable_semantic_evidence import validate as validate_semantic
 except ModuleNotFoundError:
     from check_fable_leakage import analyze, load_texts
     from validate_fable_holdout import LOCAL_HOLDOUT, contained, validate as validate_holdout
+    from validate_fable_provenance import validate as validate_provenance
     from validate_fable_semantic_evidence import validate as validate_semantic
 
 
@@ -31,7 +33,8 @@ def manifest_artifacts(manifest_path: Path, manifest: dict) -> dict[str, Path]:
     return artifacts
 
 
-def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: Path, plan_path: Path, canary_path: Path) -> dict:
+def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: Path, provenance_path: Path,
+                       plan_path: Path, canary_path: Path) -> dict:
     errors, checks = [], {}
     manifest_path, lexical_path, semantic_path, plan_path, canary_path = map(Path.resolve, (manifest_path, lexical_path, semantic_path, plan_path, canary_path))
     if not all(contained(path, LOCAL_HOLDOUT) for path in (manifest_path, plan_path, canary_path)):
@@ -40,6 +43,10 @@ def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: P
     checks["holdout_intake"] = holdout
     if not holdout.get("valid") or not holdout.get("intake_gate_ready"):
         errors.append("holdout intake gate is not ready")
+    provenance = validate_provenance(provenance_path, manifest_path)
+    checks["provenance"] = provenance
+    if not provenance.get("valid") or not provenance.get("provenance_evidence_complete"):
+        errors.append("holdout provenance evidence is incomplete")
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
         expected = manifest_artifacts(manifest_path, manifest)
@@ -112,10 +119,12 @@ def main() -> int:
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--lexical-evidence", required=True, type=Path)
     parser.add_argument("--semantic-evidence", required=True, type=Path)
+    parser.add_argument("--provenance-evidence", required=True, type=Path)
     parser.add_argument("--plan", required=True, type=Path)
     parser.add_argument("--canary-file", required=True, type=Path)
     args = parser.parse_args()
-    result = validate_preflight(args.manifest, args.lexical_evidence, args.semantic_evidence, args.plan, args.canary_file)
+    result = validate_preflight(args.manifest, args.lexical_evidence, args.semantic_evidence,
+                                args.provenance_evidence, args.plan, args.canary_file)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if result["valid"] else 1
 

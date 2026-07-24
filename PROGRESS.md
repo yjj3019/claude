@@ -2,11 +2,11 @@
 
 ## Current Status
 
-- Session closed: 2026-07-23 18:13 KST
+- Updated: 2026-07-24 KST
 - Branch: `main`
-- Remote state: pushed through `58db3e8`
-- Fable benchmark: contract, Golden Tests, and framework valid; 82 unit tests pass
-- Implemented: private holdout v1.1 intake, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, scenario-level statistics, numeric phrase normalization, hash-bound two-rater reliability, placebo analysis, and the final evidence gate
+- Remote state: pushed through `6104764`
+- Fable benchmark: contract, Golden Tests, and framework valid; 84 unit tests pass
+- Implemented: private holdout v1.1 intake, hash-bound provenance attestation, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, scenario-level statistics, numeric phrase normalization, hash-bound two-rater reliability, placebo analysis, and the final evidence gate
 - Diagnostic result: Opus 4.8 and Sonnet 5 were both evidence-faithful on five non-promotional cases; one label-only disagreement was observed
 - Promotion status: not ready; offline semantic evidence, independently verified holdout provenance, and two scored batches remain
 - Constraint: API credentials, paid API use, and local LLM/Ollama are excluded; no semantic gate bypass is permitted

@@ -17,9 +17,10 @@ python scripts/score_fable_smoke.py --help
 python scripts/score_fable_smoke.py score --corpus-dir .local/fable/blinded/PRIVATE-A --check-manifest .local/fable/holdout/manifest.json --output .local/fable/scores/PRIVATE-A.json
 python scripts/check_fable_leakage.py --candidate candidate.md --reference distillation.md --canary HOLDOUT-CANARY --output .local/fable/leakage/report.json
 python scripts/validate_fable_holdout.py --manifest .local/fable/holdout/manifest.json
+python scripts/validate_fable_provenance.py --evidence .local/fable/holdout/provenance.json --manifest .local/fable/holdout/manifest.json
 python scripts/prepare_fable_holdout_plan.py --manifest .local/fable/holdout/manifest.json --output .local/fable/holdout/plans/PRIVATE-A.json --batch-id PRIVATE-A --seed 3019
 python scripts/validate_fable_semantic_evidence.py --evidence .local/fable/leakage/semantic.json
-python scripts/preflight_fable_private.py --manifest .local/fable/holdout/manifest.json --lexical-evidence .local/fable/leakage/lexical.json --semantic-evidence .local/fable/leakage/semantic.json --plan .local/fable/holdout/plans/PRIVATE-A.json --canary-file .local/fable/holdout/canaries.txt
+python scripts/preflight_fable_private.py --manifest .local/fable/holdout/manifest.json --lexical-evidence .local/fable/leakage/lexical.json --semantic-evidence .local/fable/leakage/semantic.json --provenance-evidence .local/fable/holdout/provenance.json --plan .local/fable/holdout/plans/PRIVATE-A.json --canary-file .local/fable/holdout/canaries.txt
 python scripts/audit_fable_batch.py --plan .local/fable/holdout/plans/PRIVATE-A.json --import-dir .local/fable/imported/PRIVATE-A
 python scripts/analyze_fable_results.py --input .local/fable/analysis/scenario-results.json --output .local/fable/analysis/statistics.json --seed 3019
 python scripts/calculate_fable_reliability.py --ballot .local/fable/ballots/RATER-1.json --ballot .local/fable/ballots/RATER-2.json --output .local/fable/analysis/reliability.json
@@ -40,9 +41,10 @@ python -m unittest tests.test_fable_benchmark tests.test_fable_pilot tests.test_
 - `score_fable_smoke.py` verifies blinded/imported corpus hashes and private check hashes, evaluates only allowlisted declarative rules, and preserves raw rater ballots separately from append-only adjudication records. It never executes check or response content.
 - `check_fable_leakage.py` runs exact-hash, normalized n-gram, deterministic MinHash, and canary checks without an API. It reports semantic similarity as `not_run` unless separate local embedding evidence is produced.
 - `validate_fable_holdout.py` validates local-only holdout provenance, hashes, containment, canary hashes, and minimum independent scenario counts without printing fixture content.
+- `validate_fable_provenance.py` validates a local attestation bound to the manifest hash. It requires human or non-target-model authorship, no target-model involvement, and no distillation-material access; it validates the evidence record, not the truth of an unsupported claim.
 - `prepare_fable_holdout_plan.py` compiles only intake-ready local holdouts into manual Claude-app execution artifacts. It resolves routed FEF sources from `config/routes.json` and excludes evaluator checks and canaries from the execution package.
 - `validate_fable_semantic_evidence.py` verifies that offline semantic-similarity results are hash-bound to every candidate/reference pair and remain below the preregistered threshold. It validates evidence; it does not generate similarity scores.
-- `preflight_fable_private.py` permits manual execution only when holdout intake, recomputed lexical leakage checks, semantic evidence, and every compiled artifact bind to the same private corpus. Execution readiness never implies promotion readiness.
+- `preflight_fable_private.py` permits manual execution only when holdout intake, provenance attestation, recomputed lexical leakage checks, semantic evidence, and every compiled artifact bind to the same private corpus. Execution readiness never implies promotion readiness.
 - `audit_fable_batch.py` audits planned-versus-imported run coverage, metadata and response hashes, exclusions, and conservative missing-as-failure bounds without printing response content.
 - `analyze_fable_results.py` calculates scenario-level paired effects, hierarchical scenario bootstrap intervals, exact McNemar results when summaries remain binary, Holm-adjusted p-values, and neutral-control placebo signals. Repetitions and batches are not counted as independent scenarios.
 - `calculate_fable_reliability.py` validates two blinded ordinal ballots and reports hash-bound quadratic weighted Cohen's kappa against the configured reliability gate.

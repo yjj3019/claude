@@ -71,6 +71,11 @@ Private fixtures and their manifest stay under `.local/fable/holdout/`. Start fr
 `config/fable-holdout-manifest.example.json`, store only canary hashes in the
 manifest, and validate it with `scripts/validate_fable_holdout.py`. The example is
 structural documentation and is not a real holdout dataset.
+Bind a separate local provenance attestation to the manifest hash with
+`scripts/validate_fable_provenance.py`. The attestation must identify human or
+non-target-model authorship, declare no target-model involvement, and declare no
+access to distillation material. Structural validation does not prove a false
+attestation true.
 An intake-ready manifest can be compiled with
 `scripts/prepare_fable_holdout_plan.py`. Each entry names a validated `route_id`;
 the compiler resolves its FEF module, policies, workflow, and reviewer from
@@ -82,9 +87,10 @@ candidate/reference pair to file hashes; validation alone never marks the overal
 benchmark promotion-ready.
 Before opening any manual Claude-app run, execute
 `scripts/preflight_fable_private.py`. It recomputes lexical checks and requires the
-holdout manifest, semantic matrix, reference corpus, and compiled plan to share
-the same file hashes. `execution_ready` means only that collection may start; it
-does not satisfy scoring, independent-batch, reliability, or promotion gates.
+holdout manifest, provenance evidence, semantic matrix, reference corpus, and
+compiled plan to share the required file hashes. `execution_ready` means only that
+collection may start; it does not satisfy scoring, independent-batch, reliability,
+or promotion gates.
 After collection, run `scripts/audit_fable_batch.py`. A batch is scoring-ready
 only when every planned run has exactly one hash-bound result. Missing and excluded
 runs are reported as failures in the conservative bound; response content is not
