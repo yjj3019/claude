@@ -84,6 +84,9 @@ the compiler resolves its FEF module, policies, workflow, and reviewer from
 For a single-operator first pass, `--diagnostic-only` compiles only
 `O-B/O-F/S-B/S-F` once per scenario. With five scenarios this is 20 runs and is
 permanently non-promotional.
+Export the resulting plan with `scripts/export_fable_diagnostic_prompts.py`; it
+creates ordered Markdown messages for fresh Claude-app chats and a local index
+that names the requested model for each run.
 Semantic-similarity evidence must be produced by a separately identified offline
 tool, stored under `.local/fable/leakage/`, and validated with
 `scripts/validate_fable_semantic_evidence.py`. A complete result binds every
