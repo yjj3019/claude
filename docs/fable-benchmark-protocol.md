@@ -240,6 +240,9 @@ For single-operator work, the final report may separately return
 checks pass but private preflight does not. This never changes the formal verdict
 or `benchmark_promotion_ready`; it permits diagnostic comparison without claiming
 independent validation.
+Use `--diagnostic-only` to omit the preflight input entirely; the command then
+uses the diagnostic verdict for its exit status while formal promotion remains
+`NO_GO`.
 
 ## Current Limit
 

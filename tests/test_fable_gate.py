@@ -2,8 +2,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from scripts.evaluate_fable_gate import evaluate
+from scripts.evaluate_fable_gate import evaluate, main
 
 
 class FableGateTest(unittest.TestCase):
@@ -52,6 +53,31 @@ class FableGateTest(unittest.TestCase):
         self.assertFalse(result["benchmark_promotion_ready"])
         self.assertEqual(result["diagnostic_verdict"], "DIAGNOSTIC_PASS")
         self.assertTrue(result["diagnostic_ready"])
+
+    def test_diagnostic_does_not_require_preflight_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            result = evaluate(paths["analysis"], paths["reliability"], None,
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertEqual(result["diagnostic_verdict"], "DIAGNOSTIC_PASS")
+        self.assertIsNone(result["sources"]["preflight"])
+
+    def test_diagnostic_cli_succeeds_without_preflight_argument(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = self.evidence(root, placebo=True)
+            output = root / "diagnostic.json"
+            arguments = [
+                "evaluate_fable_gate.py", "--diagnostic-only",
+                "--analysis", str(paths["analysis"]), "--reliability", str(paths["reliability"]),
+                "--batch-audit", str(paths["audit-a"]), "--batch-audit", str(paths["audit-b"]),
+                "--output", str(output),
+            ]
+            with patch("sys.argv", arguments), patch("builtins.print"):
+                self.assertEqual(main(), 0)
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["diagnostic_verdict"],
+                             "DIAGNOSTIC_PASS")
 
     def test_missing_out_of_domain_evidence_is_no_go(self):
         with tempfile.TemporaryDirectory() as directory:

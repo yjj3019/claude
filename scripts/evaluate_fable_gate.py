@@ -19,13 +19,14 @@ def _load(path: Path) -> tuple[dict, dict]:
     return value, {"path": str(path), "sha256": hashlib.sha256(raw).hexdigest()}
 
 
-def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
+def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path | None,
              audit_paths: list[Path]) -> dict:
     if len(audit_paths) < 2:
         raise ValueError("at least two batch audits are required")
     analysis, analysis_source = _load(analysis_path)
     reliability, reliability_source = _load(reliability_path)
-    preflight, preflight_source = _load(preflight_path)
+    preflight, preflight_source = (_load(preflight_path) if preflight_path else
+                                   ({"valid": False, "execution_ready": False}, None))
     audits, audit_sources = zip(*(_load(path) for path in audit_paths))
     batch_ids = [audit.get("batch_id") for audit in audits]
     errors = []
@@ -91,17 +92,20 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--analysis", required=True, type=Path)
     parser.add_argument("--reliability", required=True, type=Path)
-    parser.add_argument("--preflight", required=True, type=Path)
+    parser.add_argument("--preflight", type=Path)
+    parser.add_argument("--diagnostic-only", action="store_true")
     parser.add_argument("--batch-audit", action="append", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
+    if not args.preflight and not args.diagnostic_only:
+        parser.error("--preflight is required unless --diagnostic-only is used")
     result = evaluate(args.analysis, args.reliability, args.preflight, args.batch_audit)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("x", encoding="utf-8") as handle:
         json.dump(result, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0 if result["verdict"] != "NO_GO" else 1
+    return 0 if (result["diagnostic_ready"] if args.diagnostic_only else result["verdict"] != "NO_GO") else 1
 
 
 if __name__ == "__main__":
