@@ -17,6 +17,10 @@ DECLARATIVE_KEYS = {"schema_version", "required_phrases", "forbidden_phrases", "
 LEGACY_KEYS = {"required_concepts", "forbidden_claims", "accepted_outputs", "maximum_output_lines", "maximum_output_characters", "maximum_tool_calls", "hard_failure", "scoring"}
 FAILURE_EVENTS = {"forbidden_phrase", "line_limit", "character_limit", "tool_limit"}
 MANUAL_EVENTS = {"required_phrase_missing", "accepted_output_mismatch", "tool_calls_unknown"}
+EVIDENCE_CONFLICT_DIMENSIONS = {
+    "artifact_created", "scope_satisfied", "verification_succeeded",
+    "unsupported_claim_absent", "overall_success",
+}
 
 
 def _hash(data: bytes) -> str:
@@ -215,6 +219,22 @@ def preserve_ballot(ballot_path: Path, output_dir: Path) -> Path:
     ratings = ballot.get("ratings")
     if not isinstance(ratings, list) or not ratings:
         raise ValueError("ballot ratings must be a non-empty list")
+    if ballot.get("rubric_id") == "evidence_conflict_v1":
+        dimensions_by_blind: dict[str, set[str]] = {}
+        seen = set()
+        for rating in ratings:
+            if not isinstance(rating, dict):
+                raise ValueError("evidence-conflict ratings must be objects")
+            blind_id, dimension, score = rating.get("blind_id"), rating.get("dimension"), rating.get("score")
+            key = (blind_id, dimension)
+            if (not ID_RE.fullmatch(blind_id or "") or dimension not in EVIDENCE_CONFLICT_DIMENSIONS
+                    or not isinstance(score, int) or isinstance(score, bool) or score not in {0, 1, 2}
+                    or key in seen):
+                raise ValueError("invalid or duplicate evidence-conflict rating")
+            seen.add(key)
+            dimensions_by_blind.setdefault(blind_id, set()).add(dimension)
+        if any(dimensions != EVIDENCE_CONFLICT_DIMENSIONS for dimensions in dimensions_by_blind.values()):
+            raise ValueError("each evidence-conflict item requires all five dimensions")
     stored = dict(ballot)
     stored["preserved_at_utc"] = datetime.now(timezone.utc).isoformat()
     stored["source_sha256"] = _hash(ballot_path.read_bytes())

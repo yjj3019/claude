@@ -142,7 +142,10 @@ Use observable 0/1/2 anchors for human-rated dimensions:
 For evidence-conflict cases, rate `artifact_created`, `scope_satisfied`,
 `verification_succeeded`, `unsupported_claim_absent`, and `overall_success`
 separately using `tests/Scorecard.md`. A single completion label is descriptive
-only and is not the scored outcome.
+only and is not the scored outcome. Set `rubric_id` to `evidence_conflict_v1`
+when preserving these ballots; the storage boundary rejects malformed JSON,
+duplicate or unknown dimensions, missing dimensions, and scores outside 0/1/2.
+Anchor misuse remains a human adjudication issue.
 
 Use at least two blinded raters. Randomize answer order and remove model/framework
 labels. Report weighted kappa or Krippendorff's alpha before adjudication.

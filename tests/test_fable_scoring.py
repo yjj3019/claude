@@ -82,6 +82,31 @@ class FableScoringTest(unittest.TestCase):
                 MODULE.preserve_ballot(source, root / "ballots")
             self.assertEqual(original, destination.read_bytes())
 
+    def test_evidence_conflict_ballot_requires_five_valid_dimensions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); source = root / "source.json"
+            ratings = [{"blind_id": "B0001", "dimension": dimension, "score": 1}
+                       for dimension in MODULE.EVIDENCE_CONFLICT_DIMENSIONS]
+            source.write_text(json.dumps({
+                "rater_id": "RATER-1", "ballot_id": "ROUND-1",
+                "rubric_id": "evidence_conflict_v1", "ratings": ratings,
+            }), encoding="utf-8")
+            self.assertTrue(MODULE.preserve_ballot(source, root / "ballots").is_file())
+            ratings.pop()
+            source.write_text(json.dumps({
+                "rater_id": "RATER-2", "ballot_id": "ROUND-2",
+                "rubric_id": "evidence_conflict_v1", "ratings": ratings,
+            }), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "all five"):
+                MODULE.preserve_ballot(source, root / "ballots")
+            ratings.append({"blind_id": "B0001", "dimension": "overall_success", "score": 3})
+            source.write_text(json.dumps({
+                "rater_id": "RATER-3", "ballot_id": "ROUND-3",
+                "rubric_id": "evidence_conflict_v1", "ratings": ratings,
+            }), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "invalid"):
+                MODULE.preserve_ballot(source, root / "ballots")
+
     def test_scores_imported_corpus(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); imported = root / "imported"; checks = root / "checks" / "PB002"
