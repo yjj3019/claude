@@ -11,7 +11,7 @@ class FableGateTest(unittest.TestCase):
         identity = {"dataset_id": "PRIVATE-HOLDOUT", "manifest_sha256": "a" * 64}
         documents = {
             "analysis": {"valid": True, "quality_gate_pass": quality, "placebo_gate_pass": placebo,
-                         "batch_ids": ["A", "B"], **identity},
+                         "out_of_domain_gate_pass": True, "batch_ids": ["A", "B"], **identity},
             "reliability": {"reliability_gate_pass": True, "batch_ids": ["A", "B"], **identity},
             "preflight": {"valid": True, "execution_ready": True, **identity},
             "audit-a": {"valid": True, "collection_complete": True, "scoring_ready": True, "batch_id": "A", **identity},
@@ -37,6 +37,17 @@ class FableGateTest(unittest.TestCase):
             result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
                               [paths["audit-a"], paths["audit-b"]])
         self.assertEqual(result["verdict"], "NO_GO")
+
+    def test_missing_out_of_domain_evidence_is_no_go(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = self.evidence(Path(directory), placebo=True)
+            document = json.loads(paths["analysis"].read_text(encoding="utf-8"))
+            document["out_of_domain_gate_pass"] = False
+            paths["analysis"].write_text(json.dumps(document), encoding="utf-8")
+            result = evaluate(paths["analysis"], paths["reliability"], paths["preflight"],
+                              [paths["audit-a"], paths["audit-b"]])
+        self.assertEqual(result["verdict"], "NO_GO")
+        self.assertIn("out_of_domain_gate_failed", result["blockers"])
 
     def test_all_gates_pass(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -178,13 +178,14 @@ def analyze(document: dict, *, seed: int = 3019, bootstrap_samples: int = 5000,
     placebo_gate = placebo_complete and not any(
         signal for comparison in placebo_signals.values() for signal in comparison.values()
     )
-    blockers = ["rater_reliability_not_supplied", "final_evidence_gate_not_run"]
+    blockers = ["rater_reliability_not_supplied", "out_of_domain_gate_not_run", "final_evidence_gate_not_run"]
     if not placebo_gate:
         blockers.append("placebo_gate_not_passed")
     return {"valid": not errors, "quality_gate_pass": quality_gate, "benchmark_promotion_ready": False,
             "batch_ids": batches, "dataset_id": dataset_id, "manifest_sha256": manifest_sha256,
             "unit_of_analysis": "independent_scenario_fixture", "repetitions_treated_as_independent": False,
             "comparisons": results, "errors": errors, "warnings": warnings,
+            "out_of_domain_gate_pass": False,
             "placebo_gate_pass": placebo_gate,
             "placebo": {"status": "complete" if placebo_complete else "not_run", "signals": placebo_signals},
             "promotion_blockers": blockers}

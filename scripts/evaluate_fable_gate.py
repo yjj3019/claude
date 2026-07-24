@@ -49,6 +49,7 @@ def evaluate(analysis_path: Path, reliability_path: Path, preflight_path: Path,
     failed = []
     checks = {
         "quality": analysis.get("valid") is True and analysis.get("quality_gate_pass") is True,
+        "out_of_domain": analysis.get("out_of_domain_gate_pass") is True,
         "reliability": reliability.get("reliability_gate_pass") is True,
         "private_preflight": preflight.get("valid") is True and preflight.get("execution_ready") is True,
         "batch_collection": all(audit.get("valid") is True and audit.get("collection_complete") is True

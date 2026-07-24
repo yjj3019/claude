@@ -29,6 +29,8 @@ class FableAnalysisTest(unittest.TestCase):
         result = analyze(self.document(), bootstrap_samples=200)
         self.assertTrue(result["valid"])
         self.assertTrue(result["quality_gate_pass"])
+        self.assertFalse(result["out_of_domain_gate_pass"])
+        self.assertIn("out_of_domain_gate_not_run", result["promotion_blockers"])
         self.assertTrue(result["placebo_gate_pass"])
         self.assertFalse(result["benchmark_promotion_ready"])
         self.assertEqual(result["comparisons"]["O-F_minus_O-B"]["scenario_count"], 5)

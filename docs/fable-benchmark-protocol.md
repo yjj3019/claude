@@ -102,6 +102,8 @@ each scenario before paired effects and scenario bootstrap intervals. McNemar is
 reported only when the resulting paired scenario summaries are binary; otherwise
 it is explicitly not applicable. Statistical quality alone never marks promotion
 ready without reliability and final evidence gates.
+The current analyzer reports `out_of_domain_gate_pass: false`; the final gate
+therefore refuses `GO` until provenance-stratified out-of-domain analysis exists.
 
 The same analyzer evaluates `O-N` versus `O-B` and `S-N` versus `S-B` as placebo
 comparisons. A neutral control fails the placebo gate when it shows a statistically
@@ -238,5 +240,6 @@ pipeline, lexical leakage checks, hash-bound semantic-evidence validation,
 response import and blinding, declarative scoring, batch audit, scenario-level
 analysis with placebo controls, two-rater reliability, and a final evidence gate.
 It does not ship private fixtures, generate semantic-similarity scores, or provide
-a complete blinded adjudication application. Those remaining capabilities must
-not be represented as completed here.
+a complete blinded adjudication application or provenance-stratified
+out-of-domain analysis. Those remaining capabilities must not be represented as
+completed here.
