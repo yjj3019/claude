@@ -73,7 +73,7 @@ class HarnessTest(unittest.TestCase):
     def test_golden_metadata(self):
         result = validate_golden_tests()
         self.assertTrue(result["valid"], result["errors"])
-        self.assertEqual(result["test_count"], 24)
+        self.assertEqual(result["test_count"], 25)
         self.assertEqual(result["model_runs_executed"], 0)
 
 

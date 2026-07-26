@@ -125,6 +125,7 @@ For each task:
 
 - Use `docs/context-protocol.md` to frame substantial tasks.
 - Use `docs/model-usage.md` only when splitting model roles or explicitly tuning model, effort, thinking, or model-specific API behavior; do not load it for ordinary single-model tasks.
+- Use `docs/knowledge-governance.md` when auditing or maintaining reusable knowledge, configuration references, agent inventories, or operational records.
 - Use `docs/fable-transfer-protocol.md` only when converting external-model or reviewer feedback into reusable FEF improvements.
 - Use `docs/loading-map.md` as the routing table for task-specific packs.
 
