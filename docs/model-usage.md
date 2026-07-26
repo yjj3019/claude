@@ -46,6 +46,17 @@ Model availability and names vary by platform and release; treat these as operat
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
 
+### Claude Sonnet 5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-sonnet-5`:
+
+- Start at `high` effort, use `xhigh` for the hardest coding or agentic work, and use `low` only for short, scoped, latency-sensitive tasks; select the lowest level that preserves Golden Test quality.
+- Keep adaptive thinking enabled where possible. Manual extended thinking with `budget_tokens` is invalid, as are non-default `temperature`, `top_p`, and `top_k` values.
+- Recount tokens and re-tune `max_tokens`, cost, and latency budgets for Sonnet 5 instead of reusing Sonnet 4.6 measurements; leave output headroom at higher effort.
+- State task-wide scope explicitly, keep tool use proportional, and remove rigid progress-update schedules unless evaluation shows they help.
+
+Verified 2026-07-26 against Anthropic's [Sonnet 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5) and [Sonnet 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5). Re-check when the model or API behavior changes.
+
 ### Claude Opus 5 Runtime Notes
 
 For an API runtime explicitly targeting `claude-opus-5`:

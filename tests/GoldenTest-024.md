@@ -47,3 +47,14 @@ When the runtime explicitly uses `claude-opus-5`, compare `low`, `medium`, `high
 - keeps output, scope, and delegation proportional to the task
 
 Remove or revise the Opus 5-specific guidance when current official API behavior or repeated Golden Test results no longer support it.
+
+## Sonnet 5 Runtime Check
+
+When the runtime explicitly uses `claude-sonnet-5`, compare `low`, `medium`, `high`, and `xhigh` on the same short, medium-, and high-risk tasks. Record acceptance quality, latency, tokens, truncation, tool calls, and progress-update volume. Pass only when the route:
+
+- selects the lowest effort that preserves acceptance quality and avoids `low` for intelligence-sensitive work
+- uses adaptive thinking rather than manual `budget_tokens` and omits non-default `temperature`, `top_p`, and `top_k`
+- recounts Sonnet 5 tokens and leaves enough `max_tokens` headroom instead of reusing Sonnet 4.6 budgets
+- states task-wide scope explicitly and keeps tool use and progress updates proportional
+
+Remove or revise the Sonnet 5-specific guidance when current official API behavior or repeated Golden Test results no longer support it.
