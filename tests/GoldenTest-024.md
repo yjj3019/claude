@@ -36,3 +36,14 @@ If every scenario is routed through the same workflow, reviewer, subagent, or ap
 ## Reviewer Scaling Check
 
 For scenario 4, compare one risk-focused verifier/reviewer with three parallel security, performance, and usability reviewers using the same artifact and rubric. Record unique material defects, false positives, duplicate findings, conflicting recommendations, latency, and token cost. Multiple reviewers pass only when they find a material defect the single-review route misses and the gain justifies the added cost; otherwise retain the single-review route.
+
+## Opus 5 Runtime Check
+
+When the runtime explicitly uses `claude-opus-5`, compare `low`, `medium`, `high`, and `xhigh` on the same medium- and high-risk tasks. Record acceptance quality, latency, tokens, response length, and subagent count. Pass only when the route:
+
+- selects the lowest effort that preserves acceptance quality and reserves `max` for a measured gain
+- never combines disabled thinking with `xhigh` or `max`
+- avoids blanket verifier, double-check, and verifier-subagent instructions while retaining risk-justified checkpoint or one-pass review
+- keeps output, scope, and delegation proportional to the task
+
+Remove or revise the Opus 5-specific guidance when current official API behavior or repeated Golden Test results no longer support it.
