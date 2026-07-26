@@ -46,6 +46,17 @@ Model availability and names vary by platform and release; treat these as operat
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
 
+### Claude Opus 5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-opus-5`:
+
+- Start at `high` effort and use the lowest level that preserves Golden Test quality; use `max` only when an evaluation shows a material gain.
+- Keep thinking enabled where possible. If thinking is disabled, use `high` effort or below; `xhigh` and `max` are invalid with disabled thinking.
+- Do not add blanket final-verification, double-check, or verifier-subagent instructions. Use FEF's proportional checkpoint or one-pass review only when task risk requires it.
+- Request concise output and intended scope explicitly, and cap subagents to genuinely independent, sizeable work.
+
+Verified 2026-07-26 against Anthropic's [Opus 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5) and [Opus 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5). Re-check when the model or API behavior changes.
+
 ## Recommended Flow
 
 For substantial enterprise artifacts:
