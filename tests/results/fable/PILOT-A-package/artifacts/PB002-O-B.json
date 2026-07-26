@@ -1,0 +1,16 @@
+{
+  "pilot_case_id": "PB002",
+  "promotion_eligible": false,
+  "variant_id": "O-B",
+  "requested_model": "claude-opus-4-8",
+  "instruction_prefix": "",
+  "user_prompt": "Rewrite only this sentence naturally and return only the revised sentence:\n\n\"The validation were completed yesterday.\"\n",
+  "fixtures": [],
+  "check_spec_path": "tests/benchmarks/pilot/PB002/checks.json",
+  "check_spec_sha256": "468b6b3296a77b11e21dd6a4c14b10e6e3e2740eaf32a51a007b442fc7f457a1",
+  "prompt_sources": [],
+  "word_counter": "whitespace-v1",
+  "instruction_prefix_word_count": 0,
+  "prompt_role": "single_user_message_with_instruction_prefix",
+  "source_surface_required": "claude_app"
+}

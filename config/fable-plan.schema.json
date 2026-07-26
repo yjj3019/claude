@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["benchmark_id", "benchmark_version", "batch_id", "seed", "repository_commit", "working_tree_clean", "config_sha256", "source_tree_sha256", "repetitions", "artifact_count", "run_count", "runs", "responses_imported", "manual_smoke_ready", "promotion_ready"],
+  "properties": {
+    "benchmark_id": {"type": "string"},
+    "batch_id": {"type": "string"},
+    "seed": {"type": "integer"},
+    "working_tree_clean": {"type": "boolean"},
+    "artifact_count": {"type": "integer", "minimum": 1},
+    "run_count": {"type": "integer", "minimum": 1},
+    "responses_imported": {"const": 0},
+    "manual_smoke_ready": {"const": true},
+    "promotion_ready": {"const": false},
+    "runs": {"type": "array", "minItems": 1}
+  }
+}

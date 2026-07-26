@@ -1,0 +1,16 @@
+{
+  "pilot_case_id": "PB005",
+  "promotion_eligible": false,
+  "variant_id": "F5",
+  "requested_model": "claude-fable-5",
+  "instruction_prefix": "",
+  "user_prompt": "Correct only the grammar in this sentence and return one sentence: \"The reports was delivered today.\"\n",
+  "fixtures": [],
+  "check_spec_path": "tests/benchmarks/pilot/PB005/checks.json",
+  "check_spec_sha256": "1ac59439d325c3da4f15ad352fd626a88993423c104d1b56ae7dc3308239913b",
+  "prompt_sources": [],
+  "word_counter": "whitespace-v1",
+  "instruction_prefix_word_count": 0,
+  "prompt_role": "single_user_message_with_instruction_prefix",
+  "source_surface_required": "claude_app"
+}

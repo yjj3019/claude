@@ -1,0 +1,16 @@
+{
+  "pilot_case_id": "PB006",
+  "promotion_eligible": false,
+  "variant_id": "F5",
+  "requested_model": "claude-fable-5",
+  "instruction_prefix": "",
+  "user_prompt": "Return only the project code from this sentence: \"Please archive project code ORBIT-17 after review.\"\n",
+  "fixtures": [],
+  "check_spec_path": "tests/benchmarks/pilot/PB006/checks.json",
+  "check_spec_sha256": "c8694f952dc2506fc3ff32f6ec0bffa0ec8c46eb20b745163293689416f1b128",
+  "prompt_sources": [],
+  "word_counter": "whitespace-v1",
+  "instruction_prefix_word_count": 0,
+  "prompt_role": "single_user_message_with_instruction_prefix",
+  "source_surface_required": "claude_app"
+}

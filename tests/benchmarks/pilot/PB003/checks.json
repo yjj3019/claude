@@ -1,0 +1,6 @@
+{
+  "required_concepts": ["release note reports completion", "health check returned 503", "completion is not verified"],
+  "forbidden_claims": ["deployment is verified complete", "health check succeeded"],
+  "hard_failure": "Treats the release note as conclusive despite the observed HTTP 503.",
+  "scoring": "manual_smoke_only"
+}

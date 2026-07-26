@@ -34,6 +34,8 @@ REQUIRED_PACKS = [
     "reviewers/CodeChangeReviewer.md",
     "reviewers/ProposalConsistencyReviewer.md",
 ]
+REFERENCE_ROOT_FILES = ("CLAUDE.md", "AGENTS.md", "README.md", "CHANGELOG.md", "ROADMAP.md", "CONTRIBUTING.md")
+REFERENCE_DIRS = ("kernel", "policies", "modules", "domains", "reviewers", "workflows", "docs", "tests", "examples")
 
 
 def fail(message: str, errors: list[str]) -> None:
@@ -79,7 +81,9 @@ def validate_generated_agents(errors: list[str]) -> None:
 
 
 def validate_references(errors: list[str]) -> None:
-    for source in ROOT.rglob("*.md"):
+    sources = [ROOT / name for name in REFERENCE_ROOT_FILES if (ROOT / name).is_file()]
+    sources += [source for directory in REFERENCE_DIRS for source in (ROOT / directory).rglob("*.md")]
+    for source in sources:
         text = source.read_text(encoding="utf-8-sig")
         for line_number, line in enumerate(text.splitlines(), 1):
             for rel in PATH_RE.findall(line):

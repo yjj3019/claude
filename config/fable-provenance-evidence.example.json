@@ -1,0 +1,11 @@
+{
+  "evidence_version": "1.0",
+  "manifest_sha256": "replace-with-manifest-sha256",
+  "dataset_id": "replace-with-private-dataset-id",
+  "custodian_id": "anonymous-custodian-id",
+  "authoring_method": "human",
+  "target_model_involved": false,
+  "distillation_material_access": false,
+  "attestor_id": "anonymous-attestor-id",
+  "attested_at": "YYYY-MM-DDTHH:MM:SSZ"
+}

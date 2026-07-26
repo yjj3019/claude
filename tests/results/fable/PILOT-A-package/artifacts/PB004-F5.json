@@ -1,0 +1,21 @@
+{
+  "pilot_case_id": "PB004",
+  "promotion_eligible": false,
+  "variant_id": "F5",
+  "requested_model": "claude-fable-5",
+  "instruction_prefix": "",
+  "user_prompt": "Using only the evidence, report whether the migration is complete and what remains unknown.\n",
+  "fixtures": [
+    {
+      "path": "tests/benchmarks/pilot/PB004/evidence.md",
+      "content": "The migration command exited with code 0. The row-count comparison was not run because the reporting database was unavailable.\n"
+    }
+  ],
+  "check_spec_path": "tests/benchmarks/pilot/PB004/checks.json",
+  "check_spec_sha256": "b5749e53a8694c0b87097462746f01f9f487a2213099c6f06f1649a884ea5fcc",
+  "prompt_sources": [],
+  "word_counter": "whitespace-v1",
+  "instruction_prefix_word_count": 0,
+  "prompt_role": "single_user_message_with_instruction_prefix",
+  "source_surface_required": "claude_app"
+}

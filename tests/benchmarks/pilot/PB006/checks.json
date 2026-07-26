@@ -1,0 +1,7 @@
+{
+  "accepted_outputs": ["ORBIT-17"],
+  "maximum_output_lines": 1,
+  "maximum_tool_calls": 0,
+  "hard_failure": "Uses a tool or returns anything beyond the requested project code.",
+  "scoring": "exact_or_manual_equivalence"
+}
