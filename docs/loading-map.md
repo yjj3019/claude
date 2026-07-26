@@ -32,6 +32,11 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 | File-backed technical analysis (manual-selection only; no keyword route) | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
 | Knowledge-governance audit (manual-selection only; no keyword route) | `modules/Research.md` | None | None | Optional `reviewers/DocumentationReviewer.md` for external-facing guidance | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Current-version research | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
+| Executive summary (manual-selection only; no keyword route) | `modules/ExecutiveSummary.md` | Relevant domain only | None | Optional `reviewers/DocumentationReviewer.md` for external-facing summaries | `policies/Writing.md`; optional `policies/Decision.md` when the summary carries a recommendation |
+| Meeting notes (manual-selection only; no keyword route) | `modules/Meeting.md` | None | None | None | `policies/Writing.md` |
+| Presentation (manual-selection only; no keyword route) | `modules/Presentation.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy decks | Optional `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; optional `policies/Evidence.md` |
+| Security-focused design/change review (manual-selection only; no keyword route) | None | Relevant domain only | None | `reviewers/SecurityReviewer.md` | `policies/Evidence.md`; optional `policies/ToolExecution.md` |
+| AI infrastructure or vehicle telemetry task (manual-selection only; no keyword route) | Relevant module for the task | `domains/AI.md` or `domains/Tesla.md` as applicable | Relevant workflow for the task | Relevant reviewer for the task | Relevant policies for the task |
 
 ## Selection Rules
 
@@ -61,6 +66,7 @@ Load no policy by default unless the task trigger requires it.
 | Reading, modifying, comparing, generating, or validating files | `policies/FileHandling.md` |
 | Executing commands, tests, builds, deployments, or tool actions | `policies/ToolExecution.md` |
 | High-impact deliverable requiring a formal review pass | `policies/Review.md` |
+| Recommendation or architecture choice requiring an explicit trade-off record | `policies/Decision.md` |
 
 Maximum policies per task: 3. When more than three triggers apply:
 

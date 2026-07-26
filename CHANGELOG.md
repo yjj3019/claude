@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Routed the seven orphaned packs (`domains/AI.md`, `domains/Tesla.md`, `modules/ExecutiveSummary.md`, `modules/Meeting.md`, `modules/Presentation.md`, `policies/Decision.md`, `reviewers/SecurityReviewer.md`) through `docs/loading-map.md` so `scripts/validate_repository.py` no longer reports them as unreachable.
 - Made checked-in Fable pilot artifact comparison insensitive to Git line-ending conversion while preserving JSON drift detection.
 - Added knowledge ownership, deployment-truth, runtime-modifier, portability, and stale-instruction governance with Golden Test 025.
 - Prevented generic fix/error wording from overriding more specific task routes, added SQL-query coverage, and documented invalid load-limit handling.
