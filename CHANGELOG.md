@@ -8,6 +8,7 @@
 - Added Opus 5 effort, thinking, over-verification, output-scope, and delegation guidance with a removable Golden Test check.
 - Added Sonnet 5 effort, adaptive-thinking, sampling, tokenizer-budget, scope, tool-use, and progress-update guidance with a removable Golden Test check.
 - Added model-guide loading and reusable effort-calibration budgets to prevent optional guidance and effort sweeps from slowing ordinary tasks.
+- Added Haiku 4.5 routing for fast record-oriented work, material-ambiguity escalation, user-approval boundaries, context limits, and a removable Golden Test check.
 - Added deterministic Korean/English task routing with JSON output, safe unmapped fallback, Pack-path checks, and load-limit validation.
 - Added repository and Golden Test validate-only harnesses, coverage metadata, Scorecard anchors, a critical-error gate, and JSON result schema.
 - Clarified Reviewer selection/execution, Integrity versus Preference Policy precedence, and external-facing wording for unverified claims.

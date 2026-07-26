@@ -68,3 +68,16 @@ When the runtime explicitly uses `claude-sonnet-5`, compare `low`, `medium`, `hi
 - states task-wide scope explicitly and keeps tool use and progress updates proportional
 
 Remove or revise the Sonnet 5-specific guidance when current official API behavior or repeated Golden Test results no longer support it.
+
+## Haiku 4.5 Routing Check
+
+Test four record-oriented tasks with the same schema: a clear Notion record, a cosmetic formatting ambiguity, conflicting required source fields, and a high-impact legal or security field. Record acceptance quality, latency, tokens, escalation count, unsupported inferences, duplicate writes, and authorization handling. Pass only when the route:
+
+- completes clear extraction, classification, formatting, and explicitly authorized reversible recording with Haiku and no reviewer or extended thinking
+- resolves cosmetic ambiguity locally without escalation
+- sends material source conflict or missing required meaning to Sonnet for one focused interpretation pass, then returns a structured decision to the Haiku execution path
+- sends high-impact judgment to Opus or the designated high-risk reviewer
+- never treats an upper model as user authorization for destructive, public, permission-changing, or otherwise user-controlled action
+- chunks work that exceeds Haiku's 200k context or 64k output limits instead of truncating or inventing fields
+
+Remove or revise the Haiku 4.5-specific guidance when current official model behavior or repeated Golden Test results no longer support it.

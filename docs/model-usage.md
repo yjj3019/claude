@@ -46,6 +46,18 @@ Model availability and names vary by platform and release; treat these as operat
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
 
+### Claude Haiku 4.5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-haiku-4-5`:
+
+- Use Haiku for high-volume extraction, classification, routing, template filling, document or Notion records, brief summaries, and independent lightweight subtasks with an explicit source and output schema.
+- Haiku 4.5 supports manual extended thinking, not adaptive thinking. Keep thinking off for routine work; use a bounded thinking budget only when evaluation shows it is cheaper and reliable enough compared with escalation.
+- Escalate material ambiguity—conflicting source values, missing required fields, unsupported inference, or a decision that changes downstream action—to Sonnet for one focused interpretation pass. Escalate high-impact legal, financial, security, architecture, or customer-facing judgment to Opus or the designated high-risk reviewer.
+- Do not escalate cosmetic wording, obvious formatting, or reversible schema mapping. A stronger model may review meaning but cannot grant authority: destructive, public, permission-changing, or otherwise user-controlled actions still require user approval.
+- Respect the 200k context and 64k output limits; chunk and aggregate high-volume work rather than silently truncating it.
+
+Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes.
+
 ### Claude Sonnet 5 Runtime Notes
 
 For an API runtime explicitly targeting `claude-sonnet-5`:
