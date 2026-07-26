@@ -50,7 +50,7 @@ Model availability and names vary by platform and release; treat these as operat
 
 For an API runtime explicitly targeting `claude-sonnet-5`:
 
-- Start at `high` effort, use `xhigh` for the hardest coding or agentic work, and use `low` only for short, scoped, latency-sensitive tasks; select the lowest level that preserves Golden Test quality.
+- Start at `high` only for initial workload calibration, then record and reuse the lowest effort that preserves Golden Test quality; use `xhigh` for the hardest coding or agentic work and `low` only for short, scoped, latency-sensitive tasks.
 - Keep adaptive thinking enabled where possible. Manual extended thinking with `budget_tokens` is invalid, as are non-default `temperature`, `top_p`, and `top_k` values.
 - Recount tokens and re-tune `max_tokens`, cost, and latency budgets for Sonnet 5 instead of reusing Sonnet 4.6 measurements; leave output headroom at higher effort.
 - State task-wide scope explicitly, keep tool use proportional, and remove rigid progress-update schedules unless evaluation shows they help.
@@ -67,6 +67,10 @@ For an API runtime explicitly targeting `claude-opus-5`:
 - Request concise output and intended scope explicitly, and cap subagents to genuinely independent, sizeable work.
 
 Verified 2026-07-26 against Anthropic's [Opus 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5) and [Opus 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5). Re-check when the model or API behavior changes.
+
+### Effort Calibration Guardrail
+
+Run an effort sweep during model or prompt evaluation, not on every request. Record the chosen effort per stable workload class and re-run the sweep only after a model or prompt change, an acceptance regression, or a material cost or latency shift.
 
 ## Recommended Flow
 

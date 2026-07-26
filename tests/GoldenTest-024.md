@@ -33,6 +33,16 @@
 
 If every scenario is routed through the same workflow, reviewer, subagent, or approval gate, the framework fails proportionality even when the final prose is correct.
 
+## Instruction Load Budget
+
+For scenarios 1, 3, and 4, record always-on and optional instruction files, approximate input tokens, selected packs, reviewers, subagents, and repeated effort sweeps. Pass only when:
+
+- scenario 1 uses Kernel only
+- `docs/model-usage.md` loads only for model-role or explicit model-runtime tuning
+- optional packs, reviewers, and subagents are the minimum needed for the route
+- a stable workload reuses its lowest passing effort instead of sweeping on every request
+- added instructions remain only when a same-task comparison shows a material quality or risk-control gain
+
 ## Reviewer Scaling Check
 
 For scenario 4, compare one risk-focused verifier/reviewer with three parallel security, performance, and usability reviewers using the same artifact and rubric. Record unique material defects, false positives, duplicate findings, conflicting recommendations, latency, and token cost. Multiple reviewers pass only when they find a material defect the single-review route misses and the gain justifies the added cost; otherwise retain the single-review route.
@@ -52,7 +62,7 @@ Remove or revise the Opus 5-specific guidance when current official API behavior
 
 When the runtime explicitly uses `claude-sonnet-5`, compare `low`, `medium`, `high`, and `xhigh` on the same short, medium-, and high-risk tasks. Record acceptance quality, latency, tokens, truncation, tool calls, and progress-update volume. Pass only when the route:
 
-- selects the lowest effort that preserves acceptance quality and avoids `low` for intelligence-sensitive work
+- starts at `high` for initial calibration, then reuses the lowest passing effort without per-request sweeps and avoids `low` for intelligence-sensitive work
 - uses adaptive thinking rather than manual `budget_tokens` and omits non-default `temperature`, `top_p`, and `top_k`
 - recounts Sonnet 5 tokens and leaves enough `max_tokens` headroom instead of reusing Sonnet 4.6 budgets
 - states task-wide scope explicitly and keeps tool use and progress updates proportional
