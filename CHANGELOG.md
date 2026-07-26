@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Prevented generic fix/error wording from overriding more specific task routes, added SQL-query coverage, and documented invalid load-limit handling.
+- Reclassified private Notion-derived guidance as internal FEF operating rules rather than externally verified claims.
 - Added risk-based Notion recording and explicit knowledge-lifecycle guidance.
 - Fixed task-route substring false positives, coding-request coverage, and parent-domain over-selection.
 - Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.

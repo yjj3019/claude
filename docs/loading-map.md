@@ -42,6 +42,7 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
 7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
 8. For proposal work, select `ProposalReviewer` for general proposal quality, `TechnicalReviewer` when technical claims are the primary review target, or the combined `ProposalConsistencyReviewer` for the mapped consistency-check task. Never load two of them for one artifact.
+9. If route selection is invalid because it exceeds a load limit, stop and narrow the task to the smallest applicable Pack set before detecting again. Do not silently trim the selection.
 
 ## Policy Classes
 

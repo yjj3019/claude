@@ -67,7 +67,7 @@ Choose the lowest-cost model that preserves the edit contract:
 - Escalate deletion, structural changes, multiple matches, or child-page/database impact to the designated stronger reviewer or user approval boundary.
 - Fetch before editing, update the smallest matching region, and fetch again before claiming completion. Do not pass raw conversations or raw tool responses when a compact record schema is sufficient.
 
-Verified 2026-07-26 against the operational decision recorded in [Notion record subagent](https://app.notion.com/p/391b44a2dd2e812a93c3c43a0bd7f5b4).
+Adopted 2026-07-26 as an FEF operating rule based on an internal operational decision.
 
 ### Knowledge Lifecycle
 
@@ -83,7 +83,7 @@ Label operational knowledge so search and retrieval cannot silently promote stal
 
 When sources conflict, prefer the current Canonical document, retain old decisions as history, and record the replacement date and successor instead of deleting useful failure evidence.
 
-Verified 2026-07-26 against the status index in [Claude optimization](https://app.notion.com/p/386b44a2dd2e801db419c6f8bb591ac6).
+Adopted 2026-07-26 as FEF internal knowledge-governance guidance.
 
 ### Claude Sonnet 5 Runtime Notes
 
