@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Made checked-in Fable pilot artifact comparison insensitive to Git line-ending conversion while preserving JSON drift detection.
 - Added knowledge ownership, deployment-truth, runtime-modifier, portability, and stale-instruction governance with Golden Test 025.
 - Prevented generic fix/error wording from overriding more specific task routes, added SQL-query coverage, and documented invalid load-limit handling.
 - Reclassified private Notion-derived guidance as internal FEF operating rules rather than externally verified claims.

@@ -207,7 +207,13 @@ def check_checked_in(plan_path: Path) -> list[str]:
         if checked_files != expected_files:
             errors.append("checked-in package file set is stale")
         for relative in sorted(checked_files & expected_files):
-            if (checked_package / relative).read_bytes() != (generated_package / relative).read_bytes():
+            try:
+                checked_artifact = json.loads((checked_package / relative).read_text(encoding="utf-8-sig"))
+                generated_artifact = json.loads((generated_package / relative).read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                errors.append(f"checked-in artifact is stale: {relative}")
+                continue
+            if checked_artifact != generated_artifact:
                 errors.append(f"checked-in artifact is stale: {relative}")
     return errors
 
