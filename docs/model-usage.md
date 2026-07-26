@@ -69,21 +69,7 @@ Choose the lowest-cost model that preserves the edit contract:
 
 Adopted 2026-07-26 as an FEF operating rule based on an internal operational decision.
 
-### Knowledge Lifecycle
-
-Label operational knowledge so search and retrieval cannot silently promote stale instructions:
-
-- `Canonical`: current verified default
-- `Operational`: verified only in the named environment
-- `Project-specific`: do not copy into general configuration
-- `Historical`: preserve evidence; do not execute
-- `Replaced`: follow the named successor
-- `Draft`: require deployment and smoke testing
-- `Snapshot`: re-check current state before use
-
-When sources conflict, prefer the current Canonical document, retain old decisions as history, and record the replacement date and successor instead of deleting useful failure evidence.
-
-Adopted 2026-07-26 as FEF internal knowledge-governance guidance.
+For record ownership, lifecycle, deployment-state, and portability rules, use `docs/knowledge-governance.md`.
 
 ### Claude Sonnet 5 Runtime Notes
 
