@@ -37,12 +37,26 @@ class HarnessTest(unittest.TestCase):
             "There's a bug in this function, please fix it",
             "Refactor this module",
             "Write unit tests for this module",
+            "Optimize this SQL query",
             "이 함수에 에러가 있으니 고쳐줘",
             "이 SQL 쿼리를 최적화해줘"
         )
         for task in tasks:
             with self.subTest(task=task):
                 self.assertEqual(detect(task, self.config)["task_type"], "coding")
+
+    def test_generic_fix_words_do_not_override_specific_routes(self):
+        cases = {
+            "장애 원인을 분석하고 오류를 수정해줘": "rca",
+            "RCA 보고서의 오류를 수정해줘": "rca",
+            "제안서 오류를 수정해줘": "proposal",
+            "아키텍처 검토하고 문제를 수정해줘": "architecture_review",
+            "이 프롬프트 검토하고 오류 수정해줘": "prompt_review",
+            "Fix the error in this incident report": "rca"
+        }
+        for task, expected in cases.items():
+            with self.subTest(task=task):
+                self.assertEqual(detect(task, self.config)["task_type"], expected)
 
     def test_specific_domains_replace_their_parent_domains(self):
         result = detect(

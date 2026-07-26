@@ -29,11 +29,15 @@ def _matches(text: str, keywords: list[str]) -> list[str]:
 
 def detect(task: str, config: dict) -> dict:
     text = task.casefold()
-    candidates = []
-    for index, route in enumerate(config["routes"]):
-        matches = _matches(text, route["keywords"])
-        if matches:
-            candidates.append((len(matches), -index, route, matches))
+    def candidates_for(key: str) -> list[tuple]:
+        candidates = []
+        for index, route in enumerate(config["routes"]):
+            matches = _matches(text, route.get(key, []))
+            if matches:
+                candidates.append((len(matches), -index, route, matches))
+        return candidates
+
+    candidates = candidates_for("keywords") or candidates_for("fallback_keywords")
 
     if not candidates:
         return {
