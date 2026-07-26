@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added risk-based Notion recording and explicit knowledge-lifecycle guidance.
 - Fixed task-route substring false positives, coding-request coverage, and parent-domain over-selection.
 - Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.
 - Distinguished checkpoint verification from one-time artifact review and documented single-session, subagent, team, and external-automation selection.

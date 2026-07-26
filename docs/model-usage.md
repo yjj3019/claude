@@ -58,6 +58,33 @@ For an API runtime explicitly targeting `claude-haiku-4-5`:
 
 Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes.
 
+### Notion Record Integrity
+
+Choose the lowest-cost model that preserves the edit contract:
+
+- Use Haiku at low effort for new pages, fixed-schema transcription, simple append operations, and short summaries.
+- Use Sonnet at medium effort for exact `old_str`/`new_str` replacement, code-fence or table preservation, and multi-section merges.
+- Escalate deletion, structural changes, multiple matches, or child-page/database impact to the designated stronger reviewer or user approval boundary.
+- Fetch before editing, update the smallest matching region, and fetch again before claiming completion. Do not pass raw conversations or raw tool responses when a compact record schema is sufficient.
+
+Verified 2026-07-26 against the operational decision recorded in [Notion record subagent](https://app.notion.com/p/391b44a2dd2e812a93c3c43a0bd7f5b4).
+
+### Knowledge Lifecycle
+
+Label operational knowledge so search and retrieval cannot silently promote stale instructions:
+
+- `Canonical`: current verified default
+- `Operational`: verified only in the named environment
+- `Project-specific`: do not copy into general configuration
+- `Historical`: preserve evidence; do not execute
+- `Replaced`: follow the named successor
+- `Draft`: require deployment and smoke testing
+- `Snapshot`: re-check current state before use
+
+When sources conflict, prefer the current Canonical document, retain old decisions as history, and record the replacement date and successor instead of deleting useful failure evidence.
+
+Verified 2026-07-26 against the status index in [Claude optimization](https://app.notion.com/p/386b44a2dd2e801db419c6f8bb591ac6).
+
 ### Claude Sonnet 5 Runtime Notes
 
 For an API runtime explicitly targeting `claude-sonnet-5`:
