@@ -27,9 +27,33 @@ class HarnessTest(unittest.TestCase):
         self.assertTrue(result["kernel_only_safe"])
         self.assertIsNone(result["module"])
 
+    def test_keyword_boundaries_prevent_substring_false_positives(self):
+        for task in ("arcane", "Aesop", "dispatch", "sophisticated design"):
+            with self.subTest(task=task):
+                self.assertEqual(detect(task, self.config)["task_type"], "unknown")
+
+    def test_common_coding_requests_are_detected(self):
+        tasks = (
+            "There's a bug in this function, please fix it",
+            "Refactor this module",
+            "Write unit tests for this module",
+            "이 함수에 에러가 있으니 고쳐줘",
+            "이 SQL 쿼리를 최적화해줘"
+        )
+        for task in tasks:
+            with self.subTest(task=task):
+                self.assertEqual(detect(task, self.config)["task_type"], "coding")
+
+    def test_specific_domains_replace_their_parent_domains(self):
+        result = detect(
+            "Red Hat Enterprise Linux OpenShift Kubernetes Linux 커널 장애 분석",
+            self.config
+        )
+        self.assertEqual(result["domains"], ["domains/RHEL.md", "domains/OpenShift.md"])
+        self.assertEqual(validate_selection(result, self.config), [])
+
     def test_limit_violation_is_not_silently_trimmed(self):
-        result = detect("버그를 수정해줘", self.config)
-        result["domains"] = ["domains/RHEL.md", "domains/Linux.md", "domains/OpenShift.md"]
+        result = detect("RHEL OpenShift Ansible 버그를 수정해줘", self.config)
         self.assertIn("domains pack count exceeds limit: 3 > 2", validate_selection(result, self.config))
 
     def test_golden_metadata(self):

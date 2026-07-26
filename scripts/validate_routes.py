@@ -29,9 +29,13 @@ def main() -> int:
     ids = set()
     map_tasks, manual_tasks = loading_map_tasks()
     routed_tasks = set()
+    domain_paths = {domain["path"] for domain in config["domains"]}
     for domain in config["domains"]:
         if not (ROOT / domain["path"]).is_file():
             errors.append(f"domain config references missing pack: {domain['path']}")
+        invalid = set(domain.get("subsumes", [])) - domain_paths
+        if invalid:
+            errors.append(f"{domain['path']} subsumes unknown domains: {', '.join(sorted(invalid))}")
     for route in config["routes"]:
         if route["id"] in ids:
             errors.append(f"duplicate route id: {route['id']}")
@@ -49,13 +53,10 @@ def main() -> int:
         sample = detect(route["keywords"][0], config)
         if sample["task_type"] != route["id"]:
             errors.append(f"route is shadowed or undetectable: {route['id']}")
-        errors.extend(f"{route['id']}: {error}" for error in validate_selection({
-            "policies": route["policies"],
-            "module": route["module"],
-            "domains": [],
-            "workflow": route["workflow"],
-            "reviewer": route["reviewer"]
-        }, config, ROOT))
+        errors.extend(
+            f"{route['id']}: {error}"
+            for error in validate_selection(sample, config, ROOT)
+        )
 
     unmapped_rows = map_tasks - manual_tasks - routed_tasks
     if unmapped_rows:
