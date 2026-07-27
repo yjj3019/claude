@@ -18,7 +18,8 @@ class FrameworkReferenceScopeTest(unittest.TestCase):
             errors = []
             with patch.object(validator, "ROOT", root):
                 validator.validate_references(errors)
-            self.assertEqual(errors, ["docs\\official.md:1 references missing file: docs/missing.md"])
+            source = str(Path("docs") / "official.md")
+            self.assertEqual(errors, [f"{source}:1 references missing file: docs/missing.md"])
 
 
 if __name__ == "__main__":

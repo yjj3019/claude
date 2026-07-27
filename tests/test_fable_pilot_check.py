@@ -56,6 +56,13 @@ class FablePilotCheckTest(unittest.TestCase):
             errors = MODULE.check_checked_in(plan_path)
             self.assertTrue(any("artifact is stale" in error for error in errors))
 
+    def test_check_accepts_crlf_checkout_artifacts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            plan_path, plan = self.make_checked_output(Path(directory))
+            artifact = plan_path.parent / "PILOT-A-package" / plan["artifacts"][0]["path"]
+            artifact.write_bytes(artifact.read_bytes().replace(b"\n", b"\r\n"))
+            self.assertEqual(MODULE.check_checked_in(plan_path), [])
+
     def test_check_rejects_extra_package_file(self):
         with tempfile.TemporaryDirectory() as directory:
             plan_path, _ = self.make_checked_output(Path(directory))

@@ -46,6 +46,57 @@ Model availability and names vary by platform and release; treat these as operat
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
 
+### Claude Haiku 4.5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-haiku-4-5`:
+
+- Use Haiku for high-volume extraction, classification, routing, template filling, document or Notion records, brief summaries, and independent lightweight subtasks with an explicit source and output schema.
+- Haiku 4.5 supports manual extended thinking, not adaptive thinking. Keep thinking off for routine work; use a bounded thinking budget only when evaluation shows it is cheaper and reliable enough compared with escalation.
+- Escalate material ambiguity—conflicting source values, missing required fields, unsupported inference, or a decision that changes downstream action—to Sonnet for one focused interpretation pass. Escalate high-impact legal, financial, security, architecture, or customer-facing judgment to Opus or the designated high-risk reviewer.
+- Do not escalate cosmetic wording, obvious formatting, or reversible schema mapping. A stronger model may review meaning but cannot grant authority: destructive, public, permission-changing, or otherwise user-controlled actions still require user approval.
+- Respect the 200k context and 64k output limits; chunk and aggregate high-volume work rather than silently truncating it.
+
+Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes.
+
+### Notion Record Integrity
+
+Choose the lowest-cost model that preserves the edit contract:
+
+- Use Haiku at low effort for new pages, fixed-schema transcription, simple append operations, and short summaries.
+- Use Sonnet at medium effort for exact `old_str`/`new_str` replacement, code-fence or table preservation, and multi-section merges.
+- Escalate deletion, structural changes, multiple matches, or child-page/database impact to the designated stronger reviewer or user approval boundary.
+- Fetch before editing, update the smallest matching region, and fetch again before claiming completion. Do not pass raw conversations or raw tool responses when a compact record schema is sufficient.
+
+Adopted 2026-07-26 as an FEF operating rule based on an internal operational decision.
+
+For record ownership, lifecycle, deployment-state, and portability rules, use `docs/knowledge-governance.md`.
+
+### Claude Sonnet 5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-sonnet-5`:
+
+- Start at `high` only for initial workload calibration, then record and reuse the lowest effort that preserves Golden Test quality; use `xhigh` for the hardest coding or agentic work and `low` only for short, scoped, latency-sensitive tasks.
+- Keep adaptive thinking enabled where possible. Manual extended thinking with `budget_tokens` is invalid, as are non-default `temperature`, `top_p`, and `top_k` values.
+- Recount tokens and re-tune `max_tokens`, cost, and latency budgets for Sonnet 5 instead of reusing Sonnet 4.6 measurements; leave output headroom at higher effort.
+- State task-wide scope explicitly, keep tool use proportional, and remove rigid progress-update schedules unless evaluation shows they help.
+
+Verified 2026-07-26 against Anthropic's [Sonnet 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-sonnet-5) and [Sonnet 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-sonnet-5). Re-check when the model or API behavior changes.
+
+### Claude Opus 5 Runtime Notes
+
+For an API runtime explicitly targeting `claude-opus-5`:
+
+- Start at `high` effort and use the lowest level that preserves Golden Test quality; use `max` only when an evaluation shows a material gain.
+- Keep thinking enabled where possible. If thinking is disabled, use `high` effort or below; `xhigh` and `max` are invalid with disabled thinking.
+- Do not add blanket final-verification, double-check, or verifier-subagent instructions. Use FEF's proportional checkpoint or one-pass review only when task risk requires it.
+- Request concise output and intended scope explicitly, and cap subagents to genuinely independent, sizeable work.
+
+Verified 2026-07-26 against Anthropic's [Opus 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5) and [Opus 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5). Re-check when the model or API behavior changes.
+
+### Effort Calibration Guardrail
+
+Run an effort sweep during model or prompt evaluation, not on every request. Record the chosen effort per stable workload class and re-run the sweep only after a model or prompt change, an acceptance regression, or a material cost or latency shift.
+
 ## Recommended Flow
 
 For substantial enterprise artifacts:

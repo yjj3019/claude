@@ -30,7 +30,13 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 | Prompt review | `modules/PromptEngineering.md` | None | `workflows/PromptWorkflow.md` | `reviewers/PromptReviewer.md` | `policies/Thinking.md`; `policies/Review.md`; optional `policies/Evidence.md` |
 | Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | `workflows/CodingWorkflow.md` | `reviewers/CodeChangeReviewer.md` | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
 | File-backed technical analysis (manual-selection only; no keyword route) | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
+| Knowledge-governance audit (manual-selection only; no keyword route) | `modules/Research.md` | None | None | Optional `reviewers/DocumentationReviewer.md` for external-facing guidance | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Current-version research | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
+| Executive summary (manual-selection only; no keyword route) | `modules/ExecutiveSummary.md` | Relevant domain only | None | Optional `reviewers/DocumentationReviewer.md` for external-facing summaries | `policies/Writing.md`; optional `policies/Decision.md` when the summary carries a recommendation |
+| Meeting notes (manual-selection only; no keyword route) | `modules/Meeting.md` | None | None | None | `policies/Writing.md` |
+| Presentation (manual-selection only; no keyword route) | `modules/Presentation.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy decks | Optional `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; optional `policies/Evidence.md` |
+| Security-focused design/change review (manual-selection only; no keyword route) | None | Relevant domain only | None | `reviewers/SecurityReviewer.md` | `policies/Evidence.md`; optional `policies/ToolExecution.md` |
+| AI infrastructure or vehicle telemetry task (manual-selection only; no keyword route) | Relevant module for the task | `domains/AI.md` or `domains/Tesla.md` as applicable | Relevant workflow for the task | Relevant reviewer for the task | Relevant policies for the task |
 
 `domains/Ansible.md` and `domains/Satellite.md` are keyword-detected independently of task type (see `config/routes.json`, whose `domains` list applies across every route) and are not tied to a specific Task Map row; combine either with the task's listed domain when the task text names Ansible or Satellite, subject to the domain load limit above.
 
@@ -44,6 +50,7 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
 7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
 8. For proposal work, select `ProposalReviewer` for general proposal quality, `TechnicalReviewer` when technical claims are the primary review target, or the combined `ProposalConsistencyReviewer` for the mapped consistency-check task. Never load two of them for one artifact.
+9. If route selection is invalid because it exceeds a load limit, stop and narrow the task to the smallest applicable Pack set before detecting again. Do not silently trim the selection.
 
 ## Policy Classes
 
@@ -61,6 +68,7 @@ Load no policy by default unless the task trigger requires it.
 | Reading, modifying, comparing, generating, or validating files | `policies/FileHandling.md` |
 | Executing commands, tests, builds, deployments, or tool actions | `policies/ToolExecution.md` |
 | High-impact deliverable requiring a formal review pass | `policies/Review.md` |
+| Recommendation or architecture choice requiring an explicit trade-off record | `policies/Decision.md` |
 
 Maximum policies per task: 3. When more than three triggers apply:
 

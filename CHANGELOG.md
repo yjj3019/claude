@@ -4,10 +4,21 @@
 
 - Added a single-operator diagnostic verdict path, a minimal private holdout diagnostic plan (`DIAGNOSTIC-A`), and copy/paste diagnostic prompt export with hash-verified, leakage-checked Fable evaluation artifacts.
 - Simplified diagnostic-only gate execution and reduced lexical scoring false positives in negation/assertion handling.
-- Removed six unreferenced module/domain/reviewer packs (`AI`, `Tesla`, `ExecutiveSummary`, `Meeting`, `Presentation`, `SecurityReviewer`) and reconciled `docs/loading-map.md` with `config/routes.json` (domain coverage, reviewer/workflow conditionality).
+- Reconciled `docs/loading-map.md` with `config/routes.json`: added `domains/EnterpriseArchitecture.md` domain coverage, documented `domains/Ansible.md`/`domains/Satellite.md` as cross-route keyword domains, and corrected reviewer/workflow conditionality wording for three Task Map rows.
+- Routed the seven orphaned packs (`domains/AI.md`, `domains/Tesla.md`, `modules/ExecutiveSummary.md`, `modules/Meeting.md`, `modules/Presentation.md`, `policies/Decision.md`, `reviewers/SecurityReviewer.md`) through `docs/loading-map.md` so `scripts/validate_repository.py` no longer reports them as unreachable.
+- Made checked-in Fable pilot artifact comparison insensitive to Git line-ending conversion while preserving JSON drift detection.
+- Added knowledge ownership, deployment-truth, runtime-modifier, portability, and stale-instruction governance with Golden Test 025.
+- Prevented generic fix/error wording from overriding more specific task routes, added SQL-query coverage, and documented invalid load-limit handling.
+- Reclassified private Notion-derived guidance as internal FEF operating rules rather than externally verified claims.
+- Added risk-based Notion recording and explicit knowledge-lifecycle guidance.
+- Fixed task-route substring false positives, coding-request coverage, and parent-domain over-selection.
 - Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.
 - Distinguished checkpoint verification from one-time artifact review and documented single-session, subagent, team, and external-automation selection.
 - Added model/effort operating examples and Golden Test 024 for proportional runtime governance.
+- Added Opus 5 effort, thinking, over-verification, output-scope, and delegation guidance with a removable Golden Test check.
+- Added Sonnet 5 effort, adaptive-thinking, sampling, tokenizer-budget, scope, tool-use, and progress-update guidance with a removable Golden Test check.
+- Added model-guide loading and reusable effort-calibration budgets to prevent optional guidance and effort sweeps from slowing ordinary tasks.
+- Added Haiku 4.5 routing for fast record-oriented work, material-ambiguity escalation, user-approval boundaries, context limits, and a removable Golden Test check.
 - Added deterministic Korean/English task routing with JSON output, safe unmapped fallback, Pack-path checks, and load-limit validation.
 - Added repository and Golden Test validate-only harnesses, coverage metadata, Scorecard anchors, a critical-error gate, and JSON result schema.
 - Clarified Reviewer selection/execution, Integrity versus Preference Policy precedence, and external-facing wording for unverified claims.

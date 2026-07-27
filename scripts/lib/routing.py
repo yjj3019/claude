@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -13,16 +14,30 @@ def load_config(path: Path = DEFAULT_CONFIG) -> dict:
 
 
 def _matches(text: str, keywords: list[str]) -> list[str]:
-    return [keyword for keyword in keywords if keyword.casefold() in text]
+    return [
+        keyword for keyword in keywords
+        if (
+            re.search(
+                rf"(?<![a-z0-9_]){re.escape(keyword.casefold())}(?![a-z0-9_])",
+                text
+            )
+            if keyword.isascii()
+            else keyword.casefold() in text
+        )
+    ]
 
 
 def detect(task: str, config: dict) -> dict:
     text = task.casefold()
-    candidates = []
-    for index, route in enumerate(config["routes"]):
-        matches = _matches(text, route["keywords"])
-        if matches:
-            candidates.append((len(matches), -index, route, matches))
+    def candidates_for(key: str) -> list[tuple]:
+        candidates = []
+        for index, route in enumerate(config["routes"]):
+            matches = _matches(text, route.get(key, []))
+            if matches:
+                candidates.append((len(matches), -index, route, matches))
+        return candidates
+
+    candidates = candidates_for("keywords") or candidates_for("fallback_keywords")
 
     if not candidates:
         return {
@@ -40,13 +55,26 @@ def detect(task: str, config: dict) -> dict:
         }
 
     _, _, route, matches = max(candidates, key=lambda item: (item[0], item[1]))
-    domains = []
-    domain_reasons = []
+    matched_domains = []
     for domain in config["domains"]:
         found = _matches(text, domain["keywords"])
         if found:
-            domains.append(domain["path"])
-            domain_reasons.append(f"domain keywords: {', '.join(found)}")
+            matched_domains.append((domain, found))
+    subsumed = {
+        path
+        for domain, _ in matched_domains
+        for path in domain.get("subsumes", [])
+    }
+    selected_domains = [
+        (domain, found)
+        for domain, found in matched_domains
+        if domain["path"] not in subsumed
+    ]
+    domains = [domain["path"] for domain, _ in selected_domains]
+    domain_reasons = [
+        f"domain keywords: {', '.join(found)}"
+        for _, found in selected_domains
+    ]
 
     risk = route["risk_level"]
     high_risk = _matches(text, config.get("high_risk_keywords", []))
