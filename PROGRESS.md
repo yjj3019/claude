@@ -2,10 +2,12 @@
 
 ## Current Status
 
-- Updated: 2026-07-24 KST
+- Updated: 2026-07-27 KST
 - Branch: `main`
-- Remote state: pushed through `356aa14`; copy/paste diagnostic prompt export pending verification and push
-- **STILL PAUSED**: the DIAGNOSTIC-B safety-guardrail task below (`maximum_tool_calls: 0` in v2 `checks.json`, offline-evidence prompt preamble, PRIVATE-004 tool-session ban, manifest/plan/prompt regen, new tool-call tests) was never resumed — a separate repo-wide improvement pass (below) was done first. The read-only Explore agent's DIAGNOSTIC-B findings are still unconsumed.
+- Remote state: pushed through `0781297` ("feat: add tool-safe Opus 5 diagnostics" — DIAGNOSTIC-C safety hardening: `maximum_tool_calls: 0` constraint, offline-evidence prompt banner, PRIVATE-004 destructive-command warning, opt-in Opus 5 variant, validated `variant_ids` handling)
+- **DIAGNOSTIC-C: frozen.** One smoke run could not have its served model independently confirmed from the chat surface — no further DIAGNOSTIC-C execution until model identity for a run can actually be verified, not just assumed from UI selection.
+- **DIAGNOSTIC-D: prepared, not executed.** Local plan + package + copy/paste prompts generated from the current v3 manifest (unchanged) at HEAD `0781297`; the plan's recorded `repository_commit` matches HEAD exactly. 30 runs (5 scenarios × 6 variants), repetitions=1, diagnostic_only=true, 10 runs each for Opus 4.8 / Sonnet 5 / Opus 5. All manifest/plan/artifact/prompt hashes verified internally consistent.
+- **Execution gate on DIAGNOSTIC-D**: do not run any prompt until (a) the model is confirmed selected in the chat UI and the actually-served model is independently verifiable (not just assumed), and (b) each run's tool-call count (must be 0) and fallback status can actually be recorded. Resume only once both are observable — this was the exact gap that froze DIAGNOSTIC-C.
 - **Repo-wide review + fixes applied (2026-07-27)**, via 3 parallel review agents (code-reviewer, ponytail-audit, doc-consistency-checker) then direct implementation, all verified against `python -m unittest discover -s tests` (103/103 pass) + all 4 CI validator scripts (`validate_repository.py`, `validate_routes.py`, `run_golden_tests.py --validate-only`, `validate_fable_benchmark.py --validate-only`):
   - Fixed a real bug in `scripts/preflight_fable_private.py`: `canaries`/`actual_canary_hashes` were unset before use if manifest binding failed early (`UnboundLocalError`, uncaught) — initialized before the first `try`; added regression test `test_malformed_manifest_entry_fails_structured_not_nameerror` (confirmed it reproduces pre-fix via `git stash`).
   - Deleted 6 truly orphaned packs unreferenced anywhere in the repo (confirmed by both the ponytail audit and the doc-consistency check, plus `validate_repository.py`'s own orphan warning): `domains/AI.md`, `domains/Tesla.md`, `modules/ExecutiveSummary.md`, `modules/Meeting.md`, `modules/Presentation.md`, `reviewers/SecurityReviewer.md` (+ regenerated `.claude/agents/` via `scripts/generate_agents.py` to drop the now-stale `security-reviewer.md`). **Kept** `policies/Decision.md` — ponytail flagged it too, but it's named in both `CLAUDE.md`'s and `loading-map.md`'s "Preference Policies" taxonomy, just with no Task Map row yet; deleting it would desync that list, so it was restored.
@@ -27,7 +29,7 @@
 
 ## Next Session
 
-0. **Resume DIAGNOSTIC-B safety hardening first** (interrupted 2026-07-24): re-run/re-check the Explore agent's findings on v2 `checks.json` locations, the DIAGNOSTIC-B generator, manifest-hash script, and Fable test suite, then apply the 8-point change list from the user's request (constraints block, offline-evidence prompt preamble, PRIVATE-004 tool-session ban, manifest regen + plan/prompt regen, new tool-call tests, full Fable test + hash verification) — no model/MCP execution, no commit/push per user instruction.
+0. **Do not execute DIAGNOSTIC-D** until served-model confirmation and tool-call/fallback recording are both actually possible from the execution surface (see Execution gate above). Figure out that observability gap first — it's what froze DIAGNOSTIC-C.
 1. Replace or independently verify the current diagnostic holdout provenance.
 2. Resolve the semantic-similarity requirement without violating the no-API/no-local-LLM constraint, or keep the benchmark diagnostic-only.
 3. Only after private preflight PASS, execute and audit two independent batches, score blinded outputs, calculate reliability/statistics, and run the final evidence gate.
