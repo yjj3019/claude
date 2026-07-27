@@ -9,22 +9,18 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
+try:
+    from scripts.lib.fable_common import SHA256_RE as SHA256, contained
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE as SHA256, contained
+
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ROOT = (ROOT / ".local" / "fable").resolve()
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
-
-
-def contained(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def canonical_plan_hash(plan: dict) -> str:

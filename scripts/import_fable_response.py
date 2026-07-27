@@ -9,10 +9,14 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from scripts.lib.fable_common import SHA256_RE
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE
+
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ROOT = ROOT / ".local" / "fable"
 RUN_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
-SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 MAX_RESPONSE_BYTES = 1_000_000
 MAX_EVIDENCE_BYTES = 100_000
 SENSITIVE_PATTERNS = [

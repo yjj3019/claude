@@ -5,10 +5,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 from pathlib import Path
 
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
+try:
+    from scripts.lib.fable_common import SHA256_RE as SHA256
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE as SHA256
 
 
 def _load(path: Path) -> tuple[dict, dict]:

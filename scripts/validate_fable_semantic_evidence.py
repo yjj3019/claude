@@ -5,23 +5,18 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 from datetime import datetime
 from pathlib import Path
+
+try:
+    from scripts.lib.fable_common import SHA256_RE as SHA256, contained
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE as SHA256, contained
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ROOT = (ROOT / ".local" / "fable").resolve()
 LEAKAGE_ROOT = (LOCAL_ROOT / "leakage").resolve()
 BENCHMARK_CONFIG = ROOT / "config" / "fable-benchmark.json"
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
-
-
-def contained(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def resolve_bound_file(spec: object, *, label: str, errors: list[str]) -> tuple[str, Path] | None:

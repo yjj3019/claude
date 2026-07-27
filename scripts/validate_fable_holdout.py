@@ -11,27 +11,20 @@ from pathlib import Path
 
 try:
     from scripts.score_fable_smoke import validate_checks
+    from scripts.lib.fable_common import SHA256_RE as SHA256, contained
 except ModuleNotFoundError:
     from score_fable_smoke import validate_checks
+    from lib.fable_common import SHA256_RE as SHA256, contained
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_HOLDOUT = (ROOT / ".local" / "fable" / "holdout").resolve()
 ROUTES_CONFIG = ROOT / "config" / "routes.json"
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SECRET_PATTERNS = [
     re.compile(rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(rb"\b(?:sk-ant-|sk-proj-|ghp_)[A-Za-z0-9_-]{12,}"),
 ]
-
-
-def contained(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def validate_artifact(spec: object, *, label: str, manifest_dir: Path, errors: list[str], require_json_object: bool = False) -> None:

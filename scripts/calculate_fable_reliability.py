@@ -6,13 +6,16 @@ import argparse
 import hashlib
 import itertools
 import json
-import re
 from pathlib import Path
+
+try:
+    from scripts.lib.fable_common import SHA256_RE as SHA256
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE as SHA256
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "fable-benchmark.json"
 SCORES = (0, 1, 2)
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _load_ballot(path: Path) -> tuple[str, dict[tuple[str, str], int], str, list[str], str, str]:

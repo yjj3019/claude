@@ -5,16 +5,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 from datetime import datetime
 from pathlib import Path
 
 try:
     from scripts.validate_fable_holdout import LOCAL_HOLDOUT, SAFE_ID, contained
+    from scripts.lib.fable_common import SHA256_RE as SHA256
 except ModuleNotFoundError:
     from validate_fable_holdout import LOCAL_HOLDOUT, SAFE_ID, contained
-
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
+    from lib.fable_common import SHA256_RE as SHA256
 
 
 def validate(evidence_path: Path, manifest_path: Path) -> dict:

@@ -7,13 +7,16 @@ import itertools
 import json
 import math
 import random
-import re
 from collections import defaultdict
 from pathlib import Path
 
+try:
+    from scripts.lib.fable_common import SHA256_RE as SHA256
+except ModuleNotFoundError:
+    from lib.fable_common import SHA256_RE as SHA256
+
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "config" / "fable-benchmark.json"
-SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def quantile(values: list[float], probability: float) -> float:

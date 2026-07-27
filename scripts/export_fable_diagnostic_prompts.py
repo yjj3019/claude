@@ -7,16 +7,13 @@ import hashlib
 import json
 from pathlib import Path
 
+try:
+    from scripts.lib.fable_common import contained
+except ModuleNotFoundError:
+    from lib.fable_common import contained
+
 ROOT = Path(__file__).resolve().parents[1]
 LOCAL_ROOT = (ROOT / ".local" / "fable").resolve()
-
-
-def contained(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
 
 
 def render(artifact: dict) -> str:
