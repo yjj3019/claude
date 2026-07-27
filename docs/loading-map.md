@@ -25,12 +25,14 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 | RHEL operations manual | `modules/Manual.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/ManualWorkflow.md` | `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; `policies/Review.md` |
 | Linux/RHEL RCA | `modules/RCA.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/RCAWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Evidence.md`; `policies/Thinking.md`; `policies/Review.md` |
 | OpenShift architecture review | `modules/Architecture.md` | `domains/OpenShift.md`; optional `domains/Kubernetes.md` | `workflows/ArchitectureWorkflow.md` | `reviewers/ArchitectureReviewer.md` | `policies/Thinking.md`; `policies/Evidence.md`; `policies/Review.md` |
-| Technical research brief | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; optional `policies/Calibration.md` |
-| Technical blog post | `modules/Blog.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy posts | Optional `reviewers/TechnicalReviewer.md` for technical claims | `policies/Writing.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
+| Technical research brief | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
+| Technical blog post | `modules/Blog.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Prompt review | `modules/PromptEngineering.md` | None | `workflows/PromptWorkflow.md` | `reviewers/PromptReviewer.md` | `policies/Thinking.md`; `policies/Review.md`; optional `policies/Evidence.md` |
-| Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | `workflows/CodingWorkflow.md` | Optional `reviewers/CodeChangeReviewer.md` for substantial or high-risk changes | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
+| Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | `workflows/CodingWorkflow.md` | `reviewers/CodeChangeReviewer.md` | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
 | File-backed technical analysis (manual-selection only; no keyword route) | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
 | Current-version research | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | Optional; use only for external deliverables | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
+
+`domains/Ansible.md` and `domains/Satellite.md` are keyword-detected independently of task type (see `config/routes.json`, whose `domains` list applies across every route) and are not tied to a specific Task Map row; combine either with the task's listed domain when the task text names Ansible or Satellite, subject to the domain load limit above.
 
 ## Selection Rules
 

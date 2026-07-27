@@ -7,7 +7,8 @@
     {"path": "domains/Kubernetes.md", "keywords": ["kubernetes", "k8s", "쿠버네티스"]},
     {"path": "domains/Linux.md", "keywords": ["linux", "리눅스"]},
     {"path": "domains/Ansible.md", "keywords": ["ansible", "앤서블"]},
-    {"path": "domains/Satellite.md", "keywords": ["satellite", "새틀라이트"]}
+    {"path": "domains/Satellite.md", "keywords": ["satellite", "새틀라이트"]},
+    {"path": "domains/EnterpriseArchitecture.md", "keywords": ["enterprise architecture", "엔터프라이즈 아키텍처"]}
   ],
   "routes": [
     {
