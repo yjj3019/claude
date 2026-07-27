@@ -20,6 +20,20 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+DEFAULT_DIAGNOSTIC_ONLY_VARIANT_IDS = {"O-B", "O-F", "S-B", "S-F"}
+# Diagnostic-only holdout variants beyond config/fable-benchmark.json's shared variant
+# list. Kept local to this compiler (opt-in via compile_plan's variant_ids parameter)
+# so a private-holdout diagnostic plan can add a model (e.g. a newer Opus release)
+# without touching the benchmark config that scripts/validate_fable_benchmark.py and the
+# checked-in PILOT-A plan pin to an exact set, and without changing the default
+# diagnostic_only variant set other batches (and their tests) already rely on.
+DIAGNOSTIC_EXTRA_VARIANTS = [
+    {"id": "O5-B", "model": "claude-opus-5", "framework": "off", "role": "baseline", "prompt_sources": []},
+    {"id": "O5-F", "model": "claude-opus-5", "framework": "routed", "role": "treatment",
+     "prompt_sources": ["CLAUDE.md", "docs/loading-map.md"]},
+]
+
+
 def read_spec(manifest_dir: Path, spec: dict) -> tuple[Path, bytes]:
     path = (manifest_dir / spec["path"]).resolve()
     return path, path.read_bytes()
@@ -34,7 +48,8 @@ def routed_sources(route: dict) -> list[str]:
 
 
 def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
-                 repetitions: int | None = None, diagnostic_only: bool = False) -> dict:
+                 repetitions: int | None = None, diagnostic_only: bool = False,
+                 variant_ids: set[str] | None = None) -> dict:
     manifest_path, output = manifest_path.resolve(), output.resolve()
     if not contained(output, LOCAL_HOLDOUT):
         raise ValueError("output must stay under .local/fable/holdout")
@@ -53,8 +68,17 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
         raise ValueError("repetitions cannot be lower than the benchmark minimum")
     if not batch_id or any(character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for character in batch_id):
         raise ValueError("batch_id is unsafe")
-    variants = [variant for variant in config["variants"]
-                if not diagnostic_only or variant["id"] in {"O-B", "O-F", "S-B", "S-F"}]
+    all_variants = config["variants"] + DIAGNOSTIC_EXTRA_VARIANTS if diagnostic_only else config["variants"]
+    selected_variant_ids = None
+    if diagnostic_only:
+        selected_variant_ids = DEFAULT_DIAGNOSTIC_ONLY_VARIANT_IDS if variant_ids is None else variant_ids
+        if not selected_variant_ids:
+            raise ValueError("variant_ids must not be empty")
+        unknown = selected_variant_ids - {variant["id"] for variant in all_variants}
+        if unknown:
+            raise ValueError(f"unknown variant ids: {sorted(unknown)}")
+    variants = [variant for variant in all_variants
+                if selected_variant_ids is None or variant["id"] in selected_variant_ids]
     repository_commit = git_output("rev-parse", "HEAD")
     routes = {item["id"]: item for item in json.loads((CONFIG.parent / "routes.json").read_text(encoding="utf-8-sig"))["routes"]}
     package = output.with_name(f"{output.stem}-package")

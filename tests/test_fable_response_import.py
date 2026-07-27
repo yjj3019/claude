@@ -54,6 +54,28 @@ class ManualResponseImportTest(unittest.TestCase):
             self.assertEqual(result["status"], "imported")
             self.assertTrue((root / "local" / "imported" / result["response_path"]).is_file())
 
+    def test_stores_zero_tool_calls(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result, _ = self.do_import(Path(directory), tool_calls=0)
+            self.assertEqual(result["tool_calls"], 0)
+
+    def test_omitted_tool_calls_is_none(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result, _ = self.do_import(Path(directory))
+            self.assertIsNone(result["tool_calls"])
+
+    def test_rejects_negative_tool_calls(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            plan, run, response, package = self.setup_run(root, "O-F")
+            with self.assertRaises(ValueError):
+                IMPORTER.import_response(
+                    plan, run_id=run["run_id"], response_file=response, package_dir=package,
+                    output_dir=root / "local" / "imported", served_model=run["requested_model"],
+                    fallback_detected=False, source_surface="claude_app", sanitized_confirmed=True,
+                    allowed_root=root / "local", tool_calls=-1,
+                )
+
     def test_excludes_unknown_fable_response(self):
         with tempfile.TemporaryDirectory() as directory:
             result, _ = self.do_import(Path(directory), "F5", served_model=None, fallback_detected=None)

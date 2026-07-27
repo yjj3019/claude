@@ -104,6 +104,48 @@ class FableHoldoutPlanTest(unittest.TestCase):
         self.assertEqual({run["variant_id"] for run in result["runs"]}, {"O-B", "O-F", "S-B", "S-F"})
         self.assertFalse(result["benchmark_promotion_ready"])
 
+    def test_diagnostic_plan_with_extra_variant_ids_adds_a_third_model(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        variant_ids = compiler.DEFAULT_DIAGNOSTIC_ONLY_VARIANT_IDS | {"O5-B", "O5-F"}
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            result = compiler.compile_plan(
+                manifest, output, seed=17, batch_id="DIAGNOSTIC-C", diagnostic_only=True,
+                variant_ids=variant_ids,
+            )
+        self.assertEqual(result["artifact_count"], 30)
+        self.assertEqual(result["run_count"], 30)
+        self.assertEqual({run["variant_id"] for run in result["runs"]},
+                          {"O-B", "O-F", "S-B", "S-F", "O5-B", "O5-F"})
+        self.assertEqual({run["requested_model"] for run in result["runs"]},
+                          {"claude-opus-4-8", "claude-sonnet-5", "claude-opus-5"})
+
+    def test_diagnostic_plan_rejects_unknown_variant_id(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            with self.assertRaises(ValueError):
+                compiler.compile_plan(
+                    manifest, output, seed=17, batch_id="DIAGNOSTIC-C", diagnostic_only=True,
+                    variant_ids={"O-B", "NOT-A-REAL-VARIANT"},
+                )
+
+    def test_diagnostic_plan_rejects_empty_variant_ids(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            with self.assertRaises(ValueError):
+                compiler.compile_plan(
+                    manifest, output, seed=17, batch_id="DIAGNOSTIC-C", diagnostic_only=True,
+                    variant_ids=set(),
+                )
+
     def test_rejects_underfilled_intake(self):
         temp, root, manifest = self.make_dataset(1)
         self.addCleanup(temp.cleanup)

@@ -122,11 +122,14 @@ def import_response(plan: dict, *, run_id: str, response_file: Path, package_dir
                     fallback_detected: bool | None, source_surface: str,
                     sanitized_confirmed: bool, evidence_file: Path | None = None,
                     evidence_sanitized_confirmed: bool = False,
+                    tool_calls: int | None = None,
                     allowed_root: Path = LOCAL_ROOT) -> dict:
     allowed_root = allowed_root.resolve()
     output_dir = output_dir.resolve()
     if not output_dir.is_relative_to(allowed_root):
         raise ValueError("output directory must stay inside the local-only benchmark root")
+    if tool_calls is not None and (isinstance(tool_calls, bool) or not isinstance(tool_calls, int) or tool_calls < 0):
+        raise ValueError("tool_calls must be a non-negative integer or omitted")
     run = validate_plan_binding(plan, run_id=run_id, package_dir=package_dir)
     if source_surface != run.get("source_surface_required"):
         raise ValueError("response surface does not match the planned surface")
@@ -159,6 +162,7 @@ def import_response(plan: dict, *, run_id: str, response_file: Path, package_dir
         "provenance": run.get("provenance"),
         "variant_id": run["variant_id"], "requested_model": run["requested_model"],
         "served_model": served_model, "fallback_detected": fallback_detected,
+        "tool_calls": tool_calls,
         "prompt_hash": run["prompt_hash"], "plan_sha256": plan_hash,
         "repository_commit": run["repository_commit"],
         "imported_at": datetime.now(timezone.utc).isoformat(),
@@ -198,6 +202,7 @@ def main() -> int:
     parser.add_argument("--source-surface", choices=["claude_app"], required=True)
     parser.add_argument("--confirm-sanitized", action="store_true", required=True)
     parser.add_argument("--confirm-evidence-sanitized", action="store_true")
+    parser.add_argument("--tool-calls", type=int)
     parser.add_argument("--output-dir", type=Path, default=LOCAL_ROOT / "imported")
     args = parser.parse_args()
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
@@ -207,7 +212,8 @@ def main() -> int:
         served_model=args.served_model, fallback_detected=parse_optional_bool(args.fallback),
         source_surface=args.source_surface, sanitized_confirmed=args.confirm_sanitized,
         evidence_file=args.surface_evidence_file,
-        evidence_sanitized_confirmed=args.confirm_evidence_sanitized
+        evidence_sanitized_confirmed=args.confirm_evidence_sanitized,
+        tool_calls=args.tool_calls,
     )
     print(json.dumps({key: result[key] for key in ("run_id", "variant_id", "status", "response_sha256", "exclusion_reason")}, ensure_ascii=False, indent=2))
     return 0

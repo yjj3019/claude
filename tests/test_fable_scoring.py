@@ -45,6 +45,24 @@ class FableScoringTest(unittest.TestCase):
         self.assertTrue(bad["hard_failure"])
         self.assertIn("forbidden_phrase", bad["triggered_events"])
 
+    def test_tool_call_ceiling_pass_hard_failure_and_manual_review(self):
+        checks = {
+            "schema_version": "1.0", "required_phrases": ["ok"],
+            "constraints": {"maximum_tool_calls": 0},
+            "hard_failure_on": ["forbidden_phrase", "tool_limit"],
+            "manual_review_on": ["required_phrase_missing", "tool_calls_unknown"],
+        }
+        zero_calls = MODULE.score_response("PRIVATE-004", "ok", checks, tool_calls=0)
+        one_call = MODULE.score_response("PRIVATE-004", "ok", checks, tool_calls=1)
+        unknown_calls = MODULE.score_response("PRIVATE-004", "ok", checks, tool_calls=None)
+        self.assertTrue(zero_calls["automatic_pass"])
+        self.assertFalse(zero_calls["hard_failure"])
+        self.assertTrue(one_call["hard_failure"])
+        self.assertIn("tool_limit", one_call["triggered_events"])
+        self.assertFalse(unknown_calls["hard_failure"])
+        self.assertTrue(unknown_calls["manual_required"])
+        self.assertIn("tool_calls_unknown", unknown_calls["triggered_events"])
+
     def test_numeric_grouping_does_not_trigger_manual_review(self):
         checks = {
             "schema_version": "1.0",
