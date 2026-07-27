@@ -94,6 +94,16 @@ class FablePrivatePreflightTest(unittest.TestCase):
         self.assertFalse(result["execution_ready"])
         self.assertTrue(any("canary values" in error for error in result["errors"]))
 
+    def test_malformed_manifest_entry_fails_structured_not_nameerror(self):
+        temp, root, manifest, lexical, semantic_path, provenance_path, plan, canary_path = self.make_bundle()
+        self.addCleanup(temp.cleanup)
+        manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        del manifest_data["entries"][0]["provenance"]
+        manifest.write_text(json.dumps(manifest_data), encoding="utf-8")
+        result = self.run_preflight(root, manifest, lexical, semantic_path, provenance_path, plan, canary_path)
+        self.assertFalse(result["execution_ready"])
+        self.assertTrue(any("manifest cannot be bound" in error for error in result["errors"]))
+
 
 if __name__ == "__main__":
     unittest.main()

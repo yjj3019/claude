@@ -37,6 +37,7 @@ def validate_preflight(manifest_path: Path, lexical_path: Path, semantic_path: P
                        plan_path: Path, canary_path: Path) -> dict:
     errors, checks = [], {}
     dataset_id, manifest_digest, scenario_provenance = None, None, {}
+    canaries, actual_canary_hashes = [], set()
     manifest_path, lexical_path, semantic_path, plan_path, canary_path = map(Path.resolve, (manifest_path, lexical_path, semantic_path, plan_path, canary_path))
     if not all(contained(path, LOCAL_HOLDOUT) for path in (manifest_path, plan_path, canary_path)):
         errors.append("manifest, plan, and canary file must stay under .local/fable/holdout")
