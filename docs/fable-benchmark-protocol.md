@@ -2,10 +2,10 @@
 
 ## Purpose
 
-Measure whether FEF improves Claude Opus 4.8 and Claude Sonnet 5 over their own
-unassisted baselines, and whether the resulting workflow matches or exceeds
-observable Fable5 behavior. This benchmark measures workflow behavior, not hidden
-reasoning, personality, or model imitation.
+Measure whether FEF improves Claude Opus 4.8, Claude Sonnet 5, and Claude Opus 5
+over their own unassisted baselines, and whether the resulting workflow matches or
+exceeds observable Fable5 behavior. This benchmark measures workflow behavior, not
+hidden reasoning, personality, or model imitation.
 
 The machine-readable contract is `config/fable-benchmark.json`. Validate it with:
 
@@ -45,8 +45,9 @@ template; it is not evidence that a model run occurred.
 
 ## Primary Comparisons
 
-- Opus treatment effect: `O-F - O-B`
+- Opus treatment effect: `O-F - O-B` (Opus 4.8; retained as the prior baseline)
 - Sonnet treatment effect: `S-F - S-B`
+- Opus 5 treatment effect: `O5-F - O5-B`
 - Kernel contribution: `O-K - O-B` and `S-K - S-B`
 - Prompt-length control: compare routed FEF with matched `O-N` and `S-N`
 - Fable5 is a reference group, not a gold answer or the primary causal comparison.
@@ -82,11 +83,20 @@ An intake-ready manifest can be compiled with
 the compiler resolves its FEF module, policies, workflow, and reviewer from
 `config/routes.json`. Execution artifacts exclude check-spec content and canaries.
 For a single-operator first pass, `--diagnostic-only` compiles only
-`O-B/O-F/S-B/S-F` once per scenario. With five scenarios this is 20 runs and is
-permanently non-promotional.
+`O-B/O-F/S-B/S-F` once per scenario by default. With five scenarios this is 20
+runs and is permanently non-promotional. Passing an explicit `variant_ids`
+selection to `compile_plan` can add the Opus 5 variants (`O5-B`/`O5-F`),
+producing 6 variants and 30 runs across three models; the 4-variant/20-run
+default is unchanged unless `variant_ids` is passed explicitly.
 Export the resulting plan with `scripts/export_fable_diagnostic_prompts.py`; it
 creates ordered Markdown messages for fresh Claude-app chats and a local index
-that names the requested model for each run.
+that names the requested model for each run. Every exported message opens with
+an offline-evidence banner instructing the model not to call any tool, MCP, or
+command and to judge only the supplied text; `tool_calls: 0` is a required,
+scored constraint for these runs, not merely a request. Destructive-action
+scenarios such as `PRIVATE-004` additionally carry a warning against executing
+or requesting approval for the destructive command, and must never be run in a
+tool-connected session.
 Semantic-similarity evidence must be produced by a separately identified offline
 tool, stored under `.local/fable/leakage/`, and validated with
 `scripts/validate_fable_semantic_evidence.py`. A complete result binds every
@@ -125,9 +135,15 @@ Use a fresh session for every run. Hold fixtures, permissions, tools, selected
 model, and interaction procedure constant within a paired comparison. Record every
 field listed in `execution.required_run_metadata`.
 
-Fable5 requests may fall back to another served model. Exclude a Fable run from
-the reference comparison when the served model or fallback state cannot be
-verified. Never relabel an Opus fallback as a Fable result.
+Any evaluated model's request may be served by a different model. Exclude a run
+from model comparison whenever its requested and served model differ, or the
+served model cannot be verified at all — this applies to every evaluated model
+(Opus 4.8, Sonnet 5, Opus 5), not only Fable5. Never relabel a fallback response
+as evidence for the requested model. `scripts/import_fable_response.py` records
+`served_model`, `fallback_detected`, and `tool_calls` in each run's import
+metadata; leave `served_model`/`fallback_detected` unset and `tool_calls` omitted
+(stored as `null`) when either cannot actually be confirmed, rather than
+guessing.
 
 Run each scenario and variant at least five times in randomized order. Repetitions
 estimate reliability; they are not independent samples. The unit of analysis is
@@ -259,3 +275,6 @@ analysis with placebo controls, two-rater reliability, and a final evidence gate
 It does not ship private fixtures, generate semantic-similarity scores, or provide
 a complete blinded adjudication application. Those remaining capabilities must
 not be represented as completed here.
+A `DIAGNOSTIC-D` plan is currently prepared but held pending independent
+confirmation of the Opus 5 served model; it must not be executed until that
+confirmation is possible.
