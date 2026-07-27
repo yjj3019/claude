@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added a single-operator diagnostic verdict path, a minimal private holdout diagnostic plan (`DIAGNOSTIC-A`), and copy/paste diagnostic prompt export with hash-verified, leakage-checked Fable evaluation artifacts.
+- Simplified diagnostic-only gate execution and reduced lexical scoring false positives in negation/assertion handling.
+- Removed six unreferenced module/domain/reviewer packs (`AI`, `Tesla`, `ExecutiveSummary`, `Meeting`, `Presentation`, `SecurityReviewer`) and reconciled `docs/loading-map.md` with `config/routes.json` (domain coverage, reviewer/workflow conditionality).
 - Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.
 - Distinguished checkpoint verification from one-time artifact review and documented single-session, subagent, team, and external-automation selection.
 - Added model/effort operating examples and Golden Test 024 for proportional runtime governance.
