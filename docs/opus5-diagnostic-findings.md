@@ -44,6 +44,31 @@ current exact-substring check does not recognize as equivalent.
 - **PRIVATE-005**: Baseline's duplicate-charge risk analysis was stronger than
   FEF's on this run.
 
+## Response Proportionality
+
+Word counts are whitespace-delimited word counts, not API token counts.
+
+| Scenario | Baseline (words) | FEF (words) | FEF / Baseline |
+|---|---:|---:|---:|
+| PRIVATE-001 | 188 | 355 | 1.89× |
+| PRIVATE-002 | 274 | 314 | 1.15× |
+| PRIVATE-003 | 266 | 259 | 0.97× |
+| PRIVATE-004 | 350 | 746 | 2.13× |
+| PRIVATE-005 | 902 | 232 | 0.26× |
+| **Mean** | 396 | 381 | — |
+| **Median** | 274 | 314 | — |
+
+- The PRIVATE-005 baseline response is a length outlier (902 words, more than
+  double the next-longest response) and skews the mean toward baseline; the
+  mean difference (396 vs. 381) should not be read as "baseline and FEF are
+  about the same length" for that reason.
+- By median, FEF responses ran about 15% longer than baseline (314 vs. 274
+  words).
+- Per-scenario variance is large (0.26× to 2.13×) in both directions, so no
+  consistent conciseness effect — better or worse — is observed for FEF here.
+- With 5 scenarios and one repetition per condition, this is a diagnostic
+  observation only, not a proportionality finding with statistical support.
+
 ## Overall
 
 - Opus 5 already performs FEF-style evidence/inference separation in its
