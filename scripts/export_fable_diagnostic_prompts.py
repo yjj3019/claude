@@ -46,8 +46,10 @@ def export(plan_path: Path, output_dir: Path, *, allowed_root: Path = LOCAL_ROOT
     if output_dir.exists():
         raise FileExistsError(f"refusing to overwrite output directory: {output_dir}")
     plan = json.loads(plan_path.read_text(encoding="utf-8-sig"))
-    if plan.get("diagnostic_only") is not True or plan.get("repetitions") != 1:
-        raise ValueError("only one-repetition diagnostic plans can be exported")
+    repetitions = plan.get("repetitions")
+    if (plan.get("diagnostic_only") is not True or not isinstance(repetitions, int)
+            or isinstance(repetitions, bool) or repetitions < 1):
+        raise ValueError("only diagnostic plans with a positive repetition count can be exported")
     package = plan_path.with_name(f"{plan_path.stem}-package").resolve()
     output_dir.mkdir(parents=True)
     items = []

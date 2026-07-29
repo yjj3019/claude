@@ -31,6 +31,8 @@ DIAGNOSTIC_EXTRA_VARIANTS = [
     {"id": "O5-B", "model": "claude-opus-5", "framework": "off", "role": "baseline", "prompt_sources": []},
     {"id": "O5-F", "model": "claude-opus-5", "framework": "routed", "role": "treatment",
      "prompt_sources": ["CLAUDE.md", "docs/loading-map.md"]},
+    {"id": "O5-K", "model": "claude-opus-5", "framework": "kernel", "role": "baseline",
+     "prompt_sources": ["kernel/CoreKernel.md", "kernel/MetaRules.md", "kernel/Checklist.md"]},
 ]
 
 
@@ -61,10 +63,14 @@ def compile_plan(manifest_path: Path, output: Path, *, seed: int, batch_id: str,
     manifest_raw = manifest_path.read_bytes()
     manifest = json.loads(manifest_raw.decode("utf-8-sig"))
     config = json.loads(CONFIG.read_text(encoding="utf-8-sig"))
-    if diagnostic_only and repetitions not in {None, 1}:
-        raise ValueError("diagnostic-only plans use exactly one repetition")
-    repetitions = 1 if diagnostic_only else repetitions or config["execution"]["minimum_repetitions"]
-    if not diagnostic_only and repetitions < config["execution"]["minimum_repetitions"]:
+    minimum_repetitions = config["execution"]["minimum_repetitions"]
+    if repetitions is None:
+        repetitions = 1 if diagnostic_only else minimum_repetitions
+    elif not isinstance(repetitions, int) or isinstance(repetitions, bool) or repetitions < 1:
+        raise ValueError("repetitions must be a positive integer")
+    elif diagnostic_only and repetitions > minimum_repetitions:
+        raise ValueError(f"diagnostic-only repetitions cannot exceed the benchmark minimum ({minimum_repetitions})")
+    elif not diagnostic_only and repetitions < minimum_repetitions:
         raise ValueError("repetitions cannot be lower than the benchmark minimum")
     if not batch_id or any(character not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for character in batch_id):
         raise ValueError("batch_id is unsafe")

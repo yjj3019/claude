@@ -7,19 +7,20 @@ from pathlib import Path
 from scripts.export_fable_diagnostic_prompts import OFFLINE_EVIDENCE_BANNER, SCENARIO_WARNINGS, export
 
 
-def _write_plan(root: Path, artifact: dict, *, batch_id: str = "DIAGNOSTIC-A") -> Path:
+def _write_plan(root: Path, artifact: dict, *, batch_id: str = "DIAGNOSTIC-A", repetitions: int = 1) -> Path:
     plans = root / "plans"
     package = plans / f"{batch_id}-package" / "artifacts"
     package.mkdir(parents=True)
     raw = (json.dumps(artifact) + "\n").encode()
     (package / "P-1-O-F.json").write_bytes(raw)
+    prompt_hash = hashlib.sha256(raw).hexdigest()
     plan = {
-        "diagnostic_only": True, "repetitions": 1, "batch_id": batch_id,
+        "diagnostic_only": True, "repetitions": repetitions, "batch_id": batch_id,
         "runs": [{
-            "run_id": f"{batch_id}-P-1-O-F-R01", "requested_model": "claude-opus-4-8",
+            "run_id": f"{batch_id}-P-1-O-F-R{repetition:02d}", "requested_model": "claude-opus-4-8",
             "variant_id": "O-F", "artifact_path": "artifacts/P-1-O-F.json",
-            "prompt_hash": hashlib.sha256(raw).hexdigest(),
-        }],
+            "prompt_hash": prompt_hash,
+        } for repetition in range(1, repetitions + 1)],
     }
     plan_path = plans / f"{batch_id}.json"
     plan_path.write_text(json.dumps(plan), encoding="utf-8")
@@ -65,6 +66,26 @@ class FableDiagnosticPromptExportTest(unittest.TestCase):
         self.assertIn(OFFLINE_EVIDENCE_BANNER, prompt)
         self.assertIn(SCENARIO_WARNINGS["PRIVATE-004"], prompt)
         self.assertLess(prompt.index(SCENARIO_WARNINGS["PRIVATE-004"]), prompt.index("Clean up"))
+
+    def test_exports_a_repeated_diagnostic_plan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = {"scenario_id": "PRIVATE-001", "user_prompt": "Report status.", "fixtures": []}
+            plan_path = _write_plan(root, artifact, repetitions=3)
+            result = export(plan_path, root / "prompts", allowed_root=root)
+        self.assertEqual(result["prompt_count"], 3)
+        self.assertEqual({item["run_id"][-3:] for item in result["items"]}, {"R01", "R02", "R03"})
+
+    def test_rejects_export_of_a_plan_with_invalid_repetitions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact = {"scenario_id": "PRIVATE-001", "user_prompt": "Report status.", "fixtures": []}
+            plan_path = _write_plan(root, artifact)
+            plan = json.loads(plan_path.read_text(encoding="utf-8"))
+            plan["repetitions"] = 0
+            plan_path.write_text(json.dumps(plan), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                export(plan_path, root / "prompts", allowed_root=root)
 
 
 if __name__ == "__main__":

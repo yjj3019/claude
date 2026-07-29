@@ -146,6 +146,76 @@ class FableHoldoutPlanTest(unittest.TestCase):
                     variant_ids=set(),
                 )
 
+    def test_diagnostic_plan_allows_repeated_kernel_vs_fef_runs(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            result = compiler.compile_plan(
+                manifest, output, seed=17, batch_id="DIAGNOSTIC-E", diagnostic_only=True,
+                repetitions=3, variant_ids={"O5-K", "O5-F"},
+            )
+        self.assertTrue(result["diagnostic_only"])
+        self.assertEqual(result["repetitions"], 3)
+        self.assertEqual(result["artifact_count"], 10)
+        self.assertEqual(result["run_count"], 30)
+        self.assertEqual({run["variant_id"] for run in result["runs"]}, {"O5-K", "O5-F"})
+        self.assertEqual({run["requested_model"] for run in result["runs"]}, {"claude-opus-5"})
+        for artifact_id in {run["artifact_id"] for run in result["runs"]}:
+            repetition_suffixes = {run["run_id"].rsplit("-", 1)[-1] for run in result["runs"]
+                                    if run["artifact_id"] == artifact_id}
+            self.assertEqual(repetition_suffixes, {"R01", "R02", "R03"})
+
+    def test_diagnostic_plan_omitted_repetitions_still_defaults_to_one(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            result = compiler.compile_plan(
+                manifest, output, seed=17, batch_id="DIAGNOSTIC-E", diagnostic_only=True,
+                variant_ids={"O5-K", "O5-F"},
+            )
+        self.assertEqual(result["repetitions"], 1)
+        self.assertEqual(result["run_count"], 10)
+
+    def test_diagnostic_plan_rejects_zero_repetitions(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            with self.assertRaises(ValueError):
+                compiler.compile_plan(
+                    manifest, output, seed=17, batch_id="DIAGNOSTIC-E", diagnostic_only=True,
+                    repetitions=0, variant_ids={"O5-K", "O5-F"},
+                )
+
+    def test_diagnostic_plan_rejects_negative_repetitions(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            with self.assertRaises(ValueError):
+                compiler.compile_plan(
+                    manifest, output, seed=17, batch_id="DIAGNOSTIC-E", diagnostic_only=True,
+                    repetitions=-1, variant_ids={"O5-K", "O5-F"},
+                )
+
+    def test_diagnostic_plan_rejects_repetitions_above_benchmark_minimum(self):
+        temp, root, manifest = self.make_dataset()
+        self.addCleanup(temp.cleanup)
+        output = root / "diagnostic.json"
+        with patch.object(holdout, "LOCAL_HOLDOUT", root.resolve()), \
+             patch.object(compiler, "LOCAL_HOLDOUT", root.resolve()):
+            with self.assertRaises(ValueError):
+                compiler.compile_plan(
+                    manifest, output, seed=17, batch_id="DIAGNOSTIC-E", diagnostic_only=True,
+                    repetitions=6, variant_ids={"O5-K", "O5-F"},
+                )
+
     def test_rejects_underfilled_intake(self):
         temp, root, manifest = self.make_dataset(1)
         self.addCleanup(temp.cleanup)
