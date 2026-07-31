@@ -2,9 +2,9 @@
 
 ## Current Status
 
-- Updated: 2026-07-30 KST
+- Updated: 2026-07-31 KST
 - Branch: `main`
-- Remote state: pushed through `0781297` ("feat: add tool-safe Opus 5 diagnostics" — DIAGNOSTIC-C safety hardening: `maximum_tool_calls: 0` constraint, offline-evidence prompt banner, PRIVATE-004 destructive-command warning, opt-in Opus 5 variant, validated `variant_ids` handling)
+- Remote state: `main` synchronized with `origin/main` through `cd92ba1` ("docs: close Fable work as diagnostic-only")
 - **DIAGNOSTIC-C: frozen.** One smoke run could not have its served model independently confirmed from the chat surface — no further DIAGNOSTIC-C execution until model identity for a run can actually be verified, not just assumed from UI selection.
 - **DIAGNOSTIC-D (Opus 5 vs Opus 5 + FEF): closed.** 10/10 runs collected (5 scenarios × baseline/FEF), served model confirmed per run, no fallback, `tool_calls: 0` on every run. Semantically correct 10/10. Automatic (lexical) pass 9/10; the one manual-review case was a missing exact required substring ("남아") in an otherwise semantically correct response — a lexical-scorer limitation, not a semantic failure. Hard failures: 0. **No FEF accuracy or conciseness improvement was observed over baseline on this sample**; for simple evidence-judgment tasks a Kernel-only configuration is the recommended default. `diagnostic_only`, not usable as formal promotion evidence. Full writeup: `docs/opus5-diagnostic-findings.md`.
 - **Fable diagnostic-only work: closed.** DIAGNOSTIC-D is the final evidence basis. DIAGNOSTIC-E was not completed: one Claude app response and one CLI smoke response are excluded from the formal comparison and support no comparative conclusion. No additional Claude/API/paid-model execution is planned.
@@ -17,7 +17,7 @@
   - Consolidated a duplicated `SHA256` regex (7 files) and `contained(path, root)` path-safety check (5 files) into new `scripts/lib/fable_common.py`, ~120 duplicated lines removed. Left `validate_fable_holdout.py`'s `validate_artifact`/`resolve_bound_file` and `import_fable_response.py`'s differently-shaped `contained_file` un-merged (real but smaller wins, higher risk of behavior drift for the time available).
   - Updated `CHANGELOG.md` Unreleased section for the diagnostic-work commits (`f4cba68`..`356aa14`) that were undocumented, plus this pass.
   - **Not done** (flagged, not silently dropped): no test added for `scripts/sync_kernel.py` or `scripts/lib/routing.py`; the `validate_fable_holdout.py`/`validate_fable_semantic_evidence.py` `resolve_bound_file` duplication; inconsistent try/except file-I/O error handling across ~5 CLI scripts (`score_fable_smoke.py`, `evaluate_fable_gate.py`, `calculate_fable_reliability.py`, `analyze_fable_results.py`, `sync_kernel.py`) that crash with a raw traceback instead of a structured error on corrupt input.
-  - **Not committed/pushed** — awaiting user decision.
+  - **Committed and pushed** through the 2026-07-27 review/fix series (`72e7b2d`, `c914e04`, `e8e243b`).
 - Fable benchmark: contract, Golden Tests, framework, and PILOT-A freshness valid; 98 unit tests pass
 - Implemented: private holdout v1.1 intake, hash-bound provenance attestation with custodian/attestor role separation, routed plan compiler, shared response/blinding pipeline, lexical/semantic evidence validation, execution preflight, batch audit, declarative private scoring, five-axis evidence-conflict outcome rubric, scenario-level and provenance-stratified OOD statistics, numeric phrase normalization, hash-bound two-rater reliability, placebo analysis, and a final evidence gate that rejects mixed dataset/manifest/provenance evidence
 - Diagnostic result: Opus 4.8 and Sonnet 5 were both evidence-faithful on five non-promotional cases; one label-only disagreement was observed
