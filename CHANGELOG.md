@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Closed the Fable work as diagnostic-only using DIAGNOSTIC-D as the final evidence basis; excluded DIAGNOSTIC-E's single app response and CLI smoke response from formal comparison, recommended Kernel-only for simple evidence judgment, and recorded formal promotion as NO-GO pending provenance and semantic evidence.
 - Added a single-operator diagnostic verdict path, a minimal private holdout diagnostic plan (`DIAGNOSTIC-A`), and copy/paste diagnostic prompt export with hash-verified, leakage-checked Fable evaluation artifacts.
 - Simplified diagnostic-only gate execution and reduced lexical scoring false positives in negation/assertion handling.
 - Reconciled `docs/loading-map.md` with `config/routes.json`: added `domains/EnterpriseArchitecture.md` domain coverage, documented `domains/Ansible.md`/`domains/Satellite.md` as cross-route keyword domains, and corrected reviewer/workflow conditionality wording for three Task Map rows.

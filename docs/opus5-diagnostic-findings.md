@@ -78,6 +78,15 @@ Word counts are whitespace-delimited word counts, not API token counts.
 - For simple evidence-judgment tasks, a Kernel-only configuration is the
   recommended default; the full routed pack set did not show an added benefit
   here.
+- This DIAGNOSTIC-D result is the final evidence basis for closing the current
+  Fable work as diagnostic-only.
+
+## DIAGNOSTIC-E Exclusion
+
+DIAGNOSTIC-E was not completed. Its one Claude app response and one CLI smoke
+response are excluded from the formal comparison. They do not change or extend
+the DIAGNOSTIC-D conclusion, and no additional Claude/API/paid-model execution
+is required for this closeout.
 
 ## Limitations
 
@@ -85,7 +94,8 @@ Word counts are whitespace-delimited word counts, not API token counts.
   statistical-significance claim.
 - `diagnostic_only`: no independent private-holdout provenance verification and
   no semantic-similarity leakage evidence were produced for this batch.
-- Must not be used as grounds for formal benchmark promotion (`GO`/`CONDITIONAL_GO`).
+- Formal benchmark promotion is **NO-GO** because independently verified
+  provenance and semantic evidence are missing.
 
 ## Recommended Next Steps
 
