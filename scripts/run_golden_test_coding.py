@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Minimal automated runner for the fixture-mode coding Golden Tests (012-014).
+"""Minimal automated runner for the fixture-mode coding Golden Tests (012-014, 026-030).
 
-Scope: only the three "fixture" mode tests are covered. The other 22 Golden
+Scope: only the "fixture" mode coding tests are covered. The other Golden
 Tests are "manual" or "static" comparative-quality checks and are not
 mechanically scorable - this script does not attempt to automate them.
 
@@ -56,6 +56,11 @@ TEST_CONFIG = {
     "012": {"fixture": "GT012-code", "fix_files": ["money.py"], "sibling_files": ["orders.py", "refunds.py"]},
     "013": {"fixture": "GT013-code", "fix_files": ["refunds.py", "revenue.py"], "sibling_files": ["amounts.py"]},
     "014": {"fixture": "GT014-code", "fix_files": ["periods.py"], "sibling_files": ["billing.py", "support.py"]},
+    "026": {"fixture": "GT026-code", "fix_files": ["tagging.py"], "sibling_files": ["reports.py"]},
+    "027": {"fixture": "GT027-code", "fix_files": ["inventory.py"], "sibling_files": ["audit.py"]},
+    "028": {"fixture": "GT028-code", "fix_files": ["loader.py"], "sibling_files": ["summary.py"]},
+    "029": {"fixture": "GT029-code", "fix_files": ["ranking.py"], "sibling_files": ["leaderboard.py"]},
+    "030": {"fixture": "GT030-code", "fix_files": ["wallet.py"], "sibling_files": ["statements.py"]},
 }
 
 IMPORT_HINT = ("import ", "from ")

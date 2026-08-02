@@ -24,6 +24,11 @@ jobs:
       - run: python scripts/run_golden_test_coding.py --test 012 --patch-dir tests/fixtures/GT012-code/answers
       - run: python scripts/run_golden_test_coding.py --test 013 --patch-dir tests/fixtures/GT013-code/answers
       - run: python scripts/run_golden_test_coding.py --test 014 --patch-dir tests/fixtures/GT014-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 026 --patch-dir tests/fixtures/GT026-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 027 --patch-dir tests/fixtures/GT027-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 028 --patch-dir tests/fixtures/GT028-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 029 --patch-dir tests/fixtures/GT029-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 030 --patch-dir tests/fixtures/GT030-code/answers
       - run: "! python scripts/run_golden_test_coding.py --test 012 --patch-from tests/fixtures/GT012-code/money.py"
       - run: python scripts/prepare_fable_pilot.py --check --output tests/results/fable/PILOT-A-plan.json
       - run: python -c "import json; json.load(open('config/fable-checks.schema.json', encoding='utf-8'))"

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Expanded fixture-mode coding Golden Tests from three to eight (GT026-GT030: mutable default argument, internal-state aliasing, BOM header parsing, numeric-string sorting, float money arithmetic), each with a buggy fixture that fails its tests, an executable answer that passes, an answer key, prompts, registry entries, runner `TEST_CONFIG` coverage, and a CI positive gate.
+- Removed the UTF-8 BOM from the first line of `.gitignore`; the leading `\ufeffwork/` pattern did not reliably match `work/`.
+
 - Added mechanical enforcement of Kernel rules 13-14 via Claude Code hooks: a PostToolUse(Bash) test-run recorder and a fail-open, non-looping Stop gate that blocks completion once when Python files changed without a subsequent test run (`.claude/settings.json`, `scripts/hooks/`, `tests/test_hooks.py`).
 - Added executable answer files for the three fixture-mode coding Golden Tests (`tests/fixtures/GT01N-code/answers/`) and wired them into CI as a positive gate plus a pristine negative control; the previously documented "answer-key dry run" invocation could never succeed because it patched with the buggy pristine file.
 - Fixed GT013 runner scoring semantics: the answer-key-correct patch (deduplicating the two callers onto `amounts.parse_amount`) was capped at 55 as a "caller-only fix" because `amounts.py` was misconfigured as the root-cause file; `TEST_CONFIG` now expresses `fix_files`/`sibling_files` per test, `--patch-dir` supports multi-file dry runs, and `tests/test_golden_test_coding_runner.py` (7 tests) guards the runner.

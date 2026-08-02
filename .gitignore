@@ -1,4 +1,4 @@
-﻿work/
+work/
 
 # Codex agent definitions, generated locally from reviewers/. FEF is consumed
 # through CLAUDE.md and reviewers/*.md; a second copy of the same reviewers in
