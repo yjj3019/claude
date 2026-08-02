@@ -34,8 +34,11 @@
 
 ## Next Session
 
-0. Keep the current work diagnostic-only; do not resume DIAGNOSTIC-E for this closeout.
-1. Reopen formal promotion only after independently verified holdout provenance and semantic-similarity evidence are available.
+0. Decide the model-execution method first (manual Claude Code runs x N vs API automation); both remaining experiments are blocked on this.
+1. Skills-migration A/B: on an experiment branch, migrate loading-map/routes into native `.claude/skills/` triggers; merge only if the 8 mechanical baselines (GT012-014, 026-030) show non-inferiority vs main.
+2. Kernel rule ablation: remove suspected-redundant rules 1/8/12/17 one at a time and measure against the same 8 baselines.
+3. Fable formal promotion stays closed (diagnostic-only) unless independently verified holdout provenance and semantic evidence appear.
+4. Resume command: `cd ~/Claude/fef && git pull`, then read the "Measurement expansion pass" entry above. Working clone is the server `~/Claude/fef` with SSH remote.
 
 ## Notion Log URL
 
