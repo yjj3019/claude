@@ -22,3 +22,6 @@ AI-Proxy/
 
 # Session-local verification marker written by scripts/hooks/record_test_run.py.
 .claude/.test-run-marker
+
+# Skills A/B raw run captures (edited fixture copies); summaries live in tests/results/skills-ab/.
+.local/skills-ab/
