@@ -94,6 +94,10 @@ class SkillsAbHelperTest(unittest.TestCase):
         batch = json.loads((self.results_dir / "T3.json").read_text(encoding="utf-8"))
         self.assertEqual(len(batch["records"]), 2)
 
+    def test_refuses_arm_root_equal_to_helper_root(self):
+        with self.assertRaises(SystemExit):
+            self.run_cli(["prepare", "--arm", "A", "--arm-root", str(ROOT), "--test", "012"])
+
     def test_report_insufficient_when_one_arm_empty(self):
         self.edit_fixture(apply_answer=True)
         self.run_cli(["collect", "--arm", "A", "--arm-root", str(self.arm_root),

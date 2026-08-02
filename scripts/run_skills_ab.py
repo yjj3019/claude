@@ -43,6 +43,13 @@ def fixture_rel(test_id: str) -> Path:
 def check_arm_root(arm_root: Path) -> None:
     if not (arm_root / "CLAUDE.md").is_file() or not (arm_root / "kernel").is_dir():
         raise SystemExit(f"ERROR: {arm_root} is not an FEF repo root")
+    if arm_root == ROOT:
+        raise SystemExit(
+            "ERROR: arm-root resolves to the helper checkout itself. Run the helper "
+            "from the experiment checkout (e.g. ClaudeGit) with --arm-root pointing "
+            "at a SEPARATE arm clone; scoring an arm against itself always reads as "
+            "no code change."
+        )
 
 
 def git(arm_root: Path, *args: str) -> subprocess.CompletedProcess:
