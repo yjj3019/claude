@@ -444,6 +444,9 @@ Do not add:
 - Do not duplicate shared file and tool rules inside the Coding pack.
 
 Status:
+- Promoted (`reviewers/CodeChangeReviewer.md` §2 Root cause, §4 Verification; `workflows/CodingWorkflow.md` reproduction step)
+
+Status:
 - Promoted to the Coding Module, Workflow, and Code Change Reviewer.
 
 ## Minimal Promotion Queue
