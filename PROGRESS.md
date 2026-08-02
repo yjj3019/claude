@@ -35,7 +35,7 @@
 ## Next Session
 
 0. Decide the model-execution method first (manual Claude Code runs x N vs API automation); both remaining experiments are blocked on this.
-1. Skills-migration A/B: on an experiment branch, migrate loading-map/routes into native `.claude/skills/` triggers; merge only if the 8 mechanical baselines (GT012-014, 026-030) show non-inferiority vs main.
+1. Skills-migration A/B: branch `experiment/skills-migration` (623d0e0) is BUILT and pushed - generate_skills.py (routes.json single source, --check drift gate), 9 native skills, CLAUDE.md skill-based autoload, pre-registered protocol in `docs/skills-ab-protocol.md`. Remaining: manual Claude Code runs only (recommended 3/arm x 8 tests = 48 sessions); merge rule is fixed in the protocol doc. API runs are invalid for arm B (native skills do not trigger outside Claude Code).
 2. Kernel rule ablation: remove suspected-redundant rules 1/8/12/17 one at a time and measure against the same 8 baselines.
 3. Fable formal promotion stays closed (diagnostic-only) unless independently verified holdout provenance and semantic evidence appear.
 4. Resume command: `cd ~/Claude/fef && git pull`, then read the "Measurement expansion pass" entry above. Working clone is the server `~/Claude/fef` with SSH remote.
