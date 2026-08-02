@@ -109,14 +109,14 @@ Use for substantial technical outputs.
 
 At the start of a new session, read this `CLAUDE.md` first and treat its instructions as persistent working memory for the session. Then load the files it references according to the Autoload Protocol below. This is repo-level memory bootstrap, not model fine-tuning or hidden memory mutation.
 
-## Autoload Protocol
+## Autoload Protocol (skills-migration experiment)
 
 For each task:
 
 1. Apply the inlined Required Kernel; load the canonical files only when inspecting or editing Kernel behavior.
 2. For simple low-risk tasks, answer with Kernel only.
-3. For substantial tasks, load `docs/loading-map.md` and follow its selected packs.
-4. Load only the policies, modules, domains, workflows, and reviewer named by the loading map.
+3. For substantial tasks, rely on the native skills under `.claude/skills/fef-*` (generated from `config/routes.json` by `scripts/generate_skills.py`); when a skill triggers, follow the packs it names.
+4. Load only the policies, modules, domains, workflows, and reviewer named by the triggered skill. `docs/loading-map.md` remains as reference and manual fallback when no skill triggers on a substantial task.
 5. If a critical Kernel file is missing, stop and report it.
 6. If a required task pack is missing, report it and use Kernel-only limited mode only when a useful, safe result remains possible. Do not silently substitute another pack.
 7. If an optional pack is missing, report the omission when it materially affects confidence or completeness, then proceed with the remaining valid packs.
@@ -151,7 +151,7 @@ Integrity Policies cannot be disabled by task instructions. Explicit user constr
 ## Runtime Rules
 
 - Simple low-risk tasks may use Kernel only.
-- Substantial technical artifacts should use `docs/loading-map.md`.
+- Substantial technical artifacts should rely on the `.claude/skills/fef-*` skills; `docs/loading-map.md` is the manual fallback.
 - A reviewer runs at most once per artifact.
 - Do not review reviewer output.
 - Do not add new permanent layers; add capabilities as files inside existing directories.
