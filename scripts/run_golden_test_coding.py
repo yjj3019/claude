@@ -17,7 +17,11 @@ What this script does NOT score (still requires a human or LLM reviewer):
   regex/exit-code check.
 
 Usage:
-    # Dry run against the known answer-key patch (no API calls, no cost):
+    # Dry run against the executable answer files (no API calls, no cost;
+    # must exit 0 - this is also a CI regression gate for the runner itself):
+    python scripts/run_golden_test_coding.py --test 012 --patch-dir tests/fixtures/GT012-code/answers
+
+    # Negative control: patching with the buggy pristine file must exit 1:
     python scripts/run_golden_test_coding.py --test 012 --patch-from tests/fixtures/GT012-code/money.py
 
     # Live run: caller supplies the model's already-edited fixture directory
@@ -42,10 +46,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# fix_files: files a correct patch is expected to change (the defect site).
+# sibling_files: files a correct patch should leave alone; changing only these
+# without touching any fix_file indicates a workaround, not a root-cause fix.
+# Note GT013: the seeded defect is duplicated parsing in the two callers, so
+# the callers ARE the fix_files and the shared helper is the sibling. GT014's
+# defect is the boundary in periods.py, not the callers in billing.py.
 TEST_CONFIG = {
-    "012": {"fixture": "GT012-code", "root_cause_file": "money.py", "callers": ["orders.py", "refunds.py"]},
-    "013": {"fixture": "GT013-code", "root_cause_file": "amounts.py", "callers": ["refunds.py", "revenue.py"]},
-    "014": {"fixture": "GT014-code", "root_cause_file": "billing.py", "callers": ["periods.py", "support.py"]},
+    "012": {"fixture": "GT012-code", "fix_files": ["money.py"], "sibling_files": ["orders.py", "refunds.py"]},
+    "013": {"fixture": "GT013-code", "fix_files": ["refunds.py", "revenue.py"], "sibling_files": ["amounts.py"]},
+    "014": {"fixture": "GT014-code", "fix_files": ["periods.py"], "sibling_files": ["billing.py", "support.py"]},
 }
 
 IMPORT_HINT = ("import ", "from ")
@@ -60,7 +70,7 @@ def copy_fixture(test_id: str) -> Path:
     if not src.is_dir():
         raise SystemExit(f"fixture not found: {src}")
     dst = Path(tempfile.mkdtemp(prefix=f"gt{test_id}-pristine-"))
-    shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "answers"))
     return dst
 
 
@@ -118,11 +128,10 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
     cfg = TEST_CONFIG[test_id]
     unittest_result = run_unittest(edited_dir)
 
-    root_cause_path = cfg["root_cause_file"]
-    root_cause_touched = file_changed(pristine_dir, edited_dir, root_cause_path)
+    fix_files_touched = any(file_changed(pristine_dir, edited_dir, f) for f in cfg["fix_files"])
 
-    caller_only_fix = (not root_cause_touched) and any(
-        file_changed(pristine_dir, edited_dir, c) for c in cfg["callers"]
+    caller_only_fix = (not fix_files_touched) and any(
+        file_changed(pristine_dir, edited_dir, c) for c in cfg["sibling_files"]
     )
 
     test_files_pristine = sorted(p.name for p in pristine_dir.glob("test_*.py"))
@@ -136,7 +145,7 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
         flagged_deps.extend(new_non_stdlib_imports(pristine_dir / py_file.name, py_file, local_modules))
     flagged_deps = sorted(set(flagged_deps))
 
-    any_change = root_cause_touched or caller_only_fix or test_file_modified
+    any_change = fix_files_touched or caller_only_fix or test_file_modified
 
     hard_cap = 100
     reasons = []
@@ -145,7 +154,7 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
         reasons.append("tests still fail after patch")
     if caller_only_fix:
         hard_cap = min(hard_cap, 55)
-        reasons.append("caller-only fix: root-cause file untouched, only a caller changed")
+        reasons.append("caller-only fix: no expected fix file touched, only a sibling changed")
     if test_file_modified:
         hard_cap = min(hard_cap, 50)
         reasons.append("test file was modified - possible bug-hiding change, needs manual review")
@@ -160,7 +169,7 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
         "test_id": test_id,
         "mechanical_checks": {
             "unit_tests_pass": unittest_result["passed"],
-            "root_cause_file_touched": root_cause_touched,
+            "fix_files_touched": fix_files_touched,
             "caller_only_fix": caller_only_fix,
             "test_file_modified": test_file_modified,
             "new_dependency_candidates": flagged_deps,
@@ -178,27 +187,31 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
     }
 
 
-def main() -> int:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--test", required=True, choices=sorted(TEST_CONFIG))
     parser.add_argument("--edited-dir", type=Path, help="Directory containing the model's already-edited fixture copy")
-    parser.add_argument("--patch-from", type=Path, help="Apply this single file as the root-cause file content for a dry run (no live model call)")
+    parser.add_argument("--patch-from", type=Path, help="Dry run: overlay this single file onto the fixture copy, matched by filename (no live model call)")
+    parser.add_argument("--patch-dir", type=Path, help="Dry run: overlay every *.py in this directory onto the fixture copy, matched by filename")
     parser.add_argument("--output", type=Path, help="Optional JSON result path")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     pristine_dir = copy_fixture(args.test)
     dry_run_dir = None
     try:
         if args.edited_dir:
             edited_dir = args.edited_dir.resolve()
-        elif args.patch_from:
+        elif args.patch_from or args.patch_dir:
             dry_run_dir = Path(tempfile.mkdtemp(prefix=f"gt{args.test}-edited-"))
             shutil.copytree(pristine_dir, dry_run_dir, dirs_exist_ok=True)
-            root_cause_file = TEST_CONFIG[args.test]["root_cause_file"]
-            shutil.copy(args.patch_from, dry_run_dir / root_cause_file)
+            overlays = [args.patch_from] if args.patch_from else sorted(args.patch_dir.glob("*.py"))
+            if not overlays:
+                parser.error(f"--patch-dir contains no *.py files: {args.patch_dir}")
+            for overlay in overlays:
+                shutil.copy(overlay, dry_run_dir / overlay.name)
             edited_dir = dry_run_dir
         else:
-            parser.error("supply --edited-dir (live model output) or --patch-from (dry run)")
+            parser.error("supply --edited-dir (live model output), --patch-from, or --patch-dir (dry run)")
 
         result = score(args.test, pristine_dir, edited_dir)
     finally:

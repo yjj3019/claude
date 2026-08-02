@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added mechanical enforcement of Kernel rules 13-14 via Claude Code hooks: a PostToolUse(Bash) test-run recorder and a fail-open, non-looping Stop gate that blocks completion once when Python files changed without a subsequent test run (`.claude/settings.json`, `scripts/hooks/`, `tests/test_hooks.py`).
+- Added executable answer files for the three fixture-mode coding Golden Tests (`tests/fixtures/GT01N-code/answers/`) and wired them into CI as a positive gate plus a pristine negative control; the previously documented "answer-key dry run" invocation could never succeed because it patched with the buggy pristine file.
+- Fixed GT013 runner scoring semantics: the answer-key-correct patch (deduplicating the two callers onto `amounts.parse_amount`) was capped at 55 as a "caller-only fix" because `amounts.py` was misconfigured as the root-cause file; `TEST_CONFIG` now expresses `fix_files`/`sibling_files` per test, `--patch-dir` supports multi-file dry runs, and `tests/test_golden_test_coding_runner.py` (7 tests) guards the runner.
+
 - Rewrote `scripts/sync_kernel.py` as a real CLI: previously it ignored all arguments (including `--help`) and unconditionally rewrote `CLAUDE.md`; now supports a read-only `--check` mode (exit 1 on drift), skips writes when already synchronized, and reports structured errors (exit 2). Added `tests/test_sync_kernel.py`.
 - Corrected `PROGRESS.md`: the 2026-07-27 "deleted 6 orphaned packs" entry described work reverted the same day (`5a98084`); refreshed the stale remote-state checkpoint to `a1c0242`.
 - Added the missing copyright holder to `LICENSE`.
