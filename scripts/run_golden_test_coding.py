@@ -3,7 +3,7 @@
 
 Scope: only the three "fixture" mode tests are covered. The other 22 Golden
 Tests are "manual" or "static" comparative-quality checks and are not
-mechanically scorable — this script does not attempt to automate them.
+mechanically scorable - this script does not attempt to automate them.
 
 What this script checks automatically (mechanical, deterministic):
 - whether the project's own unit tests pass after the model's patch
@@ -26,7 +26,7 @@ Usage:
     python scripts/run_golden_test_coding.py --test 012 --edited-dir /path/to/model/output
 
 This script never invokes the `claude` CLI itself and never spends API
-budget — wiring a live model call into CI is a cost/secrets decision left
+budget - wiring a live model call into CI is a cost/secrets decision left
 to the repository owner.
 """
 from __future__ import annotations
@@ -48,7 +48,10 @@ TEST_CONFIG = {
     "014": {"fixture": "GT014-code", "root_cause_file": "billing.py", "callers": ["periods.py", "support.py"]},
 }
 
-STDLIB_ONLY_HINT = ("import ", "from ")
+IMPORT_HINT = ("import ", "from ")
+# Python 3.10+; falls back to an empty set on older interpreters (treated as
+# "cannot verify stdlib membership", never as "safe to flag").
+STDLIB_NAMES = getattr(sys, "stdlib_module_names", frozenset())
 
 
 def copy_fixture(test_id: str) -> Path:
@@ -57,8 +60,19 @@ def copy_fixture(test_id: str) -> Path:
     if not src.is_dir():
         raise SystemExit(f"fixture not found: {src}")
     dst = Path(tempfile.mkdtemp(prefix=f"gt{test_id}-pristine-"))
-    shutil.copytree(src, dst, dirs_exist_ok=True)
+    shutil.copytree(src, dst, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__"))
     return dst
+
+
+def file_changed(pristine_dir: Path, edited_dir: Path, relpath: str) -> bool:
+    """True if relpath differs or was deleted. Never raises on a missing file."""
+    edited = edited_dir / relpath
+    if not edited.exists():
+        return True
+    pristine = pristine_dir / relpath
+    if not pristine.exists():
+        return True
+    return not filecmp.cmp(pristine, edited, shallow=False)
 
 
 def run_unittest(work_dir: Path) -> dict:
@@ -72,12 +86,32 @@ def run_unittest(work_dir: Path) -> dict:
     return {"passed": passed, "returncode": proc.returncode, "output": stderr[-4000:]}
 
 
-def new_imports(pristine_file: Path, edited_file: Path) -> list[str]:
-    if not edited_file.exists():
+def imported_module_names(py_file: Path) -> set[str]:
+    """Top-level module names this file imports, e.g. {'re', 'decimal'}."""
+    names = set()
+    if not py_file.exists():
+        return names
+    for line in py_file.read_text(encoding="utf-8-sig").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("import "):
+            for part in stripped[len("import "):].split(","):
+                names.add(part.strip().split(" as ")[0].split(".")[0])
+        elif stripped.startswith("from "):
+            mod = stripped[len("from "):].split(" import ")[0].strip()
+            names.add(mod.split(".")[0])
+    return names
+
+
+def new_non_stdlib_imports(pristine_file: Path, edited_file: Path, local_modules: set[str]) -> list[str]:
+    """New import names in edited_file vs pristine_file, excluding stdlib and local fixture modules.
+
+    If STDLIB_NAMES is unavailable (pre-3.10), nothing is flagged rather than
+    risking false positives on ordinary stdlib imports.
+    """
+    if not STDLIB_NAMES:
         return []
-    pristine_lines = {l.strip() for l in pristine_file.read_text(encoding="utf-8-sig").splitlines() if l.strip().startswith(STDLIB_ONLY_HINT)} if pristine_file.exists() else set()
-    edited_lines = {l.strip() for l in edited_file.read_text(encoding="utf-8-sig").splitlines() if l.strip().startswith(STDLIB_ONLY_HINT)}
-    return sorted(edited_lines - pristine_lines)
+    added = imported_module_names(edited_file) - imported_module_names(pristine_file)
+    return sorted(added - STDLIB_NAMES - local_modules)
 
 
 def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
@@ -85,30 +119,24 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
     unittest_result = run_unittest(edited_dir)
 
     root_cause_path = cfg["root_cause_file"]
-    root_cause_touched = not filecmp.cmp(pristine_dir / root_cause_path, edited_dir / root_cause_path, shallow=False)
+    root_cause_touched = file_changed(pristine_dir, edited_dir, root_cause_path)
 
     caller_only_fix = (not root_cause_touched) and any(
-        not filecmp.cmp(pristine_dir / c, edited_dir / c, shallow=False) for c in cfg["callers"]
+        file_changed(pristine_dir, edited_dir, c) for c in cfg["callers"]
     )
 
     test_files_pristine = sorted(p.name for p in pristine_dir.glob("test_*.py"))
-    test_file_modified = any(
-        not filecmp.cmp(pristine_dir / name, edited_dir / name, shallow=False) for name in test_files_pristine
-    )
+    test_file_modified = any(file_changed(pristine_dir, edited_dir, name) for name in test_files_pristine)
 
-    new_deps = []
-    for py_file in edited_dir.glob("*.py"):
+    local_modules = {p.stem for p in pristine_dir.glob("*.py")}
+    flagged_deps = []
+    for py_file in sorted(edited_dir.glob("*.py")):
         if py_file.name.startswith("test_"):
             continue
-        new_deps.extend(new_imports(pristine_dir / py_file.name, py_file))
-    # crude stdlib/project-local filter: flag only imports that are neither
-    # stdlib-looking (no dots-as-package-path heuristics attempted) nor one
-    # of the fixture's own local modules.
-    local_modules = {p.stem for p in pristine_dir.glob("*.py")}
-    flagged_deps = [
-        line for line in new_deps
-        if not any(f" {m}" in line or line.endswith(m) or f".{m}" in line for m in local_modules)
-    ]
+        flagged_deps.extend(new_non_stdlib_imports(pristine_dir / py_file.name, py_file, local_modules))
+    flagged_deps = sorted(set(flagged_deps))
+
+    any_change = root_cause_touched or caller_only_fix or test_file_modified
 
     hard_cap = 100
     reasons = []
@@ -120,10 +148,13 @@ def score(test_id: str, pristine_dir: Path, edited_dir: Path) -> dict:
         reasons.append("caller-only fix: root-cause file untouched, only a caller changed")
     if test_file_modified:
         hard_cap = min(hard_cap, 50)
-        reasons.append("test file was modified — possible bug-hiding change, needs manual review")
-    if not root_cause_touched and not caller_only_fix:
-        reasons.append("no code change detected in fixture directory")
+        reasons.append("test file was modified - possible bug-hiding change, needs manual review")
+    if not any_change:
         hard_cap = min(hard_cap, 40)
+        reasons.append("no code change detected in fixture directory")
+    if flagged_deps:
+        hard_cap = min(hard_cap, 70)
+        reasons.append(f"candidate new dependency not in stdlib or fixture: {', '.join(flagged_deps)}")
 
     return {
         "test_id": test_id,
@@ -156,25 +187,33 @@ def main() -> int:
     args = parser.parse_args()
 
     pristine_dir = copy_fixture(args.test)
+    dry_run_dir = None
     try:
         if args.edited_dir:
             edited_dir = args.edited_dir.resolve()
         elif args.patch_from:
-            edited_dir = Path(tempfile.mkdtemp(prefix=f"gt{args.test}-edited-"))
-            shutil.copytree(pristine_dir, edited_dir, dirs_exist_ok=True)
+            dry_run_dir = Path(tempfile.mkdtemp(prefix=f"gt{args.test}-edited-"))
+            shutil.copytree(pristine_dir, dry_run_dir, dirs_exist_ok=True)
             root_cause_file = TEST_CONFIG[args.test]["root_cause_file"]
-            shutil.copy(args.patch_from, edited_dir / root_cause_file)
+            shutil.copy(args.patch_from, dry_run_dir / root_cause_file)
+            edited_dir = dry_run_dir
         else:
             parser.error("supply --edited-dir (live model output) or --patch-from (dry run)")
 
         result = score(args.test, pristine_dir, edited_dir)
     finally:
         shutil.rmtree(pristine_dir, ignore_errors=True)
+        if dry_run_dir is not None:
+            shutil.rmtree(dry_run_dir, ignore_errors=True)
 
     output = json.dumps(result, ensure_ascii=False, indent=2)
     print(output)
     if args.output:
         args.output.write_text(output + "\n", encoding="utf-8")
+    # NOTE: 85 is this script's own single-run mechanical threshold, not the
+    # GoldenTest-0NN.md PASS rule (which requires an *average over >=5 runs*
+    # plus non-mechanical dimensions this script does not score). Do not
+    # treat a 0 exit here as "the model passed the Golden Test."
     return 0 if result["mechanical_score_cap"] >= 85 else 1
 
 
