@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Rewrote `scripts/sync_kernel.py` as a real CLI: previously it ignored all arguments (including `--help`) and unconditionally rewrote `CLAUDE.md`; now supports a read-only `--check` mode (exit 1 on drift), skips writes when already synchronized, and reports structured errors (exit 2). Added `tests/test_sync_kernel.py`.
+- Corrected `PROGRESS.md`: the 2026-07-27 "deleted 6 orphaned packs" entry described work reverted the same day (`5a98084`); refreshed the stale remote-state checkpoint to `a1c0242`.
+- Added the missing copyright holder to `LICENSE`.
 - Closed the Fable work as diagnostic-only using DIAGNOSTIC-D as the final evidence basis; excluded DIAGNOSTIC-E's single app response and CLI smoke response from formal comparison, recommended Kernel-only for simple evidence judgment, and recorded formal promotion as NO-GO pending provenance and semantic evidence.
 - Added a single-operator diagnostic verdict path, a minimal private holdout diagnostic plan (`DIAGNOSTIC-A`), and copy/paste diagnostic prompt export with hash-verified, leakage-checked Fable evaluation artifacts.
 - Simplified diagnostic-only gate execution and reduced lexical scoring false positives in negation/assertion handling.
