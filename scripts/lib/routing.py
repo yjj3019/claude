@@ -31,10 +31,10 @@ def detect(task: str, config: dict) -> dict:
     text = task.casefold()
     def candidates_for(key: str) -> list[tuple]:
         candidates = []
-        for index, route in enumerate(config["routes"]):
+        for route in config["routes"]:
             matches = _matches(text, route.get(key, []))
             if matches:
-                candidates.append((len(matches), -index, route, matches))
+                candidates.append((len(matches), -route["priority"], route, matches))
         return candidates
 
     candidates = candidates_for("keywords") or candidates_for("fallback_keywords")

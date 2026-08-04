@@ -1,8 +1,8 @@
 {
   "limits": {"policies": 3, "modules": 1, "domains": 2, "workflows": 1, "reviewers": 1},
-  "high_risk_keywords": ["production", "security", "customer", "public sector", "운영", "보안", "고객", "공공"],
+  "high_risk_keywords": ["production", "security", "customer", "public sector", "운영 환경", "보안", "고객", "공공"],
   "domains": [
-    {"path": "domains/RHEL.md", "keywords": ["rhel", "red hat enterprise linux", "레드햇", "커널"], "subsumes": ["domains/Linux.md"]},
+    {"path": "domains/RHEL.md", "keywords": ["rhel", "red hat enterprise linux", "레드햇"], "subsumes": ["domains/Linux.md"]},
     {"path": "domains/OpenShift.md", "keywords": ["openshift", "오픈시프트"], "subsumes": ["domains/Kubernetes.md"]},
     {"path": "domains/Kubernetes.md", "keywords": ["kubernetes", "k8s", "쿠버네티스"]},
     {"path": "domains/Linux.md", "keywords": ["linux", "리눅스"]},
@@ -13,6 +13,7 @@
   "routes": [
     {
       "id": "proposal_consistency",
+      "priority": 0,
       "label": "Proposal consistency check",
       "loading_map_tasks": ["Proposal consistency check"],
       "keywords": ["proposal consistency", "consistency review", "제안서 일관성", "제안서 검토"],
@@ -24,6 +25,7 @@
     },
     {
       "id": "rca",
+      "priority": 1,
       "label": "Linux/RHEL RCA",
       "loading_map_tasks": ["Linux/RHEL RCA"],
       "keywords": ["root cause", "incident", "outage", "rca", "장애 원인", "장애 분석", "근본 원인"],
@@ -35,6 +37,7 @@
     },
     {
       "id": "coding",
+      "priority": 2,
       "label": "Code modification",
       "loading_map_tasks": ["Code modification"],
       "keywords": ["fix code", "debug", "patch", "refactor", "unit test", "unit tests", "write tests", "exception", "optimize query", "sql query", "코드 수정", "디버그", "최소 변경", "리팩터", "단위 테스트", "테스트 작성", "쿼리 최적화", "쿼리를 최적화", "sql 쿼리", "함수 수정"],
@@ -47,6 +50,7 @@
     },
     {
       "id": "proposal",
+      "priority": 3,
       "label": "Proposal",
       "loading_map_tasks": ["RHEL proposal"],
       "keywords": ["proposal", "rfp", "제안서", "제안 요청"],
@@ -58,8 +62,9 @@
     },
     {
       "id": "research",
+      "priority": 4,
       "label": "Current-version research",
-      "loading_map_tasks": ["Technical research brief", "Current-version research"],
+      "loading_map_tasks": ["Technical research brief / Current-version research"],
       "keywords": ["research", "release impact", "new feature", "current version", "기술 조사", "신규 기능", "최신 버전"],
       "module": "modules/Research.md",
       "workflow": "workflows/ResearchWorkflow.md",
@@ -69,6 +74,7 @@
     },
     {
       "id": "manual",
+      "priority": 5,
       "label": "Operations manual",
       "loading_map_tasks": ["RHEL operations manual"],
       "keywords": ["operations manual", "runbook", "sop", "운영 매뉴얼", "절차서"],
@@ -80,6 +86,7 @@
     },
     {
       "id": "prompt_review",
+      "priority": 6,
       "label": "Prompt review",
       "loading_map_tasks": ["Prompt review"],
       "keywords": ["prompt review", "improve prompt", "프롬프트 검토", "프롬프트 개선"],
@@ -91,6 +98,7 @@
     },
     {
       "id": "architecture_review",
+      "priority": 7,
       "label": "OpenShift architecture review",
       "loading_map_tasks": ["OpenShift architecture review"],
       "keywords": ["architecture review", "아키텍처 검토", "아키텍처 리뷰"],
@@ -102,6 +110,7 @@
     },
     {
       "id": "technical_blog",
+      "priority": 8,
       "label": "Technical blog post",
       "loading_map_tasks": ["Technical blog post"],
       "keywords": ["blog", "블로그"],

@@ -19,7 +19,6 @@ jobs:
       - run: python scripts/validate_repository.py
       - run: python scripts/validate_routes.py
       - run: python scripts/run_golden_tests.py --validate-only
-      - run: python scripts/validate_fable_benchmark.py --validate-only
       - run: python -m unittest discover -s tests -p "test_*.py"
       - run: python scripts/run_golden_test_coding.py --test 012 --patch-dir tests/fixtures/GT012-code/answers
       - run: python scripts/run_golden_test_coding.py --test 013 --patch-dir tests/fixtures/GT013-code/answers
@@ -30,5 +29,17 @@ jobs:
       - run: python scripts/run_golden_test_coding.py --test 029 --patch-dir tests/fixtures/GT029-code/answers
       - run: python scripts/run_golden_test_coding.py --test 030 --patch-dir tests/fixtures/GT030-code/answers
       - run: "! python scripts/run_golden_test_coding.py --test 012 --patch-from tests/fixtures/GT012-code/money.py"
+
+  # Fable is diagnostic-only and closed (see PROGRESS.md); kept visible but
+  # never blocks merges. Promote back into `validate` only if Fable work reopens.
+  fable-diagnostics:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/validate_fable_benchmark.py --validate-only
       - run: python scripts/prepare_fable_pilot.py --check --output tests/results/fable/PILOT-A-plan.json
       - run: python -c "import json; json.load(open('config/fable-checks.schema.json', encoding='utf-8'))"

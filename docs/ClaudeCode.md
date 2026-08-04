@@ -37,4 +37,4 @@ Kernel rules 13-14 (no completion claim without observable verification) are enf
 - `scripts/hooks/record_test_run.py` (PostToolUse, Bash): records a session-local marker whenever a recognized test command runs (`pytest`, `unittest`, `npm test`, `go test`, `cargo test`).
 - `scripts/hooks/verify_before_stop.py` (Stop): if `*.py` files were modified after the last recorded test run, blocks the stop once and asks for verification (or an explicit stated limitation). It never loops (`stop_hook_active` guard) and fails open on any error, so a broken hook cannot trap a session.
 
-On Windows, change `python3` to `python` in `.claude/settings.json` if `python3` is not on PATH. Both hooks are covered by `tests/test_hooks.py`.
+`.claude/settings.json` invokes both hooks as `python` (matches this workspace's primary Windows/PowerShell environment per `AGENTS.md`). On Linux/Mac where `python` is not aliased to Python 3, change it to `python3`. Both hooks are covered by `tests/test_hooks.py`.

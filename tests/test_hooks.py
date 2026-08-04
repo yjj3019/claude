@@ -49,6 +49,24 @@ class RecordTestRunHookTest(unittest.TestCase):
                                   capture_output=True, text=True, cwd=d, timeout=30)
             self.assertEqual(proc.returncode, 0)
 
+    def test_marker_not_written_when_test_command_failed(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            proc = run_hook(RECORD, {"tool_name": "Bash",
+                                     "tool_input": {"command": "pytest tests/"},
+                                     "tool_response": {"returncode": 1}}, root)
+            self.assertEqual(proc.returncode, 0)
+            self.assertFalse((root / ".claude" / ".test-run-marker").exists())
+
+    def test_marker_written_when_test_command_succeeded(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            proc = run_hook(RECORD, {"tool_name": "Bash",
+                                     "tool_input": {"command": "pytest tests/"},
+                                     "tool_response": {"returncode": 0}}, root)
+            self.assertEqual(proc.returncode, 0)
+            self.assertTrue((root / ".claude" / ".test-run-marker").exists())
+
 
 class VerifyBeforeStopHookTest(unittest.TestCase):
     def make_dirty_repo(self, root):

@@ -4,14 +4,14 @@
       {
         "matcher": "Bash",
         "hooks": [
-          {"type": "command", "command": "python3 scripts/hooks/record_test_run.py"}
+          {"type": "command", "command": "python scripts/hooks/record_test_run.py"}
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          {"type": "command", "command": "python3 scripts/hooks/verify_before_stop.py"}
+          {"type": "command", "command": "python scripts/hooks/verify_before_stop.py"}
         ]
       }
     ]
