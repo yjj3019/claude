@@ -1,0 +1,119 @@
+{
+  "experiment": "pack-ablation",
+  "protocol": "docs/pack-ablation-protocol.md",
+  "model": "claude-sonnet-5",
+  "arms": {
+    "kernel_only": {
+      "prompt_suffix": "-baseline.md",
+      "runs": [
+        {
+          "test_id": "GT013",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT014",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT026",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT027",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT028",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT029",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT030",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        }
+      ],
+      "pass_rate": 1.0
+    },
+    "full_fef": {
+      "prompt_suffix": "-fef.md",
+      "runs": [
+        {
+          "test_id": "GT013",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT014",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT026",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT027",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT028",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT029",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        },
+        {
+          "test_id": "GT030",
+          "run": 1,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0
+        }
+      ],
+      "pass_rate": 1.0
+    }
+  },
+  "decision": "preliminary_tie_prefer_kernel_only",
+  "notes": "PRELIMINARY, not final. Round 1 (N=1 of the recommended N=3) complete for GT013, GT014, GT026, GT027, GT028, GT029, GT030 -- both arms 7/7 (pass_rate 1.0), no cap_reasons on either side, no failure mode unique to either arm. GT012 was attempted twice as an ad-hoc direct instruction (not a literal baseline/fef prompt paste) and is intentionally excluded from both arms and from these counts, per docs/ablation-runbook.md -- it still needs a proper baseline/fef run under the protocol. Per docs/pack-ablation-protocol.md's decision rule, a tie prefers kernel_only (smaller context cost), but this is provisional: the protocol calls for N=3 per test per arm before applying the rule for real, and GT012 is still outstanding. Do not treat this as the final pack-ablation verdict -- run rounds 2-3 (and GT012) before writing up a conclusion in PROGRESS.md / cross-referencing docs/opus5-diagnostic-findings.md."
+}
