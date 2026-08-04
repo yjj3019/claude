@@ -37,10 +37,10 @@
 
 ## Next Session
 
-0. Decide the model-execution method first (manual Claude Code runs x N vs API automation); items 1-2 below and the new pack-level ablation are all blocked on this.
+0. **Decided (2026-08-04): manual Claude Code sessions**, not API automation, for both Skills A/B and pack-level ablation. Rationale: arm B of Skills A/B cannot trigger outside Claude Code regardless; keeping both experiments on the same execution method avoids a confound. This is genuine hands-on work (up to 48 sessions for Skills A/B) — not something to delegate to a background agent fleet, since the point is observing real interactive-session behavior.
 1. Skills-migration A/B: branch `experiment/skills-migration` (623d0e0) is BUILT and pushed - generate_skills.py (routes.json single source, --check drift gate), 9 native skills, CLAUDE.md skill-based autoload, pre-registered protocol in `docs/skills-ab-protocol.md`. Remaining: manual Claude Code runs only (recommended 3/arm x 8 tests = 48 sessions); merge rule is fixed in the protocol doc. API runs are invalid for arm B (native skills do not trigger outside Claude Code).
 2. Kernel rule ablation: remove suspected-redundant rules 1/8/12/17 one at a time and measure against the same 8 baselines.
-2a. Pack-level ablation (added 2026-08-04, same blocker as #0): extend the ablation to modules/domains/policies/reviewers/workflows, not just kernel rules — DIAGNOSTIC-D found no measured benefit for the full pack layer and nothing has re-tested that since.
+2a. Pack-level ablation (added 2026-08-04): protocol pre-registered in `docs/pack-ablation-protocol.md` — Kernel-only vs Full FEF on the same 8 fixture-mode Golden Tests, decision rule fixed in advance. Extends the kernel-rule ablation (#2) to the full modules/domains/policies/reviewers/workflows layer, since DIAGNOSTIC-D found no measured benefit there and nothing has re-tested it since. Same execution method as #0 (manual sessions); ready to start, no further blocker.
 3. Fable formal promotion stays closed (diagnostic-only) unless independently verified holdout provenance and semantic evidence appear.
 4. Resume command: `cd ~/Claude/fef && git pull`, then read the "Architecture review + hardening pass" entry above. Working clone is the server `~/Claude/fef` with SSH remote.
 
