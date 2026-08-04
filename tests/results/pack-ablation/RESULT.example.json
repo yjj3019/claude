@@ -1,0 +1,35 @@
+{
+  "experiment": "pack-ablation",
+  "protocol": "docs/pack-ablation-protocol.md",
+  "model": "REPLACE-WITH-CONFIRMED-MODEL-ID",
+  "arms": {
+    "kernel_only": {
+      "prompt_suffix": "-baseline.md",
+      "runs": [
+        {
+          "test_id": "GT012",
+          "run": 1,
+          "mechanical_score_cap": null,
+          "cap_reasons": [],
+          "exit_code": null
+        }
+      ],
+      "pass_rate": null
+    },
+    "full_fef": {
+      "prompt_suffix": "-fef.md",
+      "runs": [
+        {
+          "test_id": "GT012",
+          "run": 1,
+          "mechanical_score_cap": null,
+          "cap_reasons": [],
+          "exit_code": null
+        }
+      ],
+      "pass_rate": null
+    }
+  },
+  "decision": "not_run",
+  "notes": "Schema example only; no model run is claimed. One run entry = one `python scripts/run_golden_test_coding.py --test <id> --edited-dir <copy>` invocation's mechanical_score_cap/cap_reasons/exit code. exit_code is the scorer's own exit status (0 if mechanical_score_cap >= 85, else 1) -- record it directly, don't recompute the threshold by hand. pass_rate = exit_code==0 count / total runs, filled in only after all runs for that arm are recorded."
+}

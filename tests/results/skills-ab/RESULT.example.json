@@ -1,0 +1,37 @@
+{
+  "experiment": "skills-ab",
+  "protocol": "docs/skills-ab-protocol.md",
+  "model": "REPLACE-WITH-CONFIRMED-MODEL-ID",
+  "arms": {
+    "control_main": {
+      "branch": "main",
+      "runs": [
+        {
+          "test_id": "GT012",
+          "run": 1,
+          "mechanical_score_cap": null,
+          "cap_reasons": [],
+          "exit_code": null,
+          "skill_triggered": "n/a"
+        }
+      ],
+      "pass_rate": null
+    },
+    "treatment_skills": {
+      "branch": "experiment/skills-migration",
+      "runs": [
+        {
+          "test_id": "GT012",
+          "run": 1,
+          "mechanical_score_cap": null,
+          "cap_reasons": [],
+          "exit_code": null,
+          "skill_triggered": "yes|no|unknown"
+        }
+      ],
+      "pass_rate": null
+    }
+  },
+  "decision": "not_run",
+  "notes": "Schema example only; no model run is claimed. One run entry = one `python scripts/run_golden_test_coding.py --test <id> --edited-dir <copy>` invocation. skill_triggered is read from the transcript (did fef-coding visibly fire?), always \"n/a\" on the control arm since it has no skills. pass_rate filled in only after all runs for that arm are recorded."
+}
