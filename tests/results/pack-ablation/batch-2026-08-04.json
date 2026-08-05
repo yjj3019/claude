@@ -1,4 +1,5 @@
 {
+  "INVALID": "CONFOUNDED (2026-08-05) -- do not cite this file's decision/pass_rate as evidence about the pack layer. Every run, both arms, executed inside this repository's working directory, where Claude Code auto-loads CLAUDE.md/AGENTS.md regardless of which prompt file was pasted -- the 'kernel_only' arm was never actually kernel-only. See PROGRESS.md's 2026-08-05 CORRECTION entry and docs/reviews/2026-08-05-fable-critical-review.md (finding C1) for the full explanation. The raw mechanical_score_cap/exit_code numbers below are accurate observations; the interpretation built on top of them is not.",
   "experiment": "pack-ablation",
   "protocol": "docs/pack-ablation-protocol.md",
   "model": "claude-sonnet-5",

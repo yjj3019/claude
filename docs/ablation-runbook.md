@@ -1,5 +1,7 @@
 # Manual Ablation Runbook (Pack Ablation + Skills A/B)
 
+> **⚠️ Pack ablation section is broken as written (found 2026-08-05) — see `docs/pack-ablation-protocol.md`'s warning banner.** Running either arm's prompt inside this repo (which is exactly what step 2 below does) auto-loads `CLAUDE.md`/`AGENTS.md` regardless of the prompt, so "Pack ablation Kernel-only" never actually ran kernel-only. Do not run the pack-ablation half of this runbook until it's redesigned with a true no-FEF environment. **Skills A/B is unaffected** — both of its arms legitimately have a `CLAUDE.md` loaded (just different content, `main` vs `experiment/skills-migration`), so that half of this runbook remains valid.
+
 Literal step sequence for the two experiments decided on 2026-08-04 (`PROGRESS.md` Next Session #0/#1/#2a). This file is the checklist; the decision rules and rationale live in `docs/pack-ablation-protocol.md` (this repo) and `skills-ab-protocol.md` (on the `experiment/skills-migration` branch, not `main` — check that branch out to read it) — do not duplicate them here, and do not deviate from them after seeing partial results.
 
 Both experiments reuse the same scorer and the same result-file convention, so the loop below is shared. Run pack ablation first — it needs no branch switching and directly re-tests DIAGNOSTIC-D.

@@ -119,6 +119,18 @@
       "reviewer": "reviewers/TechnicalReviewer.md",
       "policies": ["policies/Writing.md", "policies/Evidence.md"],
       "risk_level": "low"
+    },
+    {
+      "id": "security_review",
+      "priority": 9,
+      "label": "Security-focused design/change review",
+      "loading_map_tasks": ["Security-focused design/change review"],
+      "keywords": ["security review", "security-focused review", "보안 검토", "보안 리뷰"],
+      "module": null,
+      "workflow": null,
+      "reviewer": "reviewers/SecurityReviewer.md",
+      "policies": ["policies/Evidence.md"],
+      "risk_level": "high"
     }
   ]
 }
