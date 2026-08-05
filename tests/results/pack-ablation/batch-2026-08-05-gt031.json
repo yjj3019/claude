@@ -1,0 +1,28 @@
+{
+  "experiment": "pack-ablation",
+  "protocol": "docs/pack-ablation-protocol.md",
+  "model": "claude-sonnet-5",
+  "note_scope": "GT031 only -- the dependency-avoidance axis added after the GT012-014/026-030 N=3 tie (see tests/results/pack-ablation/batch-2026-08-04.json).",
+  "arms": {
+    "kernel_only": {
+      "prompt_suffix": "-baseline.md",
+      "runs": [
+        {"test_id": "GT031", "run": 1, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"},
+        {"test_id": "GT031", "run": 2, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"},
+        {"test_id": "GT031", "run": 3, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"}
+      ],
+      "pass_rate": 1.0
+    },
+    "full_fef": {
+      "prompt_suffix": "-fef.md",
+      "runs": [
+        {"test_id": "GT031", "run": 1, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"},
+        {"test_id": "GT031", "run": 2, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"},
+        {"test_id": "GT031", "run": 3, "mechanical_score_cap": 100, "cap_reasons": [], "exit_code": 0, "new_dependency_candidates": [], "method": "agent-tool-automated"}
+      ],
+      "pass_rate": 1.0
+    }
+  },
+  "decision": "tie_prefer_kernel_only",
+  "notes": "N=3 both arms, all Agent-tool automated (same method for both arms this time -- no manual/automated mix within this test). Result: 3/3 both arms, mechanical_score_cap 100, zero cap_reasons, and critically new_dependency_candidates was empty in all 6 runs -- neither arm reached for a third-party email-validation package even once, despite kernel_only's prompt never mentioning dependencies at all. This is a tie again, but on a genuinely different axis than the GT012-014/026-030 batch (dependency avoidance, not root-cause discovery), so it is independent evidence, not a repeat of the same finding. Combined interpretation: Sonnet 5 appears to default to a minimal stdlib fix for a well-known bug pattern regardless of whether the prompt explicitly says not to add dependencies -- the FEF instruction did not change behavior because the baseline behavior was already at the ceiling this fixture measures. This narrows (does not eliminate) the ceiling-effect concern: two independent axes (root-cause discovery, dependency avoidance) both show no gap. Does not test policies/Evidence.md's marking of uncertain claims, ambiguous-spec handling, or non-coding routes (proposal/RCA/architecture-review) -- still open questions."
+}
