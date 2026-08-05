@@ -28,6 +28,7 @@ jobs:
       - run: python scripts/run_golden_test_coding.py --test 028 --patch-dir tests/fixtures/GT028-code/answers
       - run: python scripts/run_golden_test_coding.py --test 029 --patch-dir tests/fixtures/GT029-code/answers
       - run: python scripts/run_golden_test_coding.py --test 030 --patch-dir tests/fixtures/GT030-code/answers
+      - run: python scripts/run_golden_test_coding.py --test 031 --patch-dir tests/fixtures/GT031-code/answers
       - run: "! python scripts/run_golden_test_coding.py --test 012 --patch-from tests/fixtures/GT012-code/money.py"
 
   # Fable is diagnostic-only and closed (see PROGRESS.md); kept visible but

@@ -397,6 +397,22 @@
         "tests/prompts/GT030-baseline.md",
         "tests/prompts/GT030-fef.md"
       ]
+    },
+    {
+      "id": "031",
+      "task": "coding",
+      "workflow": "coding_change",
+      "domains": [
+        "General"
+      ],
+      "mode": "fixture",
+      "required_files": [
+        "tests/GoldenTest-031.md",
+        "tests/fixtures/GT031-code/test_validators.py",
+        "tests/fixtures/GT031-answer-key.md",
+        "tests/prompts/GT031-baseline.md",
+        "tests/prompts/GT031-fef.md"
+      ]
     }
   ]
 }

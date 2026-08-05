@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal automated runner for the fixture-mode coding Golden Tests (012-014, 026-030).
+"""Minimal automated runner for the fixture-mode coding Golden Tests (012-014, 026-031).
 
 Scope: only the "fixture" mode coding tests are covered. The other Golden
 Tests are "manual" or "static" comparative-quality checks and are not
@@ -61,6 +61,7 @@ TEST_CONFIG = {
     "028": {"fixture": "GT028-code", "fix_files": ["loader.py"], "sibling_files": ["summary.py"]},
     "029": {"fixture": "GT029-code", "fix_files": ["ranking.py"], "sibling_files": ["leaderboard.py"]},
     "030": {"fixture": "GT030-code", "fix_files": ["wallet.py"], "sibling_files": ["statements.py"]},
+    "031": {"fixture": "GT031-code", "fix_files": ["validators.py"], "sibling_files": ["signup.py", "newsletter.py"]},
 }
 
 IMPORT_HINT = ("import ", "from ")
