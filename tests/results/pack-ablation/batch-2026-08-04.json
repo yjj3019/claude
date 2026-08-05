@@ -78,6 +78,118 @@
           "cap_reasons": [],
           "exit_code": 0,
           "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT013",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT014",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT026",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT027",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT028",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT029",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT030",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT013",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT014",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT026",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT027",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT028",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT029",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT030",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
         }
       ],
       "pass_rate": 1.0
@@ -157,11 +269,123 @@
           "cap_reasons": [],
           "exit_code": 0,
           "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT013",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT014",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT026",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT027",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT028",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT029",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT030",
+          "run": 2,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT013",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT014",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT026",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT027",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT028",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT029",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
+        },
+        {
+          "test_id": "GT030",
+          "run": 3,
+          "mechanical_score_cap": 100,
+          "cap_reasons": [],
+          "exit_code": 0,
+          "method": "agent-tool-automated"
         }
       ],
       "pass_rate": 1.0
     }
   },
-  "decision": "preliminary_tie_prefer_kernel_only",
-  "notes": "PRELIMINARY, not final. GT013/014/026-030 are N=1 manual sessions (7/7 tie both arms). GT012 is N=3, but via Agent-tool subagents instead of manual Claude Code sessions (decided 2026-08-05, see PROGRESS.md) -- flagged with method:'agent-tool-automated' on each of those 6 run entries. Full FEF arm fidelity for those runs is not guaranteed identical to a real interactive session (the fef.md prompt assumes 'the active runtime harness' autoloading via this repo's CLAUDE.md, which a subagent may or may not replicate exactly). GT012 result: 3/3 both arms, mechanical_score_cap 100, identical one-line fix every time -- also a tie. Combined across all 8 tests at N=1-3 (mixed), kernel_only and full_fef remain fully tied with zero observed differentiation. Still not a final verdict: GT013/014/026-030 need rounds 2-3 to reach the protocol's N=3, and a like-for-like method (manual or automated, not mixed) should be decided before writing up docs/opus5-diagnostic-findings.md follow-up."
+  "decision": "tie_prefer_kernel_only",
+  "notes": "N=3 complete for all 8 tests (GT012-014, GT026-030), both arms, per docs/pack-ablation-protocol.md. GT013/014/026-030 round 1 (run 1) was manual Claude Code sessions; GT012 (all 3 runs) and GT013/014/026-030 rounds 2-3 were Agent-tool subagents (decided 2026-08-05, see PROGRESS.md), tagged method:'agent-tool-automated' on each such entry -- untagged entries are the manual runs. Result: kernel_only 100% (24/24), full_fef 100% (24/24) -- a complete tie, zero cap_reasons anywhere, no failure mode unique to either arm, across every run. Per the protocol's decision rule, a tie prefers kernel_only (smaller context cost). Caveat: Full FEF arm fidelity for the automated runs is not guaranteed identical to a real interactive Claude Code session (the fef.md prompt assumes 'the active runtime harness' autoloading via this repo's CLAUDE.md, which a subagent may or may not replicate exactly) -- this affects roughly 5/6 of the full_fef sample (20 of 24 runs). This result is on the 8 fixture-mode coding Golden Tests only and does not generalize to other routes (proposal, RCA, architecture review, etc.)."
 }
