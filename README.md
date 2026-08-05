@@ -18,7 +18,7 @@ It provides:
 - golden tests
 - Claude Code / Claude Projects usage guides
 
-Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. The Fable Transfer Protocol distills observable behavior from external evaluations without model imitation. Coding tasks use the Coding Module, Workflow, and optional Reviewer; policies are selected by task trigger rather than loaded globally.
+Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. Coding tasks use the Coding Module, Workflow, and optional Reviewer; policies are selected by task trigger rather than loaded globally.
 
 ## Memory Bootstrap
 

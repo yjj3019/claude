@@ -13,9 +13,6 @@ __pycache__/
 temp/
 *.zip
 
-# Local-only benchmark captures, identity maps, and blinded working sets.
-.local/fable/
-
 # Own git repo (github.com/yjj3019/AI-Proxy), not part of this monorepo.
 AI-Proxy/
 

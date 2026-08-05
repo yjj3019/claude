@@ -81,8 +81,15 @@ def validate_generated_agents(errors: list[str]) -> None:
 
 
 def validate_references(errors: list[str]) -> None:
+    # docs/releases/ holds frozen point-in-time release notes; a later file
+    # deletion (e.g. a closed workstream's docs) shouldn't retroactively fail
+    # a historical snapshot's own references. Live docs elsewhere still get
+    # the same treatment.
     sources = [ROOT / name for name in REFERENCE_ROOT_FILES if (ROOT / name).is_file()]
-    sources += [source for directory in REFERENCE_DIRS for source in (ROOT / directory).rglob("*.md")]
+    sources += [
+        source for directory in REFERENCE_DIRS for source in (ROOT / directory).rglob("*.md")
+        if "releases" not in source.relative_to(ROOT).parts
+    ]
     for source in sources:
         text = source.read_text(encoding="utf-8-sig")
         for line_number, line in enumerate(text.splitlines(), 1):

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Deleted the Fable benchmark subsystem (16 scripts plus `scripts/lib/fable_common.py`, 18 test files, 11 fable config schema/example files, five fable protocol docs under `docs/`, and `tests/results/fable/`): closed as diagnostic-only with no further work planned (see prior Unreleased entries below), and flagged in two independent reviews as dead weight still carried in CI and the script/test surface. Removed the `fable-diagnostics` CI job, the `validate_fable_benchmark` import from `scripts/validate_repository.py`, and dangling references in `CLAUDE.md`/`README.md`/`docs/model-usage.md`/`scripts/README.md`. Excluded `docs/releases/` from `validate_framework.py`'s reference-integrity scan so frozen historical release notes aren't required to reference currently-existing files. 43 unittest tests remain (down from 158; the removed 115 were all Fable-specific) and pass; `validate_repository.py`/`validate_routes.py` pass.
 - Expanded fixture-mode coding Golden Tests from three to eight (GT026-GT030: mutable default argument, internal-state aliasing, BOM header parsing, numeric-string sorting, float money arithmetic), each with a buggy fixture that fails its tests, an executable answer that passes, an answer key, prompts, registry entries, runner `TEST_CONFIG` coverage, and a CI positive gate.
 - Removed the UTF-8 BOM from the first line of `.gitignore`; the leading `\ufeffwork/` pattern did not reliably match `work/`.
 

@@ -10,7 +10,6 @@ from pathlib import Path
 import validate_framework
 import validate_routes
 from run_golden_tests import validate as validate_golden_tests
-from validate_fable_benchmark import validate as validate_fable_benchmark
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK_DIRS = ("policies", "modules", "domains", "workflows", "reviewers")
@@ -51,11 +50,6 @@ def main() -> int:
         failed = True
         for error in golden["errors"]:
             print(f"Golden Test validation error: {error}")
-    # Fable is diagnostic-only and closed (PROGRESS.md); a schema regression
-    # there is worth surfacing but must not block active development.
-    fable_benchmark = validate_fable_benchmark()
-    for error in fable_benchmark["errors"]:
-        print(f"WARNING: Fable benchmark validation error: {error}")
     for warning in advisory_warnings():
         print(f"WARNING: {warning}")
     if failed:
@@ -63,7 +57,7 @@ def main() -> int:
         return 1
     print(
         f"Repository validation passed: {golden['test_count']} Golden Tests indexed; "
-        f"{fable_benchmark.get('scenario_count', 0)} Fable benchmark scenarios indexed; model runs not executed."
+        "model runs not executed."
     )
     return 0
 
