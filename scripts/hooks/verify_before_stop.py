@@ -15,6 +15,18 @@ from pathlib import Path
 MARKER = Path(".claude") / ".test-run-marker"
 
 
+def path_from_status_line(line: str) -> str:
+    """Extract the current on-disk path from one `git status --porcelain` line.
+
+    Rename/copy entries are "XY old/path.py -> new/path.py"; only the target
+    (post-arrow) path still exists on disk.
+    """
+    path = line[3:].strip()
+    if " -> " in path:
+        path = path.split(" -> ", 1)[1]
+    return path.strip('"')
+
+
 def changed_python_files() -> list:
     proc = subprocess.run(
         ["git", "status", "--porcelain"], capture_output=True, text=True, timeout=10
@@ -23,7 +35,7 @@ def changed_python_files() -> list:
         return []
     files = []
     for line in proc.stdout.splitlines():
-        path = line[3:].strip().strip('"')
+        path = path_from_status_line(line)
         if path.endswith(".py") and not path.startswith("scripts/hooks/"):
             candidate = Path(path)
             if candidate.exists():

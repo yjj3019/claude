@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RECORD = ROOT / "scripts" / "hooks" / "record_test_run.py"
 VERIFY = ROOT / "scripts" / "hooks" / "verify_before_stop.py"
+sys.path.insert(0, str(ROOT / "scripts" / "hooks"))
 
 
 def run_hook(script, payload, cwd):
@@ -129,6 +130,31 @@ class VerifyBeforeStopHookTest(unittest.TestCase):
             proc = run_hook(VERIFY, {"stop_hook_active": False}, Path(d))
             self.assertEqual(proc.returncode, 0)
             self.assertEqual(proc.stdout.strip(), "")
+
+
+class PathFromStatusLineTest(unittest.TestCase):
+    """Direct unit tests of the porcelain-line parser, independent of whether
+    this git version/config actually emits "R" rename lines for a given
+    scenario (empirically inconsistent -- observed as plain D+A pairs here).
+    Per the documented `git status --porcelain` v1 format, rename/copy
+    entries can appear as "R  old -> new"; the parser must handle that
+    format if it's ever emitted, not just the common case."""
+
+    def test_plain_modified_path(self):
+        from verify_before_stop import path_from_status_line
+        self.assertEqual(path_from_status_line(" M app.py"), "app.py")
+
+    def test_untracked_path(self):
+        from verify_before_stop import path_from_status_line
+        self.assertEqual(path_from_status_line("?? new_file.py"), "new_file.py")
+
+    def test_rename_keeps_target_path(self):
+        from verify_before_stop import path_from_status_line
+        self.assertEqual(path_from_status_line("R  old.py -> renamed.py"), "renamed.py")
+
+    def test_quoted_path_is_unquoted(self):
+        from verify_before_stop import path_from_status_line
+        self.assertEqual(path_from_status_line(' M "has space.py"'), "has space.py")
 
 
 if __name__ == "__main__":
