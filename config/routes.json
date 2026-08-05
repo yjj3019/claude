@@ -37,7 +37,7 @@
     },
     {
       "id": "coding",
-      "priority": 2,
+      "priority": 3,
       "label": "Code modification",
       "loading_map_tasks": ["Code modification"],
       "keywords": ["fix code", "debug", "patch", "refactor", "unit test", "unit tests", "write tests", "exception", "optimize query", "sql query", "코드 수정", "디버그", "최소 변경", "리팩터", "단위 테스트", "테스트 작성", "쿼리 최적화", "쿼리를 최적화", "sql 쿼리", "함수 수정"],
@@ -50,7 +50,7 @@
     },
     {
       "id": "proposal",
-      "priority": 3,
+      "priority": 4,
       "label": "Proposal",
       "loading_map_tasks": ["RHEL proposal"],
       "keywords": ["proposal", "rfp", "제안서", "제안 요청"],
@@ -62,7 +62,7 @@
     },
     {
       "id": "research",
-      "priority": 4,
+      "priority": 5,
       "label": "Current-version research",
       "loading_map_tasks": ["Technical research brief / Current-version research"],
       "keywords": ["research", "release impact", "new feature", "current version", "기술 조사", "신규 기능", "최신 버전"],
@@ -74,7 +74,7 @@
     },
     {
       "id": "manual",
-      "priority": 5,
+      "priority": 6,
       "label": "Operations manual",
       "loading_map_tasks": ["RHEL operations manual"],
       "keywords": ["operations manual", "runbook", "sop", "운영 매뉴얼", "절차서"],
@@ -86,7 +86,7 @@
     },
     {
       "id": "prompt_review",
-      "priority": 6,
+      "priority": 7,
       "label": "Prompt review",
       "loading_map_tasks": ["Prompt review"],
       "keywords": ["prompt review", "improve prompt", "프롬프트 검토", "프롬프트 개선"],
@@ -98,7 +98,7 @@
     },
     {
       "id": "architecture_review",
-      "priority": 7,
+      "priority": 2,
       "label": "OpenShift architecture review",
       "loading_map_tasks": ["OpenShift architecture review"],
       "keywords": ["architecture review", "아키텍처 검토", "아키텍처 리뷰"],
