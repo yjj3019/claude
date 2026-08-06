@@ -56,6 +56,7 @@
 3. Fable formal promotion stays closed (diagnostic-only) unless independently verified holdout provenance and semantic evidence appear.
 4. Resume command: `cd ~/Claude/fef && git pull`, then read the "Architecture review + hardening pass" entry above. Working clone is the server `~/Claude/fef` with SSH remote.
 
-## Notion Log URL
+## Notion Log
 
-https://app.notion.com/p/398b44a2dd2e81729cb9dab78c31a5e7
+Session history is kept in the team's Notion devlog. The page link is
+internal and is deliberately not recorded here — this repository is public.
