@@ -13,9 +13,33 @@ __pycache__/
 temp/
 *.zip
 
-# Own git repo (github.com/yjj3019/AI-Proxy), not part of this monorepo.
+# Sibling projects that live under this directory but are their own git
+# repos with their own remotes — not part of this monorepo. Without these
+# they show up as untracked directories, and this repository is public:
+# a stray `git add -A` would publish internal operations code.
 AI-Proxy/
-
+AIBox/
+claude-skills/
+ocp-monitor/
+ove-automation/
+ove-mirror-gui/
+pacemaker/
 
 # Session-local verification marker written by scripts/hooks/record_test_run.py.
 .claude/.test-run-marker
+
+# Golden-test run artifacts: the runner copies a fixture (tests/fixtures/
+# GT012-code/, which IS tracked) into a sibling .run/ directory and works
+# there. Committing the copy would double every fixture and let a failed run
+# leave edited code in the repository.
+tests/fixtures/*.run/
+
+# Local working data and scratch. None of it is part of the framework, and
+# this repository is public — screenshots and drafts in particular have no
+# business being published by an accidental `git add -A`.
+.local/
+Tunning/
+claude/
+rpm/
+tmp/
+scratch_notion_ai_simple.md
