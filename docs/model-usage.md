@@ -33,6 +33,8 @@ Choose the smallest shape that fits the dependency structure:
 
 Keep Markdown files under `workflows/` distinct from executable external automation. A project lesson remains local until repeated evidence, a clear trigger, and a removal condition justify broader promotion; update an existing lesson rather than duplicating it.
 
+Raise the automation level one shape at a time: single session, then subagent, then team or scheduled/external automation. Move up only after the smaller shape has measured success rate, cost, and rollback safety; do not start at the largest shape a task could theoretically use.
+
 ## Model and Effort Examples
 
 Model availability and names vary by platform and release; treat these as operating examples, not API contracts.

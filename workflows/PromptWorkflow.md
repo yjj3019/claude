@@ -7,7 +7,7 @@
 5. Define instruction precedence, evidence priority, and untrusted-content handling.
 6. Replace vague personas and slogans with trigger-action rules.
 7. Define file, tool, freshness, uncertainty, approval, and failure behavior only where the runtime supports them.
-8. Define the output contract, completion criteria, and degraded-mode response.
+8. Define the output contract, completion criteria, and degraded-mode response. Use the Canonical Prompt Contract in `modules/PromptEngineering.md` as the field checklist.
 9. Minimize duplication and move optional capabilities into modules or policies.
 10. Build representative tests, including normal, ambiguous, conflicting, tool-failure, and adversarial cases.
 11. Compare baseline and revised prompt results using the same tasks and scoring rubric.
