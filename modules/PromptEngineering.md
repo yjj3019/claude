@@ -22,9 +22,9 @@ Improve prompts as testable, portable engineering artifacts rather than collecti
 - portability across model classes
 - evaluation method, golden tests, and removal criteria
 
-## Canonical Prompt Contract
+## Prompt Contract
 
-Every operational prompt should be traceable to these ten fields. This is the minimum unit each `Review Dimensions` item above maps to — use it as a checklist when drafting or auditing a prompt, not as boilerplate to paste verbatim.
+A prompt missing role, task, success, or verification is not ready for review. These ten fields make the drafting-time and output-contract dimensions above concrete; injection resistance, hallucination resistance, token efficiency, and portability still need the checks in their own sections below, not just a filled-in field.
 
 | Field | Answers |
 |---|---|
@@ -37,7 +37,7 @@ Every operational prompt should be traceable to these ten fields. This is the mi
 | Examples | Desired input/output and edge cases |
 | Output | Return format, required fields, uncertainty expression |
 | Verification | Evidence to check before declaring done, and failure handling |
-| Stop/Escalation | When to halt, require approval, or retry |
+| Stop / Escalation | When to halt, require approval, or retry |
 
 Minimal example:
 
@@ -47,34 +47,27 @@ Minimal example:
 <success>Each finding includes file, line, rationale, severity, and a reproduction or fix.</success>
 <context>Project rules and the change diff are provided here.</context>
 <constraints>Do not modify files outside the diff. Do not present speculation as fact.</constraints>
-<tools>Use Read, Grep, Glob only. No write tools.</tools>
-<examples>Include related, diverse examples and at least one false-positive example.</examples>
+<tools>Use read-only search tools; no tool may write or execute.</tools>
+<examples>
+Input: a diff adding an endpoint that reads `request.user_id` without an ownership check.
+Output finding: {file, line, "missing authorization check on user_id", severity: critical, fix: "compare user_id against the authenticated session before the query"}.
+</examples>
 <output>Return a structured finding list and mark unverified items explicitly.</output>
 <verification>Re-confirm each finding's evidence against the diff and the actual code.</verification>
-<stop>Stop and report if scope is exceeded or a secret is exposed.</stop>
+<stop_escalation>Stop and report if scope is exceeded or a secret is exposed.</stop_escalation>
 ```
 
-A prompt that only states role and skips task, success, and verification does not qualify for promotion to a Canonical prompt.
+This overlaps `docs/context-protocol.md`'s Context Frame (audience, artifact type, risk, missing information) for Role/Task/Context; use the Context Frame to interpret a request, this contract to specify the resulting prompt.
 
-## Evaluation Record
+## Recording a Promoted Rule's Evaluation
 
-Every promoted rule needs the evaluation scenario the Prompt Improvement Rules already require. Record it in a schema instead of prose so revisions stay comparable:
+The Prompt Improvement Rules require an evaluation scenario for each promoted rule. Do not invent a new record schema for it — reuse what Golden Tests and benchmark runs already use, at whichever grain fits:
 
-```yaml
-prompt_id: stable-name
-revision: 2026-01-01.r1
-requested_model: model-alias
-resolved_model: recorded-at-runtime
-effort: low | medium | high
-eval_set: path-or-version
-success_criteria: measurable
-quality_metrics: [correctness, coverage, format_validity]
-usage: input_tokens, output_tokens, cost, latency
-decision: keep | revise | rollback
-reviewed_at: 2026-01-01
-```
+- If the rule is exercised by a Golden Test, its result is a `verdict` (`pass`/`fail`/`not_run`) plus per-dimension scores under `config/scorecard.schema.json`.
+- If the rule is evaluated by a standalone prompt run (no Golden Test scenario), follow the shape in `tests/benchmarks/PILOT-RUN.example.json`: `run_id`, `requested_model`, `served_model`, `fallback_detected`, `task_success`. Use `served_model` (not a new field) to record what the runtime actually used.
+- Record the resolved `effort` from `docs/model-usage.md`'s scale (`low`/`medium`/`high`/`xhigh`/`max`), and log it under the Effort Calibration Guardrail in `docs/model-usage.md`, not as a separate ledger.
 
-`requested_model` and `resolved_model` are kept separate because a runtime may substitute a different model than the one asked for; recording only one hides that drift. Do not promote a rule to Canonical status without a `decision: keep` entry backed by an actual eval run.
+Do not promote a rule to this contract without a passing or explicitly reviewed record in one of the two schemas above.
 
 ## Prompt Improvement Rules
 
