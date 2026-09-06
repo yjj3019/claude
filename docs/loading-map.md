@@ -51,7 +51,9 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
 7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
 8. For proposal work, select `ProposalReviewer` for general proposal quality, `TechnicalReviewer` when technical claims are the primary review target, or the combined `ProposalConsistencyReviewer` for the mapped consistency-check task. Never load two of them for one artifact.
-9. If route selection is invalid because it exceeds a load limit, stop and narrow the task to the smallest applicable Pack set before detecting again. Do not silently trim the selection.
+9. **Domain overflow (≤2):** when more than two domains match, `detect()` keeps the **top 2 by keyword-match rank** (more hits, then earlier mention in the ask) and emits an explicit **warning naming every dropped domain** (e.g. Ansible). This is not a silent trim — operators must see the drop. Integrity policies required by the route (Evidence / FileHandling / ToolExecution / Freshness) are never stripped. If a dropped domain is required, narrow the task and re-detect. Other pack-limit violations still fail validation loudly.
+10. Weak **coding fallback** keywords (`error`, `fix`, `수정해`, …) are gated so prose/Q&A/typo-fix asks (e.g. “what is the error budget concept?”, “이 문서의 오탈자 수정해”) do **not** select the Coding workflow+reviewer pack (`R2-P1-FALLBACK-OVERFIRE`).
+11. **Unmapped + high-risk:** evaluate `high_risk_keywords` before the unmapped early return. High-risk unmapped asks get `risk_level=high`, `kernel_only_safe=false`, and minimal safety (`policies/Evidence.md`) plus a warning — never the lightest Kernel-only config (`R2-P0-UNMAPPED-HIGHRISK`).
 
 ## Policy Classes
 

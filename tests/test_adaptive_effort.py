@@ -16,6 +16,7 @@ from lib.adaptive_effort import (  # noqa: E402
     TIERS,
     classify_tier,
     counts_from_selection,
+    effective_tier,
     missing_integrity_policies,
     validate_pack_load,
 )
@@ -229,6 +230,66 @@ class AdaptiveEffortTests(unittest.TestCase):
                     **counts,
                 )
                 self.assertEqual(errors, [])
+
+    def test_korean_l3_signals_match_english_root_cause(self):
+        """R2-P0-KO-TIER-BLIND + R2-P2-KO-SPACING"""
+        self.assertEqual(classify_tier("프로덕션 장애 근본 원인 분석"), "L3")
+        self.assertEqual(classify_tier("production outage root cause analysis"), "L3")
+        self.assertEqual(classify_tier("근본원인분석"), "L3")
+        self.assertEqual(classify_tier("대규모 리팩터"), "L3")
+        self.assertEqual(classify_tier("보안 감사 수행"), "L3")
+        self.assertEqual(classify_tier("장기 작업 에이전트"), "L3")
+
+    def test_high_risk_bans_l0_not_blanket_l2(self):
+        """R2-P1-RISK-TIER-DECOUPLED: floor L1 only; no blanket Opus."""
+        tier, reason = effective_tier(
+            "Add a Notion note about the meeting",
+            risk_level="high",
+        )
+        self.assertEqual(tier, "L1")
+        self.assertIsNotNone(reason)
+        self.assertEqual(TIERS[tier].model, "Sonnet 5")
+        # High-risk alone without L2/L3 signals stays L1 (not L2)
+        tier2, _ = effective_tier(
+            "customer production checklist update please",
+            risk_level="high",
+        )
+        self.assertEqual(tier2, "L1")
+        # High-risk + L3 signals stays/raises to L3 via text signals
+        tier3, _ = effective_tier(
+            "프로덕션 장애 근본 원인 분석",
+            risk_level="high",
+        )
+        self.assertEqual(tier3, "L3")
+
+    def test_l0_leak_raises_when_substantial_packs(self):
+        """R2-P2-L0-LEAK"""
+        selection = {
+            "module": "modules/Coding.md",
+            "workflow": "workflows/CodingWorkflow.md",
+            "reviewer": "reviewers/CodeChangeReviewer.md",
+            "policies": ["policies/FileHandling.md"],
+            "domains": [],
+            "kernel_only_safe": False,
+        }
+        # Ask text looks like Notion, but packs are substantial → ≥L1
+        tier, reason = effective_tier(
+            "Add a Notion note about the meeting",
+            risk_level="low",
+            selection=selection,
+        )
+        self.assertEqual(tier, "L1")
+        self.assertIsNotNone(reason)
+
+    def test_risk_floor_documented(self):
+        adaptive = (ROOT / "docs" / "adaptive-effort.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Risk ↔ Effort Coupling", adaptive)
+        self.assertIn("ban L0", adaptive)
+        self.assertIn("Do not", adaptive)
+        loading = (ROOT / "docs" / "loading-map.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Domain overflow", loading)
+        self.assertIn("dropped", loading)
+        self.assertTrue("fallback" in loading.lower() or "FALLBACK" in loading)
 
 
 if __name__ == "__main__":
