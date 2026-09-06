@@ -4,9 +4,16 @@ L0–L3 primarily select MODEL. Pack selection follows docs/loading-map.md /
 kernel_only_safe when a mapped route needs Integrity policies or workflows.
 Escalate model before packs. Default when unsure is Sonnet (L1). Haiku (L0)
 is a narrow gate for light Notion/doc recording only.
+
+Risk coupling (sim round-2 / meta-review):
+- High risk ⇒ ban L0 (Haiku); floor at L1 (Sonnet) minimum.
+- Do NOT blanket-floor all high-risk asks to L2/Opus.
+- Raise to L2+ only when L2/L3 text signals (or clear multi-step/high-stakes
+  phrases) are also present — classify_tier already encodes those signals.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -107,6 +114,7 @@ TIERS: dict[str, EffortTier] = {
 }
 
 # Signal keywords (casefold). Order matters: highest tier wins.
+# EN + KO pairs; matching is spacing/separator-tolerant (see _signal_in).
 _L3_SIGNALS = (
     "deep rca",
     "root cause",
@@ -119,6 +127,16 @@ _L3_SIGNALS = (
     "high stakes",
     "security audit",
     "architecture overhaul",
+    # Korean (R2-P0-KO-TIER-BLIND / R2-P2-KO-SPACING)
+    "근본 원인",
+    "원인 분석",
+    "대규모 리팩터",
+    "대규모 리팩토링",
+    "보안 감사",
+    "장기 작업",
+    "장시간 작업",
+    "심층 원인",
+    "고위험",
 )
 # Softened: no bare "refactor" / bare "architecture" / bare "rca" (overfire).
 _L2_SIGNALS = (
@@ -134,6 +152,17 @@ _L2_SIGNALS = (
     "incident",
     "multi-file refactor",
     "multi file refactor",
+    # Korean
+    "다중 파일",
+    "멀티 파일",
+    "다단계",
+    "멀티 스텝",
+    "아키텍처 검토",
+    "아키텍처 리뷰",
+    "신중한 검토",
+    "코드 리뷰",
+    "제안서",
+    "장애",
 )
 _L1_SIGNALS = (
     "edit",
@@ -149,6 +178,17 @@ _L1_SIGNALS = (
     "q&a",
     "question",
     "refactor",  # mild refactor stays Sonnet (L1); large/multi-file escalate above
+    # Korean
+    "수정",
+    "편집",
+    "패치",
+    "요약",
+    "구현",
+    "코딩",
+    "코드",
+    "질문",
+    "리팩터",
+    "리팩토링",
 )
 # Narrow Haiku gate: light Notion / document recording only (EN + KO).
 _L0_SIGNALS = (
@@ -184,6 +224,20 @@ _L0_SIGNALS = (
 )
 
 
+def _compact(text: str) -> str:
+    """Remove whitespace/common separators for spacing-tolerant KO/EN matching."""
+    return re.sub(r"[\s\u00a0\u3000_\-·./]+", "", text.casefold())
+
+
+def _signal_in(text: str, signal: str) -> bool:
+    """True if signal appears in text, allowing flexible spacing/separators."""
+    s = signal.casefold()
+    t = text.casefold()
+    if s in t:
+        return True
+    return _compact(s) in _compact(t)
+
+
 def classify_tier(ask: str) -> str:
     """Classify from user ask text only (object + risk signals).
 
@@ -192,21 +246,100 @@ def classify_tier(ask: str) -> str:
     """
     text = ask.casefold()
     for signal in _L3_SIGNALS:
-        if signal in text:
+        if _signal_in(text, signal):
             return "L3"
     for signal in _L2_SIGNALS:
-        if signal in text:
+        if _signal_in(text, signal):
             return "L2"
     # L0 before L1 so Notion/doc phrases win over generic edit/summary
     # only when the ask clearly matches the narrow Haiku gate.
     for signal in _L0_SIGNALS:
-        if signal in text:
+        if _signal_in(text, signal):
             return "L0"
     for signal in _L1_SIGNALS:
-        if signal in text:
+        if _signal_in(text, signal):
             return "L1"
     # Default when unsure: Sonnet (L1), never Haiku for general quick facts.
     return "L1"
+
+
+def _has_l2_or_l3_signals(ask: str) -> bool:
+    text = ask.casefold()
+    for signal in _L3_SIGNALS:
+        if _signal_in(text, signal):
+            return True
+    for signal in _L2_SIGNALS:
+        if _signal_in(text, signal):
+            return True
+    return False
+
+
+def _selection_is_substantial(selection: dict | None) -> bool:
+    """True when route load is beyond Notion/light-doc (R2-P2-L0-LEAK)."""
+    if not selection:
+        return False
+    module = selection.get("module")
+    if module and module not in L0_MODULE_ALLOWLIST:
+        return True
+    if selection.get("workflow") or selection.get("reviewer"):
+        return True
+    if selection.get("domains"):
+        return True
+    policies = selection.get("policies") or []
+    if policies:
+        return True
+    if selection.get("kernel_only_safe") is False and (
+        module or policies or selection.get("workflow")
+    ):
+        return True
+    return False
+
+
+def effective_tier(
+    ask: str,
+    *,
+    risk_level: str = "low",
+    selection: dict | None = None,
+) -> tuple[str, str | None]:
+    """Return (tier_id, reason) after risk floor + L0-leak guards.
+
+    High risk bans L0/Haiku (floor L1/Sonnet). Does **not** blanket-raise
+    high-risk to L2/Opus — L2+ only when L2/L3 text signals already classify
+    there (or equivalent multi-step/high-stakes phrases in the signal lists).
+    """
+    raw = classify_tier(ask)
+    tier = raw
+    reason: str | None = None
+
+    # R2-P2-L0-LEAK: Notion/light filing only; substantial packs or high-risk → ≥L1
+    if tier == "L0":
+        if risk_level == "high":
+            tier = "L1"
+            reason = "high-risk floor: ban L0/Haiku → L1/Sonnet"
+        elif _selection_is_substantial(selection):
+            tier = "L1"
+            reason = "L0 leak: substantial Manual/coding/security packs → L1"
+
+    # R2-P1-RISK-TIER-DECOUPLED: high risk ⇒ ban L0 only (already handled);
+    # if somehow still L0, floor again. Never blanket to L2.
+    if risk_level == "high" and tier == "L0":
+        tier = "L1"
+        reason = "high-risk floor: ban L0/Haiku → L1/Sonnet"
+
+    # Documented path: L2+ only via text signals (already in raw). If high-risk
+    # ask also carries L2/L3 signals, raw is already L2/L3 — no extra bump.
+    if risk_level == "high" and tier == "L1" and _has_l2_or_l3_signals(ask):
+        # classify_tier should have returned L2/L3; if L1 won (e.g. L0 path
+        # then floored), re-classify ignoring L0 for the raise decision.
+        bumped = classify_tier(ask)
+        if bumped in ("L2", "L3"):
+            tier = bumped
+            reason = (
+                f"high-risk + {bumped} text signals → {bumped} "
+                "(not a blanket high-risk→L2 floor)"
+            )
+
+    return tier, reason
 
 
 def tier_for(ask: str) -> EffortTier:

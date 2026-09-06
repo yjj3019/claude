@@ -11,7 +11,7 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 | L0 Light docs | Notion notes/rows, short doc capture, trivial filing, simple checklist ticks | Haiku 4.5 | Kernel only (or Kernel + 1 allowlisted Notion/doc section) |
 | L1 Default / routine | coding, summaries, Q&A, edits, most everyday asks — **default when unsure** | Sonnet 5 | **Model tier**; packs follow loading-map when mapped (`kernel_only_safe=false`); Kernel-light when unmapped |
 | L2 Complex everyday | multi-step, multi-file, architecture review/lite, careful review | Opus 5 (1M) | Kernel + loading-map caps (existing Load Limits) |
-| L3 Hardest / long-running | deep RCA, large refactor, multi-hour agent work, high-stakes | Fable 5.1 | Kernel + map caps; may use 1 workflow/reviewer only if risk needs it |
+| L3 Hardest / long-running | deep RCA / root cause / 근본 원인·원인 분석, large refactor / 대규모 리팩터, security audit / 보안 감사, multi-hour / 장기 작업, high-stakes | Fable 5.1 | Kernel + map caps; may use 1 workflow/reviewer only if risk needs it |
 
 ## Rules
 
@@ -33,6 +33,24 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 `Haiku (L0)` → `Sonnet (L1)` → `Opus (L2)` → `Fable (L3)`.
 
 De-escalate when remaining work is routine. Model capacity goes to deeper reasoning within the same loaded set — not extra file dumps.
+
+
+## Risk ↔ Effort Coupling
+
+Meta-review (sim round-2) — intentional deviation from a blanket high-risk→L2 floor:
+
+1. **High risk ⇒ ban L0 (Haiku); floor at L1 (Sonnet) minimum.**
+2. **Do not** raise every high-risk ask to L2/Opus solely because `risk_level=high`.
+3. Raise to **L2+ only when L2/L3 text signals** (multi-step / multi-file / architecture review / deep RCA / root cause / 근본 원인 / 대규모 리팩터 / 보안 감사 / …) are also present — `classify_tier` / `effective_tier` encode this.
+4. `detect_task.py` emits `effort_tier`, `model`, and optional `effort_reason` when the risk floor or L0-leak guard changes the tier.
+
+## Bilingual + spacing-tolerant signals
+
+L0–L3 keyword lists pair English with Korean equivalents. Matching collapses whitespace/common separators so `근본원인`, `근본 원인`, and `코드수정`/`코드 수정` behave the same (`R2-P0-KO-TIER-BLIND`, `R2-P2-KO-SPACING`).
+
+## L0 leak guard
+
+Haiku (L0) is Notion/light filing only. If the selected route loads substantial Manual/coding/security packs, domains, workflows, reviewers, policies, or the ask is high-risk, `effective_tier` raises to **≥L1** (`R2-P2-L0-LEAK`).
 
 ## Relation to Other Docs
 

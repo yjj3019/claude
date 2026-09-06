@@ -306,6 +306,8 @@ def validate_adaptive_effort(errors: list[str]) -> None:
             "primarily select",
             "Integrity",
             "Model-Invariant Floor",
+            "Risk ↔ Effort Coupling",
+            "ban L0",
         ):
             if phrase not in body:
                 fail(f"docs/adaptive-effort.md missing required phrase: {phrase}", errors)
@@ -348,6 +350,9 @@ def validate_adaptive_route_alignment(errors: list[str]) -> None:
         ("write an operations manual for RHEL patching", "manual", None),
         ("write a technical blog post about SELinux", "technical_blog", None),
         ("What is Kubernetes?", None, "L1"),  # kernel-only
+        # R2-P1-CI-EN-ONLY-SAMPLES: Korean + high-risk unmapped + fallback negatives
+        ("프로덕션 장애 근본 원인 분석", "rca", "L3"),
+        ("코드수정 최소 변경", "coding", "L1"),
     )
     for ask, expected_route, expected_tier in samples:
         selection = detect(ask, config)
@@ -386,6 +391,20 @@ def validate_adaptive_route_alignment(errors: list[str]) -> None:
                 ("policies/FileHandling.md", "policies/ToolExecution.md"),
             ):
                 fail(f"adaptive×route coding integrity: {item}", errors)
+
+    # High-risk unmapped + coding-fallback negatives (R2-P0 / R2-P1)
+    hi = detect("운영 환경에서 고객 데이터 마이그레이션 계획 검토", config)
+    if hi.get("risk_level") != "high" or hi.get("kernel_only_safe") is not False:
+        fail("high-risk unmapped sample missing safety floor", errors)
+    if "policies/Evidence.md" not in (hi.get("policies") or []):
+        fail("high-risk unmapped sample missing Evidence.md", errors)
+    for neg in (
+        "what is the error budget concept?",
+        "이 문서의 오탈자 수정해",
+    ):
+        sel = detect(neg, config)
+        if sel.get("task_type") == "coding":
+            fail(f"coding fallback overfire on {neg!r}", errors)
 
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}

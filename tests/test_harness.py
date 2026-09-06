@@ -66,9 +66,40 @@ class HarnessTest(unittest.TestCase):
         self.assertEqual(result["domains"], ["domains/RHEL.md", "domains/OpenShift.md"])
         self.assertEqual(validate_selection(result, self.config), [])
 
-    def test_limit_violation_is_not_silently_trimmed(self):
+    def test_domain_overflow_keeps_top2_with_explicit_warning(self):
+        """R2-P1-DOMAIN-OVERFLOW: top-2 + warning naming drops (not silent trim)."""
         result = detect("RHEL OpenShift Ansible 버그를 수정해줘", self.config)
-        self.assertIn("domains pack count exceeds limit: 3 > 2", validate_selection(result, self.config))
+        self.assertEqual(validate_selection(result, self.config), [])
+        self.assertEqual(len(result["domains"]), 2)
+        self.assertIn("domains/RHEL.md", result["domains"])
+        self.assertIn("domains/OpenShift.md", result["domains"])
+        self.assertTrue(any("dropped: domains/Ansible.md" in w for w in result["warnings"]))
+        # Integrity policies on coding route retained
+        self.assertIn("policies/FileHandling.md", result["policies"])
+        self.assertIn("policies/ToolExecution.md", result["policies"])
+
+    def test_coding_fallback_does_not_overfire_on_qa_or_typo(self):
+        """R2-P1-FALLBACK-OVERFIRE"""
+        for task in (
+            "what is the error budget concept?",
+            "이 문서의 오탈자 수정해",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertNotEqual(result["task_type"], "coding")
+                self.assertIsNone(result.get("workflow"))
+
+    def test_unmapped_high_risk_gets_minimal_safety(self):
+        """R2-P0-UNMAPPED-HIGHRISK"""
+        result = detect(
+            "운영 환경에서 고객 데이터 마이그레이션 계획 검토",
+            self.config,
+        )
+        self.assertTrue(result["unmapped"])
+        self.assertEqual(result["risk_level"], "high")
+        self.assertFalse(result["kernel_only_safe"])
+        self.assertIn("policies/Evidence.md", result["policies"])
+        self.assertTrue(any("High-risk unmapped" in w for w in result["warnings"]))
 
     def test_golden_metadata(self):
         result = validate_golden_tests()
