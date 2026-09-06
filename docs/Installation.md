@@ -10,10 +10,19 @@ cd claude
 python3 scripts/install_pack.py --auto
 ```
 
-- `--auto` detects Claude Code, Codex, Grok, Cursor, and AGENTS-compatible skills roots and installs `fef-claude/`.
+- `--auto` detects Claude Code, Codex, Grok, Cursor, and AGENTS-compatible skills roots and installs `fef-claude/`; also installs into **sibling git repos** (same parent directory, `FEF_SIBLING_ROOTS`, or `--siblings`).
+- `--siblings-only` / `--siblings PATH` — sibling project skill roots only (or extra roots).
+- `--print-bootstrap` — one-liner for multi-root / sibling workspaces.
 - `--print-claude` prints exact steps to paste `CLAUDE.md` into Claude Project Instructions.
 - `--check` verifies an install; with `--with-tests`, also runs `validate_framework.py`.
 - Preferred Claude Code path remains: open the git clone as the workspace so root `CLAUDE.md` loads.
+
+### Multi-repo
+
+```bash
+python3 /path/to/claude/scripts/install_pack.py --auto
+# → host skills + <sibling>/.claude/skills/fef-claude (and/or .agents/skills)
+```
 
 ## Claude Code
 

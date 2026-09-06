@@ -15,3 +15,7 @@ Lightweight entry for AGENTS-compatible hosts. **Read `CLAUDE.md` first** — it
 ## Use Rule
 
 When this repository is the working root, apply `CLAUDE.md` first and follow its routing. Do not load every file by default.
+
+## Multi-repo
+
+When this repository appears **with other git repos** (multi-root / siblings), run `python3 scripts/install_pack.py --auto` once before other work (or `python3 <this-repo>/scripts/install_pack.py --auto` if cwd is another repo). Details: README.

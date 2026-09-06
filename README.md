@@ -16,12 +16,40 @@ python3 scripts/install_pack.py --auto
 # Claude Projects → paste CLAUDE.md into Project Instructions; attach packs as needed
 ```
 
-- `python3 scripts/install_pack.py --auto` — detect Claude / Codex / Grok / Cursor / AGENTS hosts and copy the pack to each skills root as `fef-claude/`
+- `python3 scripts/install_pack.py --auto` — detect Claude / Codex / Grok / Cursor / AGENTS hosts and copy the pack to each skills root as `fef-claude/`; also installs into **sibling git repos**
+- `python3 scripts/install_pack.py --print-bootstrap` — one-liner AIs should run in multi-root workspaces
 - `python3 scripts/install_pack.py --print-claude` — exact paste steps for Claude Project Instructions
 - `python3 scripts/install_pack.py --check` — verify files and run `validate_framework.py` when tests are present
-- `python3 scripts/install_pack.py --help` — destinations, `--dest`, `--with-tests`, `--dry-run`
+- `python3 scripts/install_pack.py --help` — `--dest`, `--siblings`, `--siblings-only`, `--with-tests`, `--dry-run`
 
 Preferred Claude Code path: **open this clone as the workspace** so `CLAUDE.md` loads at the root. Skill copies are for hosts that discover packs under `~/.claude/skills` (and similar).
+
+### Multi-repo / sibling auto-install
+
+Attach **this repo + your project repo(s)** in one workspace (multi-root). The agent runs `--auto` once; the pack lands in host skills **and** each sibling project's skill roots:
+
+```bash
+# From this clone:
+python3 scripts/install_pack.py --auto
+
+# From another repo's cwd (script path is absolute to this clone):
+python3 /path/to/claude/scripts/install_pack.py --auto
+
+# Preview only / siblings only / extra roots:
+python3 scripts/install_pack.py --auto --dry-run
+python3 scripts/install_pack.py --siblings-only
+python3 scripts/install_pack.py --siblings /other/project --auto
+# Env: FEF_SIBLING_ROOTS=/a:/b  (os.pathsep-separated)
+```
+
+Sibling targets (non-destructive): `<sibling>/.claude/skills/fef-claude` and/or `<sibling>/.agents/skills/fef-claude` when `.claude/`, `.cursor/`, `AGENTS.md`, or `.git` markers warrant creating those skills dirs.
+
+## What's new (pack updates)
+
+- **Adaptive Effort** — Sonnet default for everyday work; Haiku only for light Notion/docs (L0); escalate model before packs (`docs/adaptive-effort.md`).
+- **Round 2 routing** — KO language tiers, unmapped high-risk handling, fallback guard.
+- **Round 3** — high-risk AND action gate, hooks, cold-start `CLAUDE.md`+`AGENTS.md` budget, lean install docs, reviewer Output contracts.
+- **Multi-repo auto-install** — `--auto` installs into sibling git repos / `FEF_SIBLING_ROOTS` / `--siblings` (this change).
 
 ## Core Idea
 

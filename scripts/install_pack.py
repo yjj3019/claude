@@ -3,10 +3,18 @@
 
 Python 3.11+, standard library only. Intended entry after:
   git clone https://github.com/yjj3019/claude.git && cd claude
+  python3 scripts/install_pack.py --auto
 
 Preferred Claude Code usage is opening this clone as the workspace so CLAUDE.md
 loads. Skill-style hosts get a copy under <skills-root>/fef-claude/.
+
+Multi-repo / sibling mode (--auto): also installs into sibling git repos that
+share this clone's parent directory (or paths in FEF_SIBLING_ROOTS / --siblings).
+Works when cwd is a sibling: python3 /path/to/claude/scripts/install_pack.py --auto
+(REPO_ROOT is derived from this script's location).
+
 Claude Projects (web) cannot be fully automated; use --print-claude.
+AI bootstrap one-liner: python3 scripts/install_pack.py --print-bootstrap
 """
 from __future__ import annotations
 
@@ -73,6 +81,9 @@ COPY_IGNORE = shutil.ignore_patterns(
     ".github",
 )
 
+# Env: os.pathsep-separated absolute (or ~) paths of extra sibling project roots.
+SIBLING_ROOTS_ENV = "FEF_SIBLING_ROOTS"
+
 
 def _utf8_console() -> None:
     for stream in (sys.stdout, sys.stderr):
@@ -113,6 +124,133 @@ def detect_targets(home: Path | None = None) -> list[tuple[str, Path]]:
             found.append(("$CODEX_HOME/skills", target))
 
     return found
+
+
+def _is_git_repo(path: Path) -> bool:
+    """True if path looks like a git work tree (dir or file .git)."""
+    git = path / ".git"
+    return git.is_dir() or git.is_file()
+
+
+def discover_sibling_repos(
+    repo_root: Path | None = None,
+    *,
+    extra_roots: list[Path] | None = None,
+    parent: Path | None = None,
+) -> list[Path]:
+    """Sibling git repos sharing the same parent directory as this clone.
+
+    Also honors FEF_SIBLING_ROOTS (os.pathsep-separated) and explicit extra_roots.
+    Excludes self. Returns sorted unique resolved paths. Never raises on empty.
+    """
+    repo_root = (repo_root or REPO_ROOT).resolve()
+    found: list[Path] = []
+    seen: set[Path] = set()
+
+    def _add(candidate: Path) -> None:
+        try:
+            resolved = candidate.expanduser().resolve()
+        except OSError:
+            return
+        if resolved == repo_root or resolved in seen:
+            return
+        if not resolved.is_dir():
+            return
+        if not _is_git_repo(resolved):
+            return
+        seen.add(resolved)
+        found.append(resolved)
+
+    # parent kwarg wins; else FEF_SIBLING_PARENT (empty ⇒ skip parent scan);
+    # else repo_root.parent.
+    if parent is not None:
+        scan_parent: Path | None = parent.resolve()
+    elif "FEF_SIBLING_PARENT" in os.environ:
+        raw_parent = os.environ.get("FEF_SIBLING_PARENT", "")
+        scan_parent = Path(raw_parent).expanduser().resolve() if raw_parent.strip() else None
+    else:
+        scan_parent = repo_root.parent.resolve()
+
+    if scan_parent is not None and scan_parent.is_dir():
+        try:
+            children = list(scan_parent.iterdir())
+        except OSError:
+            children = []
+        for child in children:
+            if child.is_dir():
+                _add(child)
+
+    raw_env = os.environ.get(SIBLING_ROOTS_ENV, "")
+    if raw_env.strip():
+        for part in raw_env.split(os.pathsep):
+            part = part.strip()
+            if part:
+                _add(Path(part))
+
+    for root in extra_roots or []:
+        _add(root)
+
+    return sorted(found, key=lambda p: str(p))
+
+
+def sibling_skill_roots(sibling: Path) -> list[tuple[str, Path]]:
+    """Non-destructive skill install roots under a sibling project.
+
+    Prefer existing .claude/skills or .agents/skills. Otherwise create skills
+    dirs under .claude / .agents when markers exist (.claude/, .cursor/,
+    AGENTS.md, .git). Claude/Cursor projects get .claude/skills; AGENTS.md or
+    .agents/ also get .agents/skills. Bare git siblings default to .claude/skills.
+    """
+    sibling = sibling.resolve()
+    roots: list[tuple[str, Path]] = []
+    seen: set[Path] = set()
+
+    def _add(label: str, skills: Path) -> None:
+        try:
+            resolved = skills.expanduser().absolute()
+        except OSError:
+            return
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        roots.append((label, resolved))
+
+    has_claude = (sibling / ".claude").is_dir()
+    has_cursor = (sibling / ".cursor").is_dir()
+    has_agents_dir = (sibling / ".agents").is_dir()
+    has_agents_md = (sibling / "AGENTS.md").is_file()
+    has_git = _is_git_repo(sibling)
+    claude_skills = sibling / ".claude" / "skills"
+    agents_skills = sibling / ".agents" / "skills"
+
+    if claude_skills.is_dir() or has_claude or has_cursor:
+        _add("sibling .claude/skills", claude_skills)
+    if agents_skills.is_dir() or has_agents_dir or has_agents_md:
+        _add("sibling .agents/skills", agents_skills)
+
+    # Bare git (or only .git marker): still land a pack under .claude/skills.
+    if not roots and has_git:
+        _add("sibling .claude/skills", claude_skills)
+
+    return roots
+
+
+def parse_sibling_paths(values: list[str] | None) -> list[Path]:
+    """Parse repeated --siblings PATH arguments into Paths."""
+    if not values:
+        return []
+    return [Path(v) for v in values]
+
+
+def print_bootstrap() -> None:
+    """One-liner AIs should run in multi-root / sibling workspaces."""
+    script = REPO_ROOT / "scripts" / "install_pack.py"
+    print("# FEF multi-repo bootstrap (run once before other work)")
+    print(f"python3 {script} --auto")
+    print("# Or from this clone's directory:")
+    print("python3 scripts/install_pack.py --auto")
+    print("# Hosts + sibling project skill roots; dry-run: add --dry-run")
+    print("# Siblings only: --siblings-only   Extra roots: FEF_SIBLING_ROOTS or --siblings PATH")
 
 
 def pack_source_paths(with_tests: bool) -> list[tuple[str, Path]]:
@@ -349,9 +487,15 @@ def main(argv: list[str] | None = None) -> int:
         epilog=(
             "Examples:\n"
             "  python scripts/install_pack.py --auto\n"
+            "  python scripts/install_pack.py --auto --dry-run\n"
+            "  python3 /path/to/claude/scripts/install_pack.py --auto\n"
+            "  python scripts/install_pack.py --siblings-only\n"
+            "  python scripts/install_pack.py --siblings /other/project --auto\n"
+            "  python scripts/install_pack.py --print-bootstrap\n"
             "  python scripts/install_pack.py --dest ~/.agents/skills\n"
             "  python scripts/install_pack.py --print-claude\n"
             "  python scripts/install_pack.py --check --dest ~/.agents/skills\n"
+            f"\nEnv: {SIBLING_ROOTS_ENV}=path1{os.pathsep}path2 for extra sibling roots.\n"
         ),
     )
     parser.add_argument(
@@ -362,17 +506,34 @@ def main(argv: list[str] | None = None) -> int:
         "--auto",
         action="store_true",
         help="Detect AI hosts and install into each skills directory "
-        f"(fallback: ~/{FALLBACK_SKILLS_DIR})",
+        f"(fallback: ~/{FALLBACK_SKILLS_DIR}); also install into sibling git repos",
+    )
+    parser.add_argument(
+        "--siblings",
+        action="append",
+        metavar="PATH",
+        help="Extra sibling project root to install into (repeatable; also "
+        f"scanned via parent dir + ${SIBLING_ROOTS_ENV})",
+    )
+    parser.add_argument(
+        "--siblings-only",
+        action="store_true",
+        help="Install only into sibling project skill roots (skip host detection)",
     )
     parser.add_argument(
         "--list-targets",
         action="store_true",
-        help="Print detected install targets without installing",
+        help="Print detected install targets (hosts + siblings) without installing",
     )
     parser.add_argument(
         "--print-claude",
         action="store_true",
         help="Print exact steps to paste CLAUDE.md into Claude Project Instructions",
+    )
+    parser.add_argument(
+        "--print-bootstrap",
+        action="store_true",
+        help="Print the one-liner AIs should run for multi-repo / sibling auto-install",
     )
     parser.add_argument(
         "--check",
@@ -392,28 +553,58 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     _utf8_console()
 
+    # --siblings without --auto/--siblings-only ⇒ siblings-only install
+    if args.siblings and not args.auto and not args.siblings_only:
+        args.siblings_only = True
+
     if args.print_claude:
         print_claude_steps()
         return 0
 
+    if args.print_bootstrap:
+        print_bootstrap()
+        return 0
+
+    extra_siblings = parse_sibling_paths(args.siblings)
+
+    def _sibling_install_targets() -> list[tuple[str, Path, Path]]:
+        """Return (label, skills_root, sibling_repo) for discovered siblings."""
+        out: list[tuple[str, Path, Path]] = []
+        for sibling in discover_sibling_repos(extra_roots=extra_siblings):
+            for label, skills_root in sibling_skill_roots(sibling):
+                out.append((f"{label} [{sibling.name}]", skills_root, sibling))
+        return out
+
     if args.list_targets:
-        targets = detect_targets()
-        if targets:
-            for label, path in targets:
-                print(f"{label}: {path}")
+        if not args.siblings_only:
+            targets = detect_targets()
+            if targets:
+                print("Hosts:")
+                for label, tpath in targets:
+                    print(f"  {label}: {tpath}")
+            else:
+                print(f"Hosts: (none) — default ~/{FALLBACK_SKILLS_DIR}")
+        sibs = _sibling_install_targets()
+        if sibs:
+            print("Siblings:")
+            for label, skills_root, sibling in sibs:
+                print(f"  {label}: {skills_root}  (repo={sibling})")
         else:
-            print(f"No AI host detected — default: {Path.home() / FALLBACK_SKILLS_DIR}")
+            print("Siblings: (none)")
         return 0
 
     if args.check:
         roots: list[Path] = []
         if args.dest:
             roots.append(Path(args.dest).expanduser() / PACK_NAME)
-        elif args.auto:
-            targets = detect_targets()
-            if not targets:
-                targets = [("fallback", Path.home() / FALLBACK_SKILLS_DIR)]
-            roots.extend(root / PACK_NAME for _, root in targets)
+        elif args.auto or args.siblings_only:
+            if not args.siblings_only:
+                targets = detect_targets()
+                if not targets:
+                    targets = [("fallback", Path.home() / FALLBACK_SKILLS_DIR)]
+                roots.extend(root / PACK_NAME for _, root in targets)
+            for _, skills_root, _ in _sibling_install_targets():
+                roots.append(skills_root / PACK_NAME)
         else:
             try:
                 roots.append(destination_root(None) / PACK_NAME)
@@ -447,31 +638,65 @@ def main(argv: list[str] | None = None) -> int:
                 print("  validate skipped (tests/ not installed; reinstall with --with-tests)")
         return 1 if failed else 0
 
-    if args.auto:
-        targets = detect_targets()
-        if not targets:
-            fallback = Path.home() / FALLBACK_SKILLS_DIR
-            print(f"No AI host detected — installing to shared location: {fallback}")
-            targets = [("AGENTS.md compatible (fallback)", fallback)]
-        summaries: list[str] = []
-        for label, root in targets:
-            dest = install_pack(root, with_tests=args.with_tests, dry_run=args.dry_run)
-            action = "Would install" if args.dry_run else "Installed"
+    if args.auto or args.siblings_only:
+        host_summaries: list[str] = []
+        sibling_summaries: list[str] = []
+        action = "Would install" if args.dry_run else "Installed"
+
+        if not args.siblings_only:
+            targets = detect_targets()
+            if not targets:
+                fallback = Path.home() / FALLBACK_SKILLS_DIR
+                print(f"No AI host detected — installing to shared location: {fallback}")
+                targets = [("AGENTS.md compatible (fallback)", fallback)]
+            for label, root in targets:
+                dest = install_pack(root, with_tests=args.with_tests, dry_run=args.dry_run)
+                line = f"{action}: {dest}  ({label})"
+                print(line)
+                host_summaries.append(line)
+                if not args.dry_run:
+                    problems = verify_install(dest)
+                    if problems:
+                        print("  problems: " + "; ".join(problems), file=sys.stderr)
+                        return 1
+
+        sib_targets = _sibling_install_targets()
+        if not sib_targets:
+            print(
+                "No sibling git repos found (parent children / "
+                f"{SIBLING_ROOTS_ENV} / --siblings)."
+            )
+        for label, skills_root, sibling in sib_targets:
+            dest = install_pack(
+                skills_root, with_tests=args.with_tests, dry_run=args.dry_run
+            )
             line = f"{action}: {dest}  ({label})"
             print(line)
-            summaries.append(line)
+            sibling_summaries.append(line)
             if not args.dry_run:
                 problems = verify_install(dest)
                 if problems:
                     print("  problems: " + "; ".join(problems), file=sys.stderr)
                     return 1
+
         print()
         print("Summary:")
-        for line in summaries:
-            print(f"  {line}")
+        print(f"  Hosts installed: {len(host_summaries)}")
+        for line in host_summaries:
+            print(f"    {line}")
+        print(f"  Siblings installed: {len(sibling_summaries)}")
+        for line in sibling_summaries:
+            print(f"    {line}")
         print()
         print("Next steps:")
-        print("  Claude Code → open the git clone as workspace (loads CLAUDE.md), or use the installed pack.")
+        print(
+            "  Claude Code → open the git clone as workspace (loads CLAUDE.md), "
+            "or use the installed pack."
+        )
+        print(
+            "  Multi-repo → sibling projects now have .claude/skills/fef-claude "
+            "(and/or .agents/skills)."
+        )
         print("  Claude Projects → python scripts/install_pack.py --print-claude")
         print("  Verify  → python scripts/install_pack.py --check --auto")
         return 0
@@ -488,6 +713,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - {problem}", file=sys.stderr)
             return 1
     return 0
+
 
 
 if __name__ == "__main__":
