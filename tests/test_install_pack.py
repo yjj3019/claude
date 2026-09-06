@@ -147,16 +147,39 @@ class InstallPackTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         self.assertTrue((dest / "fef-claude" / "tests" / "Scorecard.md").is_file())
 
-    def test_idempotent_overwrite(self):
+    def test_refuse_overwrite_without_force(self):
+        dest = self.home / "skills"
+        first = self._run("--dest", str(dest))
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        marker = dest / "fef-claude" / "EXTRA_SHOULD_STAY.txt"
+        marker.write_text("stale", encoding="utf-8")
+        # Mutate an entry file so hash differs from source → must refuse.
+        claude = dest / "fef-claude" / "CLAUDE.md"
+        claude.write_text(claude.read_text(encoding="utf-8") + "\n# local tweak\n", encoding="utf-8")
+        second = self._run("--dest", str(dest))
+        self.assertNotEqual(second.returncode, 0, second.stdout + second.stderr)
+        self.assertIn("Refusing to overwrite", second.stderr + second.stdout)
+        self.assertTrue(marker.exists())
+
+    def test_force_overwrite(self):
         dest = self.home / "skills"
         first = self._run("--dest", str(dest))
         self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
         marker = dest / "fef-claude" / "EXTRA_SHOULD_GO.txt"
         marker.write_text("stale", encoding="utf-8")
-        second = self._run("--dest", str(dest))
+        second = self._run("--dest", str(dest), "--force")
         self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
         self.assertFalse(marker.exists())
         self.assertTrue((dest / "fef-claude" / "CLAUDE.md").is_file())
+
+    def test_identical_hash_skips_without_force(self):
+        dest = self.home / "skills"
+        first = self._run("--dest", str(dest))
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        mtime = (dest / "fef-claude" / "CLAUDE.md").stat().st_mtime_ns
+        second = self._run("--dest", str(dest))
+        self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+        self.assertEqual((dest / "fef-claude" / "CLAUDE.md").stat().st_mtime_ns, mtime)
 
     def test_print_claude_mentions_entry(self):
         proc = self._run("--print-claude")
@@ -267,6 +290,17 @@ class SiblingDiscoveryTests(unittest.TestCase):
     def test_discovers_sibling_git_repos_excludes_self(self):
         found = install_pack.discover_sibling_repos(
             repo_root=self.claude, parent=self.parent
+        )
+        self.assertEqual(found, [self.proj_a.resolve(), self.proj_b.resolve()])
+
+    def test_default_does_not_scan_parent(self):
+        """S4-09: parent-dir scan is OFF unless opted in."""
+        found = install_pack.discover_sibling_repos(repo_root=self.claude)
+        self.assertEqual(found, [])
+
+    def test_scan_sibling_parent_flag(self):
+        found = install_pack.discover_sibling_repos(
+            repo_root=self.claude, scan_sibling_parent=True
         )
         self.assertEqual(found, [self.proj_a.resolve(), self.proj_b.resolve()])
 
@@ -448,6 +482,97 @@ class SiblingInstallCliTests(unittest.TestCase):
         self.assertTrue(
             (agents_sib / ".agents" / "skills" / "fef-claude" / "CLAUDE.md").is_file()
         )
+
+
+class Round4InstallSafetyTests(unittest.TestCase):
+    """S4-09: --auto hosts-only; no silent sibling write; refuse overwrite."""
+
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.addCleanup(self.temp.cleanup)
+        self.home = self.root / "home"
+        self.home.mkdir()
+        (self.home / ".claude").mkdir()
+        self.parent = self.root / "workspace"
+        self.parent.mkdir()
+        # Simulate multi-repo parent: claude + 3 unrelated git repos
+        self.claude = self.parent / "claude"
+        self.claude.mkdir()
+        (self.claude / ".git").mkdir()
+        self.unrelated = []
+        for name in ("alpha", "beta", "gamma"):
+            repo = self.parent / name
+            repo.mkdir()
+            (repo / ".git").mkdir()
+            (repo / ".claude").mkdir()
+            self.unrelated.append(repo)
+
+    def _run(self, *args: str, env_extra: dict | None = None):
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k
+            not in {
+                "AI_PACK_DIR",
+                "AI_SKILLS_DIR",
+                "CURSOR_PACK_DIR",
+                "CURSOR_SKILLS_DIR",
+                "CODEX_HOME",
+                "FEF_SIBLING_ROOTS",
+                "FEF_SIBLING_PARENT",
+            }
+        }
+        env["HOME"] = env["USERPROFILE"] = str(self.home)
+        # Isolate from /workspace; do not enable parent scan via env.
+        if env_extra:
+            env.update(env_extra)
+        return subprocess.run(
+            [sys.executable, "-X", "utf8", str(SCRIPT), *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            cwd=str(ROOT),
+            env=env,
+        )
+
+    def test_auto_does_not_write_unrelated_siblings(self):
+        proc = self._run("--auto")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertTrue((self.home / ".claude/skills/fef-claude/CLAUDE.md").is_file())
+        for repo in self.unrelated:
+            pack = repo / ".claude" / "skills" / "fef-claude"
+            self.assertFalse(pack.exists(), f"--auto wrote sibling {repo}")
+        self.assertIn("Sibling install skipped", proc.stdout)
+
+    def test_siblings_path_installs_only_there(self):
+        target = self.unrelated[0]
+        others = self.unrelated[1:]
+        proc = self._run("--siblings", str(target))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertTrue(
+            (target / ".claude" / "skills" / "fef-claude" / "CLAUDE.md").is_file()
+        )
+        for repo in others:
+            self.assertFalse(
+                (repo / ".claude" / "skills" / "fef-claude").exists(),
+                f"unexpected install into {repo}",
+            )
+
+    def test_existing_dest_unchanged_without_force(self):
+        dest = self.home / "skills"
+        first = self._run("--dest", str(dest))
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        marker = dest / "fef-claude" / "KEEP.txt"
+        marker.write_text("keep-me", encoding="utf-8")
+        claude = dest / "fef-claude" / "CLAUDE.md"
+        claude.write_text(claude.read_text(encoding="utf-8") + "\nX\n", encoding="utf-8")
+        before = marker.read_text(encoding="utf-8")
+        second = self._run("--dest", str(dest))
+        self.assertNotEqual(second.returncode, 0)
+        self.assertEqual(marker.read_text(encoding="utf-8"), before)
+
 
 
 if __name__ == "__main__":

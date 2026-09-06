@@ -8,10 +8,11 @@ Python 3.11+, standard library only. Intended entry after:
 Preferred Claude Code usage is opening this clone as the workspace so CLAUDE.md
 loads. Skill-style hosts get a copy under <skills-root>/fef-claude/.
 
-Multi-repo / sibling mode (--auto): also installs into sibling git repos that
-share this clone's parent directory (or paths in FEF_SIBLING_ROOTS / --siblings).
-Works when cwd is a sibling: python3 /path/to/claude/scripts/install_pack.py --auto
-(REPO_ROOT is derived from this script's location).
+Sibling install is opt-in only (--siblings PATH, FEF_SIBLING_ROOTS,
+--siblings-only, or --scan-sibling-parent). Default --auto installs host skills only.
+Works when cwd is a sibling: python3 /path/to/claude/scripts/install_pack.py --siblings PATH
+(REPO_ROOT is derived from this script's location). Existing fef-claude/ is preserved
+unless --force (identical pack hash is skipped).
 
 Claude Projects (web) cannot be fully automated; use --print-claude.
 AI bootstrap one-liner: python3 scripts/install_pack.py --print-bootstrap
@@ -19,6 +20,7 @@ AI bootstrap one-liner: python3 scripts/install_pack.py --print-bootstrap
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import shutil
 import subprocess
@@ -137,11 +139,17 @@ def discover_sibling_repos(
     *,
     extra_roots: list[Path] | None = None,
     parent: Path | None = None,
+    scan_sibling_parent: bool = False,
 ) -> list[Path]:
-    """Sibling git repos sharing the same parent directory as this clone.
+    """Discover sibling git repos for opt-in install (S4-09).
 
-    Also honors FEF_SIBLING_ROOTS (os.pathsep-separated) and explicit extra_roots.
-    Excludes self. Returns sorted unique resolved paths. Never raises on empty.
+    Parent-directory scan is OFF by default. Enable via:
+      - parent=... (explicit), or
+      - scan_sibling_parent=True (uses repo_root.parent), or
+      - FEF_SIBLING_PARENT set to a non-empty path.
+
+    Always honors FEF_SIBLING_ROOTS (os.pathsep-separated) and extra_roots
+    (--siblings). Excludes self. Returns sorted unique resolved paths.
     """
     repo_root = (repo_root or REPO_ROOT).resolve()
     found: list[Path] = []
@@ -161,14 +169,15 @@ def discover_sibling_repos(
         seen.add(resolved)
         found.append(resolved)
 
-    # parent kwarg wins; else FEF_SIBLING_PARENT (empty ⇒ skip parent scan);
-    # else repo_root.parent.
+    # Parent scan is opt-in only (S4-09). Never default to repo_root.parent.
+    scan_parent: Path | None = None
     if parent is not None:
-        scan_parent: Path | None = parent.resolve()
+        scan_parent = parent.resolve()
     elif "FEF_SIBLING_PARENT" in os.environ:
         raw_parent = os.environ.get("FEF_SIBLING_PARENT", "")
-        scan_parent = Path(raw_parent).expanduser().resolve() if raw_parent.strip() else None
-    else:
+        if raw_parent.strip():
+            scan_parent = Path(raw_parent).expanduser().resolve()
+    elif scan_sibling_parent:
         scan_parent = repo_root.parent.resolve()
 
     if scan_parent is not None and scan_parent.is_dir():
@@ -243,14 +252,17 @@ def parse_sibling_paths(values: list[str] | None) -> list[Path]:
 
 
 def print_bootstrap() -> None:
-    """One-liner AIs should run in multi-root / sibling workspaces."""
+    """One-liner for host install; sibling install is opt-in."""
     script = REPO_ROOT / "scripts" / "install_pack.py"
-    print("# FEF multi-repo bootstrap (run once before other work)")
+    print("# FEF host skills bootstrap (default --auto = hosts only)")
     print(f"python3 {script} --auto")
     print("# Or from this clone's directory:")
     print("python3 scripts/install_pack.py --auto")
-    print("# Hosts + sibling project skill roots; dry-run: add --dry-run")
-    print("# Siblings only: --siblings-only   Extra roots: FEF_SIBLING_ROOTS or --siblings PATH")
+    print("# Sibling install is opt-in (does not run on bare --auto):")
+    print("#   --siblings PATH   FEF_SIBLING_ROOTS=...   --siblings-only")
+    print("#   --scan-sibling-parent  (explicit parent-dir git scan; default OFF)")
+    print("# Existing fef-claude/: preserved unless --force (identical hash skipped)")
+    print("# Dry-run: add --dry-run")
 
 
 def pack_source_paths(with_tests: bool) -> list[tuple[str, Path]]:
@@ -333,13 +345,48 @@ project knowledge. Run `python scripts/install_pack.py --print-claude` from a cl
     (dest_pack / "INSTALL_NOTE.md").write_text(note, encoding="utf-8")
 
 
+def _hash_file(path: Path) -> bytes:
+    digest = hashlib.sha256()
+    digest.update(path.read_bytes())
+    return digest.digest()
+
+
+def pack_content_fingerprint(pack_dir: Path) -> str | None:
+    """Fingerprint of key pack files (empty if required markers missing)."""
+    if not pack_dir.is_dir():
+        return None
+    digest = hashlib.sha256()
+    for name in REQUIRED_FILES:
+        file_path = pack_dir / name
+        if not file_path.is_file():
+            return None
+        digest.update(name.encode("utf-8"))
+        digest.update(_hash_file(file_path))
+    return digest.hexdigest()
+
+
+def source_pack_fingerprint(*, with_tests: bool = False) -> str:
+    """Fingerprint of the pack that install_pack would write (key entry files)."""
+    digest = hashlib.sha256()
+    for name in REQUIRED_FILES:
+        file_path = REPO_ROOT / name
+        digest.update(name.encode("utf-8"))
+        digest.update(_hash_file(file_path))
+    return digest.hexdigest()
+
+
 def install_pack(
     skills_root: Path,
     *,
     with_tests: bool = False,
     dry_run: bool = False,
+    force: bool = False,
 ) -> Path:
-    """Copy the pack into skills_root/fef-claude/. Overwrites idempotently."""
+    """Copy the pack into skills_root/fef-claude/.
+
+    S4-09: existing dest is preserved unless --force. Identical content hash
+    (CLAUDE.md/AGENTS.md/README.md) is skipped without --force. No silent rmtree.
+    """
     skills_root = skills_root.expanduser()
     if skills_root.exists() and not skills_root.is_dir():
         raise SystemExit(f"Destination is not a directory: {skills_root}")
@@ -350,6 +397,16 @@ def install_pack(
         return dest
 
     if dest.exists():
+        dest_fp = pack_content_fingerprint(dest)
+        src_fp = source_pack_fingerprint(with_tests=with_tests)
+        if not force and dest_fp is not None and dest_fp == src_fp:
+            # Identical entry files — skip (non-destructive) unless --force.
+            return dest
+        if not force:
+            raise SystemExit(
+                f"Refusing to overwrite existing pack at {dest}. "
+                "Pass --force to replace, or remove the directory first."
+            )
         shutil.rmtree(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
@@ -488,14 +545,15 @@ def main(argv: list[str] | None = None) -> int:
             "Examples:\n"
             "  python scripts/install_pack.py --auto\n"
             "  python scripts/install_pack.py --auto --dry-run\n"
-            "  python3 /path/to/claude/scripts/install_pack.py --auto\n"
-            "  python scripts/install_pack.py --siblings-only\n"
-            "  python scripts/install_pack.py --siblings /other/project --auto\n"
+            "  python scripts/install_pack.py --siblings /other/project\n"
+            "  python scripts/install_pack.py --siblings-only --scan-sibling-parent\n"
+            "  python scripts/install_pack.py --auto --siblings /other/project\n"
+            "  python scripts/install_pack.py --dest ~/.agents/skills --force\n"
             "  python scripts/install_pack.py --print-bootstrap\n"
-            "  python scripts/install_pack.py --dest ~/.agents/skills\n"
             "  python scripts/install_pack.py --print-claude\n"
             "  python scripts/install_pack.py --check --dest ~/.agents/skills\n"
-            f"\nEnv: {SIBLING_ROOTS_ENV}=path1{os.pathsep}path2 for extra sibling roots.\n"
+            f"\nEnv: {SIBLING_ROOTS_ENV}=path1{os.pathsep}path2 for opt-in sibling roots.\n"
+            "     FEF_SIBLING_PARENT=/parent to opt-in parent-dir scan.\n"
         ),
     )
     parser.add_argument(
@@ -506,24 +564,39 @@ def main(argv: list[str] | None = None) -> int:
         "--auto",
         action="store_true",
         help="Detect AI hosts and install into each skills directory "
-        f"(fallback: ~/{FALLBACK_SKILLS_DIR}); also install into sibling git repos",
+        f"(fallback: ~/{FALLBACK_SKILLS_DIR}). Sibling install is opt-in "
+        "(see --siblings / --siblings-only / --scan-sibling-parent / "
+        f"${SIBLING_ROOTS_ENV})",
     )
     parser.add_argument(
         "--siblings",
         action="append",
         metavar="PATH",
-        help="Extra sibling project root to install into (repeatable; also "
-        f"scanned via parent dir + ${SIBLING_ROOTS_ENV})",
+        help="Opt-in sibling project root to install into (repeatable; also "
+        f"${SIBLING_ROOTS_ENV}). Does not enable parent-dir scan by itself",
     )
     parser.add_argument(
         "--siblings-only",
         action="store_true",
-        help="Install only into sibling project skill roots (skip host detection)",
+        help="Install only into sibling project skill roots (skip host detection). "
+        "Requires --siblings, ${SIBLING_ROOTS_ENV}, and/or --scan-sibling-parent",
+    )
+    parser.add_argument(
+        "--scan-sibling-parent",
+        action="store_true",
+        help="Opt-in: scan this clone's parent directory for sibling git repos "
+        "(default OFF). Also set FEF_SIBLING_PARENT to a path",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow overwriting an existing fef-claude/ pack (default: refuse; "
+        "identical entry-file hash is skipped without --force)",
     )
     parser.add_argument(
         "--list-targets",
         action="store_true",
-        help="Print detected install targets (hosts + siblings) without installing",
+        help="Print detected install targets (hosts + opt-in siblings) without installing",
     )
     parser.add_argument(
         "--print-claude",
@@ -533,7 +606,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--print-bootstrap",
         action="store_true",
-        help="Print the one-liner AIs should run for multi-repo / sibling auto-install",
+        help="Print host/sibling install one-liners (sibling install remains opt-in)",
     )
     parser.add_argument(
         "--check",
@@ -556,6 +629,9 @@ def main(argv: list[str] | None = None) -> int:
     # --siblings without --auto/--siblings-only ⇒ siblings-only install
     if args.siblings and not args.auto and not args.siblings_only:
         args.siblings_only = True
+    # --scan-sibling-parent alone ⇒ siblings-only
+    if args.scan_sibling_parent and not args.auto and not args.siblings_only and not args.siblings:
+        args.siblings_only = True
 
     if args.print_claude:
         print_claude_steps()
@@ -566,11 +642,26 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     extra_siblings = parse_sibling_paths(args.siblings)
+    want_siblings = bool(
+        args.siblings
+        or args.siblings_only
+        or args.scan_sibling_parent
+        or os.environ.get(SIBLING_ROOTS_ENV, "").strip()
+        or (
+            "FEF_SIBLING_PARENT" in os.environ
+            and os.environ.get("FEF_SIBLING_PARENT", "").strip()
+        )
+    )
 
     def _sibling_install_targets() -> list[tuple[str, Path, Path]]:
-        """Return (label, skills_root, sibling_repo) for discovered siblings."""
+        """Return (label, skills_root, sibling_repo) for opt-in siblings."""
+        if not want_siblings:
+            return []
         out: list[tuple[str, Path, Path]] = []
-        for sibling in discover_sibling_repos(extra_roots=extra_siblings):
+        for sibling in discover_sibling_repos(
+            extra_roots=extra_siblings,
+            scan_sibling_parent=args.scan_sibling_parent,
+        ):
             for label, skills_root in sibling_skill_roots(sibling):
                 out.append((f"{label} [{sibling.name}]", skills_root, sibling))
         return out
@@ -650,7 +741,12 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"No AI host detected — installing to shared location: {fallback}")
                 targets = [("AGENTS.md compatible (fallback)", fallback)]
             for label, root in targets:
-                dest = install_pack(root, with_tests=args.with_tests, dry_run=args.dry_run)
+                dest = install_pack(
+                    root,
+                    with_tests=args.with_tests,
+                    dry_run=args.dry_run,
+                    force=args.force,
+                )
                 line = f"{action}: {dest}  ({label})"
                 print(line)
                 host_summaries.append(line)
@@ -661,14 +757,23 @@ def main(argv: list[str] | None = None) -> int:
                         return 1
 
         sib_targets = _sibling_install_targets()
-        if not sib_targets:
+        if args.auto and not want_siblings:
             print(
-                "No sibling git repos found (parent children / "
-                f"{SIBLING_ROOTS_ENV} / --siblings)."
+                "Sibling install skipped (opt-in only). "
+                f"Use --siblings PATH, ${SIBLING_ROOTS_ENV}, "
+                "--siblings-only, or --scan-sibling-parent."
+            )
+        elif want_siblings and not sib_targets:
+            print(
+                "No sibling git repos found "
+                f"({SIBLING_ROOTS_ENV} / --siblings / --scan-sibling-parent)."
             )
         for label, skills_root, sibling in sib_targets:
             dest = install_pack(
-                skills_root, with_tests=args.with_tests, dry_run=args.dry_run
+                skills_root,
+                with_tests=args.with_tests,
+                dry_run=args.dry_run,
+                force=args.force,
             )
             line = f"{action}: {dest}  ({label})"
             print(line)
@@ -693,16 +798,24 @@ def main(argv: list[str] | None = None) -> int:
             "  Claude Code → open the git clone as workspace (loads CLAUDE.md), "
             "or use the installed pack."
         )
-        print(
-            "  Multi-repo → sibling projects now have .claude/skills/fef-claude "
-            "(and/or .agents/skills)."
-        )
+        if sibling_summaries:
+            print(
+                "  Multi-repo → sibling projects now have .claude/skills/fef-claude "
+                "(and/or .agents/skills)."
+            )
+        else:
+            print(
+                "  Multi-repo → sibling install is opt-in "
+                "(--siblings / FEF_SIBLING_ROOTS / --scan-sibling-parent)."
+            )
         print("  Claude Projects → python scripts/install_pack.py --print-claude")
         print("  Verify  → python scripts/install_pack.py --check --auto")
         return 0
 
     root = destination_root(args.dest)
-    dest = install_pack(root, with_tests=args.with_tests, dry_run=args.dry_run)
+    dest = install_pack(
+        root, with_tests=args.with_tests, dry_run=args.dry_run, force=args.force
+    )
     action = "Would install" if args.dry_run else "Installed"
     print(f"{action}: {dest}")
     if not args.dry_run:
@@ -713,7 +826,6 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - {problem}", file=sys.stderr)
             return 1
     return 0
-
 
 
 if __name__ == "__main__":

@@ -18,4 +18,4 @@ When this repository is the working root, apply `CLAUDE.md` first and follow its
 
 ## Multi-repo
 
-When this repository appears **with other git repos** (multi-root / siblings), run `python3 scripts/install_pack.py --auto` once before other work (or `python3 <this-repo>/scripts/install_pack.py --auto` if cwd is another repo). Details: README.
+Default `python3 scripts/install_pack.py --auto` installs **host skills only**. If the user wants sibling-repo install, use `--siblings PATH`, `FEF_SIBLING_ROOTS`, `--siblings-only`, and/or `--scan-sibling-parent` (parent-dir scan is off by default). Existing `fef-claude/` is preserved unless `--force`. Details: README.
