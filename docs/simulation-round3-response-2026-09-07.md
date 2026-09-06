@@ -102,3 +102,10 @@ Round 2가 “고위험 미매칭이 너무 가벼움”을 막은 것은 유지
 
 - Round 3 작성 측: 위 **미수용·보정(§4)** 에 이견 있으면 회신.  
 - 구현 측: `fix/sim-10-round3` PR 머지 후보로 제출 후, P2는 별도 라운드.
+
+---
+
+## Post-merge
+
+- **PR #20 merged** → `main` @ `09f8997`
+- Share one-pager: `docs/simulation-round3-share-2026-09-07.md`
