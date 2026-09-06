@@ -1,4 +1,4 @@
-"""Unit tests for scripts/install_pack.py (detect_targets, dry-run, temp-home install)."""
+"""Unit tests for scripts/install_pack.py (detect_targets, siblings, dry-run, install)."""
 from __future__ import annotations
 
 import importlib.util
@@ -91,9 +91,12 @@ class InstallPackTests(unittest.TestCase):
                 "CURSOR_PACK_DIR",
                 "CURSOR_SKILLS_DIR",
                 "CODEX_HOME",
+                "FEF_SIBLING_ROOTS",
+                "FEF_SIBLING_PARENT",
             }
         }
         env["HOME"] = env["USERPROFILE"] = str(home or self.home)
+        env["FEF_SIBLING_PARENT"] = ""  # isolate from /workspace siblings
         if env_extra:
             env.update(env_extra)
         return subprocess.run(
@@ -237,6 +240,214 @@ class InstallPackTests(unittest.TestCase):
         (pack / "scripts" / "validate_framework.py").unlink()
         problems = install_pack.verify_install(pack)
         self.assertTrue(any("validate_framework.py" in p for p in problems))
+
+
+
+class SiblingDiscoveryTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.addCleanup(self.temp.cleanup)
+        # Fake this-clone + siblings under a shared parent
+        self.parent = self.root / "workspace"
+        self.parent.mkdir()
+        self.claude = self.parent / "claude"
+        self.claude.mkdir()
+        (self.claude / ".git").mkdir()
+        self.proj_a = self.parent / "proj-a"
+        self.proj_a.mkdir()
+        (self.proj_a / ".git").mkdir()
+        self.proj_b = self.parent / "proj-b"
+        self.proj_b.mkdir()
+        (self.proj_b / ".git").mkdir()
+        (self.proj_b / ".claude").mkdir()
+        self.not_git = self.parent / "notes"
+        self.not_git.mkdir()
+
+    def test_discovers_sibling_git_repos_excludes_self(self):
+        found = install_pack.discover_sibling_repos(
+            repo_root=self.claude, parent=self.parent
+        )
+        self.assertEqual(found, [self.proj_a.resolve(), self.proj_b.resolve()])
+
+    def test_no_siblings_does_not_crash(self):
+        alone_parent = self.root / "alone-parent"
+        alone_parent.mkdir()
+        alone = alone_parent / "claude"
+        alone.mkdir()
+        (alone / ".git").mkdir()
+        found = install_pack.discover_sibling_repos(repo_root=alone, parent=alone_parent)
+        self.assertEqual(found, [])
+
+    def test_env_fef_sibling_roots(self):
+        elsewhere = self.root / "elsewhere"
+        elsewhere.mkdir()
+        (elsewhere / ".git").mkdir()
+        with patch.dict(
+            os.environ,
+            {"FEF_SIBLING_ROOTS": str(elsewhere)},
+            clear=False,
+        ):
+            # Clear parent scan by using empty parent with only self
+            empty = self.root / "empty-parent"
+            empty.mkdir()
+            only = empty / "claude"
+            only.mkdir()
+            (only / ".git").mkdir()
+            found = install_pack.discover_sibling_repos(
+                repo_root=only, parent=empty
+            )
+        self.assertEqual(found, [elsewhere.resolve()])
+
+    def test_extra_roots_argument(self):
+        extra = self.root / "extra-proj"
+        extra.mkdir()
+        (extra / ".git").mkdir()
+        empty = self.root / "empty2"
+        empty.mkdir()
+        only = empty / "claude"
+        only.mkdir()
+        (only / ".git").mkdir()
+        found = install_pack.discover_sibling_repos(
+            repo_root=only, parent=empty, extra_roots=[extra]
+        )
+        self.assertEqual(found, [extra.resolve()])
+
+    def test_file_git_counts_as_repo(self):
+        linked = self.parent / "worktree-style"
+        linked.mkdir()
+        (linked / ".git").write_text("gitdir: /tmp/fake", encoding="utf-8")
+        found = install_pack.discover_sibling_repos(
+            repo_root=self.claude, parent=self.parent
+        )
+        self.assertIn(linked.resolve(), found)
+
+    def test_sibling_skill_roots_markers(self):
+        # bare git → .claude/skills
+        roots = install_pack.sibling_skill_roots(self.proj_a)
+        self.assertEqual(
+            [p for _, p in roots],
+            [(self.proj_a / ".claude" / "skills").absolute()],
+        )
+        # .claude present → .claude/skills
+        roots_b = install_pack.sibling_skill_roots(self.proj_b)
+        self.assertEqual(
+            [p for _, p in roots_b],
+            [(self.proj_b / ".claude" / "skills").absolute()],
+        )
+        # AGENTS.md → .agents/skills (+ bare git also .claude/skills via has_git fallback
+        # only when no other roots — here AGENTS.md alone with .git → both)
+        proj_c = self.parent / "proj-c"
+        proj_c.mkdir()
+        (proj_c / ".git").mkdir()
+        (proj_c / "AGENTS.md").write_text("# agents\n", encoding="utf-8")
+        roots_c = install_pack.sibling_skill_roots(proj_c)
+        paths = [p for _, p in roots_c]
+        self.assertIn((proj_c / ".agents" / "skills").absolute(), paths)
+        # With only AGENTS.md + .git, .claude is NOT auto-added because agents root exists
+        self.assertEqual(len(paths), 1)
+
+    def test_sibling_skill_roots_cursor(self):
+        proj = self.parent / "cursor-app"
+        proj.mkdir()
+        (proj / ".git").mkdir()
+        (proj / ".cursor").mkdir()
+        roots = install_pack.sibling_skill_roots(proj)
+        self.assertEqual(
+            [p for _, p in roots],
+            [(proj / ".claude" / "skills").absolute()],
+        )
+
+
+class SiblingInstallCliTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.home = Path(self.temp.name) / "home"
+        self.home.mkdir()
+        self.parent = Path(self.temp.name) / "ws"
+        self.parent.mkdir()
+        self.addCleanup(self.temp.cleanup)
+        # Place a fake clone layout: we invoke the REAL script (REPO_ROOT=actual),
+        # so sibling discovery uses real REPO_ROOT.parent unless we pass --siblings.
+        self.sib = self.parent / "app"
+        self.sib.mkdir()
+        (self.sib / ".git").mkdir()
+        (self.sib / ".claude").mkdir()
+
+    def _run(self, *args: str, env_extra: dict | None = None):
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if k
+            not in {
+                "AI_PACK_DIR",
+                "AI_SKILLS_DIR",
+                "CURSOR_PACK_DIR",
+                "CURSOR_SKILLS_DIR",
+                "CODEX_HOME",
+                "FEF_SIBLING_ROOTS",
+                "FEF_SIBLING_PARENT",
+            }
+        }
+        env["HOME"] = env["USERPROFILE"] = str(self.home)
+        env["FEF_SIBLING_PARENT"] = ""  # isolate from /workspace siblings
+        if env_extra:
+            env.update(env_extra)
+        return subprocess.run(
+            [sys.executable, "-X", "utf8", str(SCRIPT), *args],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            cwd=str(ROOT),
+            env=env,
+        )
+
+    def test_siblings_only_dry_run(self):
+        proc = self._run("--siblings-only", "--siblings", str(self.sib), "--dry-run")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("Would install", proc.stdout)
+        self.assertIn("Siblings installed:", proc.stdout)
+        self.assertIn("Hosts installed: 0", proc.stdout)
+        self.assertFalse((self.sib / ".claude" / "skills" / "fef-claude").exists())
+
+    def test_siblings_only_installs_pack(self):
+        proc = self._run("--siblings-only", "--siblings", str(self.sib))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        pack = self.sib / ".claude" / "skills" / "fef-claude"
+        self.assertTrue((pack / "CLAUDE.md").is_file(), proc.stdout)
+        self.assertTrue((pack / "SKILL.md").is_file())
+        self.assertIn("Siblings installed: 1", proc.stdout)
+
+    def test_auto_with_explicit_sibling_dry_run(self):
+        (self.home / ".claude").mkdir()
+        proc = self._run("--auto", "--siblings", str(self.sib), "--dry-run")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("Hosts installed:", proc.stdout)
+        self.assertIn("Siblings installed:", proc.stdout)
+        self.assertIn("Would install", proc.stdout)
+
+    def test_print_bootstrap(self):
+        proc = self._run("--print-bootstrap")
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("install_pack.py --auto", proc.stdout)
+
+    def test_list_targets_includes_siblings(self):
+        proc = self._run("--list-targets", "--siblings", str(self.sib))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("Siblings:", proc.stdout)
+        self.assertIn(str(self.sib), proc.stdout)
+
+    def test_agents_md_sibling_gets_agents_skills(self):
+        agents_sib = self.parent / "agents-app"
+        agents_sib.mkdir()
+        (agents_sib / ".git").mkdir()
+        (agents_sib / "AGENTS.md").write_text("# x\n", encoding="utf-8")
+        proc = self._run("--siblings-only", "--siblings", str(agents_sib))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertTrue(
+            (agents_sib / ".agents" / "skills" / "fef-claude" / "CLAUDE.md").is_file()
+        )
 
 
 if __name__ == "__main__":
