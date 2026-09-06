@@ -4,6 +4,25 @@ Framework for Engineering Excellence (FEF) is a Claude-oriented engineering prom
 
 Its goal is to help Claude produce more consistent, evidence-aware, reviewable, and enterprise-grade technical outputs.
 
+**한국어:** [README.ko.md](README.ko.md)
+
+## For AI agents (repo URL only)
+
+```bash
+git clone https://github.com/yjj3019/claude.git
+cd claude
+python3 scripts/install_pack.py --auto
+# then: Claude Code → open this repo as workspace (loads CLAUDE.md)
+# Claude Projects → paste CLAUDE.md into Project Instructions; attach packs as needed
+```
+
+- `python3 scripts/install_pack.py --auto` — detect Claude / Codex / Grok / Cursor / AGENTS hosts and copy the pack to each skills root as `fef-claude/`
+- `python3 scripts/install_pack.py --print-claude` — exact paste steps for Claude Project Instructions
+- `python3 scripts/install_pack.py --check` — verify files and run `validate_framework.py` when tests are present
+- `python3 scripts/install_pack.py --help` — destinations, `--dest`, `--with-tests`, `--dry-run`
+
+Preferred Claude Code path: **open this clone as the workspace** so `CLAUDE.md` loads at the root. Skill copies are for hosts that discover packs under `~/.claude/skills` (and similar).
+
 ## Core Idea
 
 FEF does not try to change the underlying model.
@@ -23,6 +42,38 @@ Operational Integrity keeps file, tool, artifact, and completion claims evidence
 ## Memory Bootstrap
 
 Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` as the persistent working-memory bootstrap, then load only the supporting files it names for the task.
+
+## Context Budget + Model-Invariant Floor
+
+**Context Budget (normal use):** inlined Kernel via `CLAUDE.md` + packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do **not** preload every module, domain, workflow, or doc.
+
+**Model-Invariant Floor** (see `docs/model-usage.md`): regardless of Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5:
+
+1. Same Kernel + Operational Integrity (evidence, completion, authorization).
+2. Same Context Budget — do not dump extra docs onto weaker or stronger models to “compensate.”
+3. Same loading map / task routing.
+4. Same output contract (`[unverified]`, smallest complete change, no fake completion).
+5. When blocked: **escalate the model** (`Haiku` → `Sonnet` → `Opus` → `Fable`); do **not** expand unrelated packs.
+
+Advisory defaults (verify availability): everyday / when unsure → Sonnet 5; everyday complex → Opus 5; hardest/longest → Fable 5.1; light Notion/doc recording → Haiku 4.5.
+
+
+## Latency & lightness
+
+**Always-on (simple/low-risk cold-start):** `CLAUDE.md` inlined Kernel only. Do not autoload `docs/model-usage.md`, README, CHANGELOG, PROGRESS, SESSION_LOG, optimization reports, or full modules/domains.
+
+**Deferred:** `docs/loading-map.md` and the packs it names, only for substantial tasks within Load Limits. Prefer latency over completeness of pack load.
+
+**Model choice ≠ more docs:** Haiku / Sonnet / Opus / Fable share the same tiny Kernel; escalate the model when blocked — do not dump packs to compensate. Load `docs/model-usage.md` only when choosing or switching models (or tuning effort/thinking).
+
+**Projects warning:** Attaching the entire repository as Project Knowledge slows models and defeats the cold-start contract. Paste `CLAUDE.md` into Project Instructions and attach only the packs the task needs.
+
+Estimate structural load with `python scripts/measure_load.py` (prints a **simple Q&A cold-start** line). This measures pack bytes/tokens, not host wall-clock latency.
+
+
+## Adaptive Effort
+
+FEF auto-tiers work by request complexity (L0 Light docs → L3 Hardest): **Sonnet is the default** for everyday coding/Q&A/edits (and when unsure); Haiku only for light Notion/doc recording; Opus for multi-step everyday work; Fable for deep/long-running tasks. Escalate the **model before packs**, and keep L0–L1 free of model-usage/README/PROGRESS preloads so cold-start stays fast. Details: `docs/adaptive-effort.md`.
 
 ## Recommended Usage
 
@@ -61,7 +112,7 @@ Naming note: FEF `workflows/` contains Markdown task procedures loaded as prompt
 
 - Keep the kernel small.
 - Add capability through modules.
-- Prefer evidence over confident recall.
+- Prefer evidence over memory.
 - Reduce hallucination by requiring uncertainty markers.
 - Improve consistency through review and golden tests.
 
@@ -71,6 +122,9 @@ GitHub Actions runs the same validator on every push and pull request. Run it lo
 
 ```powershell
 python scripts/validate_framework.py
+python scripts/sync_kernel.py --check
+python scripts/measure_load.py
+python -m unittest discover -s tests -p "test_*.py"
 ```
 
 ## Task Routing Examples
@@ -109,7 +163,9 @@ python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
 
 - [Claude Projects setup](docs/ClaudeProjects.md)
 - [Claude Code setup](docs/ClaudeCode.md)
+- [Installation](docs/Installation.md)
+- [Model usage + invariant floor](docs/model-usage.md)
 - [Harness scripts](scripts/README.md)
 - [Golden Test coverage](docs/golden-test-coverage.md)
 - [Release and versioning](docs/release-process.md)
-
+- [Simulation-10 report (2026-09-06)](docs/simulation-10-report-2026-09-06.md)
