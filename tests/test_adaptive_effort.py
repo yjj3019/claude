@@ -233,6 +233,14 @@ class AdaptiveEffortTests(unittest.TestCase):
                 )
                 self.assertEqual(errors, [])
 
+    def test_s4_05_tier_signals_no_lone_noun_overfire(self):
+        """S4-05: lone 장애/incident/제안서 do not inflate tier; compounds do."""
+        self.assertEqual(classify_tier("노션에 장애 이력 메모 추가"), "L0")
+        self.assertEqual(classify_tier("incidental cleanup of the README"), "L1")
+        self.assertEqual(classify_tier("원인 분석 부탁드립니다"), "L2")
+        self.assertEqual(classify_tier("프로덕션 장애 근본 원인 분석"), "L3")
+        self.assertEqual(classify_tier("장애 대응 플레이북 작성"), "L2")
+
     def test_korean_l3_signals_match_english_root_cause(self):
         """R2-P0-KO-TIER-BLIND + R2-P2-KO-SPACING"""
         self.assertEqual(classify_tier("프로덕션 장애 근본 원인 분석"), "L3")

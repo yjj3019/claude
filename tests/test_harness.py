@@ -78,6 +78,25 @@ class HarnessTest(unittest.TestCase):
         self.assertIn("policies/FileHandling.md", result["policies"])
         self.assertIn("policies/ToolExecution.md", result["policies"])
 
+    def test_s4_03_coding_fallback_requires_code_context(self):
+        """S4-03: prose error/fix stays non-coding; path-context coding allowed."""
+        for task in (
+            "회의록에 에러 내용 정리해줘",
+            "이메일에 오류 고쳐줘",
+            "what is the error budget concept?",
+            "이 문서의 오탈자 수정해",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertNotEqual(result["task_type"], "coding", task)
+        for task in (
+            "what is causing this error in main.py?",
+            "Fix the bug in auth.py",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertEqual(result["task_type"], "coding", task)
+
     def test_coding_fallback_does_not_overfire_on_qa_or_typo(self):
         """R2-P1-FALLBACK-OVERFIRE"""
         for task in (

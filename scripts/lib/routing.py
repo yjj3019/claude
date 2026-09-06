@@ -8,91 +8,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONFIG = ROOT / "config" / "routes.json"
 
-# R2-P1-FALLBACK-OVERFIRE: weak coding fallbacks must not pull the Coding full
-# pack for prose/Q&A/typo-fix asks. Primary keywords still match normally.
-_CODING_FALLBACK_BLOCKERS = (
-    "what is",
-    "what are",
-    "what's",
-    "concept",
-    "개념",
-    "오탈자",
-    "typo",
-    "typos",
-    "proofread",
-    "맞춤법",
-    "spelling",
-    "grammar",
-    "error budget",
-    "문서의 오탈",
-    "오탈자 수정",
-)
-
-# S3-06: high_risk requires keyword ∧ (action verb OR non-question form).
-# Definition/trivia questions must not elevate even if a verb-ish word appears.
-_ACTION_VERBS = (
-    # Korean
-    "배포",
-    "변경",
-    "적용",
-    "마이그레이션",
-    "교체",
-    "구성",
-    "설정",
-    "설계",
-    "계획",
-    "검토",
-    "분석",
-    "작성",
-    "수정",
-    "점검",
-    "전환",
-    "이관",
-    # English (+ sensible variants)
-    "deploy",
-    "deploying",
-    "deployment",
-    "migrate",
-    "migrating",
-    "migration",
-    "apply",
-    "applying",
-    "configure",
-    "configuring",
-    "configuration",
-    "rollout",
-    "roll out",
-    "plan",
-    "planning",
-    "review",
-    "reviewing",
-    "design",
-    "designing",
-    "upgrade",
-    "upgrading",
-    "patch",
-    "patching",
-    "audit",
-    "auditing",
-)
-
-# S4-04: compound definition forms only — bare "알려줘" / "뭐야" removed so
-# genuine action asks ("…배포 절차 알려줘") are not trivia-suppressed.
-_DEFINITION_OR_TRIVIA_PATTERNS = (
-    "뜻이 뭐야",
-    "차이가 뭐야",
-    "차이점이 뭐야",
-    "규칙이 뭐야",
-    "이름이 뭐야",
-    "무엇인가",
-    "무엇인가요",
-    "뭔가요",
-    "what is the meaning",
-    "meaning of",
-    " mean?",
-    " mean ",
-)
-
 
 def load_config(path: Path = DEFAULT_CONFIG) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -125,15 +40,15 @@ def _matches(text: str, keywords: list[str]) -> list[str]:
     return found
 
 
-def _coding_fallback_blocked(text: str) -> bool:
-    """True when coding fallback keywords should not fire (Q&A / typo prose)."""
-    return any(blocker in text for blocker in _CODING_FALLBACK_BLOCKERS)
+def _gate(config: dict) -> dict:
+    return config.get("high_risk_gate") or {}
 
 
-def _is_definition_or_trivia(text: str) -> bool:
+def _is_definition_or_trivia(text: str, config: dict | None = None) -> bool:
     """True for definition / trivia asks that must not elevate to high risk."""
     t = text.casefold()
-    for pattern in _DEFINITION_OR_TRIVIA_PATTERNS:
+    patterns = list((_gate(config or {}).get("trivia_patterns") or []))
+    for pattern in patterns:
         if pattern.casefold() in t:
             return True
     # "what does X mean" / "X means what"
@@ -146,36 +61,27 @@ def _is_definition_or_trivia(text: str) -> bool:
     return False
 
 
-def _has_action_verb(text: str) -> bool:
-    return bool(_matches(text, list(_ACTION_VERBS)))
+def _has_action_verb(text: str, config: dict | None = None) -> bool:
+    verbs = list((_gate(config or {}).get("action_verbs") or []))
+    return bool(_matches(text, verbs))
 
 
-def _is_question_form(text: str) -> bool:
+def _is_question_form(text: str, config: dict | None = None) -> bool:
     stripped = text.strip()
     if stripped.endswith("?"):
         return True
     t = stripped.casefold()
-    question_markers = (
-        "뭐야",
-        "인가요",
-        "일까",
-        "인가",
-        "할까",
-        "알려줘",
-        "알려 줘",
-        "how ",
-        "why ",
-        "when ",
-        "where ",
-        "which ",
-        "who ",
-        "what ",
-        "what's",
+    markers = list(
+        (_gate(config or {}).get("question_markers") or ())
     )
-    return any(marker in t for marker in question_markers)
+    return any(marker in t for marker in markers)
 
 
-def high_risk_hits(text: str, keywords: list[str]) -> list[str]:
+def high_risk_hits(
+    text: str,
+    keywords: list[str],
+    config: dict | None = None,
+) -> list[str]:
     """Return high-risk keyword hits that also pass the S3-06/S4-04 gate.
 
     Order (S4-04):
@@ -185,17 +91,40 @@ def high_risk_hits(text: str, keywords: list[str]) -> list[str]:
       4) else if non-question → hits
       5) else []
     Trivia suppress only when: no action verb ∧ question/definition form.
+    Gate lists load from config/routes.json high_risk_gate (S4-06).
     """
     hits = _matches(text, keywords)
     if not hits:
         return []
-    if _has_action_verb(text):
+    if _has_action_verb(text, config):
         return hits
-    if _is_definition_or_trivia(text):
+    if _is_definition_or_trivia(text, config):
         return []
-    if not _is_question_form(text):
+    if not _is_question_form(text, config):
         return hits
     return []
+
+
+def _fallback_context_ok(text: str, route: dict) -> bool:
+    """S4-03: weak fallback fires only with code-context tokens or path regex."""
+    requires_any = list(route.get("fallback_requires_any") or [])
+    requires_pattern = list(route.get("fallback_requires_pattern") or [])
+    if not requires_any and not requires_pattern:
+        return True
+    if requires_any and _matches(text, requires_any):
+        return True
+    # Also allow simple substring for non-ascii / spaced tokens in requires_any
+    t = text.casefold()
+    for token in requires_any:
+        if token.casefold() in t:
+            return True
+    for pattern in requires_pattern:
+        try:
+            if re.search(pattern, text, flags=re.IGNORECASE):
+                return True
+        except re.error:
+            continue
+    return False
 
 
 def _unmapped_result(
@@ -248,8 +177,10 @@ def _unmapped_result(
 
 def detect(task: str, config: dict) -> dict:
     text = task.casefold()
-    # R2-P0-UNMAPPED-HIGHRISK + S3-06: evaluate gated high-risk before unmapped.
-    high_risk = high_risk_hits(text, config.get("high_risk_keywords", []))
+    # R2-P0-UNMAPPED-HIGHRISK + S3-06/S4-04: evaluate gated high-risk before unmapped.
+    high_risk = high_risk_hits(
+        text, config.get("high_risk_keywords", []), config=config
+    )
 
     def candidates_for(key: str) -> list[tuple]:
         candidates = []
@@ -264,8 +195,8 @@ def detect(task: str, config: dict) -> dict:
         fallback_candidates = []
         for item in candidates_for("fallback_keywords"):
             route = item[2]
-            # R2-P1-FALLBACK-OVERFIRE: gate weak coding fallbacks.
-            if route.get("id") == "coding" and _coding_fallback_blocked(text):
+            # S4-03: coding (and any gated) fallback needs code-context allowlist.
+            if not _fallback_context_ok(text, route):
                 continue
             fallback_candidates.append(item)
         candidates = fallback_candidates
@@ -308,7 +239,6 @@ def detect(task: str, config: dict) -> dict:
     warnings: list[str] = []
     domain_limit = config.get("limits", {}).get("domains", 2)
     # R2-P1-DOMAIN-OVERFLOW: rank-based top-N with explicit warning (no silent trim).
-    # Rank: more keyword hits first, then earlier mention in the ask (never hide drops).
     if len(selected_domains) > domain_limit:
         def _rank_key(item: tuple) -> tuple:
             domain, found = item
