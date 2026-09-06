@@ -114,6 +114,20 @@ class HarnessTest(unittest.TestCase):
                 self.assertNotEqual(result["risk_level"], "high")
                 self.assertTrue(result.get("kernel_only_safe", True) or result["risk_level"] != "high")
 
+    def test_s4_04_action_overrides_trivia_suppress(self):
+        """S4-04: genuine asks with action verbs stay high despite 알려줘/뭐야."""
+        for task in (
+            "고객사 운영 환경에 패치 배포 절차 알려줘",
+            "production DB 마이그레이션 순서 알려줘",
+            "보안 정책 적용 방법이 뭐야? 지금 바로 운영에 반영해야 해",
+            "what does the production rollout plan look like? apply it today",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertEqual(result["risk_level"], "high", task)
+                self.assertFalse(result["kernel_only_safe"], task)
+                self.assertIn("policies/Evidence.md", result["policies"])
+
     def test_genuine_high_risk_migration_plan_stays_high(self):
         """S3-06: action+keyword genuine ask stays high with Evidence."""
         result = detect(

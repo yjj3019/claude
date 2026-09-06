@@ -76,23 +76,17 @@ _ACTION_VERBS = (
     "auditing",
 )
 
+# S4-04: compound definition forms only — bare "알려줘" / "뭐야" removed so
+# genuine action asks ("…배포 절차 알려줘") are not trivia-suppressed.
 _DEFINITION_OR_TRIVIA_PATTERNS = (
     "뜻이 뭐야",
     "차이가 뭐야",
     "차이점이 뭐야",
     "규칙이 뭐야",
     "이름이 뭐야",
-    "뭐야?",
-    "뭐야",
-    "알려줘",
-    "알려 줘",
     "무엇인가",
     "무엇인가요",
     "뭔가요",
-    "what does",
-    "what is",
-    "what are",
-    "what's",
     "what is the meaning",
     "meaning of",
     " mean?",
@@ -167,6 +161,8 @@ def _is_question_form(text: str) -> bool:
         "일까",
         "인가",
         "할까",
+        "알려줘",
+        "알려 줘",
         "how ",
         "why ",
         "when ",
@@ -180,18 +176,23 @@ def _is_question_form(text: str) -> bool:
 
 
 def high_risk_hits(text: str, keywords: list[str]) -> list[str]:
-    """Return high-risk keyword hits that also pass the S3-06 action/question gate.
+    """Return high-risk keyword hits that also pass the S3-06/S4-04 gate.
 
-    Require: high_risk_keywords ∧ (action verbs OR non-question form).
-    Definition/trivia patterns never elevate.
+    Order (S4-04):
+      1) keyword hits 없으면 []
+      2) action_verb 있으면 → hits 유지 (trivia 무시)
+      3) else if definition/trivia(결합형) → []
+      4) else if non-question → hits
+      5) else []
+    Trivia suppress only when: no action verb ∧ question/definition form.
     """
     hits = _matches(text, keywords)
     if not hits:
         return []
-    if _is_definition_or_trivia(text):
-        return []
     if _has_action_verb(text):
         return hits
+    if _is_definition_or_trivia(text):
+        return []
     if not _is_question_form(text):
         return hits
     return []
