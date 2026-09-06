@@ -21,6 +21,7 @@ HEAVY = (
     "CHANGELOG.md",
     "README.md",
     "docs/model-usage.md",
+    "docs/adaptive-effort.md",
 )
 
 

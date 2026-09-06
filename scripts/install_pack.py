@@ -140,7 +140,7 @@ Claude-oriented engineering guidance: Kernel, task packs, routing, and integrity
 - `CLAUDE.md` — runtime entry (inlined Kernel + Autoload)
 - `AGENTS.md` — lightweight repository entry for AGENTS-compatible hosts
 - `kernel/` `policies/` `modules/` `domains/` `reviewers/` `workflows/`
-- `docs/loading-map.md` — task pack routing; `docs/model-usage.md` — model floor
+- `docs/loading-map.md` — task pack routing; `docs/adaptive-effort.md` — L0–L3 tiers; `docs/model-usage.md` — model floor
 - `scripts/` — sync / validate / measure / install / detect_task
 
 ## Context Budget

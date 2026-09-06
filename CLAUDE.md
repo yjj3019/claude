@@ -83,29 +83,33 @@ Use for substantial technical outputs.
 
 ## Latency Contract
 
-**Latency > completeness of pack load.** Simple/low-risk cold-start = inlined Kernel only. Never autoload model-usage, README, CHANGELOG, PROGRESS, SESSION_LOG, optimization reports, or full modules/domains. On-demand via `docs/loading-map.md` within Load Limits. Escalate model when blocked — never dump packs. Haiku/Sonnet/Opus/Fable share the same tiny Kernel.
+**Latency > completeness of pack load.** Simple/low-risk cold-start = Kernel only. Never autoload model-usage, README, CHANGELOG, PROGRESS, SESSION_LOG, reports, or full packs. Substantial → `docs/loading-map.md` within Load Limits. Escalate model before packs. Same Kernel for Haiku/Sonnet/Opus/Fable.
+
+## Adaptive Effort
+
+Classify ask first (object+risk); lowest safe L0–L3; escalate **model before packs**. Table: `docs/adaptive-effort.md`. L0=Kernel only; no model-usage/README/PROGRESS on L0–L1.
 
 ## Autoload Protocol
 
-New session: read this file first as persistent working memory, then Autoload (repo bootstrap only — not fine-tuning or hidden memory mutation).
+New session: read this file first as persistent working memory, then Autoload (repo bootstrap only).
 
-1. Apply inlined Kernel; open `kernel/` only when inspecting/editing Kernel behavior.
-2. Simple low-risk → Kernel only (no loading-map, no model-usage).
+1. Apply inlined Kernel; open `kernel/` only when inspecting/editing Kernel.
+2. Simple/low-risk → Kernel only (no loading-map, no model-usage).
 3. Substantial → `docs/loading-map.md` and only packs it names.
-4. Missing critical Kernel → stop/report. Missing required pack → report; Kernel-only limited mode only if useful and safe. Missing optional pack → report when confidence is affected, then continue. Never silently substitute packs.
+4. Missing critical Kernel → stop/report. Missing required pack → report; Kernel-only limited mode only if useful/safe. Missing optional → report if confidence affected; continue. Never silently substitute packs.
 
 ## Context Budget
 
 - Always-on: inlined Required Kernel only (simple/low-risk).
 - Substantial: Kernel + `docs/loading-map.md` packs within Load Limits (Module 1, Domain ≤2, Workflow 1, Reviewer 1, Policies ≤3).
-- Do **not** preload every module, domain, workflow, reviewer, or `docs/` file. Prefer loading-map / `scripts/detect_task.py` over a full-tree dump.
-- **Model-Invariant Floor:** Opus / Fable / Sonnet / Haiku keep the same Kernel, Integrity Policies, Context Budget, and loading map. When blocked, escalate the model — do not expand unrelated packs. Load `docs/model-usage.md` only when choosing/switching models or tuning effort/thinking — not every turn.
+- Do **not** preload every module/domain/workflow/reviewer/`docs/` file. Prefer loading-map / `scripts/detect_task.py`.
+- **Model-Invariant Floor:** Opus / Fable / Sonnet / Haiku keep the same Kernel, Integrity Policies, Context Budget, and loading map. When blocked, escalate the model — do not expand unrelated packs. Load `docs/model-usage.md` only when choosing/switching or tuning effort — not every turn.
 
 ## Optional Runtime Packs
 
-- `docs/loading-map.md` — substantial-task routing
+- `docs/loading-map.md` — routing; `docs/adaptive-effort.md` — L0–L3 tiers
 - `docs/context-protocol.md` — frame substantial tasks
-- `docs/model-usage.md` — choose/switch models or tune effort/thinking only
+- `docs/model-usage.md` — choose/switch models or tune effort only
 - `docs/knowledge-governance.md` — knowledge/ops audits
 
 Load only what the task needs.
@@ -125,7 +129,7 @@ Precedence decides action; evidence priority decides belief. Tool/source/log/doc
 
 ## Runtime Rules
 
-- Simple/low-risk → Kernel only. Substantial artifacts → loading-map.
+- Simple/low-risk → Kernel only. Substantial → loading-map.
 - ≤1 reviewer per artifact; do not review reviewer output.
 - No new permanent layers; add files inside existing directories.
 - Do not claim read/change/create/test/validate success without success evidence.

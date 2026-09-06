@@ -41,6 +41,11 @@ FEF는 모델 자체를 바꾸지 않습니다. 작은 상시 Kernel, 작업별 
 
 **지연 로드:** 본격 작업만 `docs/loading-map.md`와 지정 팩. 모델이 막히면 팩을 덤프하지 말고 모델을 올립니다. Project Knowledge에 저장소 전체를 붙이면 응답이 느려집니다 — `CLAUDE.md`만 Instructions에 넣고 필요한 팩만 첨부하세요.
 
+
+## Adaptive Effort (적응형 노력)
+
+요청 복잡도(L0 Quick → L3 Hardest)에 따라 모델을 자동 조절합니다: 단순 사실=Haiku(Kernel만), 일상 루틴=Sonnet, 일상 복잡=Opus, 최장/최난=Fable. 안전한 최저 티어에서 시작하고, 팩을 늘리기 전에 **모델을 먼저** 올리며, L0–L1에서는 model-usage/README/PROGRESS를 미리 로드하지 않아 cold-start를 유지합니다. 상세: `docs/adaptive-effort.md`.
+
 ## 시작
 
 1. `CLAUDE.md`를 세션 부트스트랩으로 읽습니다.

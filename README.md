@@ -70,6 +70,11 @@ Advisory defaults (verify availability): everyday complex → Opus 5; hardest/lo
 
 Estimate structural load with `python scripts/measure_load.py` (prints a **simple Q&A cold-start** line). This measures pack bytes/tokens, not host wall-clock latency.
 
+
+## Adaptive Effort
+
+FEF auto-tiers work by request complexity (L0 Quick → L3 Hardest): Haiku for Kernel-only facts, Sonnet for routine one-file edits, Opus for everyday multi-step work, Fable for deep/long-running tasks. Start at the lowest safe tier, escalate the **model before packs**, and keep L0–L1 free of model-usage/README/PROGRESS preloads so cold-start stays fast. Details: `docs/adaptive-effort.md`.
+
 ## Recommended Usage
 
 For Claude Code, copy this repository into your Claude working directory and use `CLAUDE.md` as the always-loaded instruction file.

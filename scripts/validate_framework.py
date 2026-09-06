@@ -21,6 +21,7 @@ HEAVY_NON_DEFAULT_PATHS = (
     "CHANGELOG.md",
     "README.md",
     "docs/model-usage.md",
+    "docs/adaptive-effort.md",
 )
 HEAVY_NAME_FRAGMENTS = ("optimization", "simulation-", "-report")
 
@@ -283,6 +284,41 @@ def validate_latency_contract_phrases(errors: list[str]) -> None:
     else:
         fail("missing docs/model-usage.md", errors)
 
+
+def validate_adaptive_effort(errors: list[str]) -> None:
+    """Require Adaptive Effort router doc + entry pointers without bloating cold-start."""
+    adaptive = ROOT / "docs" / "adaptive-effort.md"
+    if not adaptive.is_file():
+        fail("missing docs/adaptive-effort.md", errors)
+    else:
+        body = adaptive.read_text(encoding="utf-8-sig")
+        for phrase in (
+            "## Tier Table",
+            "L0 Quick",
+            "L1 Routine",
+            "L2 Complex everyday",
+            "L3 Hardest",
+            "Escalate model before expanding packs",
+            "Never preload",
+            "Load Limits",
+            "L0 forbids multi-pack load",
+        ):
+            if phrase not in body:
+                fail(f"docs/adaptive-effort.md missing required phrase: {phrase}", errors)
+    for rel, phrases in (
+        ("CLAUDE.md", ("## Adaptive Effort", "docs/adaptive-effort.md", "model before packs")),
+        ("AGENTS.md", ("Adaptive Effort", "docs/adaptive-effort.md")),
+        ("docs/model-usage.md", ("## Adaptive Effort", "docs/adaptive-effort.md")),
+    ):
+        target = ROOT / rel
+        if not target.is_file():
+            fail(f"missing {rel}", errors)
+            continue
+        body = target.read_text(encoding="utf-8-sig")
+        for phrase in phrases:
+            if phrase not in body:
+                fail(f"{rel} missing adaptive-effort phrase: {phrase}", errors)
+
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
     for path in (ROOT / "policies").glob("*.md"):
@@ -304,6 +340,7 @@ def main() -> int:
     validate_claude_entry_budget(errors)
     validate_heavy_paths_not_default(errors)
     validate_latency_contract_phrases(errors)
+    validate_adaptive_effort(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:

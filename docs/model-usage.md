@@ -41,6 +41,19 @@ Regardless of which model is selected (Opus / Fable / Sonnet / Haiku):
 
 Kernel and Integrity Policies remain model-independent. Model choice does not relax Autoload Protocol or Instruction Precedence.
 
+## Adaptive Effort / Complexity Router
+
+Route by **request complexity**, not by available files. Full table and rules: `docs/adaptive-effort.md`.
+
+| Tier | Default model | Load |
+|---|---|---|
+| L0 Quick | Haiku 4.5 | Kernel only |
+| L1 Routine | Sonnet 5 | Kernel + ≤1 module/section |
+| L2 Complex everyday | Opus 5 (1M) | Kernel + loading-map Load Limits |
+| L3 Hardest / long-running | Fable 5.1 | Kernel + map caps; ≤1 workflow/reviewer if risk needs it |
+
+Rules: classify from the ask (object + risk); start lowest safe tier; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; L0 forbids multi-pack load; L3 still respects Load Limits.
+
 ## Role Split
 
 | Role | Best Use | Avoid |
