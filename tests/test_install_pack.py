@@ -202,6 +202,34 @@ class InstallPackTests(unittest.TestCase):
                 self.home / "x",
             )
 
+
+    def test_default_install_keeps_runtime_docs_only(self):
+        dest = self.home / "skills"
+        proc = self._run("--dest", str(dest))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        docs = dest / "fef-claude" / "docs"
+        names = {p.name for p in docs.iterdir()}
+        expected = {
+            "loading-map.md",
+            "adaptive-effort.md",
+            "model-usage.md",
+            "context-protocol.md",
+            "knowledge-governance.md",
+            "Installation.md",
+            "FAQ.md",
+        }
+        self.assertEqual(names, expected)
+        self.assertFalse((docs / "releases").exists())
+        self.assertFalse((docs / "simulation-round2-2026-09-06.md").exists())
+
+    def test_installed_tree_passes_validate_framework(self):
+        dest = self.home / "skills"
+        proc = self._run("--dest", str(dest))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        pack = dest / "fef-claude"
+        code = install_pack.run_validate(pack)
+        self.assertEqual(code, 0)
+
     def test_verify_reports_gutted_install(self):
         dest_root = self.home / "skills"
         pack = install_pack.install_pack(dest_root)

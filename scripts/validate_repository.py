@@ -55,10 +55,10 @@ def run_sync_kernel_check() -> int:
 
 
 def run_measure_load_budget() -> int:
-    """F-08: fail if CLAUDE.md cold-start exceeds 7000 bytes."""
+    """S3-01: fail if CLAUDE.md+AGENTS.md cold-start exceeds 9000 bytes."""
     script = ROOT / "scripts" / "measure_load.py"
     result = subprocess.run(
-        ["python", str(script), "--fail-over-cold-start", "7000"],
+        ["python", str(script), "--fail-over-cold-start", "9000"],
         cwd=ROOT,
         text=True,
         capture_output=True,

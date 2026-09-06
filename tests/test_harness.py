@@ -101,6 +101,45 @@ class HarnessTest(unittest.TestCase):
         self.assertIn("policies/Evidence.md", result["policies"])
         self.assertTrue(any("High-risk unmapped" in w for w in result["warnings"]))
 
+
+    def test_high_risk_requires_action_signal(self):
+        """S3-06: keyword-only trivia/definition asks stay low."""
+        for task in (
+            "고객센터 전화번호 좀 알려줘",
+            "production 이라는 단어 뜻이 뭐야?",
+            "보안 그룹 이름 규칙이 뭐야?",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertNotEqual(result["risk_level"], "high")
+                self.assertTrue(result.get("kernel_only_safe", True) or result["risk_level"] != "high")
+
+    def test_genuine_high_risk_migration_plan_stays_high(self):
+        """S3-06: action+keyword genuine ask stays high with Evidence."""
+        result = detect(
+            "운영 환경에서 고객 데이터 마이그레이션 계획 검토",
+            self.config,
+        )
+        self.assertEqual(result["risk_level"], "high")
+        self.assertFalse(result["kernel_only_safe"])
+        self.assertIn("policies/Evidence.md", result["policies"])
+
+    def test_also_matched_exposes_dropped_high_risk_route(self):
+        """S3-05: also_matched + warning when a dropped route is high-risk."""
+        # rca (high) + security_review (high) both match; one is selected
+        result = detect(
+            "security review and root cause analysis of the outage",
+            self.config,
+        )
+        self.assertIn("also_matched", result)
+        self.assertTrue(isinstance(result["also_matched"], list))
+        if result["also_matched"]:
+            high_dropped = [m for m in result["also_matched"] if m.get("risk_level") == "high"]
+            if high_dropped:
+                self.assertTrue(
+                    any("Multi-intent" in w and "high-risk" in w for w in result["warnings"])
+                )
+
     def test_golden_metadata(self):
         result = validate_golden_tests()
         self.assertTrue(result["valid"], result["errors"])

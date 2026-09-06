@@ -24,3 +24,13 @@ Review for:
 - rollback
 - troubleshooting
 - reuse
+
+## Output
+
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
+
+Do not perform a second review pass unless explicitly requested.

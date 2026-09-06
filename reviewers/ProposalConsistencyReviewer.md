@@ -34,10 +34,13 @@ If severity is ambiguous, classify one level lower and state what evidence would
 
 ## Output
 
-1. Critical inconsistencies
-2. Unsupported or stale claims
-3. Missing dependencies or requirements
-4. Recommended minimal corrections
-5. Remaining verification items
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
+
+Also call out: unsupported or stale claims; missing dependencies or requirements;
+recommended minimal corrections; remaining verification items.
 
 Do not perform more than one review pass unless explicitly requested. Do not invoke another reviewer for the same artifact.

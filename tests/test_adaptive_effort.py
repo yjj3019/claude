@@ -40,6 +40,8 @@ class AdaptiveEffortTests(unittest.TestCase):
         self.assertIn("## Adaptive Effort", claude)
         self.assertIn("docs/adaptive-effort.md", claude)
         self.assertIn("Adaptive Effort", agents)
+        self.assertIn("CLAUDE.md", agents)
+        self.assertIn("docs/adaptive-effort.md", agents)
         self.assertIn("## Adaptive Effort", model_usage)
         self.assertLessEqual(
             len(claude.encode("utf-8")),

@@ -7,8 +7,9 @@ live in markdown_sections.py for docs that need H2 scoping.
 
 Structural token/load estimates only — not host wall-clock latency benchmarks.
 
-Latency budget (documented): simple Q&A cold-start = CLAUDE.md Kernel entry only.
-Default fail threshold for --fail-over-cold-start is MAX_COLD_START_BYTES (7000).
+Latency budget (documented): simple Q&A cold-start = CLAUDE.md + AGENTS.md
+(host may inject both; see PROGRESS.md pack-ablation correction). Default
+fail threshold for --fail-over-cold-start is MAX_COLD_START_BYTES (9000).
 """
 from __future__ import annotations
 
@@ -19,13 +20,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CLAUDE = ROOT / "CLAUDE.md"
+AGENTS = ROOT / "AGENTS.md"
 ROUTES = ROOT / "config" / "routes.json"
 
 PACK_DIRS = ("modules", "domains", "workflows", "reviewers", "policies", "docs", "kernel")
 
-# Structural cold-start budget for Kernel entry (CLAUDE.md). Align with
-# validate_framework.MAX_CLAUDE_ENTRY_BYTES. Not a host latency SLA.
-MAX_COLD_START_BYTES = 7000
+# Structural cold-start budget for CLAUDE.md + AGENTS.md (S3-01). Hosts may
+# inject both (PROGRESS.md). CLAUDE.md alone stays under MAX_CLAUDE_ENTRY_BYTES
+# in validate_framework. Not a host latency SLA.
+MAX_COLD_START_BYTES = 9000
 
 
 def file_bytes(rel: str | Path) -> int:
@@ -82,7 +85,7 @@ def main(argv=None) -> int:
         default=None,
         metavar="BYTES",
         help=(
-            f"exit 1 if CLAUDE.md cold-start exceeds BYTES "
+            f"exit 1 if CLAUDE.md+AGENTS.md cold-start exceeds BYTES "
             f"(default {MAX_COLD_START_BYTES} when flag present without value)"
         ),
     )
@@ -92,18 +95,24 @@ def main(argv=None) -> int:
         print("missing CLAUDE.md or config/routes.json", file=sys.stderr)
         return 1
 
-    entry = file_bytes(CLAUDE)
+    claude_bytes = file_bytes(CLAUDE)
+    agents_bytes = file_bytes(AGENTS) if AGENTS.is_file() else 0
+    entry = claude_bytes + agents_bytes
     data = json.loads(ROUTES.read_text(encoding="utf-8"))
     routes = data.get("routes") or []
 
     print("=" * 72)
     print(
         f"SIMPLE Q&A COLD-START  {entry} bytes  ~{rough_tokens(entry)} tokens  "
-        f"(CLAUDE.md Kernel entry only)"
+        f"(CLAUDE.md + AGENTS.md)"
     )
     print(
-        f"  policy: Latency > completeness of pack load; budget ≤{MAX_COLD_START_BYTES} bytes "
-        f"(structural, not host wall-clock)"
+        f"  breakdown: CLAUDE.md={claude_bytes} AGENTS.md={agents_bytes}; "
+        f"budget ≤{MAX_COLD_START_BYTES} bytes"
+    )
+    print(
+        f"  policy: Latency > completeness of pack load; host may inject both "
+        f"(PROGRESS.md); structural, not host wall-clock"
     )
     print("=" * 72)
     print()
@@ -113,8 +122,8 @@ def main(argv=None) -> int:
     print("-" * 100)
 
     print(
-        f"{'Kernel entry (CLAUDE.md only)':<42} {entry:>8} {rough_tokens(entry):>8}  "
-        f"CLAUDE.md"
+        f"{'Cold-start (CLAUDE.md + AGENTS.md)':<42} {entry:>8} {rough_tokens(entry):>8}  "
+        f"CLAUDE.md, AGENTS.md"
     )
 
     max_route = 0
@@ -124,7 +133,7 @@ def main(argv=None) -> int:
         pack_bytes, present = sum_existing(paths)
         total = entry + pack_bytes
         max_route = max(max_route, total)
-        files = "CLAUDE.md" + ("; " + ", ".join(present) if present else " (packs via detect)")
+        files = "CLAUDE.md+AGENTS.md" + ("; " + ", ".join(present) if present else " (packs via detect)")
         print(f"{label:<42} {total:>8} {rough_tokens(total):>8}  {files}")
 
     dump = entry + all_pack_bytes()
@@ -143,7 +152,7 @@ def main(argv=None) -> int:
 
     if args.fail_over_cold_start is not None and entry > args.fail_over_cold_start:
         print(
-            f"FAIL: simple Q&A cold-start {entry} bytes exceeds budget "
+            f"FAIL: simple Q&A cold-start (CLAUDE+AGENTS) {entry} bytes exceeds budget "
             f"{args.fail_over_cold_start} bytes.",
             file=sys.stderr,
         )

@@ -48,7 +48,7 @@ When reviewing an existing proposal, identify:
 - risks, assumptions, dependencies, exclusions, or customer responsibilities that are hidden, appendix-only, or incomplete
 - contradictions with at least one practical resolution path or decision question
 
-Output severity:
+## Severity
 
 - Critical: submission-blocking contradiction, false claim, unsupported high-impact claim, or requirement miss
 - Major: important gap that weakens evaluation or buyer confidence
@@ -56,5 +56,13 @@ Output severity:
 - Suggestion: optional improvement
 
 If severity is ambiguous, classify one level lower and state what evidence would raise it.
+
+## Output
+
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
 
 Do not perform more than one review pass unless explicitly requested.

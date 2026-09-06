@@ -27,9 +27,11 @@ HEAVY = (
 
 class LatencyLightnessTests(unittest.TestCase):
     def test_claude_entry_under_budget(self):
-        size = len((ROOT / "CLAUDE.md").read_text(encoding="utf-8-sig").encode("utf-8"))
-        self.assertLessEqual(size, validator.MAX_CLAUDE_ENTRY_BYTES)
-        self.assertLessEqual(size, measure_load.MAX_COLD_START_BYTES)
+        claude = len((ROOT / "CLAUDE.md").read_text(encoding="utf-8-sig").encode("utf-8"))
+        agents = len((ROOT / "AGENTS.md").read_text(encoding="utf-8-sig").encode("utf-8"))
+        self.assertLessEqual(claude, validator.MAX_CLAUDE_ENTRY_BYTES)
+        self.assertLessEqual(claude + agents, measure_load.MAX_COLD_START_BYTES)
+        self.assertLessEqual(claude + agents, validator.MAX_COLD_START_BYTES)
 
     def test_heavy_paths_not_in_task_map_or_routes(self):
         referenced: set[str] = set()
@@ -58,7 +60,8 @@ class LatencyLightnessTests(unittest.TestCase):
         agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8-sig")
         model_usage = (ROOT / "docs" / "model-usage.md").read_text(encoding="utf-8-sig")
         self.assertIn("Latency > completeness", claude)
-        self.assertIn("Latency > completeness", agents)
+        self.assertIn("Read `CLAUDE.md` first", agents)
+        self.assertIn("Guidance Layout", agents)
         self.assertIn("## When to Load This Doc", model_usage)
         self.assertIn("when choosing or switching", model_usage)
 

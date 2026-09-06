@@ -25,7 +25,8 @@ Review for:
 - incomplete rollback
 - overconfidence
 
-Output:
+
+## Output
 
 - Critical Issues
 - Major Issues

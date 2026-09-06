@@ -28,6 +28,77 @@ _CODING_FALLBACK_BLOCKERS = (
     "오탈자 수정",
 )
 
+# S3-06: high_risk requires keyword ∧ (action verb OR non-question form).
+# Definition/trivia questions must not elevate even if a verb-ish word appears.
+_ACTION_VERBS = (
+    # Korean
+    "배포",
+    "변경",
+    "적용",
+    "마이그레이션",
+    "교체",
+    "구성",
+    "설정",
+    "설계",
+    "계획",
+    "검토",
+    "분석",
+    "작성",
+    "수정",
+    "점검",
+    "전환",
+    "이관",
+    # English (+ sensible variants)
+    "deploy",
+    "deploying",
+    "deployment",
+    "migrate",
+    "migrating",
+    "migration",
+    "apply",
+    "applying",
+    "configure",
+    "configuring",
+    "configuration",
+    "rollout",
+    "roll out",
+    "plan",
+    "planning",
+    "review",
+    "reviewing",
+    "design",
+    "designing",
+    "upgrade",
+    "upgrading",
+    "patch",
+    "patching",
+    "audit",
+    "auditing",
+)
+
+_DEFINITION_OR_TRIVIA_PATTERNS = (
+    "뜻이 뭐야",
+    "차이가 뭐야",
+    "차이점이 뭐야",
+    "규칙이 뭐야",
+    "이름이 뭐야",
+    "뭐야?",
+    "뭐야",
+    "알려줘",
+    "알려 줘",
+    "무엇인가",
+    "무엇인가요",
+    "뭔가요",
+    "what does",
+    "what is",
+    "what are",
+    "what's",
+    "what is the meaning",
+    "meaning of",
+    " mean?",
+    " mean ",
+)
+
 
 def load_config(path: Path = DEFAULT_CONFIG) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -65,6 +136,67 @@ def _coding_fallback_blocked(text: str) -> bool:
     return any(blocker in text for blocker in _CODING_FALLBACK_BLOCKERS)
 
 
+def _is_definition_or_trivia(text: str) -> bool:
+    """True for definition / trivia asks that must not elevate to high risk."""
+    t = text.casefold()
+    for pattern in _DEFINITION_OR_TRIVIA_PATTERNS:
+        if pattern.casefold() in t:
+            return True
+    # "what does X mean" / "X means what"
+    if re.search(r"\bwhat\s+does\b.+\bmean\b", t):
+        return True
+    if re.search(r"\b(mean|meaning|definition)\b", t) and (
+        "?" in text or t.startswith("what") or "뭐" in t
+    ):
+        return True
+    return False
+
+
+def _has_action_verb(text: str) -> bool:
+    return bool(_matches(text, list(_ACTION_VERBS)))
+
+
+def _is_question_form(text: str) -> bool:
+    stripped = text.strip()
+    if stripped.endswith("?"):
+        return True
+    t = stripped.casefold()
+    question_markers = (
+        "뭐야",
+        "인가요",
+        "일까",
+        "인가",
+        "할까",
+        "how ",
+        "why ",
+        "when ",
+        "where ",
+        "which ",
+        "who ",
+        "what ",
+        "what's",
+    )
+    return any(marker in t for marker in question_markers)
+
+
+def high_risk_hits(text: str, keywords: list[str]) -> list[str]:
+    """Return high-risk keyword hits that also pass the S3-06 action/question gate.
+
+    Require: high_risk_keywords ∧ (action verbs OR non-question form).
+    Definition/trivia patterns never elevate.
+    """
+    hits = _matches(text, keywords)
+    if not hits:
+        return []
+    if _is_definition_or_trivia(text):
+        return []
+    if _has_action_verb(text):
+        return hits
+    if not _is_question_form(text):
+        return hits
+    return []
+
+
 def _unmapped_result(
     *,
     risk_level: str,
@@ -89,6 +221,7 @@ def _unmapped_result(
             "reviewer": None,
             "unmapped": True,
             "kernel_only_safe": False,
+            "also_matched": [],
             "warnings": [
                 "Exact task route was not found.",
                 "High-risk unmapped ask: attached minimal safety "
@@ -106,6 +239,7 @@ def _unmapped_result(
         "reviewer": None,
         "unmapped": True,
         "kernel_only_safe": True,
+        "also_matched": [],
         "warnings": ["Exact task route was not found."],
         "reasons": [],
     }
@@ -113,8 +247,8 @@ def _unmapped_result(
 
 def detect(task: str, config: dict) -> dict:
     text = task.casefold()
-    # R2-P0-UNMAPPED-HIGHRISK: evaluate high-risk BEFORE early unmapped return.
-    high_risk = _matches(text, config.get("high_risk_keywords", []))
+    # R2-P0-UNMAPPED-HIGHRISK + S3-06: evaluate gated high-risk before unmapped.
+    high_risk = high_risk_hits(text, config.get("high_risk_keywords", []))
 
     def candidates_for(key: str) -> list[tuple]:
         candidates = []
@@ -141,7 +275,19 @@ def detect(task: str, config: dict) -> dict:
             high_risk=high_risk,
         )
 
-    _, _, route, matches = max(candidates, key=lambda item: (item[0], item[1]))
+    ranked = sorted(candidates, key=lambda item: (item[0], item[1]))
+    _, _, route, matches = ranked[-1]
+    # S3-05: expose other matched routes (single total-order selection unchanged).
+    also_matched = [
+        {
+            "id": other["id"],
+            "risk_level": other.get("risk_level", "low"),
+            "matches": other_matches,
+        }
+        for _, _, other, other_matches in ranked[:-1]
+        if other["id"] != route["id"]
+    ]
+
     matched_domains = []
     for domain in config["domains"]:
         found = _matches(text, domain["keywords"])
@@ -170,15 +316,25 @@ def detect(task: str, config: dict) -> dict:
             first = min(offsets) if offsets else 10**9
             return (-len(found), first, domain["path"])
 
-        ranked = sorted(selected_domains, key=_rank_key)
-        kept = ranked[:domain_limit]
-        dropped = ranked[domain_limit:]
+        ranked_domains = sorted(selected_domains, key=_rank_key)
+        kept = ranked_domains[:domain_limit]
+        dropped = ranked_domains[domain_limit:]
         drop_names = ", ".join(domain["path"] for domain, _ in dropped)
         warnings.append(
             f"Domain overflow: kept top {domain_limit} by keyword-match rank; "
             f"dropped: {drop_names}. Narrow the task if a dropped domain is required."
         )
         selected_domains = kept
+
+    # S3-05: if a silently dropped multi-intent route is high-risk, warn.
+    for dropped in also_matched:
+        if dropped.get("risk_level") == "high":
+            warnings.append(
+                f"Multi-intent: also matched high-risk route "
+                f"{dropped['id']} (keywords: {', '.join(dropped['matches'])}); "
+                f"selected {route['id']} only — narrow the task if the dropped "
+                f"route is required."
+            )
 
     domains = [domain["path"] for domain, _ in selected_domains]
     domain_reasons = [
@@ -200,6 +356,7 @@ def detect(task: str, config: dict) -> dict:
         "reviewer": route["reviewer"],
         "unmapped": False,
         "kernel_only_safe": False,
+        "also_matched": also_matched,
         "warnings": warnings,
         "reasons": [f"task keywords: {', '.join(matches)}", *domain_reasons],
     }

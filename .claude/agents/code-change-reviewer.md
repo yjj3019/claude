@@ -40,7 +40,7 @@ Review a code change once for scope, root-cause correctness, verification, and s
 
 - Does the completion report match the observable repository state?
 
-Output:
+## Output
 
 - Critical Issues
 - Major Issues

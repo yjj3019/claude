@@ -23,3 +23,13 @@ Review for:
 - tool ambiguity
 - lack of evaluation criteria — a promoted rule needs a record per `modules/PromptEngineering.md`'s "Recording a Promoted Rule's Evaluation"
 - excessive complexity
+
+## Output
+
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
+
+Do not perform a second review pass unless explicitly requested.
