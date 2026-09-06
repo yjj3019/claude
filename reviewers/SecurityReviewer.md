@@ -14,3 +14,13 @@ Review for:
 - rollback
 - unsafe defaults
 - missing controls
+
+## Output
+
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
+
+Do not perform a second review pass unless explicitly requested.

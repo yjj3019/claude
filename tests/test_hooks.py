@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RECORD = ROOT / "scripts" / "hooks" / "record_test_run.py"
 VERIFY = ROOT / "scripts" / "hooks" / "verify_before_stop.py"
+sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "scripts" / "hooks"))
 
 
@@ -33,7 +34,8 @@ class RecordTestRunHookTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             proc = run_hook(RECORD, {"tool_name": "Bash",
-                                     "tool_input": {"command": "python3 -m unittest discover -s tests"}}, root)
+                                     "tool_input": {"command": "python3 -m unittest discover -s tests"},
+                                     "tool_response": {"returncode": 0}}, root)
             self.assertEqual(proc.returncode, 0)
             self.assertTrue((root / ".claude" / ".test-run-marker").exists())
 
@@ -155,6 +157,39 @@ class PathFromStatusLineTest(unittest.TestCase):
     def test_quoted_path_is_unquoted(self):
         from verify_before_stop import path_from_status_line
         self.assertEqual(path_from_status_line(' M "has space.py"'), "has space.py")
+
+
+
+class VerifyMarkdownGateTest(unittest.TestCase):
+    def test_blocks_when_markdown_changed_and_no_marker(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            init_git_repo(root)
+            target = root / "README.md"
+            target.write_text("# a\n", encoding="utf-8")
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-qm", "init"], cwd=root, check=True, capture_output=True)
+            target.write_text("# b\n", encoding="utf-8")
+            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
+            self.assertEqual(proc.returncode, 0)
+            out = json.loads(proc.stdout)
+            self.assertEqual(out["decision"], "block")
+            self.assertIn("README.md", out["reason"])
+            self.assertIn("validate_framework.py", out["reason"])
+
+
+class RecordFailClosedTest(unittest.TestCase):
+    def test_fail_closed_when_exit_code_unknown(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            # omit exit metadata on a known-good runner command from sibling tests
+            cmd = [c for c in (
+                "python3 -m unittest discover -s tests",
+            )][0]
+            proc = run_hook(RECORD, {"tool_name": "Bash",
+                                     "tool_input": {"command": cmd}}, root)
+            self.assertEqual(proc.returncode, 0)
+            self.assertFalse((root / ".claude" / ".test-run-marker").exists())
 
 
 if __name__ == "__main__":

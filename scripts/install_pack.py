@@ -40,6 +40,19 @@ REQUIRED_DIRS = (
     "config",
 )
 OPTIONAL_DIRS = ("tests", "examples", ".claude")
+
+# S3-09: default install keeps runtime docs only (history/dev docs stay in clone).
+RUNTIME_DOCS = frozenset(
+    {
+        "loading-map.md",
+        "adaptive-effort.md",
+        "model-usage.md",
+        "context-protocol.md",
+        "knowledge-governance.md",
+        "Installation.md",
+        "FAQ.md",
+    }
+)
 MARKER_FILE = "CLAUDE.md"
 
 # (label, home marker dir, skills/packs root relative to home)
@@ -202,10 +215,40 @@ def install_pack(
         shutil.rmtree(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
+    def _docs_ignore(directory: str, names: list[str]) -> set[str]:
+        """Exclude history/dev docs and subtrees from default install (S3-09)."""
+        ignored = set(COPY_IGNORE(directory, names))
+        dir_path = Path(directory)
+        # When copying the docs/ tree, keep only RUNTIME_DOCS files at top level
+        # and drop nested history trees (releases/, reviews/, …).
+        try:
+            rel = dir_path.relative_to(REPO_ROOT)
+        except ValueError:
+            return ignored
+        if rel == Path("docs"):
+            for name in names:
+                path = dir_path / name
+                if path.is_dir():
+                    ignored.add(name)
+                elif path.is_file() and name not in RUNTIME_DOCS:
+                    ignored.add(name)
+        elif rel.parts and rel.parts[0] == "docs":
+            # Any nested docs path should already be skipped via dir ignore;
+            # belt-and-suspenders: ignore everything under unexpected subtrees.
+            ignored.update(names)
+        return ignored
+
     for relative, source in items:
         target = dest / relative
         if source.is_dir():
-            shutil.copytree(source, target, ignore=COPY_IGNORE)
+            ignore = _docs_ignore if relative == "docs" or relative.startswith("docs/") else COPY_IGNORE
+            # copytree ignore is called for every directory; use _docs_ignore always
+            # so nested docs filters apply, and COPY_IGNORE patterns still apply.
+            def _combined(directory: str, names: list[str]) -> set[str]:
+                ignored = set(COPY_IGNORE(directory, names))
+                ignored |= _docs_ignore(directory, names)
+                return ignored
+            shutil.copytree(source, target, ignore=_combined)
         else:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)

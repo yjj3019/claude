@@ -13,8 +13,11 @@ from markdown_sections import parse_sections
 ROOT = Path(__file__).resolve().parents[1]
 LOADING_MAP = ROOT / "docs" / "loading-map.md"
 CLAUDE = ROOT / "CLAUDE.md"
-# Structural cold-start budget (align with measure_load.MAX_COLD_START_BYTES).
+# CLAUDE.md alone must not balloon (detail lives in docs/).
 MAX_CLAUDE_ENTRY_BYTES = 7000
+# Combined cold-start (CLAUDE.md + AGENTS.md); hosts may inject both (PROGRESS.md).
+# Align with measure_load.MAX_COLD_START_BYTES.
+MAX_COLD_START_BYTES = 9000
 HEAVY_NON_DEFAULT_PATHS = (
     "PROGRESS.md",
     "SESSION_LOG.md",
@@ -48,6 +51,30 @@ REQUIRED_PACKS = [
 ]
 REFERENCE_ROOT_FILES = ("CLAUDE.md", "AGENTS.md", "README.md", "CHANGELOG.md", "ROADMAP.md", "CONTRIBUTING.md")
 REFERENCE_DIRS = ("kernel", "policies", "modules", "domains", "reviewers", "workflows", "docs", "tests", "examples")
+# S3-09: runtime docs kept in default install; history/dev may be omitted.
+RUNTIME_DOCS = frozenset({
+    "loading-map.md", "adaptive-effort.md", "model-usage.md",
+    "context-protocol.md", "knowledge-governance.md",
+    "Installation.md", "FAQ.md",
+})
+HISTORY_DOC_DIR_NAMES = frozenset({"releases", "reviews"})
+OPTIONAL_DOC_NAME_PREFIXES = (
+    "simulation-",
+    "ablation-",
+    "pack-ablation",
+    "coding-transfer",
+    "opus5-",
+    "precise-analysis",
+    "kernel-vs-fef",
+)
+OPTIONAL_DOC_NAMES = frozenset({
+    "BestPractices.md",
+    "ClaudeCode.md",
+    "ClaudeProjects.md",
+    "Examples.md",
+    "golden-test-coverage.md",
+    "release-process.md",
+})
 
 
 def fail(message: str, errors: list[str]) -> None:
@@ -92,25 +119,61 @@ def validate_generated_agents(errors: list[str]) -> None:
         fail(f"generated reviewer agents are out of sync ({details}); run python scripts/generate_agents.py", errors)
 
 
+def _is_optional_doc_ref(rel_or_target: str) -> bool:
+    """True for known history/dev docs that lean installs may omit (S3-09).
+
+    Whitelist only — unknown docs/missing.md style refs still fail integrity.
+    """
+    normalized = rel_or_target.replace(chr(92), "/").lstrip("./")
+    parts = Path(normalized).parts
+    if not parts:
+        return False
+    if parts[0] == "docs":
+        if len(parts) >= 2 and parts[1] in HISTORY_DOC_DIR_NAMES:
+            return True
+        name = parts[-1]
+    else:
+        name = parts[-1]
+        if name not in OPTIONAL_DOC_NAMES and not any(
+            name.startswith(prefix) for prefix in OPTIONAL_DOC_NAME_PREFIXES
+        ):
+            return False
+    if name in OPTIONAL_DOC_NAMES:
+        return True
+    if any(name.startswith(prefix) for prefix in OPTIONAL_DOC_NAME_PREFIXES):
+        return True
+    return False
+
+
 def validate_references(errors: list[str]) -> None:
-    # docs/releases/ holds frozen point-in-time release notes; a later file
-    # deletion (e.g. a closed workstream's docs) shouldn't retroactively fail
-    # a historical snapshot's own references. Live docs elsewhere still get
-    # the same treatment.
+    # Skip scanning frozen history trees (releases/reviews). Still scan other
+    # docs sources so unknown missing refs fail. Links *to* optional history/dev
+    # doc names may be omitted from lean installs without failing integrity.
     sources = [ROOT / name for name in REFERENCE_ROOT_FILES if (ROOT / name).is_file()]
     sources += [
         source for directory in REFERENCE_DIRS for source in (ROOT / directory).rglob("*.md")
-        if "releases" not in source.relative_to(ROOT).parts
+        if not any(part in HISTORY_DOC_DIR_NAMES for part in source.relative_to(ROOT).parts)
     ]
     for source in sources:
-        text = source.read_text(encoding="utf-8-sig")
-        for line_number, line in enumerate(text.splitlines(), 1):
+        body = source.read_text(encoding="utf-8-sig")
+        for line_number, line in enumerate(body.splitlines(), 1):
             for rel in PATH_RE.findall(line):
+                if _is_optional_doc_ref(rel):
+                    continue
                 if not (ROOT / rel).is_file():
                     fail(f"{source.relative_to(ROOT)}:{line_number} references missing file: {rel}", errors)
             for target in MARKDOWN_LINK_RE.findall(line):
                 target = target.split("#", 1)[0]
                 if not target or "://" in target or target.startswith("mailto:"):
+                    continue
+                link_path = target
+                if not link_path.startswith("docs/"):
+                    try:
+                        resolved_guess = (source.parent / target).resolve()
+                        link_path = str(resolved_guess.relative_to(ROOT.resolve()))
+                    except Exception:
+                        link_path = target
+                if _is_optional_doc_ref(link_path) or _is_optional_doc_ref(target):
                     continue
                 resolved = (source.parent / target).resolve()
                 if not resolved.exists():
@@ -198,7 +261,8 @@ def validate_context_and_model_floor(errors: list[str]) -> None:
 
     for rel, phrases in (
         ("CLAUDE.md", ("## Context Budget", "Model-Invariant Floor", "loading-map")),
-        ("AGENTS.md", ("Context Budget", "Model-Invariant Floor", "escalate")),
+        # S3-01: AGENTS.md is a pointer — full floor prose lives in CLAUDE.md.
+        ("AGENTS.md", ("CLAUDE.md", "Guidance Layout")),
     ):
         target = ROOT / rel
         if not target.is_file():
@@ -215,13 +279,26 @@ def validate_context_and_model_floor(errors: list[str]) -> None:
 
 
 def validate_claude_entry_budget(errors: list[str]) -> None:
-    """Keep CLAUDE.md under the structural cold-start byte budget."""
+    """Keep CLAUDE.md slim and CLAUDE+AGENTS under combined cold-start budget."""
     if not CLAUDE.is_file():
         return
-    size = len(CLAUDE.read_text(encoding="utf-8-sig").encode("utf-8"))
-    if size > MAX_CLAUDE_ENTRY_BYTES:
+    claude_size = len(CLAUDE.read_text(encoding="utf-8-sig").encode("utf-8"))
+    if claude_size > MAX_CLAUDE_ENTRY_BYTES:
         fail(
-            f"CLAUDE.md cold-start size {size} exceeds budget {MAX_CLAUDE_ENTRY_BYTES} bytes",
+            f"CLAUDE.md size {claude_size} exceeds solo budget {MAX_CLAUDE_ENTRY_BYTES} bytes",
+            errors,
+        )
+    agents = ROOT / "AGENTS.md"
+    agents_size = (
+        len(agents.read_text(encoding="utf-8-sig").encode("utf-8"))
+        if agents.is_file()
+        else 0
+    )
+    combined = claude_size + agents_size
+    if combined > MAX_COLD_START_BYTES:
+        fail(
+            f"CLAUDE.md+AGENTS.md cold-start size {combined} exceeds budget "
+            f"{MAX_COLD_START_BYTES} bytes",
             errors,
         )
 
@@ -262,7 +339,8 @@ def validate_latency_contract_phrases(errors: list[str]) -> None:
     """Require explicit latency-over-load policy in entry files."""
     for rel, phrases in (
         ("CLAUDE.md", ("Latency > completeness", "cold-start", "model-usage.md")),
-        ("AGENTS.md", ("Latency > completeness",)),
+        # S3-01: pointer entry; latency contract stays in CLAUDE.md.
+        ("AGENTS.md", ("Read `CLAUDE.md` first", "Guidance Layout")),
     ):
         target = ROOT / rel
         if not target.is_file():
@@ -313,7 +391,7 @@ def validate_adaptive_effort(errors: list[str]) -> None:
                 fail(f"docs/adaptive-effort.md missing required phrase: {phrase}", errors)
     for rel, phrases in (
         ("CLAUDE.md", ("## Adaptive Effort", "docs/adaptive-effort.md", "model before packs")),
-        ("AGENTS.md", ("Adaptive Effort", "docs/adaptive-effort.md")),
+        ("AGENTS.md", ("Adaptive Effort", "docs/adaptive-effort.md", "CLAUDE.md")),
         ("docs/model-usage.md", ("## Adaptive Effort", "docs/adaptive-effort.md", "narrow gate")),
     ):
         target = ROOT / rel
@@ -398,6 +476,15 @@ def validate_adaptive_route_alignment(errors: list[str]) -> None:
         fail("high-risk unmapped sample missing safety floor", errors)
     if "policies/Evidence.md" not in (hi.get("policies") or []):
         fail("high-risk unmapped sample missing Evidence.md", errors)
+    # S3-06: keyword-only trivia / definition asks must NOT elevate to high.
+    for benign in (
+        "고객센터 전화번호 좀 알려줘",
+        "production 이라는 단어 뜻이 뭐야?",
+        "보안 그룹 이름 규칙이 뭐야?",
+    ):
+        sel = detect(benign, config)
+        if sel.get("risk_level") == "high":
+            fail(f"S3-06 false high-risk on benign ask: {benign!r}", errors)
     for neg in (
         "what is the error budget concept?",
         "이 문서의 오탈자 수정해",
@@ -405,6 +492,19 @@ def validate_adaptive_route_alignment(errors: list[str]) -> None:
         sel = detect(neg, config)
         if sel.get("task_type") == "coding":
             fail(f"coding fallback overfire on {neg!r}", errors)
+
+
+def validate_reviewer_output(errors: list[str]) -> None:
+    """S3-03: every reviewers/*.md must expose a ## Output contract."""
+    reviewers_dir = ROOT / "reviewers"
+    if not reviewers_dir.is_dir():
+        fail("missing reviewers/", errors)
+        return
+    for path in sorted(reviewers_dir.glob("*.md")):
+        body = path.read_text(encoding="utf-8-sig")
+        if "## Output" not in body:
+            fail(f"{path.relative_to(ROOT)} missing ## Output section", errors)
+
 
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
@@ -429,6 +529,7 @@ def main() -> int:
     validate_latency_contract_phrases(errors)
     validate_adaptive_effort(errors)
     validate_adaptive_route_alignment(errors)
+    validate_reviewer_output(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:

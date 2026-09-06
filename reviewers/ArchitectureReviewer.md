@@ -15,3 +15,13 @@ Review for:
 - migration risk
 - vendor lock-in
 - operational burden
+
+## Output
+
+- Critical Issues
+- Major Issues
+- Minor Issues
+- Suggestions
+- Final Recommendation
+
+Do not perform a second review pass unless explicitly requested.
