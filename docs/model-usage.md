@@ -12,6 +12,31 @@ Use model capability deliberately:
 
 FEF should improve consistency, calibration, and reviewability across both roles.
 
+
+## Model Roster (user-authoritative, 2026-09-06)
+
+| Model | Product label | Role |
+|---|---|---|
+| Opus | Opus 5 (1M context) | Best for everyday complex tasks |
+| Fable | Fable 5.1 | Most capable for hardest and longest-running tasks |
+| Sonnet | Sonnet 5 | Efficient for routine tasks |
+| Haiku | Haiku 4.5 | Fastest for quick answers |
+
+Names and availability vary by platform; treat this roster as the repository preference when the host exposes these models. Verify host availability before switching.
+
+## Model-Invariant Floor
+
+Regardless of which model is selected (Opus / Fable / Sonnet / Haiku):
+
+1. **Same Required Kernel + Operational Integrity** — never skip evidence, completion, file/tool, or freshness gates on Haiku (or any model).
+2. **Same Context Budget** — `CLAUDE.md` Kernel plus packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not dump extra docs onto weaker models to “compensate,” and do not dump more onto Fable/Opus either.
+3. **Same loading map / task routing** — model choice does not change which packs load.
+4. **Same output contract** — facts vs assumptions, `[unverified]`, smallest complete change, no fake completion claims.
+5. **When blocked:** escalate the model (`Haiku` → `Sonnet` → `Opus` → `Fable`) when blocked twice or risk rises — do **not** expand unrelated instructions as a substitute; gather necessary task evidence.
+6. **Stronger models:** still obey budget; extra capacity goes to deeper reasoning within the same loaded set, not extra file loads.
+
+Kernel and Integrity Policies remain model-independent. Model choice does not relax Autoload Protocol or Instruction Precedence.
+
 ## Role Split
 
 | Role | Best Use | Avoid |
@@ -44,7 +69,7 @@ Model availability and names vary by platform and release; treat these as operat
 | Simple extraction or recording | Lowest-cost capable model | low |
 | General writing or implementation | Sonnet-class model | medium |
 | Technical judgment or independent review | Opus-class model | high |
-| Hardest long-horizon autonomous work | Fable-class model, when available | high; xhigh only when capability justifies latency and cost |
+| Hardest long-horizon autonomous work | Fable 5.1, when available | high; xhigh only when capability justifies latency and cost |
 
 ### Claude Haiku 4.5 Runtime Notes
 
@@ -92,6 +117,19 @@ For an API runtime explicitly targeting `claude-opus-5`:
 - Request concise output and intended scope explicitly, and cap subagents to genuinely independent, sizeable work.
 
 Verified 2026-07-26 against Anthropic's [Opus 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5) and [Opus 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5). Re-check when the model or API behavior changes.
+
+
+### Claude Fable 5.1 Runtime Notes
+
+For a runtime explicitly targeting Fable 5.1 (hardest / longest-running work):
+
+- Prefer Fable for multi-hour autonomous agent runs, deep multi-file investigations, conflicting-evidence synthesis, and high-stakes architecture or security judgments when host access is available.
+- Keep the same Context Budget and loading map as Opus/Sonnet/Haiku; do not preload every module or doc because the model is stronger.
+- Use high effort by default for long-horizon work; raise further only when evaluation shows a material gain worth latency and cost.
+- Cap parallel subagents to independent, sizeable work; aggregate once. Prefer checkpoint verification during long runs and at most one reviewer pass after a draft.
+- Escalate *to* Fable when Sonnet/Opus are blocked twice on the same obstacle or when task risk clearly requires maximum capability; de-escalate when remaining work is routine.
+
+Recorded 2026-09-06 as repository operating preference (user-authoritative roster). Re-check when the host renames or gates the model.
 
 ### Effort Calibration Guardrail
 

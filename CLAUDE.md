@@ -121,10 +121,18 @@ For each task:
 6. If a required task pack is missing, report it and use Kernel-only limited mode only when a useful, safe result remains possible. Do not silently substitute another pack.
 7. If an optional pack is missing, report the omission when it materially affects confidence or completeness, then proceed with the remaining valid packs.
 
+
+## Context Budget
+
+- Always-on: this file's inlined Required Kernel only for simple low-risk tasks.
+- Substantial tasks: Kernel + packs named by `docs/loading-map.md` within Load Limits (Module 1, Domain ≤2, Workflow 1, Reviewer 1, Policies ≤3).
+- Do **not** preload every module, domain, workflow, reviewer, or `docs/` file. Prefer `scripts/detect_task.py` / the loading map over a full-tree dump.
+- **Model-Invariant Floor:** Opus / Fable / Sonnet / Haiku keep the same Kernel, Integrity Policies, Context Budget, and loading map. When blocked, escalate the model — do not expand unrelated packs. Details: `docs/model-usage.md`.
+
 ## Optional Runtime Packs
 
 - Use `docs/context-protocol.md` to frame substantial tasks.
-- Use `docs/model-usage.md` only when splitting model roles or explicitly tuning model, effort, thinking, or model-specific API behavior; do not load it for ordinary single-model tasks.
+- Use `docs/model-usage.md` when choosing or switching among Opus / Fable / Sonnet / Haiku, applying the Model-Invariant Floor, or tuning effort/thinking; do not load it for ordinary single-model tasks that already follow the floor.
 - Use `docs/knowledge-governance.md` when auditing or maintaining reusable knowledge, configuration references, agent inventories, or operational records.
 - Use `docs/loading-map.md` as the routing table for task-specific packs.
 

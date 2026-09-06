@@ -8,6 +8,12 @@ This repository is a reusable guidance root for Claude-oriented engineering work
 - Treat `CLAUDE.md` as the persistent bootstrap.
 - Load only the supporting files it names for the current task.
 
+## Context Budget
+
+Normally use the inlined Kernel in `CLAUDE.md` plus at most the packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not preload every module, domain, workflow, or doc. Simple low-risk questions stay Kernel-only.
+
+**Model-Invariant Floor:** Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5 keep the same Kernel, Operational Integrity, Context Budget, and routing. When blocked, escalate the model — do not expand unrelated packs (`docs/model-usage.md`).
+
 ## Guidance Layout
 
 - `kernel/` contains always-on reasoning behavior.
@@ -18,6 +24,8 @@ This repository is a reusable guidance root for Claude-oriented engineering work
 - `workflows/` contains reusable task workflows.
 - `tests/` contains golden tests and fixtures.
 - `scripts/validate_framework.py` checks framework structure and routing.
+- `scripts/install_pack.py --auto` installs this pack for detected AI hosts (URL-only setup).
+- `scripts/measure_load.py` estimates Kernel vs route load sizes.
 
 ## Use Rule
 

@@ -74,3 +74,12 @@ and `incomplete` as a sufficient metric.
 
 `overall_success` summarizes the other evidence; it must not erase a critical
 failure or replace the individual dimension scores.
+
+
+## Simulation Protocol
+
+Structural/routing/load simulations (not host-model quality scores) are recorded in dated reports under `docs/` (filename pattern simulation-10-report-DATE.md).
+
+Method: mechanical checks only (`detect_task.py`, `loading-map` limits, `sync_kernel.py --check`, `measure_load.py`, `install_pack.py --auto`, fence-aware section parse, Model-Invariant Floor doc presence). Do not invent behavioral /100 scores without a defined method.
+
+Latest: `docs/simulation-10-report-2026-09-06.md`.

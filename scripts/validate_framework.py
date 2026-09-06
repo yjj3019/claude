@@ -8,6 +8,7 @@ from pathlib import Path
 
 from generate_agents import AGENTS, expected_agents
 from sync_kernel import synchronized_text
+from markdown_sections import parse_sections
 
 ROOT = Path(__file__).resolve().parents[1]
 LOADING_MAP = ROOT / "docs" / "loading-map.md"
@@ -109,10 +110,11 @@ def validate_loading_map(errors: list[str]) -> None:
     if not LOADING_MAP.is_file():
         return
     text = LOADING_MAP.read_text(encoding="utf-8")
-    if "## Task Map" not in text:
+    sections = parse_sections(text)
+    if "Task Map" not in sections:
         fail("docs/loading-map.md: missing Task Map section", errors)
         return
-    task_map = text.split("## Task Map", 1)[1].split("\n## ", 1)[0]
+    task_map = sections["Task Map"]
     lines = task_map.splitlines()
     rows = [line for line in lines if line.startswith("|") and "---" not in line]
     for row in rows[2:]:
@@ -164,6 +166,42 @@ def validate_runtime_terms(errors: list[str]) -> None:
                 fail(f"prohibited model-specific Runtime term in {source.relative_to(ROOT)}: {term}", errors)
 
 
+
+def validate_context_and_model_floor(errors: list[str]) -> None:
+    """Require entry pointers to Context Budget and Model-Invariant Floor."""
+    model_usage = ROOT / "docs" / "model-usage.md"
+    if model_usage.is_file():
+        mu = model_usage.read_text(encoding="utf-8-sig")
+        for phrase in (
+            "## Model-Invariant Floor",
+            "Opus",
+            "Fable",
+            "Sonnet",
+            "Haiku",
+            "escalate the model",
+        ):
+            if phrase not in mu:
+                fail(f"docs/model-usage.md missing required floor/roster phrase: {phrase}", errors)
+    else:
+        fail("missing docs/model-usage.md", errors)
+
+    for rel, phrases in (
+        ("CLAUDE.md", ("## Context Budget", "Model-Invariant Floor", "loading-map")),
+        ("AGENTS.md", ("Context Budget", "Model-Invariant Floor", "escalate")),
+    ):
+        target = ROOT / rel
+        if not target.is_file():
+            fail(f"missing {rel}", errors)
+            continue
+        body = target.read_text(encoding="utf-8-sig")
+        for phrase in phrases:
+            if phrase not in body:
+                fail(f"{rel} missing required phrase: {phrase}", errors)
+
+    if not (ROOT / "scripts" / "install_pack.py").is_file():
+        fail("missing scripts/install_pack.py (URL-only install entry)", errors)
+
+
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
     for path in (ROOT / "policies").glob("*.md"):
@@ -181,6 +219,7 @@ def main() -> int:
     validate_golden_tests(errors)
     validate_runtime_terms(errors)
     validate_no_wrapper_policy(errors)
+    validate_context_and_model_floor(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:
