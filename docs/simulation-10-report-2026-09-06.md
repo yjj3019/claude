@@ -10,7 +10,7 @@ Timezone note: work recorded 2026-09-06 evening KST (UTC+9).
 
 | ID | Scenario | Expected | Pre-fix | Post-fix | Issue IDs |
 |---|---|---|---|---|---|
-| SIM-01 | Simple Q&A / Haiku path | Kernel only (`kernel_only_safe`) | PASS | PASS | — |
+| SIM-01 | Simple Q&A / Sonnet default | Kernel only (`kernel_only_safe`); model=Sonnet L1 | PASS | PASS | — |
 | SIM-02 | Everyday complex / Opus | Architecture (or similar) mapped packs | PASS | PASS | — |
 | SIM-03 | Hardest long-running / Fable | Fable 5.1 notes + Model-Invariant Floor | FAIL | PASS | P0-NO-FABLE51-FLOOR |
 | SIM-04 | Routine coding / Sonnet | Coding route packs | PASS | PASS | — |
@@ -26,9 +26,9 @@ Pre-fix tally (10 primary sims): **5 PASS, 2 PARTIAL, 3 FAIL**. Post-fix: **10/1
 
 ## Per-scenario notes
 
-### SIM-01 Simple Q&A / Haiku — PASS
+### SIM-01 Simple Q&A / Sonnet default — PASS
 - `detect_task.py --task "what is Kubernetes?"` → `kernel_only_safe=true`, no module.
-- Autoload: simple low-risk uses Kernel only; Haiku is the advisory fast path in `docs/model-usage.md`.
+- Autoload: simple low-risk uses Kernel only; **Sonnet (L1) is the default when unsure**.
 
 ### SIM-02 Everyday complex / Opus — PASS
 - OpenShift architecture review → `architecture_review` + Architecture module/workflow/reviewer.
@@ -100,3 +100,10 @@ python3 -m unittest discover -s tests -p "test_*.py"
 ```
 
 Do not read the simulation table as model accuracy percentages.
+
+## Errata (post-7abcc92 / Adaptive)
+
+**SIM-01 narrative correction (F-06):** Early draft text called Haiku the “advisory fast path” for simple Q&A. After `7abcc92` (Revise Adaptive Effort: Sonnet default; Haiku for light Notion/docs) and the Adaptive router, **Sonnet is the default** for unsure/routine/Q&A. **Haiku is reserved for light Notion/doc recording only** (narrow gate). Kernel-only pack load for simple Q&A remains correct; only the model advisory changed.
+
+See also: `docs/adaptive-effort.md`, `docs/precise-analysis-2026-09-06.md` (F-01–F-12).
+

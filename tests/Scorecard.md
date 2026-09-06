@@ -83,3 +83,18 @@ Structural/routing/load simulations (not host-model quality scores) are recorded
 Method: mechanical checks only (`detect_task.py`, `loading-map` limits, `sync_kernel.py --check`, `measure_load.py`, `install_pack.py --auto`, fence-aware section parse, Model-Invariant Floor doc presence). Do not invent behavioral /100 scores without a defined method.
 
 Latest: `docs/simulation-10-report-2026-09-06.md`.
+
+## Adaptive Effort Rubric
+
+Mechanical checks for L0–L3 model routing (not host-model quality scores):
+
+| Check | Pass criteria |
+|---|---|
+| Unsure → Sonnet (L1) | `classify_tier` defaults to L1 / Sonnet 5 |
+| Haiku narrow gate | L0 only for light Notion/docs (EN+KO); not general Q&A/coding |
+| L1 model vs packs | L1 selects Sonnet; mapped routes keep loading-map packs + Integrity Policies |
+| Escalate model before packs | Docs + Adaptive rules state model escalation before pack expansion |
+| Cold-start budget | `CLAUDE.md` ≤7000 B; Adaptive entry stays a short pointer |
+
+Wire-through: `scripts/lib/adaptive_effort.py`, `validate_framework.validate_adaptive_route_alignment`, `tests/test_adaptive_effort.py`.
+

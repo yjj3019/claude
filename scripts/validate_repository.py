@@ -39,11 +39,49 @@ def advisory_warnings() -> list[str]:
     return warnings
 
 
+def run_sync_kernel_check() -> int:
+    """F-08: fail if inlined Kernel drifts from kernel/ sources."""
+    script = ROOT / "scripts" / "sync_kernel.py"
+    result = subprocess.run(
+        ["python", str(script), "--check"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    out = (result.stdout or "") + (result.stderr or "")
+    if out.strip():
+        print(out.rstrip())
+    return result.returncode
+
+
+def run_measure_load_budget() -> int:
+    """F-08: fail if CLAUDE.md cold-start exceeds 7000 bytes."""
+    script = ROOT / "scripts" / "measure_load.py"
+    result = subprocess.run(
+        ["python", str(script), "--fail-over-cold-start", "7000"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    lines = (result.stdout or "").splitlines()
+    for line in lines:
+        if "COLD-START" in line or "exceeds" in line.lower() or line.startswith("ERROR"):
+            print(line)
+    err = (result.stderr or "").strip()
+    if result.returncode != 0 and err:
+        print(err)
+    return result.returncode
+
+
 def main() -> int:
     failed = False
     if validate_framework.main():
         failed = True
     if validate_routes.main():
+        failed = True
+    if run_sync_kernel_check():
+        failed = True
+    if run_measure_load_budget():
         failed = True
     golden = validate_golden_tests()
     if not golden["valid"]:

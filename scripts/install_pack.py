@@ -20,6 +20,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACK_NAME = "fef-claude"
 REQUIRED_FILES = ("CLAUDE.md", "AGENTS.md", "README.md")
+REQUIRED_VERIFY_FILES = (
+    "CLAUDE.md",
+    "AGENTS.md",
+    "README.md",
+    "docs/adaptive-effort.md",
+    "scripts/measure_load.py",
+    "scripts/lib/adaptive_effort.py",
+)
 REQUIRED_DIRS = (
     "kernel",
     "policies",
@@ -216,7 +224,7 @@ def verify_install(dest_pack: Path) -> list[str]:
     problems: list[str] = []
     if not dest_pack.is_dir():
         return [f"missing pack directory: {dest_pack}"]
-    for name in REQUIRED_FILES:
+    for name in REQUIRED_VERIFY_FILES:
         if not (dest_pack / name).is_file():
             problems.append(f"missing file: {name}")
     for name in REQUIRED_DIRS:
@@ -228,9 +236,12 @@ def verify_install(dest_pack: Path) -> list[str]:
                 "sync_kernel.py",
                 "install_pack.py",
                 "detect_task.py",
+                "measure_load.py",
             ):
                 if not (dest_pack / "scripts" / script).is_file():
                     problems.append(f"missing scripts/{script}")
+            if not (dest_pack / "scripts" / "lib" / "adaptive_effort.py").is_file():
+                problems.append("missing scripts/lib/adaptive_effort.py")
     return problems
 
 

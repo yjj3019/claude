@@ -7,8 +7,8 @@ It does not claim that prompts increase model intelligence.
 
 Use model capability deliberately:
 
-- fast models for drafting, restructuring, extraction, and repetitive production work
-- stronger models for ambiguity resolution, contradiction detection, technical review, and final decision support
+- Haiku only for light Notion/doc recording (Adaptive narrow gate); Sonnet for routine drafting, coding, Q&A, and summaries
+- stronger models (Opus/Fable) for ambiguity resolution, contradiction detection, technical review, and final decision support
 
 FEF should improve consistency, calibration, and reviewability across both roles.
 
@@ -34,7 +34,7 @@ Regardless of which model is selected (Opus / Fable / Sonnet / Haiku):
 
 1. **Same Required Kernel + Operational Integrity** — never skip evidence, completion, file/tool, or freshness gates on Haiku (or any model).
 2. **Same Context Budget** — `CLAUDE.md` Kernel plus packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not dump extra docs onto weaker models to “compensate,” and do not dump more onto Fable/Opus either.
-3. **Same loading map / task routing** — model choice does not change which packs load.
+3. **Same loading map / task routing** — model choice does not change which packs load. Adaptive L0–L3 primarily select **model**; packs still follow `docs/loading-map.md` / `kernel_only_safe`. Never strip Integrity Policies required by triggers on mapped L1 coding to satisfy a lighter Adaptive look.
 4. **Same output contract** — facts vs assumptions, `[unverified]`, smallest complete change, no fake completion claims.
 5. **When blocked:** escalate the model (`Haiku` → `Sonnet` → `Opus` → `Fable`) when blocked twice or risk rises — do **not** expand unrelated instructions as a substitute; gather necessary task evidence.
 6. **Stronger models:** still obey budget; extra capacity goes to deeper reasoning within the same loaded set, not extra file loads.
@@ -47,12 +47,12 @@ Route by **request complexity**, not by available files. Full table and rules: `
 
 | Tier | Default model | Load |
 |---|---|---|
-| L0 Light docs | Haiku 4.5 | Kernel only (or Kernel + 1 Notion/doc section if needed) |
-| L1 Default / routine | Sonnet 5 | Kernel + ≤1 module/section |
+| L0 Light docs | Haiku 4.5 | Kernel only (or Kernel + 1 allowlisted Notion/doc section) |
+| L1 Default / routine | Sonnet 5 | **Model tier**; packs follow loading-map when mapped; Kernel-light when unmapped |
 | L2 Complex everyday | Opus 5 (1M) | Kernel + loading-map Load Limits |
 | L3 Hardest / long-running | Fable 5.1 | Kernel + map caps; ≤1 workflow/reviewer if risk needs it |
 
-Rules: classify from the ask (object + risk); **when unsure → Sonnet (L1), not Haiku**; Haiku only for clear light Notion/doc recording; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; L3 still respects Load Limits.
+Rules: L0–L3 primarily select **model**; classify from the ask (object + risk); **when unsure → Sonnet (L1), not Haiku**; Haiku only for clear light Notion/doc recording; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; never strip Integrity Policies required by triggers on mapped L1 coding; L2–L3 still respect Load Limits. Full table: `docs/adaptive-effort.md`.
 
 ## Role Split
 
@@ -83,7 +83,7 @@ Model availability and names vary by platform and release; treat these as operat
 
 | Work | Model class | Effort |
 |---|---|---|
-| Simple extraction or recording | Lowest-cost capable model | low |
+| Light Notion/doc recording only | Haiku 4.5 (narrow gate) | low |
 | General writing or implementation | Sonnet-class model | medium |
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable 5.1, when available | high; xhigh only when capability justifies latency and cost |
@@ -92,19 +92,20 @@ Model availability and names vary by platform and release; treat these as operat
 
 For an API runtime explicitly targeting `claude-haiku-4-5`:
 
-- Use Haiku for high-volume extraction, classification, routing, template filling, document or Notion records, brief summaries, and independent lightweight subtasks with an explicit source and output schema.
-- Haiku 4.5 supports manual extended thinking, not adaptive thinking. Keep thinking off for routine work; use a bounded thinking budget only when evaluation shows it is cheaper and reliable enough compared with escalation.
+- **Adaptive narrow gate (authoritative):** use Haiku **only** for light Notion / document recording — notes, rows, short docs, trivial filings, simple checklist ticks (KO: 노션/메모/체크리스트). See `docs/adaptive-effort.md`.
+- Do **not** route general Q&A, coding, extraction, classification, routing, brief summaries, or everyday implementation to Haiku; those default to **Sonnet (L1)** when unsure.
+- Haiku 4.5 supports manual extended thinking, not adaptive thinking. Keep thinking off for routine Notion/doc capture; escalate rather than widening the Haiku gate.
 - Escalate material ambiguity—conflicting source values, missing required fields, unsupported inference, or a decision that changes downstream action—to Sonnet for one focused interpretation pass. Escalate high-impact legal, financial, security, architecture, or customer-facing judgment to Opus or the designated high-risk reviewer.
-- Do not escalate cosmetic wording, obvious formatting, or reversible schema mapping. A stronger model may review meaning but cannot grant authority: destructive, public, permission-changing, or otherwise user-controlled actions still require user approval.
-- Respect the 200k context and 64k output limits; chunk and aggregate high-volume work rather than silently truncating it.
+- Do not escalate cosmetic wording, obvious formatting, or reversible schema mapping inside an already-approved Notion/doc edit. A stronger model may review meaning but cannot grant authority: destructive, public, permission-changing, or otherwise user-controlled actions still require user approval.
+- Respect the 200k context and 64k output limits; chunk and aggregate high-volume Notion/doc capture rather than silently truncating it.
 
-Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes.
+Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes. Haiku scope narrowed 2026-09-06 to match Adaptive Effort.
 
 ### Notion Record Integrity
 
 Choose the lowest-cost model that preserves the edit contract:
 
-- Use Haiku at low effort for new pages, fixed-schema transcription, simple append operations, and short summaries.
+- Use Haiku at low effort for new Notion pages, fixed-schema transcription, simple append operations, and short in-page Notion notes (not general Q&A summaries).
 - Use Sonnet at medium effort for exact `old_str`/`new_str` replacement, code-fence or table preservation, and multi-section merges.
 - Escalate deletion, structural changes, multiple matches, or child-page/database impact to the designated stronger reviewer or user approval boundary.
 - Fetch before editing, update the smallest matching region, and fetch again before claiming completion. Do not pass raw conversations or raw tool responses when a compact record schema is sufficient.

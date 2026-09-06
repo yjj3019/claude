@@ -303,13 +303,16 @@ def validate_adaptive_effort(errors: list[str]) -> None:
             "Haiku only",
             "Never preload",
             "Load Limits",
+            "primarily select",
+            "Integrity",
+            "Model-Invariant Floor",
         ):
             if phrase not in body:
                 fail(f"docs/adaptive-effort.md missing required phrase: {phrase}", errors)
     for rel, phrases in (
         ("CLAUDE.md", ("## Adaptive Effort", "docs/adaptive-effort.md", "model before packs")),
         ("AGENTS.md", ("Adaptive Effort", "docs/adaptive-effort.md")),
-        ("docs/model-usage.md", ("## Adaptive Effort", "docs/adaptive-effort.md")),
+        ("docs/model-usage.md", ("## Adaptive Effort", "docs/adaptive-effort.md", "narrow gate")),
     ):
         target = ROOT / rel
         if not target.is_file():
@@ -319,6 +322,70 @@ def validate_adaptive_effort(errors: list[str]) -> None:
         for phrase in phrases:
             if phrase not in body:
                 fail(f"{rel} missing adaptive-effort phrase: {phrase}", errors)
+
+
+def validate_adaptive_route_alignment(errors: list[str]) -> None:
+    """F-03: wire classify_tier / validate_pack_load against mapped route samples.
+
+    Stops false-green when L1 model tier disagrees with loading-map pack counts.
+    """
+    try:
+        from lib.adaptive_effort import (
+            classify_tier,
+            counts_from_selection,
+            missing_integrity_policies,
+            validate_pack_load,
+        )
+        from lib.routing import detect, load_config
+    except ImportError as exc:
+        fail(f"adaptive route alignment import failed: {exc}", errors)
+        return
+
+    config = load_config()
+    samples = (
+        ("fix a bug in the payment module", "coding", "L1"),
+        ("research current version of OpenShift networking", "research", None),
+        ("write an operations manual for RHEL patching", "manual", None),
+        ("write a technical blog post about SELinux", "technical_blog", None),
+        ("What is Kubernetes?", None, "L1"),  # kernel-only
+    )
+    for ask, expected_route, expected_tier in samples:
+        selection = detect(ask, config)
+        tier = classify_tier(ask)
+        if expected_tier and tier != expected_tier:
+            fail(
+                f"adaptive classify_tier({ask!r}) expected {expected_tier}, got {tier}",
+                errors,
+            )
+        if expected_route is None:
+            if not selection.get("kernel_only_safe"):
+                fail(f"expected kernel_only_safe for ask {ask!r}", errors)
+            continue
+        if selection.get("task_type") != expected_route:
+            fail(
+                f"route sample {ask!r}: expected {expected_route}, "
+                f"got {selection.get('task_type')}",
+                errors,
+            )
+        if selection.get("kernel_only_safe"):
+            fail(f"mapped route sample unexpectedly kernel_only_safe: {ask!r}", errors)
+            continue
+        counts = counts_from_selection(selection)
+        pack_errors = validate_pack_load(
+            tier,
+            kernel_only_safe=False,
+            module_paths=[selection["module"]] if selection.get("module") else [],
+            policy_paths=selection.get("policies") or [],
+            **counts,
+        )
+        for item in pack_errors:
+            fail(f"adaptive×route {expected_route}: {item}", errors)
+        if expected_route == "coding":
+            for item in missing_integrity_policies(
+                selection.get("policies") or [],
+                ("policies/FileHandling.md", "policies/ToolExecution.md"),
+            ):
+                fail(f"adaptive×route coding integrity: {item}", errors)
 
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
@@ -342,6 +409,7 @@ def main() -> int:
     validate_heavy_paths_not_default(errors)
     validate_latency_contract_phrases(errors)
     validate_adaptive_effort(errors)
+    validate_adaptive_route_alignment(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:
