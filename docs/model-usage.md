@@ -24,7 +24,7 @@ Load `docs/model-usage.md` **only** when choosing or switching among Opus / Fabl
 | Opus | Opus 5 (1M context) | Best for everyday complex tasks |
 | Fable | Fable 5.1 | Most capable for hardest and longest-running tasks |
 | Sonnet | Sonnet 5 | Efficient for routine tasks |
-| Haiku | Haiku 4.5 | Fastest for quick answers |
+| Haiku | Haiku 4.5 | Light Notion/doc recording |
 
 Names and availability vary by platform; treat this roster as the repository preference when the host exposes these models. Verify host availability before switching.
 
@@ -47,12 +47,12 @@ Route by **request complexity**, not by available files. Full table and rules: `
 
 | Tier | Default model | Load |
 |---|---|---|
-| L0 Quick | Haiku 4.5 | Kernel only |
-| L1 Routine | Sonnet 5 | Kernel + ≤1 module/section |
+| L0 Light docs | Haiku 4.5 | Kernel only (or Kernel + 1 Notion/doc section if needed) |
+| L1 Default / routine | Sonnet 5 | Kernel + ≤1 module/section |
 | L2 Complex everyday | Opus 5 (1M) | Kernel + loading-map Load Limits |
 | L3 Hardest / long-running | Fable 5.1 | Kernel + map caps; ≤1 workflow/reviewer if risk needs it |
 
-Rules: classify from the ask (object + risk); start lowest safe tier; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; L0 forbids multi-pack load; L3 still respects Load Limits.
+Rules: classify from the ask (object + risk); **when unsure → Sonnet (L1), not Haiku**; Haiku only for clear light Notion/doc recording; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; L3 still respects Load Limits.
 
 ## Role Split
 

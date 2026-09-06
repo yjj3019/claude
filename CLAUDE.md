@@ -87,7 +87,7 @@ Use for substantial technical outputs.
 
 ## Adaptive Effort
 
-Classify ask first (object+risk); lowest safe L0–L3; escalate **model before packs**. Table: `docs/adaptive-effort.md`. L0=Kernel only; no model-usage/README/PROGRESS on L0–L1.
+Unsure→Sonnet(L1); Haiku only light Notion/docs(L0). Escalate **model before packs**. Table: `docs/adaptive-effort.md`. No model-usage/README/PROGRESS on L0–L1.
 
 ## Autoload Protocol
 

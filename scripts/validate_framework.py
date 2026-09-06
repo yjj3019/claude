@@ -294,14 +294,15 @@ def validate_adaptive_effort(errors: list[str]) -> None:
         body = adaptive.read_text(encoding="utf-8-sig")
         for phrase in (
             "## Tier Table",
-            "L0 Quick",
-            "L1 Routine",
+            "L0 Light docs",
+            "L1 Default",
             "L2 Complex everyday",
             "L3 Hardest",
             "Escalate model before expanding packs",
+            "When unsure → Sonnet (L1)",
+            "Haiku only",
             "Never preload",
             "Load Limits",
-            "L0 forbids multi-pack load",
         ):
             if phrase not in body:
                 fail(f"docs/adaptive-effort.md missing required phrase: {phrase}", errors)

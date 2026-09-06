@@ -32,7 +32,7 @@ FEF는 모델 자체를 바꾸지 않습니다. 작은 상시 Kernel, 작업별 
 
 **Model-Invariant Floor** (`docs/model-usage.md`): Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5 모두 같은 Kernel·무결성·예산·라우팅을 유지합니다. 막히면 **모델을 올리고**, 관련 없는 팩을 추가로 덤프하지 않습니다.
 
-권장(가용성 확인): 일상 복잡 → Opus 5 · 최장/최난 → Fable 5.1 · 일상 루틴 → Sonnet 5 · 빠른 응답 → Haiku 4.5.
+권장(가용성 확인): 일상/불확실 → Sonnet 5 · 일상 복잡 → Opus 5 · 최장/최난 → Fable 5.1 · 가벼운 Notion/문서 기록 → Haiku 4.5.
 
 
 ## 지연·경량성 (Latency & lightness)
@@ -44,7 +44,7 @@ FEF는 모델 자체를 바꾸지 않습니다. 작은 상시 Kernel, 작업별 
 
 ## Adaptive Effort (적응형 노력)
 
-요청 복잡도(L0 Quick → L3 Hardest)에 따라 모델을 자동 조절합니다: 단순 사실=Haiku(Kernel만), 일상 루틴=Sonnet, 일상 복잡=Opus, 최장/최난=Fable. 안전한 최저 티어에서 시작하고, 팩을 늘리기 전에 **모델을 먼저** 올리며, L0–L1에서는 model-usage/README/PROGRESS를 미리 로드하지 않아 cold-start를 유지합니다. 상세: `docs/adaptive-effort.md`.
+요청 복잡도(L0 Light docs → L3 Hardest)에 따라 모델을 자동 조절합니다: **일상/불확실 기본=Sonnet**, 가벼운 Notion·문서 기록만=Haiku, 일상 복잡=Opus, 최장/최난=Fable. 팩을 늘리기 전에 **모델을 먼저** 올리며, L0–L1에서는 model-usage/README/PROGRESS를 미리 로드하지 않아 cold-start를 유지합니다. 상세: `docs/adaptive-effort.md`.
 
 ## 시작
 

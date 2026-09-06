@@ -55,7 +55,7 @@ Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` a
 4. Same output contract (`[unverified]`, smallest complete change, no fake completion).
 5. When blocked: **escalate the model** (`Haiku` → `Sonnet` → `Opus` → `Fable`); do **not** expand unrelated packs.
 
-Advisory defaults (verify availability): everyday complex → Opus 5; hardest/longest → Fable 5.1; routine → Sonnet 5; quick answers → Haiku 4.5.
+Advisory defaults (verify availability): everyday / when unsure → Sonnet 5; everyday complex → Opus 5; hardest/longest → Fable 5.1; light Notion/doc recording → Haiku 4.5.
 
 
 ## Latency & lightness
@@ -73,7 +73,7 @@ Estimate structural load with `python scripts/measure_load.py` (prints a **simpl
 
 ## Adaptive Effort
 
-FEF auto-tiers work by request complexity (L0 Quick → L3 Hardest): Haiku for Kernel-only facts, Sonnet for routine one-file edits, Opus for everyday multi-step work, Fable for deep/long-running tasks. Start at the lowest safe tier, escalate the **model before packs**, and keep L0–L1 free of model-usage/README/PROGRESS preloads so cold-start stays fast. Details: `docs/adaptive-effort.md`.
+FEF auto-tiers work by request complexity (L0 Light docs → L3 Hardest): **Sonnet is the default** for everyday coding/Q&A/edits (and when unsure); Haiku only for light Notion/doc recording; Opus for multi-step everyday work; Fable for deep/long-running tasks. Escalate the **model before packs**, and keep L0–L1 free of model-usage/README/PROGRESS preloads so cold-start stays fast. Details: `docs/adaptive-effort.md`.
 
 ## Recommended Usage
 

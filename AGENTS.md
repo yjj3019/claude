@@ -14,7 +14,7 @@ This repository is a reusable guidance root for Claude-oriented engineering work
 
 **Model-Invariant Floor:** Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5 keep the same Kernel, Operational Integrity, Context Budget, and routing. When blocked, escalate the model — do not expand unrelated packs (`docs/model-usage.md` only when choosing/switching).
 
-**Adaptive Effort:** classify ask complexity (L0–L3); escalate model before packs; L0 stays Kernel-only. See `docs/adaptive-effort.md`.
+**Adaptive Effort:** classify ask (L0–L3); unsure→Sonnet(L1); Haiku only light Notion/docs(L0); escalate model before packs. See `docs/adaptive-effort.md`.
 
 ## Guidance Layout
 

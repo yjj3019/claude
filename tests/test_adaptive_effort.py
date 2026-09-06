@@ -25,8 +25,10 @@ class AdaptiveEffortTests(unittest.TestCase):
         agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8-sig")
         model_usage = (ROOT / "docs" / "model-usage.md").read_text(encoding="utf-8-sig")
         self.assertIn("## Tier Table", adaptive)
-        self.assertIn("L0 Quick", adaptive)
+        self.assertIn("L0 Light docs", adaptive)
+        self.assertIn("L1 Default", adaptive)
         self.assertIn("L3 Hardest", adaptive)
+        self.assertIn("When unsure", adaptive)
         self.assertIn("Escalate model before expanding packs", adaptive)
         self.assertIn("## Adaptive Effort", claude)
         self.assertIn("docs/adaptive-effort.md", claude)
@@ -37,22 +39,39 @@ class AdaptiveEffortTests(unittest.TestCase):
             validator.MAX_CLAUDE_ENTRY_BYTES,
         )
 
-    def test_l0_forbids_multi_pack_load(self):
-        self.assertEqual(classify_tier("What is SELinux?"), "L0")
-        self.assertEqual(classify_tier("Define cold-start latency"), "L0")
-        tier = TIERS["L0"]
-        self.assertTrue(tier.kernel_only)
-        self.assertEqual(tier.max_modules, 0)
+    def test_default_unsure_is_sonnet_l1(self):
+        self.assertEqual(classify_tier("Help me with this"), "L1")
+        self.assertEqual(classify_tier("Please look into it"), "L1")
+        self.assertEqual(TIERS[classify_tier("unclear ask")].model, "Sonnet 5")
+
+    def test_quick_fact_does_not_force_haiku(self):
+        # General quick facts / Q&A are Sonnet (L1), not Haiku.
+        self.assertEqual(classify_tier("What is SELinux?"), "L1")
+        self.assertEqual(classify_tier("Define cold-start latency"), "L1")
+        self.assertEqual(classify_tier("quick fact about DNS"), "L1")
+        self.assertEqual(classify_tier("yes or no: is TCP reliable?"), "L1")
+
+    def test_notion_doc_signals_route_to_haiku_l0(self):
+        self.assertEqual(classify_tier("Add a Notion note about the meeting"), "L0")
+        self.assertEqual(classify_tier("Append a row to the Notion tracker"), "L0")
+        self.assertEqual(classify_tier("Short doc capture of today's standup"), "L0")
+        self.assertEqual(classify_tier("Trivial filing into the archive folder"), "L0")
+        self.assertEqual(classify_tier("Simple checklist ticks for onboarding"), "L0")
+        self.assertEqual(TIERS["L0"].model, "Haiku 4.5")
+
+    def test_l0_allows_kernel_or_one_notion_section(self):
+        self.assertEqual(validate_pack_load("L0"), [])
+        self.assertEqual(validate_pack_load("L0", modules=1), [])
         errors = validate_pack_load(
             "L0",
             modules=1,
             workflows=1,
             preloaded=["docs/model-usage.md", "PROGRESS.md"],
         )
-        self.assertTrue(any("forbids multi-pack" in e for e in errors))
+        self.assertTrue(any("Notion/doc" in e or "no domains" in e for e in errors))
         self.assertTrue(any("must not preload docs/model-usage.md" in e for e in errors))
         self.assertTrue(any("must not preload PROGRESS.md" in e for e in errors))
-        self.assertEqual(validate_pack_load("L0"), [])
+        self.assertTrue(validate_pack_load("L0", modules=2))
 
     def test_l1_blocks_heavy_preload(self):
         self.assertEqual(classify_tier("Small one-file edit to fix a typo"), "L1")
@@ -89,10 +108,11 @@ class AdaptiveEffortTests(unittest.TestCase):
         self.assertTrue(any("Load Limits" in e or "exceeds modules" in e for e in over))
         self.assertGreaterEqual(len(over), 4)
 
-    def test_doc_states_l0_and_l3_constraints(self):
+    def test_doc_states_sonnet_default_and_l3_constraints(self):
         adaptive = (ROOT / "docs" / "adaptive-effort.md").read_text(encoding="utf-8-sig")
+        self.assertIn("When unsure → Sonnet (L1)", adaptive)
+        self.assertIn("Haiku only", adaptive)
         self.assertIn("Kernel only", adaptive)
-        self.assertIn("L0 forbids multi-pack load", adaptive)
         self.assertIn("Load Limits", adaptive)
         self.assertIn("Never preload", adaptive)
 

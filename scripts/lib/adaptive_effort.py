@@ -1,7 +1,8 @@
 """Adaptive Effort / Complexity Router helpers (L0–L3).
 
 Classifies request complexity from the user ask (object + risk), not from
-available files. Escalate model before expanding packs. L0 stays Kernel-only;
+available files. Escalate model before packs. Default when unsure is Sonnet
+(L1). Haiku (L0) is a narrow gate for light Notion/doc recording only.
 L2–L3 obey loading-map Load Limits.
 """
 from __future__ import annotations
@@ -44,12 +45,13 @@ TIERS: dict[str, EffortTier] = {
     "L0": EffortTier(
         id="L0",
         model="Haiku 4.5",
-        max_modules=0,
+        # Kernel only, or Kernel + 1 Notion/doc section if needed.
+        max_modules=1,
         max_domains=0,
         max_workflows=0,
         max_reviewers=0,
         max_policies=0,
-        kernel_only=True,
+        kernel_only=False,
         allow_preload_model_docs=False,
     ),
     "L1": EffortTier(
@@ -125,20 +127,40 @@ _L1_SIGNALS = (
     "implement",
     "coding",
     "code",
+    "q&a",
+    "question",
 )
+# Narrow Haiku gate: light Notion / document recording only.
 _L0_SIGNALS = (
-    "what is",
-    "define",
-    "definition",
-    "yes or no",
-    "yes/no",
-    "lookup",
-    "quick",
+    "notion note",
+    "notion notes",
+    "notion row",
+    "notion rows",
+    "notion page",
+    "notion record",
+    "notion filing",
+    "short doc",
+    "short document",
+    "doc capture",
+    "document capture",
+    "trivial filing",
+    "simple filing",
+    "checklist tick",
+    "checklist ticks",
+    "tick checklist",
+    "file a note",
+    "log a note",
+    "append a row",
+    "add a notion",
 )
 
 
 def classify_tier(ask: str) -> str:
-    """Classify from user ask text only (object + risk signals)."""
+    """Classify from user ask text only (object + risk signals).
+
+    When unsure, return L1 (Sonnet). Haiku (L0) only for clear light
+    Notion/doc recording — not general quick facts.
+    """
     text = ask.casefold()
     for signal in _L3_SIGNALS:
         if signal in text:
@@ -146,16 +168,15 @@ def classify_tier(ask: str) -> str:
     for signal in _L2_SIGNALS:
         if signal in text:
             return "L2"
-    for signal in _L1_SIGNALS:
-        if signal in text:
-            return "L1"
+    # L0 before L1 so Notion/doc phrases win over generic edit/summary
+    # only when the ask clearly matches the narrow Haiku gate.
     for signal in _L0_SIGNALS:
         if signal in text:
             return "L0"
-    # Default: routine if looks like a short fact question, else L1-safe.
-    words = text.split()
-    if len(words) <= 8 and ("?" in ask or text.startswith(("who ", "when ", "where ", "which "))):
-        return "L0"
+    for signal in _L1_SIGNALS:
+        if signal in text:
+            return "L1"
+    # Default when unsure: Sonnet (L1), never Haiku for general quick facts.
     return "L1"
 
 
@@ -199,6 +220,15 @@ def validate_pack_load(
             errors.append(f"{tier_id} exceeds Load Limits {key}≤{limit} (got {counts[key]})")
     if tier.kernel_only and sum(counts.values()) > 0:
         errors.append(f"{tier_id} forbids multi-pack load (Kernel only)")
+    # L0: Kernel only or Kernel + ≤1 Notion/doc section; no workflows/reviewers/etc.
+    if tier_id == "L0":
+        if domains or workflows or reviewers or policies:
+            errors.append(
+                "L0 allows Kernel only or Kernel + 1 Notion/doc section "
+                "(no domains/workflows/reviewers/policies)"
+            )
+        if modules > 1:
+            errors.append("L0 exceeds Notion/doc section cap 1 (got %s)" % modules)
     if not tier.allow_preload_model_docs:
         for path in preloaded:
             if path in FORBIDDEN_PRELOAD_L0_L1:
