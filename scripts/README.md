@@ -26,5 +26,5 @@ python scripts/sync_kernel.py --check
 ```
 
 - `install_pack.py` copies the FEF pack to detected AI host skills directories as `fef-claude/` (stdlib only).
-- `measure_load.py` estimates Kernel-only vs per-route UTF-8 load and the full-tree anti-pattern size.
+- `measure_load.py` estimates Kernel-only vs per-route UTF-8 load and the full-tree anti-pattern size. Prints a prominent **SIMPLE Q&A COLD-START** line; optional `--fail-over-cold-start` (default 7000 bytes) fails if CLAUDE.md exceeds the structural budget.
 - `markdown_sections.py` provides fence-aware `##` parsing for validators and load tools.

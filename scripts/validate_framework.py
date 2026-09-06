@@ -13,6 +13,16 @@ from markdown_sections import parse_sections
 ROOT = Path(__file__).resolve().parents[1]
 LOADING_MAP = ROOT / "docs" / "loading-map.md"
 CLAUDE = ROOT / "CLAUDE.md"
+# Structural cold-start budget (align with measure_load.MAX_COLD_START_BYTES).
+MAX_CLAUDE_ENTRY_BYTES = 7000
+HEAVY_NON_DEFAULT_PATHS = (
+    "PROGRESS.md",
+    "SESSION_LOG.md",
+    "CHANGELOG.md",
+    "README.md",
+    "docs/model-usage.md",
+)
+HEAVY_NAME_FRAGMENTS = ("optimization", "simulation-", "-report")
 
 REQUIRED_KERNEL = [
     "kernel/CoreKernel.md",
@@ -202,6 +212,77 @@ def validate_context_and_model_floor(errors: list[str]) -> None:
         fail("missing scripts/install_pack.py (URL-only install entry)", errors)
 
 
+
+def validate_claude_entry_budget(errors: list[str]) -> None:
+    """Keep CLAUDE.md under the structural cold-start byte budget."""
+    if not CLAUDE.is_file():
+        return
+    size = len(CLAUDE.read_text(encoding="utf-8-sig").encode("utf-8"))
+    if size > MAX_CLAUDE_ENTRY_BYTES:
+        fail(
+            f"CLAUDE.md cold-start size {size} exceeds budget {MAX_CLAUDE_ENTRY_BYTES} bytes",
+            errors,
+        )
+
+
+def validate_heavy_paths_not_default(errors: list[str]) -> None:
+    """Heavy repo docs must not appear in loading-map Task Map / routes required sets."""
+    import json
+    referenced: set[str] = set()
+    if LOADING_MAP.is_file():
+        sections = parse_sections(LOADING_MAP.read_text(encoding="utf-8-sig"))
+        task_map = sections.get("Task Map", "")
+        for rel in PATH_RE.findall(task_map):
+            referenced.add(rel)
+    routes = ROOT / "config" / "routes.json"
+    if routes.is_file():
+        data = json.loads(routes.read_text(encoding="utf-8"))
+        for route in data.get("routes") or []:
+            for key in ("module", "workflow", "reviewer"):
+                value = route.get(key)
+                if value:
+                    referenced.add(value)
+            for domain in route.get("domains") or []:
+                referenced.add(domain)
+            for policy in route.get("policies") or []:
+                referenced.add(policy)
+    for rel in HEAVY_NON_DEFAULT_PATHS:
+        if rel in referenced:
+            fail(f"heavy path must not be in default loading-map/routes set: {rel}", errors)
+        if rel in REQUIRED_PACKS:
+            fail(f"heavy path must not be in REQUIRED_PACKS: {rel}", errors)
+    for rel in sorted(referenced):
+        name = rel.lower()
+        if any(fragment in name for fragment in HEAVY_NAME_FRAGMENTS):
+            fail(f"optimization/report path must not be in default load set: {rel}", errors)
+
+
+def validate_latency_contract_phrases(errors: list[str]) -> None:
+    """Require explicit latency-over-load policy in entry files."""
+    for rel, phrases in (
+        ("CLAUDE.md", ("Latency > completeness", "cold-start", "model-usage.md")),
+        ("AGENTS.md", ("Latency > completeness",)),
+    ):
+        target = ROOT / rel
+        if not target.is_file():
+            fail(f"missing {rel}", errors)
+            continue
+        body = target.read_text(encoding="utf-8-sig")
+        for phrase in phrases:
+            if phrase not in body:
+                fail(f"{rel} missing latency phrase: {phrase}", errors)
+    model_usage = ROOT / "docs" / "model-usage.md"
+    if model_usage.is_file():
+        mu = model_usage.read_text(encoding="utf-8-sig")
+        if "## When to Load This Doc" not in mu:
+            fail("docs/model-usage.md missing ## When to Load This Doc", errors)
+        if "only when choosing or switching" not in mu and "only** when choosing or switching" not in mu:
+            # accept either markdown bold form
+            if "when choosing or switching" not in mu:
+                fail("docs/model-usage.md missing choose/switch load gate wording", errors)
+    else:
+        fail("missing docs/model-usage.md", errors)
+
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
     for path in (ROOT / "policies").glob("*.md"):
@@ -220,6 +301,9 @@ def main() -> int:
     validate_runtime_terms(errors)
     validate_no_wrapper_policy(errors)
     validate_context_and_model_floor(errors)
+    validate_claude_entry_budget(errors)
+    validate_heavy_paths_not_default(errors)
+    validate_latency_contract_phrases(errors)
     if errors:
         print("FEF validation failed:")
         for item in errors:

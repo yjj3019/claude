@@ -2,6 +2,8 @@
 
 This file selects task-specific FEF packs. It is a routing table, not a new reasoning layer.
 
+**Latency > completeness of pack load.** This map is deferred until a substantial task needs it. Simple/low-risk cold-start stays Kernel-only (`CLAUDE.md`). Do not treat PROGRESS, SESSION_LOG, CHANGELOG, README, optimization reports, or model-usage as required loads from this map.
+
 Here, `workflows/` means Markdown task procedures loaded as prompts, not executable Claude Code `.claude/workflows/` dynamic workflows.
 
 ## Load Limits

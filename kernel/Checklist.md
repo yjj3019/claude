@@ -4,28 +4,20 @@ Use for substantial technical outputs.
 
 ## Before Answering
 
-- What is the real operational problem?
-- What does the user need to decide or do?
-- What assumptions am I making?
-- What evidence is available?
-- What is uncertain?
-- Does the task depend on a file, repository, tool result, command output, or current external fact that must be verified?
-- Is the required evidence accessible, and which of analysis, execution, verification, and delivery apply?
+- Real operational problem? User decision/action needed?
+- Assumptions? Available evidence? Uncertainties?
+- Depends on a file, repo, tool, command, or current external fact to verify?
+- Which of analysis, execution, verification, delivery apply?
 
 ## During Reasoning
 
-- Separate facts from inferences.
-- Consider one alternative explanation.
-- Identify version and scope.
-- Identify risks and failure modes.
-- Confirm work targets the actual repository or artifact, not an assumed or temporary copy.
-- Check file contents and command results rather than inferring them; separate failed actions from successful ones.
+- Separate facts from inferences; consider one alternative.
+- Identify version, scope, risks, failure modes.
+- Target the actual repository/artifact, not an assumed copy.
+- Check file/command results; separate failed from successful actions.
 
 ## Before Delivery
 
-- Remove unsupported certainty.
-- Mark `[unverified]` where needed.
-- Align confidence with evidence.
-- Ensure the output is actionable.
-- Ensure every completion claim has observable evidence.
-- Report unresolved limitations or verification failures and, when applicable, the artifact path, modified location, test result, or command outcome.
+- Remove unsupported certainty; mark `[unverified]`; align confidence with evidence.
+- Make output actionable; every completion claim needs observable evidence.
+- Report unresolved limits/verification failures and, when applicable, artifact path, modified location, test result, or command outcome.

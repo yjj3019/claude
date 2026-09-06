@@ -4,9 +4,15 @@
 Uses CLAUDE.md + packs named by config/routes.json. Reports the accidental
 full-tree dump size as an anti-pattern upper bound. Fence-aware section helpers
 live in markdown_sections.py for docs that need H2 scoping.
+
+Structural token/load estimates only — not host wall-clock latency benchmarks.
+
+Latency budget (documented): simple Q&A cold-start = CLAUDE.md Kernel entry only.
+Default fail threshold for --fail-over-cold-start is MAX_COLD_START_BYTES (7000).
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -16,6 +22,10 @@ CLAUDE = ROOT / "CLAUDE.md"
 ROUTES = ROOT / "config" / "routes.json"
 
 PACK_DIRS = ("modules", "domains", "workflows", "reviewers", "policies", "docs", "kernel")
+
+# Structural cold-start budget for Kernel entry (CLAUDE.md). Align with
+# validate_framework.MAX_CLAUDE_ENTRY_BYTES. Not a host latency SLA.
+MAX_COLD_START_BYTES = 7000
 
 
 def file_bytes(rel: str | Path) -> int:
@@ -62,7 +72,22 @@ def all_pack_bytes() -> int:
     return total
 
 
-def report() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--fail-over-cold-start",
+        nargs="?",
+        const=MAX_COLD_START_BYTES,
+        type=int,
+        default=None,
+        metavar="BYTES",
+        help=(
+            f"exit 1 if CLAUDE.md cold-start exceeds BYTES "
+            f"(default {MAX_COLD_START_BYTES} when flag present without value)"
+        ),
+    )
+    args = parser.parse_args(argv)
+
     if not CLAUDE.is_file() or not ROUTES.is_file():
         print("missing CLAUDE.md or config/routes.json", file=sys.stderr)
         return 1
@@ -71,6 +96,17 @@ def report() -> int:
     data = json.loads(ROUTES.read_text(encoding="utf-8"))
     routes = data.get("routes") or []
 
+    print("=" * 72)
+    print(
+        f"SIMPLE Q&A COLD-START  {entry} bytes  ~{rough_tokens(entry)} tokens  "
+        f"(CLAUDE.md Kernel entry only)"
+    )
+    print(
+        f"  policy: Latency > completeness of pack load; budget ≤{MAX_COLD_START_BYTES} bytes "
+        f"(structural, not host wall-clock)"
+    )
+    print("=" * 72)
+    print()
     print("FEF load estimates; excludes host/system prompts and tool schemas.")
     print("Bytes: UTF-8 without BOM. Tokens: uncalibrated bytes/4 heuristic.")
     print(f"{'Scenario':<42} {'bytes':>8} {'~tokens':>8}  files")
@@ -86,7 +122,6 @@ def report() -> int:
         label = route.get("id") or route.get("label") or "route"
         paths = route_paths(route)
         pack_bytes, present = sum_existing(paths)
-        # Domains are selected at runtime; routes.json may omit them — still count listed packs.
         total = entry + pack_bytes
         max_route = max(max_route, total)
         files = "CLAUDE.md" + ("; " + ", ".join(present) if present else " (packs via detect)")
@@ -105,8 +140,16 @@ def report() -> int:
         print(f"Full-tree dump is ~{ratio:.1f}x the heaviest mapped route — do not autoload it.")
     print("Load Limits (from routes.json / loading-map): module 1, domain ≤2, workflow 1,")
     print("reviewer 1, policies ≤3. Simple low-risk tasks stay Kernel-only.")
+
+    if args.fail_over_cold_start is not None and entry > args.fail_over_cold_start:
+        print(
+            f"FAIL: simple Q&A cold-start {entry} bytes exceeds budget "
+            f"{args.fail_over_cold_start} bytes.",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(report())
+    raise SystemExit(main())

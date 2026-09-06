@@ -34,6 +34,13 @@ FEF는 모델 자체를 바꾸지 않습니다. 작은 상시 Kernel, 작업별 
 
 권장(가용성 확인): 일상 복잡 → Opus 5 · 최장/최난 → Fable 5.1 · 일상 루틴 → Sonnet 5 · 빠른 응답 → Haiku 4.5.
 
+
+## 지연·경량성 (Latency & lightness)
+
+**상시(단순/저위험 cold-start):** `CLAUDE.md` Kernel만. model-usage·README·CHANGELOG·PROGRESS·SESSION_LOG·최적화 리포트·전체 모듈/도메인을 자동 로드하지 않습니다. **지연(latency) > 팩 완전 로드.**
+
+**지연 로드:** 본격 작업만 `docs/loading-map.md`와 지정 팩. 모델이 막히면 팩을 덤프하지 말고 모델을 올립니다. Project Knowledge에 저장소 전체를 붙이면 응답이 느려집니다 — `CLAUDE.md`만 Instructions에 넣고 필요한 팩만 첨부하세요.
+
 ## 시작
 
 1. `CLAUDE.md`를 세션 부트스트랩으로 읽습니다.

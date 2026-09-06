@@ -10,9 +10,9 @@ This repository is a reusable guidance root for Claude-oriented engineering work
 
 ## Context Budget
 
-Normally use the inlined Kernel in `CLAUDE.md` plus at most the packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not preload every module, domain, workflow, or doc. Simple low-risk questions stay Kernel-only.
+**Latency > completeness of pack load.** Normally use the inlined Kernel in `CLAUDE.md` plus at most the packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not preload every module, domain, workflow, or doc. Simple low-risk questions stay Kernel-only.
 
-**Model-Invariant Floor:** Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5 keep the same Kernel, Operational Integrity, Context Budget, and routing. When blocked, escalate the model — do not expand unrelated packs (`docs/model-usage.md`).
+**Model-Invariant Floor:** Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5 keep the same Kernel, Operational Integrity, Context Budget, and routing. When blocked, escalate the model — do not expand unrelated packs (`docs/model-usage.md` only when choosing/switching).
 
 ## Guidance Layout
 

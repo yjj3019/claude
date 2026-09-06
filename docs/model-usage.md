@@ -13,6 +13,10 @@ Use model capability deliberately:
 FEF should improve consistency, calibration, and reviewability across both roles.
 
 
+## When to Load This Doc
+
+Load `docs/model-usage.md` **only** when choosing or switching among Opus / Fable / Sonnet / Haiku, or when tuning effort/thinking for the active model. Do **not** load it every turn, and do not load it for ordinary single-model tasks that already follow the Model-Invariant Floor. Model choice does not justify loading extra packs; escalate the model instead of dumping docs.
+
 ## Model Roster (user-authoritative, 2026-09-06)
 
 | Model | Product label | Role |

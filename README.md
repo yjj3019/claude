@@ -57,6 +57,19 @@ Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` a
 
 Advisory defaults (verify availability): everyday complex → Opus 5; hardest/longest → Fable 5.1; routine → Sonnet 5; quick answers → Haiku 4.5.
 
+
+## Latency & lightness
+
+**Always-on (simple/low-risk cold-start):** `CLAUDE.md` inlined Kernel only. Do not autoload `docs/model-usage.md`, README, CHANGELOG, PROGRESS, SESSION_LOG, optimization reports, or full modules/domains.
+
+**Deferred:** `docs/loading-map.md` and the packs it names, only for substantial tasks within Load Limits. Prefer latency over completeness of pack load.
+
+**Model choice ≠ more docs:** Haiku / Sonnet / Opus / Fable share the same tiny Kernel; escalate the model when blocked — do not dump packs to compensate. Load `docs/model-usage.md` only when choosing or switching models (or tuning effort/thinking).
+
+**Projects warning:** Attaching the entire repository as Project Knowledge slows models and defeats the cold-start contract. Paste `CLAUDE.md` into Project Instructions and attach only the packs the task needs.
+
+Estimate structural load with `python scripts/measure_load.py` (prints a **simple Q&A cold-start** line). This measures pack bytes/tokens, not host wall-clock latency.
+
 ## Recommended Usage
 
 For Claude Code, copy this repository into your Claude working directory and use `CLAUDE.md` as the always-loaded instruction file.
