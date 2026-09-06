@@ -8,19 +8,25 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 
 | Tier | Signals (examples) | Model default | Load |
 |---|---|---|---|
-| L0 Light docs | Notion notes/rows, short doc capture, trivial filing, simple checklist ticks | Haiku 4.5 | Kernel only (or Kernel + 1 Notion/doc section if needed) |
-| L1 Default / routine | coding, summaries, Q&A, edits, most everyday asks — **default when unsure** | Sonnet 5 | Kernel + ≤1 module/section |
-| L2 Complex everyday | multi-step, multi-file, architecture lite, careful review | Opus 5 (1M) | Kernel + loading-map caps (existing Load Limits) |
+| L0 Light docs | Notion notes/rows, short doc capture, trivial filing, simple checklist ticks | Haiku 4.5 | Kernel only (or Kernel + 1 allowlisted Notion/doc section) |
+| L1 Default / routine | coding, summaries, Q&A, edits, most everyday asks — **default when unsure** | Sonnet 5 | **Model tier**; packs follow loading-map when mapped (`kernel_only_safe=false`); Kernel-light when unmapped |
+| L2 Complex everyday | multi-step, multi-file, architecture review/lite, careful review | Opus 5 (1M) | Kernel + loading-map caps (existing Load Limits) |
 | L3 Hardest / long-running | deep RCA, large refactor, multi-hour agent work, high-stakes | Fable 5.1 | Kernel + map caps; may use 1 workflow/reviewer only if risk needs it |
 
 ## Rules
 
-1. **Classify first from the user ask** (object + risk), not from available files.
+1. **Classify first from the user ask** (object + risk), not from available files. **L0–L3 primarily select MODEL.**
 2. **When unsure → Sonnet (L1), not Haiku.** Prefer Sonnet as the safe default for everyday work.
-3. **Haiku only when the ask is clearly light Notion/doc recording** (narrow gate: notes, rows, short docs, trivial filings, simple checklist ticks) — not a general “anything quick” floor.
+3. **Haiku only when the ask is clearly light Notion/doc recording** (narrow gate: notes, rows, short docs, trivial filings, simple checklist ticks; KO synonyms: 노션/메모/체크리스트) — not a general “anything quick” floor.
 4. **Escalate model before expanding packs** (invariant floor).
 5. **Never preload** `docs/model-usage.md`, README, CHANGELOG, PROGRESS, or SESSION_LOG on L0–L1.
-6. L0 may use Kernel only, or Kernel + at most one Notion/doc section. L1 may add at most one module/section. L2–L3 stay inside loading-map Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3); L3 may use one workflow or one reviewer only when risk requires it. Do not lower the floor too far — over-routing to Haiku is undesirable.
+6. **Pack selection follows `docs/loading-map.md` / `kernel_only_safe`.** L0 may use Kernel only, or Kernel + at most one allowlisted Notion/doc module (`modules/Meeting.md`). Mapped L1–L3 routes use loading-map Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3) — **never strip Integrity Policies** (Evidence/FileHandling/Freshness/ToolExecution) required by triggers just to “look light.” L3 may use one workflow or one reviewer only when risk requires it. Do not lower the floor too far — over-routing to Haiku is undesirable.
+
+## Model-Invariant Floor vs Adaptive
+
+- **Floor (invariant):** same Kernel, Integrity intent, Context Budget, and loading-map routing on every model. Model choice does not rewrite which Integrity Policies triggers require.
+- **Adaptive (model + optional trim):** L0–L3 choose capacity (Haiku→Fable). Optional trim applies only to Preference packs / non-required extras — **never** to trigger Integrity Policies on mapped coding or similar.
+- Taxonomy map: MetaRules Low≈L0 light docs; Low/Medium routine≈L1; Medium complex≈L2; High≈L3. Autoload simple≈kernel_only_safe; substantial≈mapped loading-map.
 
 ## Escalation Ladder
 
