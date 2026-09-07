@@ -214,8 +214,9 @@ class InstallPackTests(unittest.TestCase):
         (self.home / ".cursor").mkdir()
         proc = self._run("--list-targets")
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-        self.assertIn(".cursor/skills", proc.stdout)
-        self.assertFalse((self.home / ".cursor/skills").exists())
+        printed = proc.stdout.replace("\\", "/")
+        self.assertIn(".cursor/skills", printed)
+        self.assertFalse((self.home / ".cursor" / "skills").exists())
 
     def test_destination_root_requires_config(self):
         with patch.dict(os.environ, {}, clear=True), self.assertRaises(SystemExit):

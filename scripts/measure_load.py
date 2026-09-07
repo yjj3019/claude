@@ -75,7 +75,16 @@ def all_pack_bytes() -> int:
     return total
 
 
+def _utf8_console() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 def main(argv=None) -> int:
+    _utf8_console()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--fail-over-cold-start",
