@@ -158,8 +158,16 @@ _DEFAULT_L2_SIGNALS = (
     "제안서 작성",
     "제안서 검토",
     "제안서 일관성",
+    "write a proposal",
+    "draft a proposal",
+    "create a proposal",
+    "proposal review",
+    "proposal writing",
+    "write proposal",
     "다중 파일",
     "멀티 파일",
+    "여러 파일",
+    "여러파일",
     "다단계",
     "멀티 스텝",
     "아키텍처 검토",
@@ -272,6 +280,8 @@ def _signal_in(text: str, signal: str) -> bool:
     """True if signal appears in text, allowing flexible spacing/separators.
 
     ASCII signals use word boundaries so `incident` ≠ `incidental` (S4-05).
+    Multi-token ASCII also tolerates hyphen/underscore (S4-01):
+    `architecture review` ↔ `architecture-review`.
     Non-ASCII (KO) keeps compact substring matching.
     """
     s = signal.casefold()
@@ -279,6 +289,15 @@ def _signal_in(text: str, signal: str) -> bool:
     if signal.isascii() or s.isascii():
         if re.search(rf"(?<![a-z0-9_]){re.escape(s)}(?![a-z0-9_])", t):
             return True
+        tokens = [tok for tok in re.split(r"[\s_\-]+", s) if tok]
+        if len(tokens) >= 2:
+            pat = (
+                rf"(?<![a-z0-9])"
+                + r"[\s_\-]+".join(re.escape(tok) for tok in tokens)
+                + rf"(?![a-z0-9])"
+            )
+            if re.search(pat, t):
+                return True
         return False
     if s in t:
         return True

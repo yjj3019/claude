@@ -202,8 +202,6 @@
         "unittest",
         "lint",
         "compiler",
-        "bug",
-        "버그",
         "bug in",
         "source file",
         "source code",
@@ -503,7 +501,15 @@
       "아키텍처 검토",
       "아키텍처 리뷰",
       "신중한 검토",
-      "코드 리뷰"
+      "코드 리뷰",
+      "write a proposal",
+      "draft a proposal",
+      "create a proposal",
+      "proposal review",
+      "proposal writing",
+      "write proposal",
+      "여러 파일",
+      "여러파일"
     ],
     "L1": [
       "edit",

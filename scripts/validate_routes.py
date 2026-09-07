@@ -161,6 +161,14 @@ def main() -> int:
     if code_ask.get("task_type") != "coding":
         errors.append("S4-03 main.py error ask should route to coding")
 
+    # Round-4 P2 residuals
+    bug_prose = detect("발표 자료에 버그라는 단어 빼줘", config)
+    if bug_prose.get("task_type") == "coding":
+        errors.append("P2: bare 버그 prose must not self-satisfy coding")
+    hyphen = detect("architecture-review of OpenShift", config)
+    if hyphen.get("task_type") != "architecture_review":
+        errors.append("S4-01: architecture-review should map to architecture_review")
+
     if errors:
         print("Route validation failed:")
         for error in errors:

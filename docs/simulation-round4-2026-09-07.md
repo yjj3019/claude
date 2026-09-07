@@ -29,4 +29,5 @@
 
 ## P2 백로그
 
-- S4-01 (`여러 파일`, ASCII 하이픈 compact), S4-07 (도메인 어순) — 본 PR 범위 밖.
+- S4-01 / bug self-satisfy / KO·EN tier parity / ASCII hyphen compact — **잔여 PR** `fix/sim-round4-p2-residuals`에서 처리.
+- S4-07 (도메인 어순) — **문서화만** (`docs/loading-map.md`): mention-order 유지; optional `rank`는 미래. silent trim 미구현.

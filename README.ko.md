@@ -47,6 +47,7 @@ python3 scripts/install_pack.py --auto --dry-run
 - **Round 2 라우팅** — KO 티어, 미매핑 high-risk, fallback 가드.
 - **Round 3** — high-risk AND action 게이트, hooks, cold-start `CLAUDE.md`+`AGENTS.md` 예산, 설치 문서 경량화, reviewer Output.
 - **Round 4 설치 안전** — `--auto`=호스트만; 형제 opt-in; `--force` 없이 덮어쓰기 거부.
+- **Round 4 P2 잔여** — coding fallback이 단독 `bug`/`버그`로 자기충족하지 않음; KO/EN L2 티어 정합(`write a proposal` / `여러 파일`); ASCII `architecture-review` 하이픈 매칭; 도메인 overflow mention-order 문서화(silent trim 없음).
 
 ## 핵심 아이디어
 

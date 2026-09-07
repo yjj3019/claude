@@ -18,21 +18,35 @@ def _compact(text: str) -> str:
     return re.sub(r"[\s\u00a0\u3000_\-·./]+", "", text.casefold())
 
 
+def _ascii_sep_flexible(text: str, keyword: str) -> bool:
+    """Match multi-token ASCII with flexible space/hyphen/underscore (S4-01).
+
+    `architecture review` ↔ `architecture-review` / `architecture_review`.
+    Single-token keywords stay word-boundary only (`incident` ≠ `incidental`).
+    """
+    kf = keyword.casefold()
+    if re.search(rf"(?<![a-z0-9_]){re.escape(kf)}(?![a-z0-9_])", text):
+        return True
+    tokens = [tok for tok in re.split(r"[\s_\-]+", kf) if tok]
+    if len(tokens) < 2:
+        return False
+    pat = rf"(?<![a-z0-9]){r'[\s_\-]+'.join(re.escape(tok) for tok in tokens)}(?![a-z0-9])"
+    return bool(re.search(pat, text))
+
+
 def _matches(text: str, keywords: list[str]) -> list[str]:
     """Match keywords against casefolded text.
 
-    ASCII: word-boundary aware. Non-ASCII (KO): substring match with
-    spacing/separator tolerance (코드수정 ↔ 코드 수정).
+    ASCII: word-boundary aware, plus separator-flexible multi-token match
+    (architecture-review ↔ architecture review). Non-ASCII (KO): substring
+    match with spacing/separator tolerance (코드수정 ↔ 코드 수정).
     """
     compact_text = _compact(text)
     found: list[str] = []
     for keyword in keywords:
         kf = keyword.casefold()
         if keyword.isascii():
-            if re.search(
-                rf"(?<![a-z0-9_]){re.escape(kf)}(?![a-z0-9_])",
-                text,
-            ):
+            if _ascii_sep_flexible(text, keyword):
                 found.append(keyword)
         else:
             if kf in text or _compact(keyword) in compact_text:
