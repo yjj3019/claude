@@ -488,10 +488,23 @@ def validate_adaptive_route_alignment(errors: list[str]) -> None:
     for neg in (
         "what is the error budget concept?",
         "이 문서의 오탈자 수정해",
+        "회의록에 에러 내용 정리해줘",
+        "이메일에 오류 고쳐줘",
     ):
         sel = detect(neg, config)
         if sel.get("task_type") == "coding":
             fail(f"coding fallback overfire on {neg!r}", errors)
+    code_ok = detect("what is causing this error in main.py?", config)
+    if code_ok.get("task_type") != "coding":
+        fail("S4-03 main.py error ask should be coding", errors)
+    # S4-04 action overrides trivia
+    for ask in (
+        "고객사 운영 환경에 패치 배포 절차 알려줘",
+        "production DB 마이그레이션 순서 알려줘",
+    ):
+        sel = detect(ask, config)
+        if sel.get("risk_level") != "high" or sel.get("kernel_only_safe") is not False:
+            fail(f"S4-04 expected high+Evidence path for {ask!r}", errors)
 
 
 def validate_reviewer_output(errors: list[str]) -> None:

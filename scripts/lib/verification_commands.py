@@ -21,7 +21,18 @@ def is_verification_command(command: str) -> bool:
 
 def extract_exit_code(data: dict):
     keys = ("returncode", "return_code", "exit_code", "exitCode")
-    response_keys = ("tool_response", "tool_output", "toolOutput", "toolResponse")
+    # Top-level first (some hosts put exit_code on the payload root).
+    for code_key in keys:
+        if code_key in data:
+            return data[code_key]
+    response_keys = (
+        "tool_response",
+        "tool_output",
+        "toolOutput",
+        "toolResponse",
+        "tool_result",  # S4-08 defensive (host schema UNVERIFIED)
+        "toolResult",
+    )
     for response_key in response_keys:
         response = data.get(response_key)
         if isinstance(response, dict):

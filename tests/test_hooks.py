@@ -192,5 +192,13 @@ class RecordFailClosedTest(unittest.TestCase):
             self.assertFalse((root / ".claude" / ".test-run-marker").exists())
 
 
+class ExtractExitCodeTest(unittest.TestCase):
+    def test_accepts_tool_result_and_top_level_exit_code(self):
+        from lib.verification_commands import extract_exit_code
+        self.assertEqual(extract_exit_code({"tool_result": {"exit_code": 0}}), 0)
+        self.assertEqual(extract_exit_code({"exit_code": 1}), 1)
+        self.assertIsNone(extract_exit_code({"tool_input": {"command": "true"}}))
+
+
 if __name__ == "__main__":
     unittest.main()

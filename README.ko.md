@@ -16,34 +16,37 @@ python3 scripts/install_pack.py --auto
 # Claude Projects → CLAUDE.md를 Project Instructions에 붙여넣기
 ```
 
-- `python3 scripts/install_pack.py --auto` — Claude / Codex / Grok / Cursor / AGENTS 호스트에 `fef-claude/` 설치 + **형제(sibling) git 저장소**에도 설치
-- `python3 scripts/install_pack.py --print-bootstrap` — 멀티 루트 워크스페이스용 AI 원라이너
+- `python3 scripts/install_pack.py --auto` — Claude / Codex / Grok / Cursor / AGENTS 호스트에 `fef-claude/` 설치 (**호스트 skills만**; 형제 설치는 opt-in)
+- `python3 scripts/install_pack.py --print-bootstrap` — 호스트/형제 설치 원라이너 (형제는 opt-in)
 - `python3 scripts/install_pack.py --print-claude` — Claude Project Instructions 붙여넣기 절차
 - `python3 scripts/install_pack.py --check` — 설치 파일 검증(+ tests 있으면 validate)
-- `python3 scripts/install_pack.py --help` — `--siblings`, `--siblings-only`, `--dry-run` 등
+- `python3 scripts/install_pack.py --help` — `--siblings`, `--siblings-only`, `--scan-sibling-parent`, `--force`, `--dry-run` 등
 
 권장: **클론을 Claude Code 워크스페이스로 열기**해 루트의 `CLAUDE.md`가 로드되게 합니다.
 
-### 멀티 레포 / 형제 저장소 자동 설치
+### 멀티 레포 / 형제 저장소 설치 (opt-in)
 
-이 저장소와 **프로젝트 저장소(들)를 함께** 워크스페이스에 붙입니다. 에이전트가 `--auto`를 한 번 실행하면 호스트 skills와 각 형제 프로젝트의 skill 루트에 팩이 설치됩니다.
+이 저장소와 **프로젝트 저장소(들)를 함께** 워크스페이스에 붙입니다. 기본 `--auto`는 **호스트 skills만** 설치합니다. 형제 설치는 명시 opt-in입니다:
 
 ```bash
 python3 scripts/install_pack.py --auto
-python3 /path/to/claude/scripts/install_pack.py --auto   # cwd가 다른 저장소일 때
+python3 scripts/install_pack.py --siblings /other/project
+python3 scripts/install_pack.py --auto --siblings /other/project
+python3 scripts/install_pack.py --siblings-only --scan-sibling-parent
 python3 scripts/install_pack.py --auto --dry-run
-python3 scripts/install_pack.py --siblings-only
 # Env: FEF_SIBLING_ROOTS=/a:/b
 ```
 
-형제 대상(비파괴): `<sibling>/.claude/skills/fef-claude` 및/또는 `<sibling>/.agents/skills/fef-claude` (`.claude/`, `.cursor/`, `AGENTS.md`, `.git` 마커 기준).
+**비파괴 정책:** skill 디렉터리 **생성** + 기존 `fef-claude/` **보존** (`--force` 없으면 덮어쓰기 거부; 동일 해시면 skip).
+
+형제 대상(opt-in 시): `<sibling>/.claude/skills/fef-claude` 및/또는 `<sibling>/.agents/skills/fef-claude`.
 
 ## 최근 업데이트 (What's new)
 
 - **Adaptive Effort** — 일상 기본=Sonnet; Haiku는 가벼운 Notion/문서(L0)만; 팩보다 모델 먼저 (`docs/adaptive-effort.md`).
 - **Round 2 라우팅** — KO 티어, 미매핑 high-risk, fallback 가드.
 - **Round 3** — high-risk AND action 게이트, hooks, cold-start `CLAUDE.md`+`AGENTS.md` 예산, 설치 문서 경량화, reviewer Output.
-- **멀티 레포 자동 설치** — `--auto`가 형제 git 저장소 / `FEF_SIBLING_ROOTS` / `--siblings`에 설치 (이번 변경).
+- **Round 4 설치 안전** — `--auto`=호스트만; 형제 opt-in; `--force` 없이 덮어쓰기 거부.
 
 ## 핵심 아이디어
 

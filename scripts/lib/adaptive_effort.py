@@ -114,8 +114,9 @@ TIERS: dict[str, EffortTier] = {
 }
 
 # Signal keywords (casefold). Order matters: highest tier wins.
-# EN + KO pairs; matching is spacing/separator-tolerant (see _signal_in).
-_L3_SIGNALS = (
+# Authority: config/routes.json "effort_signals" (S4-05 / S4-06). Hardcoded
+# defaults below are fallbacks if the JSON key is missing.
+_DEFAULT_L3_SIGNALS = (
     "deep rca",
     "root cause",
     "large refactor",
@@ -127,9 +128,7 @@ _L3_SIGNALS = (
     "high stakes",
     "security audit",
     "architecture overhaul",
-    # Korean (R2-P0-KO-TIER-BLIND / R2-P2-KO-SPACING)
     "근본 원인",
-    "원인 분석",
     "대규모 리팩터",
     "대규모 리팩토링",
     "보안 감사",
@@ -138,8 +137,7 @@ _L3_SIGNALS = (
     "심층 원인",
     "고위험",
 )
-# Softened: no bare "refactor" / bare "architecture" / bare "rca" (overfire).
-_L2_SIGNALS = (
+_DEFAULT_L2_SIGNALS = (
     "multi-file",
     "multi file",
     "multi-step",
@@ -148,11 +146,18 @@ _L2_SIGNALS = (
     "architecture lite",
     "careful review",
     "code review",
-    "proposal",
-    "incident",
     "multi-file refactor",
     "multi file refactor",
-    # Korean
+    "incident response",
+    "incident review",
+    "incident analysis",
+    "원인 분석",
+    "장애 원인",
+    "장애 대응",
+    "장애 분석",
+    "제안서 작성",
+    "제안서 검토",
+    "제안서 일관성",
     "다중 파일",
     "멀티 파일",
     "다단계",
@@ -161,10 +166,8 @@ _L2_SIGNALS = (
     "아키텍처 리뷰",
     "신중한 검토",
     "코드 리뷰",
-    "제안서",
-    "장애",
 )
-_L1_SIGNALS = (
+_DEFAULT_L1_SIGNALS = (
     "edit",
     "fix",
     "patch",
@@ -177,8 +180,7 @@ _L1_SIGNALS = (
     "code",
     "q&a",
     "question",
-    "refactor",  # mild refactor stays Sonnet (L1); large/multi-file escalate above
-    # Korean
+    "refactor",
     "수정",
     "편집",
     "패치",
@@ -190,8 +192,7 @@ _L1_SIGNALS = (
     "리팩터",
     "리팩토링",
 )
-# Narrow Haiku gate: light Notion / document recording only (EN + KO).
-_L0_SIGNALS = (
+_DEFAULT_L0_SIGNALS = (
     "notion note",
     "notion notes",
     "notion row",
@@ -216,12 +217,50 @@ _L0_SIGNALS = (
     "meeting note",
     "checklist for",
     "simple checklist",
-    # Korean Notion / light-doc synonyms
     "노션",
     "메모 추가",
     "메모해",
     "체크리스트",
 )
+
+_L3_SIGNALS = _DEFAULT_L3_SIGNALS
+_L2_SIGNALS = _DEFAULT_L2_SIGNALS
+_L1_SIGNALS = _DEFAULT_L1_SIGNALS
+_L0_SIGNALS = _DEFAULT_L0_SIGNALS
+
+
+def load_effort_signals(config: dict | None = None) -> None:
+    """Load L0–L3 signal lists from routes.json effort_signals (S4-06)."""
+    global _L3_SIGNALS, _L2_SIGNALS, _L1_SIGNALS, _L0_SIGNALS
+    if config is None:
+        try:
+            from lib.routing import load_config as _load
+            config = _load()
+        except Exception:
+            try:
+                import json
+                from pathlib import Path as _Path
+                cfg_path = _Path(__file__).resolve().parents[2] / "config" / "routes.json"
+                config = json.loads(cfg_path.read_text(encoding="utf-8"))
+            except Exception:
+                return
+    signals = (config or {}).get("effort_signals") or {}
+    if signals.get("L3"):
+        _L3_SIGNALS = tuple(signals["L3"])
+    if signals.get("L2"):
+        _L2_SIGNALS = tuple(signals["L2"])
+    if signals.get("L1"):
+        _L1_SIGNALS = tuple(signals["L1"])
+    if signals.get("L0"):
+        _L0_SIGNALS = tuple(signals["L0"])
+
+
+# Load from config at import when available.
+try:
+    load_effort_signals()
+except Exception:
+    pass
+
 
 
 def _compact(text: str) -> str:
@@ -230,9 +269,17 @@ def _compact(text: str) -> str:
 
 
 def _signal_in(text: str, signal: str) -> bool:
-    """True if signal appears in text, allowing flexible spacing/separators."""
+    """True if signal appears in text, allowing flexible spacing/separators.
+
+    ASCII signals use word boundaries so `incident` ≠ `incidental` (S4-05).
+    Non-ASCII (KO) keeps compact substring matching.
+    """
     s = signal.casefold()
     t = text.casefold()
+    if signal.isascii() or s.isascii():
+        if re.search(rf"(?<![a-z0-9_]){re.escape(s)}(?![a-z0-9_])", t):
+            return True
+        return False
     if s in t:
         return True
     return _compact(s) in _compact(t)

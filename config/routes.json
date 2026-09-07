@@ -1,136 +1,564 @@
 {
-  "limits": {"policies": 3, "modules": 1, "domains": 2, "workflows": 1, "reviewers": 1},
-  "high_risk_keywords": ["production", "security", "customer", "public sector", "운영 환경", "보안", "고객", "공공"],
+  "limits": {
+    "policies": 3,
+    "modules": 1,
+    "domains": 2,
+    "workflows": 1,
+    "reviewers": 1
+  },
+  "high_risk_keywords": [
+    "production",
+    "security",
+    "customer",
+    "public sector",
+    "운영 환경",
+    "보안",
+    "고객",
+    "공공"
+  ],
   "domains": [
-    {"path": "domains/RHEL.md", "keywords": ["rhel", "red hat enterprise linux", "레드햇"], "subsumes": ["domains/Linux.md"]},
-    {"path": "domains/OpenShift.md", "keywords": ["openshift", "오픈시프트"], "subsumes": ["domains/Kubernetes.md"]},
-    {"path": "domains/Kubernetes.md", "keywords": ["kubernetes", "k8s", "쿠버네티스"]},
-    {"path": "domains/Linux.md", "keywords": ["linux", "리눅스"]},
-    {"path": "domains/Ansible.md", "keywords": ["ansible", "앤서블"]},
-    {"path": "domains/Satellite.md", "keywords": ["satellite", "새틀라이트"]},
-    {"path": "domains/EnterpriseArchitecture.md", "keywords": ["enterprise architecture", "엔터프라이즈 아키텍처"]}
+    {
+      "path": "domains/RHEL.md",
+      "keywords": [
+        "rhel",
+        "red hat enterprise linux",
+        "레드햇"
+      ],
+      "subsumes": [
+        "domains/Linux.md"
+      ]
+    },
+    {
+      "path": "domains/OpenShift.md",
+      "keywords": [
+        "openshift",
+        "오픈시프트"
+      ],
+      "subsumes": [
+        "domains/Kubernetes.md"
+      ]
+    },
+    {
+      "path": "domains/Kubernetes.md",
+      "keywords": [
+        "kubernetes",
+        "k8s",
+        "쿠버네티스"
+      ]
+    },
+    {
+      "path": "domains/Linux.md",
+      "keywords": [
+        "linux",
+        "리눅스"
+      ]
+    },
+    {
+      "path": "domains/Ansible.md",
+      "keywords": [
+        "ansible",
+        "앤서블"
+      ]
+    },
+    {
+      "path": "domains/Satellite.md",
+      "keywords": [
+        "satellite",
+        "새틀라이트"
+      ]
+    },
+    {
+      "path": "domains/EnterpriseArchitecture.md",
+      "keywords": [
+        "enterprise architecture",
+        "엔터프라이즈 아키텍처"
+      ]
+    }
   ],
   "routes": [
     {
       "id": "proposal_consistency",
       "priority": 0,
       "label": "Proposal consistency check",
-      "loading_map_tasks": ["Proposal consistency check"],
-      "keywords": ["proposal consistency", "consistency review", "제안서 일관성", "제안서 검토"],
+      "loading_map_tasks": [
+        "Proposal consistency check"
+      ],
+      "keywords": [
+        "proposal consistency",
+        "consistency review",
+        "제안서 일관성",
+        "제안서 검토"
+      ],
       "module": "modules/Proposal.md",
       "workflow": "workflows/ProposalWorkflow.md",
       "reviewer": "reviewers/ProposalConsistencyReviewer.md",
-      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "policies": [
+        "policies/Writing.md",
+        "policies/Evidence.md",
+        "policies/Review.md"
+      ],
       "risk_level": "high"
     },
     {
       "id": "rca",
       "priority": 1,
       "label": "Linux/RHEL RCA",
-      "loading_map_tasks": ["Linux/RHEL RCA"],
-      "keywords": ["root cause", "incident", "outage", "rca", "장애 원인", "장애 분석", "근본 원인"],
+      "loading_map_tasks": [
+        "Linux/RHEL RCA"
+      ],
+      "keywords": [
+        "root cause",
+        "incident",
+        "outage",
+        "rca",
+        "장애 원인",
+        "장애 분석",
+        "근본 원인"
+      ],
       "module": "modules/RCA.md",
       "workflow": "workflows/RCAWorkflow.md",
       "reviewer": "reviewers/TechnicalReviewer.md",
-      "policies": ["policies/Evidence.md", "policies/Thinking.md", "policies/Review.md"],
+      "policies": [
+        "policies/Evidence.md",
+        "policies/Thinking.md",
+        "policies/Review.md"
+      ],
       "risk_level": "high"
     },
     {
       "id": "coding",
       "priority": 3,
       "label": "Code modification",
-      "loading_map_tasks": ["Code modification"],
-      "keywords": ["fix code", "debug", "patch", "refactor", "unit test", "unit tests", "write tests", "exception", "optimize query", "sql query", "코드 수정", "디버그", "최소 변경", "리팩터", "단위 테스트", "테스트 작성", "쿼리 최적화", "쿼리를 최적화", "sql 쿼리", "함수 수정"],
-      "fallback_keywords": ["bug fix", "fix", "bug", "error", "버그", "에러", "오류", "고쳐", "수정해"],
+      "loading_map_tasks": [
+        "Code modification"
+      ],
+      "keywords": [
+        "fix code",
+        "debug",
+        "patch",
+        "refactor",
+        "unit test",
+        "unit tests",
+        "write tests",
+        "exception",
+        "optimize query",
+        "sql query",
+        "코드 수정",
+        "디버그",
+        "최소 변경",
+        "리팩터",
+        "단위 테스트",
+        "테스트 작성",
+        "쿼리 최적화",
+        "쿼리를 최적화",
+        "sql 쿼리",
+        "함수 수정"
+      ],
+      "fallback_keywords": [
+        "bug fix",
+        "fix",
+        "bug",
+        "error",
+        "버그",
+        "에러",
+        "오류",
+        "고쳐",
+        "수정해"
+      ],
       "module": "modules/Coding.md",
       "workflow": "workflows/CodingWorkflow.md",
       "reviewer": "reviewers/CodeChangeReviewer.md",
-      "policies": ["policies/FileHandling.md", "policies/ToolExecution.md"],
-      "risk_level": "medium"
+      "policies": [
+        "policies/FileHandling.md",
+        "policies/ToolExecution.md"
+      ],
+      "risk_level": "medium",
+      "fallback_requires_any": [
+        "def ",
+        "class ",
+        "function",
+        "method",
+        "module",
+        "stack trace",
+        "traceback",
+        "stacktrace",
+        "syntaxerror",
+        "typeerror",
+        "nullpointer",
+        "null pointer",
+        "segfault",
+        "exception",
+        "컴파일",
+        "코드",
+        "함수",
+        "메서드",
+        "모듈",
+        "클래스",
+        "파일",
+        "유닛 테스트",
+        "unit test",
+        "test_",
+        "pytest",
+        "unittest",
+        "lint",
+        "compiler",
+        "bug",
+        "버그",
+        "bug in",
+        "source file",
+        "source code",
+        "코드베이스",
+        "codebase",
+        "repo",
+        "repository"
+      ],
+      "fallback_requires_pattern": [
+        "\\.(py|ts|tsx|js|jsx|go|rs|java|rb|php|c|cpp|h|cs|kt|swift)(/|\\b|:|$)",
+        "\\b(src|lib|app|tests?)/\\S+",
+        "`[^`]+\\.(py|ts|js|go|rs|java)`"
+      ]
     },
     {
       "id": "proposal",
       "priority": 4,
       "label": "Proposal",
-      "loading_map_tasks": ["RHEL proposal"],
-      "keywords": ["proposal", "rfp", "제안서", "제안 요청"],
+      "loading_map_tasks": [
+        "RHEL proposal"
+      ],
+      "keywords": [
+        "proposal",
+        "rfp",
+        "제안서",
+        "제안 요청"
+      ],
       "module": "modules/Proposal.md",
       "workflow": "workflows/ProposalWorkflow.md",
       "reviewer": "reviewers/ProposalReviewer.md",
-      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "policies": [
+        "policies/Writing.md",
+        "policies/Evidence.md",
+        "policies/Review.md"
+      ],
       "risk_level": "medium"
     },
     {
       "id": "research",
       "priority": 5,
       "label": "Current-version research",
-      "loading_map_tasks": ["Technical research brief / Current-version research"],
-      "keywords": ["research", "release impact", "new feature", "current version", "기술 조사", "신규 기능", "최신 버전"],
+      "loading_map_tasks": [
+        "Technical research brief / Current-version research"
+      ],
+      "keywords": [
+        "research",
+        "release impact",
+        "new feature",
+        "current version",
+        "기술 조사",
+        "신규 기능",
+        "최신 버전"
+      ],
       "module": "modules/Research.md",
       "workflow": "workflows/ResearchWorkflow.md",
       "reviewer": null,
-      "policies": ["policies/Evidence.md", "policies/Freshness.md", "policies/Calibration.md"],
+      "policies": [
+        "policies/Evidence.md",
+        "policies/Freshness.md",
+        "policies/Calibration.md"
+      ],
       "risk_level": "medium"
     },
     {
       "id": "manual",
       "priority": 6,
       "label": "Operations manual",
-      "loading_map_tasks": ["RHEL operations manual"],
-      "keywords": ["operations manual", "runbook", "sop", "운영 매뉴얼", "절차서"],
+      "loading_map_tasks": [
+        "RHEL operations manual"
+      ],
+      "keywords": [
+        "operations manual",
+        "runbook",
+        "sop",
+        "운영 매뉴얼",
+        "절차서"
+      ],
       "module": "modules/Manual.md",
       "workflow": "workflows/ManualWorkflow.md",
       "reviewer": "reviewers/DocumentationReviewer.md",
-      "policies": ["policies/Writing.md", "policies/Evidence.md", "policies/Review.md"],
+      "policies": [
+        "policies/Writing.md",
+        "policies/Evidence.md",
+        "policies/Review.md"
+      ],
       "risk_level": "medium"
     },
     {
       "id": "prompt_review",
       "priority": 7,
       "label": "Prompt review",
-      "loading_map_tasks": ["Prompt review"],
-      "keywords": ["prompt review", "improve prompt", "프롬프트 검토", "프롬프트 개선"],
+      "loading_map_tasks": [
+        "Prompt review"
+      ],
+      "keywords": [
+        "prompt review",
+        "improve prompt",
+        "프롬프트 검토",
+        "프롬프트 개선"
+      ],
       "module": "modules/PromptEngineering.md",
       "workflow": "workflows/PromptWorkflow.md",
       "reviewer": "reviewers/PromptReviewer.md",
-      "policies": ["policies/Thinking.md", "policies/Review.md"],
+      "policies": [
+        "policies/Thinking.md",
+        "policies/Review.md"
+      ],
       "risk_level": "low"
     },
     {
       "id": "architecture_review",
       "priority": 2,
       "label": "OpenShift architecture review",
-      "loading_map_tasks": ["OpenShift architecture review"],
-      "keywords": ["architecture review", "아키텍처 검토", "아키텍처 리뷰"],
+      "loading_map_tasks": [
+        "OpenShift architecture review"
+      ],
+      "keywords": [
+        "architecture review",
+        "아키텍처 검토",
+        "아키텍처 리뷰"
+      ],
       "module": "modules/Architecture.md",
       "workflow": "workflows/ArchitectureWorkflow.md",
       "reviewer": "reviewers/ArchitectureReviewer.md",
-      "policies": ["policies/Thinking.md", "policies/Evidence.md", "policies/Review.md"],
+      "policies": [
+        "policies/Thinking.md",
+        "policies/Evidence.md",
+        "policies/Review.md"
+      ],
       "risk_level": "medium"
     },
     {
       "id": "technical_blog",
       "priority": 8,
       "label": "Technical blog post",
-      "loading_map_tasks": ["Technical blog post"],
-      "keywords": ["blog", "블로그"],
+      "loading_map_tasks": [
+        "Technical blog post"
+      ],
+      "keywords": [
+        "blog",
+        "블로그"
+      ],
       "module": "modules/Blog.md",
       "workflow": "workflows/ResearchWorkflow.md",
       "reviewer": "reviewers/TechnicalReviewer.md",
-      "policies": ["policies/Writing.md", "policies/Evidence.md"],
+      "policies": [
+        "policies/Writing.md",
+        "policies/Evidence.md"
+      ],
       "risk_level": "low"
     },
     {
       "id": "security_review",
       "priority": 9,
       "label": "Security-focused design/change review",
-      "loading_map_tasks": ["Security-focused design/change review"],
-      "keywords": ["security review", "security-focused review", "보안 검토", "보안 리뷰"],
+      "loading_map_tasks": [
+        "Security-focused design/change review"
+      ],
+      "keywords": [
+        "security review",
+        "security-focused review",
+        "보안 검토",
+        "보안 리뷰"
+      ],
       "module": null,
       "workflow": null,
       "reviewer": "reviewers/SecurityReviewer.md",
-      "policies": ["policies/Evidence.md"],
+      "policies": [
+        "policies/Evidence.md"
+      ],
       "risk_level": "high"
     }
-  ]
+  ],
+  "high_risk_gate": {
+    "action_verbs": [
+      "배포",
+      "변경",
+      "적용",
+      "마이그레이션",
+      "교체",
+      "구성",
+      "설정",
+      "설계",
+      "계획",
+      "검토",
+      "분석",
+      "작성",
+      "수정",
+      "점검",
+      "전환",
+      "이관",
+      "deploy",
+      "deploying",
+      "deployment",
+      "migrate",
+      "migrating",
+      "migration",
+      "apply",
+      "applying",
+      "configure",
+      "configuring",
+      "configuration",
+      "rollout",
+      "roll out",
+      "plan",
+      "planning",
+      "review",
+      "reviewing",
+      "design",
+      "designing",
+      "upgrade",
+      "upgrading",
+      "patch",
+      "patching",
+      "audit",
+      "auditing"
+    ],
+    "trivia_patterns": [
+      "뜻이 뭐야",
+      "차이가 뭐야",
+      "차이점이 뭐야",
+      "규칙이 뭐야",
+      "이름이 뭐야",
+      "무엇인가",
+      "무엇인가요",
+      "뭔가요",
+      "what is the meaning",
+      "meaning of",
+      " mean?",
+      " mean "
+    ],
+    "question_markers": [
+      "뭐야",
+      "인가요",
+      "일까",
+      "인가",
+      "할까",
+      "알려줘",
+      "알려 줘",
+      "how ",
+      "why ",
+      "when ",
+      "where ",
+      "which ",
+      "who ",
+      "what ",
+      "what's"
+    ]
+  },
+  "effort_signals": {
+    "L3": [
+      "deep rca",
+      "root cause",
+      "large refactor",
+      "multi-hour",
+      "multi hour",
+      "long-running",
+      "long running",
+      "high-stakes",
+      "high stakes",
+      "security audit",
+      "architecture overhaul",
+      "근본 원인",
+      "대규모 리팩터",
+      "대규모 리팩토링",
+      "보안 감사",
+      "장기 작업",
+      "장시간 작업",
+      "심층 원인",
+      "고위험"
+    ],
+    "L2": [
+      "multi-file",
+      "multi file",
+      "multi-step",
+      "multi step",
+      "architecture review",
+      "architecture lite",
+      "careful review",
+      "code review",
+      "multi-file refactor",
+      "multi file refactor",
+      "incident response",
+      "incident review",
+      "incident analysis",
+      "원인 분석",
+      "장애 원인",
+      "장애 대응",
+      "장애 분석",
+      "제안서 작성",
+      "제안서 검토",
+      "제안서 일관성",
+      "다중 파일",
+      "멀티 파일",
+      "다단계",
+      "멀티 스텝",
+      "아키텍처 검토",
+      "아키텍처 리뷰",
+      "신중한 검토",
+      "코드 리뷰"
+    ],
+    "L1": [
+      "edit",
+      "fix",
+      "patch",
+      "summary",
+      "summarize",
+      "one-file",
+      "one file",
+      "implement",
+      "coding",
+      "code",
+      "q&a",
+      "question",
+      "refactor",
+      "수정",
+      "편집",
+      "패치",
+      "요약",
+      "구현",
+      "코딩",
+      "코드",
+      "질문",
+      "리팩터",
+      "리팩토링"
+    ],
+    "L0": [
+      "notion note",
+      "notion notes",
+      "notion row",
+      "notion rows",
+      "notion page",
+      "notion record",
+      "notion filing",
+      "short doc",
+      "short document",
+      "doc capture",
+      "document capture",
+      "trivial filing",
+      "simple filing",
+      "checklist tick",
+      "checklist ticks",
+      "tick checklist",
+      "file a note",
+      "log a note",
+      "append a row",
+      "add a notion",
+      "meeting notes",
+      "meeting note",
+      "checklist for",
+      "simple checklist",
+      "노션",
+      "메모 추가",
+      "메모해",
+      "체크리스트"
+    ]
+  }
 }
