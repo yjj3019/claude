@@ -68,7 +68,7 @@ class HarnessTest(unittest.TestCase):
 
     def test_domain_overflow_keeps_top2_with_explicit_warning(self):
         """R2-P1-DOMAIN-OVERFLOW: top-2 + warning naming drops (not silent trim)."""
-        result = detect("RHEL OpenShift Ansible 버그를 수정해줘", self.config)
+        result = detect("RHEL OpenShift Ansible 코드 버그를 수정해줘", self.config)
         self.assertEqual(validate_selection(result, self.config), [])
         self.assertEqual(len(result["domains"]), 2)
         self.assertIn("domains/RHEL.md", result["domains"])
@@ -173,7 +173,33 @@ class HarnessTest(unittest.TestCase):
                     any("Multi-intent" in w and "high-risk" in w for w in result["warnings"])
                 )
 
+    def test_s4_p2_bug_self_satisfy_removed(self):
+        """P2 residual: bare bug/버그 must not self-satisfy coding fallback."""
+        prose = detect("발표 자료에 버그라는 단어 빼줘", self.config)
+        self.assertNotEqual(prose["task_type"], "coding", prose)
+        # Real code-context bug ask still routes to coding.
+        for task in (
+            "Fix the bug in auth.py",
+            "payment module에 버그 있어 traceback 확인좀",
+        ):
+            with self.subTest(task=task):
+                result = detect(task, self.config)
+                self.assertEqual(result["task_type"], "coding", task)
+
+    def test_s4_01_architecture_hyphen_underscore(self):
+        """S4-01: architecture-review / architecture_review map like spaced form."""
+        spaced = detect("architecture review of OpenShift", self.config)
+        hyphen = detect("architecture-review of OpenShift", self.config)
+        under = detect("architecture_review of OpenShift", self.config)
+        self.assertEqual(spaced["task_type"], "architecture_review")
+        self.assertEqual(hyphen["task_type"], "architecture_review")
+        self.assertEqual(under["task_type"], "architecture_review")
+        # Single-token word-boundary still holds (S4-05 regression).
+        from lib.routing import _matches
+        self.assertEqual(_matches("incidental cleanup", ["incident"]), [])
+
     def test_golden_metadata(self):
+
         result = validate_golden_tests()
         self.assertTrue(result["valid"], result["errors"])
         self.assertEqual(result["test_count"], 31)

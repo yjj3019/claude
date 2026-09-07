@@ -233,7 +233,19 @@ class AdaptiveEffortTests(unittest.TestCase):
                 )
                 self.assertEqual(errors, [])
 
+    def test_s4_01_ko_en_tier_parity_and_hyphen(self):
+        """S4-01 P2: EN/KO proposal + multi-file L2 parity; hyphen compact."""
+        from lib.adaptive_effort import load_effort_signals
+        load_effort_signals(load_config())
+        self.assertEqual(classify_tier("write a proposal for the customer"), "L2")
+        self.assertEqual(classify_tier("고객사 제안서 작성"), "L2")
+        self.assertEqual(classify_tier("여러 파일 리팩터"), "L2")
+        self.assertEqual(classify_tier("multi-file refactor"), "L2")
+        self.assertEqual(classify_tier("architecture-review of the cluster"), "L2")
+        self.assertEqual(classify_tier("architecture review of the cluster"), "L2")
+
     def test_s4_05_tier_signals_no_lone_noun_overfire(self):
+
         """S4-05: lone 장애/incident/제안서 do not inflate tier; compounds do."""
         self.assertEqual(classify_tier("노션에 장애 이력 메모 추가"), "L0")
         self.assertEqual(classify_tier("incidental cleanup of the README"), "L1")

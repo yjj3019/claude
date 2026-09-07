@@ -54,6 +54,7 @@ Sibling targets (when opted in): `<sibling>/.claude/skills/fef-claude` and/or `<
 - **Round 2 routing** — KO language tiers, unmapped high-risk handling, fallback guard.
 - **Round 3** — high-risk AND action gate, hooks, cold-start `CLAUDE.md`+`AGENTS.md` budget, lean install docs, reviewer Output contracts.
 - **Round 4 install safety** — `--auto` = host skills only; sibling install opt-in; refuse overwrite without `--force`.
+- **Round 4 P2 residuals** — coding fallback no longer self-satisfies on bare `bug`/`버그`; KO/EN L2 tier parity (`write a proposal` / `여러 파일`); ASCII `architecture-review` hyphen match; domain-overflow mention-order documented (no silent trim).
 
 ## Core Idea
 
