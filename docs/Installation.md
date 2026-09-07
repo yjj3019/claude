@@ -32,7 +32,7 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 
 1. Clone or copy this repository and open it as the Claude Code workspace root (loads `CLAUDE.md`).
 2. Or run `python3 scripts/install_pack.py --auto` and point the host at the installed `fef-claude/` pack.
-3. Hooks under `.claude/settings.json` enforce test-before-stop when using this repo as workspace.
+3. Hooks under `.claude/settings.json` enforce test-before-stop when using this repo as workspace. They invoke `python`; on Linux/macOS change both commands to `python3`, otherwise the hooks fail open and enforcement is silently off (see `docs/ClaudeCode.md`).
 
 ## Claude Projects
 
