@@ -38,7 +38,6 @@ tests/fixtures/*.run/
 # this repository is public — screenshots and drafts in particular have no
 # business being published by an accidental `git add -A`.
 .local/
-Tunning/
 claude/
 rpm/
 tmp/

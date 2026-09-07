@@ -4,7 +4,7 @@
 
 ## Scope
 
-Target: `C:\AI-Codding\claude\Tunning\claude` (the FEF framework itself — kernel/policies/modules/domains/reviewers/workflows layering, `config/routes.json` routing, validation scripts). Each pass was given the same brief (layering architecture summary) and asked to judge fitness, operational risk, extensibility, and maintainability, independently, in parallel, without seeing other passes' output.
+Target: this repository (the FEF framework itself — kernel/policies/modules/domains/reviewers/workflows layering, `config/routes.json` routing, validation scripts). Each pass was given the same brief (layering architecture summary) and asked to judge fitness, operational risk, extensibility, and maintainability, independently, in parallel, without seeing other passes' output.
 
 ## Consensus findings (ranked by how many of the completed passes raised each one)
 

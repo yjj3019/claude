@@ -1,8 +1,8 @@
 # SESSION_LOG.md — claude(FEF) project session history (append-only, never overwrite)
 
-## Session backup: 2026-08-05 (`claude/Tunning/claude` FEF — architecture review, pack-ablation, Fable deletion)
+## Session backup: 2026-08-05 (FEF — architecture review, pack-ablation, Fable deletion)
 
-Target: `C:\AI-Codding\claude\Tunning\claude` (FEF, independent git repo, `github.com/yjj3019/claude`)
+Target: this repository (`github.com/yjj3019/claude`), worked on from a local clone.
 
 ### Completed
 - **10 independent architecture reviews** (architecture-reviewer subagents run in parallel) converged on multiple Critical/Major findings, fixed in one batch in `2db68f1`: route tie-break moved from implicit array order to an explicit `priority` field; `validate_routes.py`'s keyword-shadowing check widened from checking only the first keyword to checking all of them; fixed 3 real `loading-map.md`↔`routes.json` mismatches plus added a regression validator (`check_row_mandatory_packs`); decoupled the Fable CI hard gate to continue-on-error; hook `python3`→`python`; fixed two Korean-keyword false positives (`"커널"` over-matching into RHEL-domain content, `"운영"` over-firing).
@@ -20,7 +20,7 @@ Target: `C:\AI-Codding\claude\Tunning\claude` (FEF, independent git repo, `githu
 - **Non-coding route evaluation methodology**: explicitly deferred (designing a new scoring methodology is a large separate project).
 
 ### Runtime snapshot
-- Branch/Path: `main` · `C:\AI-Codding\claude\Tunning\claude`
+- Branch: `main` (local clone)
 - Final commit: `e5471ae` (fully synced with `origin/main`, `git status` clean)
 - Recent commit flow: `2db68f1` (hardening) → several pack-ablation data commits → `3b596df` (CORRECTION) → `8e67771`/`9445680` (Fable review follow-ups) → `743b9bd` (Fable deletion) → `0dc71cf` (final-review polish) → `e5471ae` (priority fix)
 - Active errors: none. `python -m unittest discover -s tests` — all 43 green (158→43 after the Fable deletion); `validate_repository.py`/`validate_routes.py` (10 routes) pass.
@@ -51,5 +51,5 @@ Target: GitHub `main` (public, `https://github.com/yjj3019/claude`)
 
 ### Handoff notes
 - CHANGELOG/PROGRESS/SESSION_LOG Round 4 catch-up was applied via docs PR to `origin/main` (branch `docs/round4-changelog-catchup`) — unlike an earlier throwaway-clone-only edit that never reached GitHub.
-- Everything verified here reflects GitHub `main` @ `884b768` plus this docs commit — check `git status`/`git log` on any other working clone (e.g. `~/Claude/fef`) before assuming sync.
+- Everything verified here reflects GitHub `main` @ `884b768` plus this docs commit — check `git status`/`git log` on any other working clone before assuming sync.
 
