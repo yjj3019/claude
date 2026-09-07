@@ -30,3 +30,26 @@ Target: `C:\AI-Codding\claude\Tunning\claude` (FEF, independent git repo, `githu
 - **Key lesson from this session**: Claude Code (and Agent-tool subagents) always auto-inject a working directory's `CLAUDE.md`/`AGENTS.md` regardless of prompt content — designing an "on/off" comparison by varying only the prompt inside this same repository is fundamentally impossible. Keep this in mind when designing similar A/B experiments in other projects.
 - Cross-checking with an independent model (Fable5) caught a real, significant self-inflicted flaw this time — validates the pattern of a final cross-model review before committing to an important experimental conclusion.
 - The FEF repository's own detailed history lives in that repo's `PROGRESS.md` (top 5 entries under Current Status) and `docs/reviews/` (2 files) — that's the starting point for the next session.
+
+## Session backup: 2026-09-07 (`yjj3019/claude` FEF — Round 4 routing/install fixes, doc catch-up)
+
+Target: GitHub `main` (public, `https://github.com/yjj3019/claude`)
+
+### Completed
+- Round 4 simulation review cycle: reproduced and fixed S4-09 (multi-repo `--auto` sibling-scan + force-overwrite), S4-04 (trivia short-circuit reopening the Round 2 high-risk gate), S4-03/05/06 (coding fallback blocklist -> allowlist, L2/L3 tier-signal overfitting, hardcoded gates -> `config/routes.json`), and the P2 backlog (self-satisfying check, KO/EN tier parity, ASCII-hyphen compacting, domain load-order docs). Defensively widened the hook exit-code extractor for S4-08 pending host verification. Full plan and outcome record: `docs/simulation-round4-improvement-plan-2026-09-07.md`, `docs/simulation-round4-2026-09-07.md`. Shipped via PRs #17-#24, merged to `main` @ `884b768`.
+- Documentation catch-up (this session): `CHANGELOG.md`'s Unreleased section and `PROGRESS.md`'s Current Status/Next Session had not been updated for the Round 4 work even though it was already merged. Added CHANGELOG entries for S4-01/03/04/05/06/07/08/09, added a PROGRESS.md status entry, and repointed the Next Session resume note. Re-ran the full verification suite from a fresh clone of `origin/main` rather than trusting the prior write-up: `python -m unittest discover -s tests` (123/123 pass), `validate_repository.py`, `validate_routes.py` (10 routes), `validate_framework.py` — all pass.
+
+### In progress / candidates for the next session
+- **S4-08**: still open, gated on a real Claude Code hook payload capture (see PROGRESS.md Next Session #5). Not attempted this session — no live host/hook execution available from this environment.
+- Older backlog (pack-ablation re-run, Skills-migration A/B, kernel rule ablation, non-coding route evaluation methodology) untouched this session; still pending per the 2026-08-05 entry above.
+
+### Runtime snapshot
+- Branch: `docs/round4-changelog-catchup` (from `origin/main` @ `884b768`)
+- HEAD base: `884b768` ("Merge pull request #24 from yjj3019/fix/sim-round4-p2-residuals")
+- `python -m unittest discover -s tests`: 123/123 pass. `validate_repository.py`/`validate_routes.py`/`validate_framework.py`: pass.
+- Documentation catch-up applied via docs PR to `origin/main` (this branch); not merged in this session.
+
+### Handoff notes
+- CHANGELOG/PROGRESS/SESSION_LOG Round 4 catch-up was applied via docs PR to `origin/main` (branch `docs/round4-changelog-catchup`) — unlike an earlier throwaway-clone-only edit that never reached GitHub.
+- Everything verified here reflects GitHub `main` @ `884b768` plus this docs commit — check `git status`/`git log` on any other working clone (e.g. `~/Claude/fef`) before assuming sync.
+
