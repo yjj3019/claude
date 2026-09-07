@@ -519,6 +519,59 @@ def validate_reviewer_output(errors: list[str]) -> None:
             fail(f"{path.relative_to(ROOT)} missing ## Output section", errors)
 
 
+# Floors sit just under today's smallest real pack in each family, so an
+# accidental gutting fails while every current file passes. Raise a floor only
+# together with the pack it describes.
+PACK_CONTENT_FLOORS = {
+    "kernel": (700, 1),
+    "policies": (350, 1),
+    "modules": (120, 1),
+    "domains": (200, 1),
+    "reviewers": (350, 2),
+    "workflows": (150, 0),
+}
+
+
+def validate_pack_content(errors: list[str]) -> None:
+    """Guard against packs that exist but say nothing.
+
+    File presence and reference integrity were already checked; a pack reduced
+    to its heading passed every one of them.
+    """
+    for folder, (min_bytes, min_sections) in PACK_CONTENT_FLOORS.items():
+        directory = ROOT / folder
+        if not directory.is_dir():
+            fail(f"missing pack directory: {folder}", errors)
+            continue
+        for path in sorted(directory.glob("*.md")):
+            rel = path.relative_to(ROOT).as_posix()
+            body = path.read_text(encoding="utf-8-sig")
+            size = len(body.encode("utf-8"))
+            if size < min_bytes:
+                fail(
+                    f"{rel} is {size} B, below the {folder} content floor "
+                    f"{min_bytes} B (pack looks gutted, not merely short)",
+                    errors,
+                )
+            headings = [ln for ln in body.splitlines() if ln.startswith("## ")]
+            if len(headings) < min_sections:
+                fail(
+                    f"{rel} has {len(headings)} '##' section(s), below the "
+                    f"{folder} minimum {min_sections}",
+                    errors,
+                )
+            bullets = [
+                ln for ln in body.splitlines()
+                if ln.lstrip().startswith(("- ", "* ", "1. "))
+            ]
+            if not bullets:
+                fail(
+                    f"{rel} carries no list content; a pack must state rules, "
+                    "not just a title",
+                    errors,
+                )
+
+
 def validate_no_wrapper_policy(errors: list[str]) -> None:
     prohibited = {"operationalintegrity", "discipline", "corepolicyset"}
     for path in (ROOT / "policies").glob("*.md"):
@@ -535,6 +588,7 @@ def main() -> int:
     validate_loading_map(errors)
     validate_golden_tests(errors)
     validate_runtime_terms(errors)
+    validate_pack_content(errors)
     validate_no_wrapper_policy(errors)
     validate_context_and_model_floor(errors)
     validate_claude_entry_budget(errors)

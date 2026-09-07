@@ -30,7 +30,9 @@ def _ascii_sep_flexible(text: str, keyword: str) -> bool:
     tokens = [tok for tok in re.split(r"[\s_\-]+", kf) if tok]
     if len(tokens) < 2:
         return False
-    pat = rf"(?<![a-z0-9]){r'[\s_\-]+'.join(re.escape(tok) for tok in tokens)}(?![a-z0-9])"
+    gap = r"[\s_\-]+"
+    body = gap.join(re.escape(tok) for tok in tokens)
+    pat = rf"(?<![a-z0-9]){body}(?![a-z0-9])"
     return bool(re.search(pat, text))
 
 

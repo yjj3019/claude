@@ -137,7 +137,7 @@ Edge fails / risks:
 3. **Model-Invariant Floor “same map” vs Adaptive tighter L0/L1 caps.**  
 4. **sim-10 report Haiku default vs current Sonnet default.**  
 5. **Triple taxonomy:** MetaRules risk × Autoload simple/substantial × Adaptive L0–L3.  
-6. **English-only L0 signals** vs bilingual user (재전 유 / KO tasks).  
+6. **English-only L0 signals** vs a bilingual (KO/EN) maintainer.  
 7. **Phrase-only validators** green-wash Adaptive regressions.  
 8. **20 B cold-start headroom** — doc edits ↔ CI budget flapping.
 

@@ -11,15 +11,28 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # A single pinned version hid a 3.12-only f-string while the pack
+        # advertised Python 3.11+. Test the declared floor and current releases.
+        python-version: ["3.11", "3.12", "3.14"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "${{ matrix.python-version }}"
       - run: python scripts/validate_repository.py
       - run: python scripts/validate_routes.py
       - run: python scripts/run_golden_tests.py --validate-only
       - run: python -m unittest discover -s tests -p "test_*.py"
+      # detect_task and the install/verify path are documented entry points
+      # that CI never exercised.
+      - run: python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
+      - run: python scripts/install_pack.py --dest /tmp/fef-ci
+      - run: python scripts/install_pack.py --check --dest /tmp/fef-ci
       - run: python scripts/run_golden_test_coding.py --test 012 --patch-dir tests/fixtures/GT012-code/answers
       - run: python scripts/run_golden_test_coding.py --test 013 --patch-dir tests/fixtures/GT013-code/answers
       - run: python scripts/run_golden_test_coding.py --test 014 --patch-dir tests/fixtures/GT014-code/answers

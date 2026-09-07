@@ -2,6 +2,7 @@
 """Run repository-wide FEF validation and report advisory warnings."""
 from __future__ import annotations
 
+import sys
 import json
 import re
 import subprocess
@@ -31,7 +32,8 @@ def advisory_warnings() -> list[str]:
     if orphaned:
         warnings.append(f"packs not referenced by loading-map or routes config: {', '.join(orphaned)}")
 
-    tags = set(subprocess.run(["git", "tag"], cwd=ROOT, check=True, text=True, capture_output=True).stdout.split())
+    tags = set(subprocess.run(["git", "tag"], cwd=ROOT, check=True, text=True,
+        encoding="utf-8", errors="replace", capture_output=True).stdout.split())
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     versions = re.findall(r"^## (v\d+\.\d+(?:\.\d+)?)", changelog, re.MULTILINE)
     if versions and versions[0] not in tags:
@@ -46,6 +48,8 @@ def run_sync_kernel_check() -> int:
         ["python", str(script), "--check"],
         cwd=ROOT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
     )
     out = (result.stdout or "") + (result.stderr or "")
@@ -61,6 +65,8 @@ def run_measure_load_budget() -> int:
         ["python", str(script), "--fail-over-cold-start", "9000"],
         cwd=ROOT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
     )
     lines = (result.stdout or "").splitlines()
@@ -73,7 +79,16 @@ def run_measure_load_budget() -> int:
     return result.returncode
 
 
+def _utf8_console() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 def main() -> int:
+    _utf8_console()
     failed = False
     if validate_framework.main():
         failed = True
