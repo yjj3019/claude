@@ -22,5 +22,30 @@ class FrameworkReferenceScopeTest(unittest.TestCase):
             self.assertEqual(errors, [f"{source}:1 references missing file: docs/missing.md"])
 
 
+class PackContentFloorTests(unittest.TestCase):
+    """A pack reduced to its heading must fail validation."""
+
+    def test_current_packs_clear_their_floors(self):
+        errors: list[str] = []
+        validator.validate_pack_content(errors)
+        self.assertEqual(errors, [])
+
+    def test_gutted_pack_is_rejected(self):
+        for folder in validator.PACK_CONTENT_FLOORS:
+            target = sorted((validator.ROOT / folder).glob("*.md"))[0]
+            original = target.read_text(encoding="utf-8")
+            try:
+                target.write_text(f"# {target.stem}\n", encoding="utf-8")
+                errors: list[str] = []
+                validator.validate_pack_content(errors)
+                rel = target.relative_to(validator.ROOT).as_posix()
+                self.assertTrue(
+                    any(rel in e for e in errors),
+                    f"gutting {rel} produced no error: {errors}",
+                )
+            finally:
+                target.write_text(original, encoding="utf-8")
+
+
 if __name__ == "__main__":
     unittest.main()
