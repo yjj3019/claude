@@ -143,3 +143,26 @@
 ### 💬 인계 메모
 - 이번 라운드는 사용자가 여러 차례 작은 요청(README→브리핑→색상→CLI단순화→검토→적대적리뷰)을 순차로 이어붙인 세션이라, 각 라운드마다 워크트리 커밋 후 Windows(`C:\AI-Codding\claude\OV-Maintenance`)와 rhel-prod(`/home/jjyoo/OV-Maintenance`) 양쪽에 즉시 동기화하는 패턴을 반복했다 — 다음 세션에서도 동일 파일을 수정한다면 이 3-way 동기화(워크트리→로컬→원격)를 잊지 말 것.
 - Codex/Opus 적대적 리뷰 원문은 대화 로그에만 있고 파일로 남기지 않았다 — 재현 필요 시 세션 대화 로그가 유일한 기록(이전 라운드들과 동일한 패턴).
+
+## 📅 세션 백업: 2026-09-11 (마감 — README 최신화 + 손상 파일 복구)
+
+### ✅ 완료 작업
+- 사용자가 "README.md도 이력 업데이트 됐냐" 질문 → 실제로 뒤처져 있었음을 확인(2단계 CLI 예시가 옛 3-인자 필수 형태였고, 색상 브리핑/exit code/`.sh` rc 마스킹 수정 내용이 전혀 반영 안 됨) → README를 최신 CLI 동작·요약 표·rc 정확도 주의사항까지 전부 갱신, 특히 **rc 마스킹 수정 이전에 생성된 `.txt` 리포트는 해당 13개 항목이 실제로는 부분 실패였을 수 있다는 경고**를 신설 섹션으로 추가.
+- "불필요한 파일은 삭제해줘" 요청 → 로컬 1개(`checklist_filled_20260911_sample.xlsx`), rhel-prod 5개(`checklist_filled_20260911(_v2)/pretty/test/verbose.xlsx`), 워크트리 `__pycache__/`를 제 검증 과정에서 생긴 스크래치로 판단해 삭제. 실제 클러스터 점검 리포트(`.txt`/`.html`/`.xlsx` 세트)는 감사 기록이라 보존.
+- "Linux/Windows 파일 동일하게 맞춰줘" 요청으로 3곳(워크트리/로컬/rhel-prod) md5 전수 대조 → **로컬 `check_reconstructed.xlsx`가 19460바이트로 손상(zip 아님)되어 있는 것을 발견**(원인 불명, 워크트리 사본도 동일하게 손상 — rhel-prod 사본만 15462바이트로 정상). rhel-prod의 정상본을 다운로드해 로컬·워크트리 양쪽에 복구, md5 5개 파일(fill_checklist.py/OCP-HCK-Score.sh/README.md/CLAUDE.md/check_reconstructed.xlsx) 전부 3곳 일치 재확인.
+
+### 🚧 진행 중
+- (변동 없음) 원본 DRM `check.xlsx` 반영은 사용자 수작업, Notion 이력은 이번 마감 처리에서 함께 진행.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 이 파일과 PROGRESS.md 기준으로 계속.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리 `C:\AI-Codding\claude\.claude\worktrees\fill-checklist-xlsx`(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `211a924`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — 3곳 핵심 파일 md5 전부 일치.
+- Last File: `check_reconstructed.xlsx` (rhel-prod 정상본으로 복구, md5 `90e83322...`)
+- Active Errors: 없음
+- Last CMD: `md5sum fill_checklist.py OCP-HCK-Score.sh README.md CLAUDE.md check_reconstructed.xlsx` (3곳) → 전부 동일
+
+### 💬 인계 메모
+- `check_reconstructed.xlsx` 손상 원인은 끝내 특정하지 못했다(mtime이 원래 생성 시각 그대로라 언제 손상됐는지 단서가 없음) — 향후 이 파일을 다시 열었을 때 또 손상돼 있으면, Windows Bash 도구의 바이너리 파일 `cp`/경로 처리 쪽을 의심해볼 것. rhel-prod 사본이 현재 유일한 "확실히 정상" 소스다.
+- 이번 세션 마감 처리: PROGRESS.md 갱신 + Notion(또는 SESSION_LOG.md 폴백) 기록을 이 블록과 함께 수행.

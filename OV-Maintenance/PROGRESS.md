@@ -1,10 +1,10 @@
 # PROGRESS.md - 세션 핸드오프 & 상태 관리
 
 ## 📍 현재 상태 (Session Status)
-- 세션 시작: 2026-09-10 (다중 세션에 걸쳐 진행, 마지막 갱신 2026-09-11)
-- 마지막 작업: **Codex + Opus 독립 적대적 리뷰로 `fill_checklist.py` 정밀 검토 → 발견된 결함 전부 수정, 동시에 리뷰에서 드러난 `OCP-HCK-Score.sh`의 rc 마스킹 Critical 버그(13개 항목)도 별도로 수정.** 둘 다 rhel-prod 실클러스터에서 재검증 완료.
-- 진행률: `fill_checklist.py`는 이제 단일 인자(`<report.txt>`)만으로 실행 가능(템플릿/출력 경로 자동 결정, `Result > <output>.xlsx` 형식), 섹션별 색상·정렬된 브리핑 출력 + 요약 표 제공, README에 판단 기준 문서화 완료. `OCP-HCK-Score.sh`는 다중 명령 `bash -c` 블록 13곳의 rc 마스킹(마지막 명령/장식용 echo가 앞선 명령의 실패를 가려 항상 rc=0이 되던 문제)을 rc 전파 방식으로 수정, 실패 재현 테스트로 검증(수정 전 패턴은 rc=0, 수정 후 rc=1 확인). 원본 DRM `check.xlsx` 자체에 대한 자동 반영은 여전히 대상 밖(사용자 수작업).
-- 블로커: `check.xlsx`가 NASCA DRM으로 wrapping되어 있어 Claude가 직접 열람/수정 불가 — `fill_checklist.py`는 DRM 없는 `check_reconstructed.xlsx`(또는 동일 구조 사본)만 대상으로 하며, 원본 DRM 파일 자동화는 범위 밖.
+- 세션 시작: 2026-09-10 (다중 세션에 걸쳐 진행, 마지막 갱신 2026-09-11 — 사용자 요청으로 세션 마감)
+- 마지막 작업: README.md를 최신 CLI/버그수정 내용으로 동기화 + rc 정확도 주의사항 섹션 신설, 세션 정리(스크래치 테스트 파일 삭제), **로컬 `check_reconstructed.xlsx` 손상 발견·rhel-prod 정상본으로 복구**, 워크트리/로컬(Windows)/rhel-prod(Linux) 3곳 핵심 파일 md5 전수 일치 확인.
+- 진행률: `fill_checklist.py`는 단일 인자(`<report.txt>`)만으로 실행 가능(템플릿/출력 경로 자동 결정, `Result > <output>.xlsx` 형식), 섹션별 색상·정렬된 브리핑 출력 + 요약 표 제공, README에 판단 기준·rc 정확도 주의사항 문서화 완료. `OCP-HCK-Score.sh`는 다중 명령 `bash -c` 블록 13곳의 rc 마스킹을 rc 전파 방식으로 수정, 실패 재현 테스트로 검증 완료. 원본 DRM `check.xlsx` 자체에 대한 자동 반영은 여전히 대상 밖(사용자 수작업).
+- 블로커: `check.xlsx`가 NASCA DRM으로 wrapping되어 있어 Claude가 직접 열람/수정 불가 — `fill_checklist.py`는 DRM 없는 `check_reconstructed.xlsx`(또는 동일 구조 사본)만 대상으로 하며, 원본 DRM 파일 자동화는 범위 밖. (부수 이슈: 로컬 `check_reconstructed.xlsx`가 원인불명으로 손상되는 일이 있었음 — rhel-prod 사본으로 복구했으나 재발 시 SESSION_LOG.md 2026-09-11 마감 블록의 "인계 메모" 참조.)
 
 ## ✅ 완료된 항목 (Done)
 - **버그 수정 5건(정밀분석 1차)**: CO VERDICT 판정 우선순위(Degraded>Available>Progressing) if/elif 화, `run_cmd`의 `&&`체인/`if`무-else로 인한 성공·실패 오판정 다수 수정(3-1-1~3-1-6, 4-1~4-4, 5-4/5-5), 3-1-7 `bash -c` 내부 `set -o pipefail` 미상속 수정, 고정 32개 Operator 목록 밖 항목 탐지 로직 추가, SNO 자기ping 안내·CNV 스킵 사유 구분(VM없음/virtctl없음/정책스킵) | 파일: [OCP-HCK-Score.sh](OCP-HCK-Score.sh)
@@ -19,6 +19,7 @@
 - **fill_checklist.py UX 개선 라운드**: README.md 신규 작성(전체 실행 흐름·판단 기준 문서화, 정상=명령 성공이지 클러스터 건강 보증 아니라는 점 명시) · 실행 중 항목별 브리핑 출력 추가(`[번호] 설명 -> 판정`) · Windows cp949 콘솔 이모지 크래시 수정(stdout/stderr UTF-8 reconfigure) · 섹션별 색상+CJK 폭 기준 정렬+요약 표 추가(OCP-HCK-Score.sh와 동일 색상 팔레트) · CLI 단순화(`<template>`/`<output>` 생략 가능, 출력은 `Result > <report>.xlsx` 형식)
 - **Codex + Opus 독립 적대적 리뷰 (fill_checklist.py) → 발견 결함 전부 수정**: 사용자 요청으로 codex-rescue + code-reviewer(model=opus) 병렬 실행, "결함 발굴" 목적 명시(엣지케이스 3개 이상·숨은 가정 지적 요구). 교차 확인된 결함을 전부 수정: (Codex Critical) xlsx 항목번호 공백 시 무경고 누락 → strip 처리 / (Major) `ITEM_HDR` 한 자리 숫자만 매칭 → `\d+`로 통일 / 매칭 실패해도 exit 0 → `missing` 있으면 exit 1 / E열 위치 하드코딩 → 헤더 텍스트("번호"/"점검결과") 기준 동적 탐색, 병합셀 감지 시 에러 처리 / 항목번호 중복 시 카운트 중복 → dedup / `parse_items`의 고정 4줄 오프셋 → 닫는 DASH를 실제로 탐색하는 방식으로 교체(Command 여러 줄일 때 블록 붕괴 방지) / `[결과]` 마커 중복 시 무경고 흡수 → 경고 로그 / SEP `startswith` 완화 → 정확 일치 / 2절 파싱 `2-`+`|` 아무 줄 매칭 → `^2-\d+\s*\|` 앵커 / 템플릿=출력 경로 동일 시 원본 파괴 가능 → 가드 추가 / 모듈 임포트 시 stdout 변형 부작용 → main()/self-check 진입 시로 이동. self-check에 각 수정의 회귀 테스트 추가, 실템플릿+실58항목 리포트로 재검증(exit 0) | 커밋: `4e9fac1`
 - **Opus 리뷰 Critical(C1) — OCP-HCK-Score.sh rc 마스킹 버그 수정**: 제가 `.sh` 원본을 직접 읽어 독립 검증 — `bash -c "cmd1; cmd2"` 형태로 여러 명령을 묶어 실행하는 13개 항목(3-1-1~3-1-6/4-1~4-5/5-6/5-7)이 **마지막 명령(또는 장식용 `echo ''`)의 종료코드만** rc로 기록해, 앞선 명령이 실패해도 rc=0으로 "정상" 기록되는 구조적 결함이었음(4-4는 `describe pod` 실패해도 뒤의 `echo ''` 때문에 상시 rc=0). `rc=0; cmd || rc=$?; ...; exit $rc` 패턴으로 13개 블록 전부 수정 — 기존처럼 실패 후에도 나머지 명령은 계속 실행하되(set -e 미사용, 증거 수집 유지) 최종 rc는 실제 최악의 실패를 반영. 존재하지 않는 Pod로 수정 전/후 패턴을 직접 재현 테스트해 rc=0→rc=1 전환 확인, `bash -n`·임베드 python `py_compile`·rhel-prod 실행(58항목 정상) 전부 통과. 임베드 HTML 파서의 `ITEM_HDR`도 fill_checklist.py와 동일하게 `\d+` 다자리로 동기화 | 커밋: `dff2068`
+- **세션 마감 정리**: README.md가 CLI 단순화·색상 브리핑·rc 수정 내용을 반영 못하고 뒤처져 있던 것을 사용자가 지적해 최신화(+ rc 정확도 주의 섹션 신설) | 스크래치 테스트 파일 정리(로컬 1개, rhel-prod 5개, 워크트리 `__pycache__`) | **로컬 `check_reconstructed.xlsx` 손상(19460바이트, zip 깨짐) 발견 → rhel-prod 정상본(15462바이트)으로 복구** | 워크트리/로컬/rhel-prod 3곳 핵심 파일 5종 md5 전수 일치 확인 | 커밋: `211a924`
 
 ## 🔄 진행 중 / 다음 우선순위 (Next)
 1. **사용자: 원본 check.xlsx(DRM)에 반영 여부 결정** — `check_reconstructed.xlsx`의 신규 3행(1-4/4-5/5-7, 연두색 표시)을 그대로 원본 DRM 파일에 수동 입력하거나, 재구성본을 새 체크리스트로 채택할지 결정. Claude는 DRM 파일을 직접 열 수 없어 이 이상 자동화 불가 — `fill_checklist.py`도 DRM 원본은 대상으로 하지 않음.
