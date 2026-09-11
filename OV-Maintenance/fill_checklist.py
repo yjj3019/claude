@@ -19,7 +19,7 @@ DASH = "--------------------------------------------------------"
 SEC_RE = re.compile(r"^■ (\d+)\. (.+)$")
 ITEM_HDR = re.compile(r"^\[([0-9]-[0-9](?:-[0-9])?)\]\s+(.+)$")
 RESULT_LINE = re.compile(r"^\[결과\]\s+(rc=(\d+)|skip|manual)\s*$")
-ITEM_NUM_RE = re.compile(r"^\d-\d(-\d)?$")
+ITEM_NUM_RE = re.compile(r"^\d+-\d+(-\d+)?$")
 
 STATUS_MAP = {"ok": "정상", "attention": "확인필요", "skip": "건너뜀", "manual": "수동확인"}
 
@@ -248,13 +248,17 @@ def _self_check():
     ws3 = wb["3.API연동"]
     ws3.append(["3-1. 배너 행", None, None, None, None, None])
     ws3.append(["3-1-1", "d", "c", "s", None, None])
+    ws2 = wb["2.ClusterOperator"]
+    ws2.append(["2-10", "d", "c", "s", None, None])  # regression: two-digit numbers (2-10..2-32) must still match
 
+    results["2-10"] = "✅ 정상"
     filled, missing = fill_workbook(wb, results)
     assert ws1["E2"].value == "정상"
     assert ws1["E3"].value == "확인필요"
     assert "1-3" in missing
     assert ws3["A2"].value.startswith("3-1.") and ws3["E2"].value is None
     assert ws3["E3"].value == "정상"
+    assert ws2["E2"].value == "✅ 정상", "two-digit item number (2-10) not matched by ITEM_NUM_RE"
     print("self-check OK: filled=%d missing=%s" % (len(filled), missing))
 
 
