@@ -84,3 +84,29 @@
 ### 💬 인계 메모
 - 파싱 로직을 `.sh`와 `fill_checklist.py` 두 곳에 중복 이식해둔 상태다(YAGNI 판단 — 호출부가 bash 임베드 python heredoc과 독립 python 스크립트로 서로 다른 실행 맥락이라 공유 모듈화의 이득이 적다고 판단). 향후 `.sh`의 파싱 포맷(ITEM_HDR/RESULT_LINE 마커)을 바꾸면 `fill_checklist.py`도 같이 고쳐야 한다는 점을 잊지 말 것.
 - team agent 토론(architecture-designer/security-reviewer) 산출물은 대화 로그에만 남아있고 별도 파일로 저장하지 않았다 — 재현 필요 시 본 세션 대화 로그가 유일한 기록.
+
+## 📅 세션 백업: 2026-09-11 (이어서 — rhel-prod 실클러스터 검증 + 버그 수정)
+
+### ✅ 완료 작업
+- 사용자가 "`/home/jjyoo/OV-Maintenance`에 파일이 없다"고 지적 → 확인해보니 이전 세션의 `uploadFile` 실패(2회 연속)가 원인, 원격 디렉터리 자체는 있고 2026-09-10 실행분 리포트(.txt/.html)도 이미 존재함을 확인.
+- `uploadFile` 재시도 → 이번엔 성공(원인 불명, 재현 안 됨). `fill_checklist.py`/최신 `OCP-HCK-Score.sh`/`check_reconstructed.xlsx` 모두 `/home/jjyoo/OV-Maintenance`에 업로드.
+- 기존(9/10) 리포트로 1차 실행: "채움 32개/매칭실패 3개"(1-4/4-5/5-7 — 신규항목 추가 이전 리포트라 정상적 결측). oc whoami로 클러스터 세션 생존 확인 후 최신 `.sh`를 실제로 재실행해 58항목 전체를 담은 신규 리포트 확보(`ocp-healthcheck-report-20260911-105254-2093740.txt`, 4-2에서 실제 명령 실패 1건 발생 — 의도치 않은 실제 클러스터 이슈, 스크립트 결함 아님).
+- 신규 리포트로 `fill_checklist.py` 실행 → "채움 35개/매칭실패 0개"로 예상(58개)보다 23개 적음을 발견. 디버깅 결과 `ITEM_NUM_RE = r"^\d-\d(-\d)?$"`가 두 자리 항목번호(2-10~2-32)를 매칭하지 못해 ClusterOperator 섹션 대부분이 통째로 누락되는 실버그 확인 — self-check와 이전 오케스트레이터 검증 모두 한 자리 항목(2-1/2-2)만 써서 이 결함을 놓쳤었음.
+- `ITEM_NUM_RE`를 `r"^\d+-\d+(-\d+)?$"`로 수정, self-check에 2자리 회귀 케이스(2-10) 추가. 재실행 → "채움 58개/매칭실패 0개"로 전 항목 정확히 채워짐 확인. 표본 대조(2-10/2-19/2-31/2-32, 5-1~5-7, 1-1~1-4, 4-1~4-5)로 값이 실제 클러스터 상태·스크립트 stdout과 일치함을 확인. 4-2가 "확인필요"로 정확히 반영됨(실제 명령 실패와 일치).
+- 워크트리 커밋 `bd6869c`. 결과 xlsx(`checklist_filled_20260911_v2.xlsx`)를 로컬로 다운로드(`checklist_filled_20260911_sample.xlsx`).
+
+### 🚧 진행 중
+- 원본 DRM `check.xlsx` 반영은 여전히 사용자 수작업(범위 밖, 변동 없음).
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음 — 이번 태스크(자동 채우기 스크립트)는 실클러스터 검증까지 완료. 사용자가 `check_reconstructed.xlsx`/`checklist_filled_*.xlsx` 채택 여부만 결정하면 됨.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리 `C:\AI-Codding\claude\.claude\worktrees\fill-checklist-xlsx`(브랜치 `worktree-fill-checklist-xlsx`, 커밋 `bd6869c`) + 원격 rhel-prod `/home/jjyoo/OV-Maintenance`(최신 3개 파일 업로드됨) + 로컬 `C:\AI-Codding\claude\OV-Maintenance`(전부 동기화).
+- Last File: `fill_checklist.py` (버그 수정 완료, 실클러스터 검증 통과)
+- Active Errors: 없음(4-2 명령 실패는 스크립트 버그가 아니라 실제 클러스터 상태 반영 — 리포트에 정상적으로 기록됨)
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260911-105254-2093740.txt check_reconstructed.xlsx checklist_filled_20260911_v2.xlsx` → `채움: 58개, 매칭 실패: 0개`
+
+### 💬 인계 메모
+- **교훈**: self-check/합성 데이터 테스트가 통과해도 숫자 범위·경계값(여기선 두 자리 항목번호)을 커버하지 못하면 실데이터 전수 실행 전까지 버그가 숨어있을 수 있다. 앞으로 이 스크립트를 수정할 때는 반드시 2-32(최댓값)를 포함한 케이스로 self-check를 유지할 것 — 이미 반영됨.
+- rhel-prod `uploadFile`의 이전 2회 연속 실패는 원인 불명으로 종결(재현 안 됨) — 향후 다시 발생하면 `runRemoteCommand`로 디스크 용량/권한부터 확인.
