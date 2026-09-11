@@ -53,6 +53,36 @@ python3 fill_checklist.py <1단계에서 생성된 .txt> check_reconstructed.xls
 - 원본 `check.xlsx`(사내 실물 체크리스트)에 반영하려면 이 값을 **사람이 직접 옮겨 적어야 함** — DRM 때문에 자동화 불가(아래 참조).
 - 5-3(VM Console 접속)은 대화형 명령이라 스크립트가 자동 실행하지 않음. 리포트에 안내된 명령을 직접 실행해 수동 확인.
 
+## 판단 기준 (점검결과가 어떻게 결정되는가)
+
+`fill_checklist.py`는 스스로 판정을 내리지 않는다 — `OCP-HCK-Score.sh`가 리포트에 이미 남긴 기계판독용 마커(`[결과] rc=N` / `skip` / `manual`, 2절의 판정 문자열)를 그대로 옮길 뿐이다. 실제 판단은 아래 두 곳에서 이뤄진다.
+
+### 1) 1·3·4·5절 (run_cmd 기반 항목) — 명령의 종료코드(exit code) 기준
+
+| 리포트 마커 | xlsx 점검결과 | 의미 |
+|---|---|---|
+| `[결과] rc=0` | **정상** | 해당 항목의 명령이 에러 없이 종료(exit code 0) |
+| `[결과] rc=N` (N≠0) | **확인필요** | 명령이 에러 코드로 종료 — 사람이 원본 리포트의 명령 출력을 직접 봐야 함 |
+| `[결과] skip` | **건너뜀** | 정책상(예: 5-1/5-2 파괴적 테스트 기본 비활성) 또는 도구 부재(`virtctl` 없음 등)로 애초에 실행하지 않음 |
+| `[결과] manual` | **수동확인** | 5-3(VM Console 접속)처럼 대화형이라 자동화가 원천적으로 불가능한 항목 |
+
+→ **"정상"이라도 클러스터가 실제로 건강하다는 뜻이 아니라, 조회 명령 자체가 에러 없이 실행됐다는 뜻**이다. `oc get nodes`가 rc=0으로 성공해도 그 안의 노드 상태가 `NotReady`일 수 있으므로, 정상 판정이 붙은 항목도 리포트 본문(`.txt`의 명령 출력)을 사람이 대조 확인해야 한다(`.sh` 자체가 이 판정을 넘어서는 의미 판단은 하지 않는다고 CLAUDE.md에도 명시).
+
+### 2) 2절 (ClusterOperator) — AVAILABLE/PROGRESSING/DEGRADED 조건 기준
+
+`OCP-HCK-Score.sh`가 32개 Operator마다 `oc get co <name> -o json`의 `status.conditions`를 확인해 우선순위대로 판정한다(`.sh` 140행 부근):
+
+1. `DEGRADED=True` → **❌ 이상(Degraded)** (최우선)
+2. `AVAILABLE≠True` → **❌ 이상(Available)**
+3. `PROGRESSING=True` → **⚠ 주의(Progressing)**
+4. 위 셋 다 아니면 → **✅ 정상**
+
+`jq`가 없는 환경에서는 조건 파싱을 못 하므로 `oc get co` 원본 라인만 기록하고 xlsx에는 `[jq 없음 - 원본 확인]`으로 채워짐 — 이 경우도 사람이 원본을 봐야 한다.
+
+### 브리핑 출력의 색상
+
+`fill_checklist.py` 실행 중 표시되는 색상도 이 판정 문자열을 그대로 분류한 것뿐이다: "이상"·"실패" 포함 → 빨강, "확인필요"·"주의" 포함 → 노랑, "정상" 포함 → 초록, 그 외(건너뜀/수동확인) → 파랑.
+
 ## check.xlsx와의 관계 (DRM 제약)
 
 사내 실물 체크리스트 `check.xlsx`는 NASCA DRM으로 wrapping되어 있어 openpyxl/zipfile로 열리지 않는다(`BadZipFile`). 이 저장소의 `check_reconstructed.xlsx`는 그 원본을 사람이 스크린샷으로 옮겨 적어 재현한 **DRM 없는 사본**이며, `fill_checklist.py`가 다루는 대상은 이 사본(또는 동일 구조의 비-DRM 사본)뿐이다. 원본 DRM 파일 자체에 대한 자동 쓰기는 범위 밖이다.
