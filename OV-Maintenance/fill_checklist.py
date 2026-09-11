@@ -11,6 +11,7 @@ ported verbatim from the python heredoc embedded in OCP-HCK-Score.sh
 """
 import re
 import sys
+import unicodedata
 from datetime import datetime
 
 import openpyxl
@@ -35,6 +36,46 @@ SHEET_BY_SECTION = {
     "4": "4.Network",
     "5": "5.Virtualization",
 }
+
+# OCP-HCK-Score.sh(33행)의 색상 팔레트와 동일 — 리포트와 브리핑 출력의 시각 언어를 통일.
+RED, GREEN, YELLOW, BLUE, DIM, BOLD, NC = (
+    "\033[0;31m", "\033[0;32m", "\033[1;33m", "\033[0;34m", "\033[2m", "\033[1m", "\033[0m")
+_USE_COLOR = sys.stdout.isatty()
+
+
+def _color(text, code):
+    return "%s%s%s" % (code, text, NC) if _USE_COLOR else text
+
+
+def display_width(text):
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in text)
+
+
+def pad_display(text, width):
+    """Right-pads text to `width` display columns (CJK-aware, unlike '%-Ns')."""
+    return text + " " * max(0, width - display_width(text))
+
+
+def truncate_display(text, width):
+    out = ""
+    w = 0
+    for c in text:
+        cw = 2 if unicodedata.east_asian_width(c) in "WF" else 1
+        if w + cw > width:
+            return out + "…"
+        out += c
+        w += cw
+    return out
+
+
+def status_color(status_text):
+    if "이상" in status_text or "실패" in status_text:
+        return RED
+    if "확인필요" in status_text or "주의" in status_text:
+        return YELLOW
+    if "정상" in status_text:
+        return GREEN
+    return BLUE  # 건너뜀 / 수동확인 / 기타
 
 
 def skip_or_attention(body):
@@ -116,29 +157,57 @@ def parse_report(text):
 
 
 def fill_workbook(wb, results, verbose=False):
-    """Writes results into each sheet's E column. Returns (filled, missing_in_report)."""
+    """Writes results into each sheet's E column. Returns (filled, missing_in_report, summary).
+
+    summary: [(sheet_name, {status_text: count})] in sheet order, for the closing table.
+    """
     filled = []
     missing = []
+    summary = []
     for sec_num, sheet_name in SHEET_BY_SECTION.items():
         if sheet_name not in wb.sheetnames:
             print("[경고] 시트 없음: %s" % sheet_name, file=sys.stderr)
             continue
         ws = wb[sheet_name]
+        counts = {}
+        header_printed = False
         for row in ws.iter_rows(min_row=2):
-            num_cell = row[0]
-            num = num_cell.value
+            num = row[0].value
             if not isinstance(num, str) or not ITEM_NUM_RE.match(num):
                 continue
             desc = row[1].value or ""
-            if num in results:
-                row[4].value = results[num]
-                filled.append(num)
-                if verbose:
-                    print("  [%s] %s -> %s" % (num, desc, results[num]))
-            else:
+            if num not in results:
                 missing.append(num)
                 print("[경고] 리포트에서 매칭 실패: %s (%s) %s" % (num, sheet_name, desc), file=sys.stderr)
-    return filled, missing
+                continue
+            status = results[num]
+            row[4].value = status
+            filled.append(num)
+            counts[status] = counts.get(status, 0) + 1
+            if verbose:
+                if not header_printed:
+                    print(_color("\n■ %s" % sheet_name, BOLD + BLUE))
+                    header_printed = True
+                short_desc = truncate_display(desc, 44)
+                print("  %s %s %s" % (
+                    pad_display(num, 8), pad_display(short_desc, 46), _color(status, status_color(status))))
+        if counts:
+            summary.append((sheet_name, counts))
+    return filled, missing, summary
+
+
+def print_summary(summary, filled, missing):
+    print(_color("\n■ 요약", BOLD))
+    all_statuses = []
+    for _, counts in summary:
+        for s in counts:
+            if s not in all_statuses:
+                all_statuses.append(s)
+    for sheet_name, counts in summary:
+        parts = ["%s %d" % (_color(s, status_color(s)), n) for s, n in counts.items()]
+        print("  %s %s" % (pad_display(sheet_name, 20), "  ".join(parts)))
+    print("  " + "-" * 40)
+    print("  총 %d개 채움, %d개 리포트 매칭 실패" % (len(filled), len(missing)))
 
 
 def main():
@@ -155,10 +224,11 @@ def main():
     results = parse_report(text)
 
     wb = openpyxl.load_workbook(template_path)
-    filled, missing = fill_workbook(wb, results, verbose=True)
+    filled, missing, summary = fill_workbook(wb, results, verbose=True)
     wb.save(output_path)
 
-    print("채움: %d개, 매칭 실패: %d개 -> %s" % (len(filled), len(missing), output_path))
+    print_summary(summary, filled, missing)
+    print("  -> %s" % output_path)
 
 
 SAMPLE_REPORT = """점검 대상 클러스터 : https://api.example:6443
@@ -260,7 +330,8 @@ def _self_check():
     ws2.append(["2-10", "d", "c", "s", None, None])  # regression: two-digit numbers (2-10..2-32) must still match
 
     results["2-10"] = "✅ 정상"
-    filled, missing = fill_workbook(wb, results)
+    filled, missing, summary = fill_workbook(wb, results)
+    assert any(name == "2.ClusterOperator" for name, _ in summary), summary
     assert ws1["E2"].value == "정상"
     assert ws1["E3"].value == "확인필요"
     assert "1-3" in missing
