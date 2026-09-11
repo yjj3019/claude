@@ -15,6 +15,11 @@ from datetime import datetime
 
 import openpyxl
 
+# Windows 콘솔(cp949 등)에서 ✅/⚠/❌ 같은 이모지 출력 시 UnicodeEncodeError로 죽는 것 방지.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 DASH = "--------------------------------------------------------"
 SEC_RE = re.compile(r"^■ (\d+)\. (.+)$")
 ITEM_HDR = re.compile(r"^\[([0-9]-[0-9](?:-[0-9])?)\]\s+(.+)$")
@@ -110,7 +115,7 @@ def parse_report(text):
     return results
 
 
-def fill_workbook(wb, results):
+def fill_workbook(wb, results, verbose=False):
     """Writes results into each sheet's E column. Returns (filled, missing_in_report)."""
     filled = []
     missing = []
@@ -124,12 +129,15 @@ def fill_workbook(wb, results):
             num = num_cell.value
             if not isinstance(num, str) or not ITEM_NUM_RE.match(num):
                 continue
+            desc = row[1].value or ""
             if num in results:
                 row[4].value = results[num]
                 filled.append(num)
+                if verbose:
+                    print("  [%s] %s -> %s" % (num, desc, results[num]))
             else:
                 missing.append(num)
-                print("[경고] 리포트에서 매칭 실패: %s (%s)" % (num, sheet_name), file=sys.stderr)
+                print("[경고] 리포트에서 매칭 실패: %s (%s) %s" % (num, sheet_name, desc), file=sys.stderr)
     return filled, missing
 
 
@@ -147,7 +155,7 @@ def main():
     results = parse_report(text)
 
     wb = openpyxl.load_workbook(template_path)
-    filled, missing = fill_workbook(wb, results)
+    filled, missing = fill_workbook(wb, results, verbose=True)
     wb.save(output_path)
 
     print("채움: %d개, 매칭 실패: %d개 -> %s" % (len(filled), len(missing), output_path))
