@@ -47,4 +47,4 @@
 - 전부 완료됨: code-reviewer(정밀분석), codex-rescue(적대적 리뷰), code-reviewer+model=opus(적대적 리뷰), fable 종합 리포트, fork×5(Top5 순차 수정: C1→C4→C2→C3→M-bundle), fork(외부 저장소 딥다이브 리서치). 브리프 파일은 별도로 남기지 않고 프롬프트 인라인 전달 방식 사용(.agent/handoff/ 미사용) — 향후 재현 필요 시 본 세션 대화 로그가 유일한 기록.
 
 ## 📎 Notion 기록 URL
-- 미기록 (Notion MCP 미연결 상태로 세션 진행 — SESSION_LOG.md로 폴백)
+- https://app.notion.com/p/3d8b44a2dd2e818ea8ddc80eea6bdce5 ("OV-Maintenance - 2026-09-11", Claude Work Space 하위 신규 생성. 향후 이력은 이 페이지의 "## 개발 이력" 섹션에 누적)
