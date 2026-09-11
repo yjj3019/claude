@@ -110,3 +110,36 @@
 ### 💬 인계 메모
 - **교훈**: self-check/합성 데이터 테스트가 통과해도 숫자 범위·경계값(여기선 두 자리 항목번호)을 커버하지 못하면 실데이터 전수 실행 전까지 버그가 숨어있을 수 있다. 앞으로 이 스크립트를 수정할 때는 반드시 2-32(최댓값)를 포함한 케이스로 self-check를 유지할 것 — 이미 반영됨.
 - rhel-prod `uploadFile`의 이전 2회 연속 실패는 원인 불명으로 종결(재현 안 됨) — 향후 다시 발생하면 `runRemoteCommand`로 디스크 용량/권한부터 확인.
+
+## 📅 세션 백업: 2026-09-11 (이어서 — UX 개선 + Codex/Opus 적대적 리뷰 + 버그 수정)
+
+### ✅ 완료 작업
+- 사용자 요청으로 README.md 신규 작성(실행 흐름 3단계, 파일 구성표) 후 이어서 "판단 기준" 섹션 추가 요청 → run_cmd 항목은 종료코드 기준·CO는 Degraded>Available>Progressing 우선순위라는 실제 판정 로직을 `.sh` 원본 대조로 문서화, "정상=명령 성공이지 클러스터 건강 보증 아님"이라는 주의사항 명시.
+- "실행 과정에서 항목별 점검 내용을 브리핑" 요청 → `fill_workbook`에 verbose 출력 추가. 곧바로 Windows cp949 콘솔에서 CO 이모지 출력 시 크래시하는 걸 직접 재현해서 발견 → stdout/stderr UTF-8 reconfigure로 수정.
+- "화면이 지저분하고 단조롭다" 피드백 → 섹션별 헤더(■ N.시트명)로 그룹핑, OCP-HCK-Score.sh와 동일한 RED/GREEN/YELLOW/BLUE 팔레트로 판정 색상화(비-tty 자동 비활성), `unicodedata.east_asian_width` 기반 CJK 폭 정렬(단순 %-Ns는 한글에서 깨짐), 섹션별+전체 요약 표 추가.
+- "python3 fill_checklist.py report.txt / Result > report.xlsx" 형태 요청 → template.xlsx/output.xlsx 둘 다 선택 인자로 변경(템플릿은 스크립트 옆 check_reconstructed.xlsx 기본값, 출력은 리포트와 같은 이름 .xlsx), 마지막 줄을 "Result > ..." 형식으로 통일. rhel-prod에서 사용자가 준 실제 파일명 그대로 검증.
+- 사용자가 실행 결과를 보여주며 "정밀 검토해달라" 요청 → 원본 .txt 마커 개수 대조, CO 32개 원본 라인 전수 대조, 직전 리포트에서 실패했던 4-2가 이번엔 실제로 성공(rc=0, ping 0% loss)했음을 원문으로 확인, xlsx 서식·비고 보존까지 재확인 — 이상 없음으로 결론.
+- 사용자가 "codex와 opus를 통해서 현재 진행 내용 정밀 검토" 요청 → codex-rescue + code-reviewer(model=opus)를 병렬로 "결함 발굴"(승인 아님) 목적 명시하여 실행. Opus 응답이 중간에 잘려서 SendMessage로 나머지 요청해 완전한 리포트 확보.
+  - Codex: Critical 1(공백 항목번호 무경고 누락) + Major 2 + Minor 1 + 숨은 가정 3.
+  - Opus: Critical 1(다중명령 bash -c 블록의 rc 마스킹 — "4-4는 사실상 상시 정상") + Major 5 + Minor/Suggestion 6 + 숨은 가정 9.
+  - Opus의 Critical을 제가 `.sh` 원본(350~358행)을 직접 읽어 독립 검증: `oc describe pod`/jsonpath가 실패해도 마지막 문장이 `echo ''`라 rc는 항상 0. 억측이 아니라 실재하는 버그로 확인.
+- AskUserQuestion으로 두 갈래(fill_checklist.py 자체 수정 여부 / .sh rc 마스킹 수정 여부) 확인 → 둘 다 "지금 진행"으로 승인받음.
+- fill_checklist.py: Codex/Opus가 교차 확인한 결함 전부 수정(공백 strip, ITEM_HDR 다자리, exit 1 on missing, 헤더 기반 열 탐색+병합셀 가드, 중복 항목 dedup, parse_items 고정오프셋→동적 DASH탐색, 중복 [결과]마커 경고, SEP 정확매칭, CO라인 앵커 정규식, output==template 가드, reconfigure를 main()으로 이동, utf-8-sig). self-check에 회귀 테스트 8개 추가(공백/중복/병합/헤더누락 등), 실템플릿+실58항목 리포트로 재검증(exit 0).
+- OCP-HCK-Score.sh: rc 마스킹 발생 지점 13곳(3-1-1~3-1-6/4-1~4-5/5-6/5-7)을 `rc=0; cmd || rc=$?; ...; exit $rc` 패턴으로 전부 수정 — 실패해도 나머지 명령은 계속 실행(증거 수집 유지)하되 최종 rc는 최악의 실패 반영. 존재하지 않는 Pod로 수정 전/후 패턴을 직접 bash로 재현해 rc 0→1 전환 확인. bash -n, 임베드 python heredoc py_compile, rhel-prod 실행(58항목 정상, 회귀 없음) 전부 통과.
+
+### 🚧 진행 중
+- 원본 DRM `check.xlsx` 반영은 여전히 사용자 수작업(범위 밖, 변동 없음).
+- 의도적으로 보류: 2절(이모지)과 1/3/4/5절(한글) 판정 어휘가 한 열에 혼재하는 문제(Opus M4) — 기존 리포트 포맷과의 정합성 재설계가 필요해 오늘 범위에서 제외. `check_reconstructed.xlsx`의 실제 병합셀 여부는 여전히 `[unverified]`(코드는 병합셀을 만나면 안전하게 처리하도록 방어만 해둠).
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 필요 시 위 "의도적으로 보류" 항목 재검토.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리 `C:\AI-Codding\claude\.claude\worktrees\fill-checklist-xlsx`(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `dff2068`) + 원격 rhel-prod `/home/jjyoo/OV-Maintenance`(fill_checklist.py·OCP-HCK-Score.sh 최신본 업로드·검증됨) + 로컬 `C:\AI-Codding\claude\OV-Maintenance`(동기화됨).
+- Last File: `OCP-HCK-Score.sh` (rc 마스킹 수정, rhel-prod 실행 검증 통과)
+- Active Errors: 없음
+- Last CMD(원격, 재현 테스트): `bash -c "rc=0; oc describe pod nonexistent-pod-xyz -n default || rc=\$?; ...; exit \$rc"` → `final rc: 1` (수정 전 패턴이었다면 0이었을 것)
+
+### 💬 인계 메모
+- 이번 라운드는 사용자가 여러 차례 작은 요청(README→브리핑→색상→CLI단순화→검토→적대적리뷰)을 순차로 이어붙인 세션이라, 각 라운드마다 워크트리 커밋 후 Windows(`C:\AI-Codding\claude\OV-Maintenance`)와 rhel-prod(`/home/jjyoo/OV-Maintenance`) 양쪽에 즉시 동기화하는 패턴을 반복했다 — 다음 세션에서도 동일 파일을 수정한다면 이 3-way 동기화(워크트리→로컬→원격)를 잊지 말 것.
+- Codex/Opus 적대적 리뷰 원문은 대화 로그에만 있고 파일로 남기지 않았다 — 재현 필요 시 세션 대화 로그가 유일한 기록(이전 라운드들과 동일한 패턴).
