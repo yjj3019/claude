@@ -3,18 +3,23 @@
 """Fills the '점검결과' (E) column of check_reconstructed.xlsx from an
 OCP-HCK-Score.sh .txt report, matched by checklist item number.
 
-Usage: python3 fill_checklist.py <report.txt> <template.xlsx> [output.xlsx]
+Usage: python3 fill_checklist.py <report.txt> [template.xlsx] [output.xlsx]
+  - template.xlsx 생략 시 이 스크립트와 같은 디렉터리의 check_reconstructed.xlsx 사용.
+  - output.xlsx 생략 시 report.txt와 같은 이름(.xlsx 확장자)으로 저장.
+    예) fill_checklist.py report.txt  ->  report.xlsx
 
 Parsing logic (ITEM_HDR/RESULT_LINE/parse_items, section-2 pipe parsing) is
 ported verbatim from the python heredoc embedded in OCP-HCK-Score.sh
 (around lines 542-611) — do not re-derive it.
 """
+import os
 import re
 import sys
 import unicodedata
-from datetime import datetime
 
 import openpyxl
+
+DEFAULT_TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "check_reconstructed.xlsx")
 
 # Windows 콘솔(cp949 등)에서 ✅/⚠/❌ 같은 이모지 출력 시 UnicodeEncodeError로 죽는 것 방지.
 for _stream in (sys.stdout, sys.stderr):
@@ -211,13 +216,18 @@ def print_summary(summary, filled, missing):
 
 
 def main():
-    if len(sys.argv) not in (3, 4):
-        print("usage: python3 fill_checklist.py <report.txt> <template.xlsx> [output.xlsx]",
+    if len(sys.argv) not in (2, 3, 4):
+        print("usage: python3 fill_checklist.py <report.txt> [template.xlsx] [output.xlsx]",
               file=sys.stderr)
         sys.exit(2)
-    report_path, template_path = sys.argv[1], sys.argv[2]
+    report_path = sys.argv[1]
+    template_path = sys.argv[2] if len(sys.argv) >= 3 else DEFAULT_TEMPLATE
     output_path = sys.argv[3] if len(sys.argv) == 4 else (
-        "checklist_filled_%s.xlsx" % datetime.now().strftime("%Y%m%d-%H%M"))
+        os.path.splitext(report_path)[0] + ".xlsx")
+
+    if not os.path.isfile(template_path):
+        print("[오류] 템플릿을 찾을 수 없음: %s" % template_path, file=sys.stderr)
+        sys.exit(1)
 
     with open(report_path, encoding="utf-8", errors="replace") as f:
         text = f.read()
@@ -228,7 +238,7 @@ def main():
     wb.save(output_path)
 
     print_summary(summary, filled, missing)
-    print("  -> %s" % output_path)
+    print("Result > %s" % output_path)
 
 
 SAMPLE_REPORT = """점검 대상 클러스터 : https://api.example:6443
