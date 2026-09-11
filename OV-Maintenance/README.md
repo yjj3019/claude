@@ -32,20 +32,26 @@ cd OV-Maintenance
 
 ### 2단계 — 엑셀 자동 반영 (`fill_checklist.py`)
 
+가장 간단한 형태 — report.txt 하나만 넘기면 나머지는 자동으로 결정됨:
+
 ```bash
-python3 fill_checklist.py <1단계에서 생성된 .txt> check_reconstructed.xlsx [output.xlsx]
+python3 fill_checklist.py <1단계에서 생성된 .txt>
+# ...
+# Result > <같은 이름>.xlsx
 ```
 
-- `output.xlsx`를 생략하면 `checklist_filled_<YYYYMMDD-HHMM>.xlsx`로 자동 생성됨.
-- **템플릿(`check_reconstructed.xlsx`)은 절대 수정하지 않고**, 항상 새 파일로 결과를 저장함.
-- 항목번호(1-1, 2-1~2-32, 3-1-1, 4-1, 5-1 ...)를 기준으로 `.txt` 리포트와 xlsx 행을 1:1 매칭해서 `점검결과`(E열)만 채움. 판정 기준·Command 등 다른 열과 서식(헤더 색상, 컬럼 너비)은 그대로 유지.
+- `template.xlsx`를 생략하면 이 스크립트와 같은 디렉터리의 `check_reconstructed.xlsx`를 자동으로 사용. 다르게 지정하려면 두 번째 인자로: `fill_checklist.py report.txt other_template.xlsx`
+- `output.xlsx`를 생략하면 입력 `.txt`와 같은 이름(`.xlsx` 확장자)으로 저장. 세 번째 인자로 직접 지정 가능: `fill_checklist.py report.txt template.xlsx custom_output.xlsx`
+- **템플릿은 절대 수정하지 않음** — output 경로가 템플릿과 같으면 즉시 에러로 거부(원본 파괴 방지).
+- 항목번호(1-1, 2-1~2-32, 3-1-1, 4-1, 5-1 ...)를 헤더 텍스트("번호"/"점검결과")로 열 위치를 찾아 기준 삼아 `.txt` 리포트와 xlsx 행을 1:1 매칭해서 `점검결과` 열만 채움. Command 등 다른 열과 서식(헤더 색상, 컬럼 너비)은 그대로 유지.
 - 판정 매핑: `ok`→정상 / `attention`→확인필요 / `skip`→건너뜀 / `manual`→수동확인. ClusterOperator(2절)는 리포트의 판정 문자열(`✅ 정상` / `⚠ 주의(...)` / `❌ 이상(...)`)을 그대로 사용.
-- 리포트에 없는 항목은 에러 없이 stderr 경고만 남기고 계속 진행(예: 옛 리포트를 신규 스크립트 버전 xlsx에 대입하는 경우).
+- 실행 중 섹션별로 그룹핑된 색상 브리핑(`[번호] 설명 -> 판정`)과 마지막에 섹션별/전체 요약 표를 출력함. 터미널이 아니면(파일 리다이렉트 등) 색상은 자동으로 꺼짐.
+- 리포트에 없는 항목은 stderr 경고를 남기고 계속 진행하되, 하나라도 있으면 **종료코드 1**로 끝남(자동화/CI가 불완전한 결과를 감지할 수 있도록). 템플릿에 항목번호가 중복되거나 `점검결과` 셀이 병합돼 있는 경우도 경고와 함께 안전하게 스킵됨(크래시하지 않음).
 - 로직 자체가 정상인지 빠르게 확인하려면:
   ```bash
   python3 fill_checklist.py --self-check
   ```
-  (합성 데이터 기반 자체 점검 — 실클러스터 데이터 검증을 대체하지 않음)
+  (합성 데이터 + 회귀 케이스 기반 자체 점검 — 실클러스터 데이터 검증을 대체하지 않음)
 
 ### 3단계 — 사람이 해야 하는 부분
 
@@ -89,4 +95,8 @@ python3 fill_checklist.py <1단계에서 생성된 .txt> check_reconstructed.xls
 
 ## 항목 수 (참고)
 
-xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 58개 점검항목. `fill_checklist.py`가 "채움: 58개, 매칭 실패: 0개"를 출력하면 전 항목이 정상 반영된 것.
+xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 58개 점검항목. `fill_checklist.py`가 종료코드 0으로 끝나고 요약 표에 "총 58개 채움, 0개 리포트 매칭 실패"가 나오면 전 항목이 정상 반영된 것.
+
+## rc(종료코드) 정확도에 대한 주의 — 2026-09-11 수정됨
+
+"판단 기준" 절에서 설명한 대로 1·3·4·5절의 정상/확인필요 판정은 `run_cmd`가 실행한 명령의 종료코드(rc)에 의존한다. 과거에는 여러 `oc` 명령을 `bash -c "cmd1; cmd2"`처럼 한 블록에 묶어 실행하는 13개 항목(3-1-1~3-1-6, 4-1~4-5, 5-6, 5-7)에서 **블록의 마지막 명령(또는 장식용 `echo`)의 종료코드만** rc로 기록되는 결함이 있었다 — 예를 들어 4-4는 `oc describe pod`가 실패해도 그 뒤의 `echo ''`가 성공하기 때문에 rc는 항상 0이었다. 이는 Codex/Opus 적대적 리뷰에서 발견되어 수정됐다(각 블록이 이제 `rc=0; cmd || rc=$?; ...; exit $rc` 패턴으로 실행된 모든 명령 중 최악의 실패를 rc에 반영함). 이 수정 이전에 생성된 `.txt` 리포트는 위 13개 항목에 한해 "정상"이 실제로는 부분 실패였을 가능성이 있으니, 오래된 리포트를 근거로 삼고 있다면 재실행을 권장한다.
