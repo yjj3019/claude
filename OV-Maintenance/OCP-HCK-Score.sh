@@ -523,8 +523,21 @@ run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n
 # 진단하려면 노드별 Capacity/Allocatable/Allocated resources가 필요하다는 고객 요구사항
 # 반영(2026-09-14). 대상은 위에서 이미 자동 탐지해둔 전체 노드 목록(_NODES)을 그대로 재사용.
 _NODES_LIST="${_NODES[*]}"
+# 워커 노드만 한눈에 비교할 수 있는 요약 표를 먼저 보여달라는 고객 추가 요구사항(2026-09-14) —
+# 상세 블록(전체 노드)과는 별개로 워커 노드만 골라 메모리 Allocatable/Request/Limit 비율을 한 줄씩.
+_WORKERS_LIST="$(oc get nodes -l node-role.kubernetes.io/worker \
+  -o jsonpath='{range .items[*]}{.metadata.name}{" "}{end}' 2>/dev/null)"
 run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진율) 확인" "oc describe node <각 노드> | sed -n '/Capacity:/,/Allocatable:/p;/Allocatable:/,/System Info:/p' / grep -A10 'Allocated resources'" -- bash -c "
   rc=0
+  printf '%-20s %-15s %-20s %-20s\n' 'WORKER NODE' 'ALLOCATABLE' 'MEM_REQUEST(%)' 'MEM_LIMIT(%)'
+  printf '%-20s %-15s %-20s %-20s\n' '----' '-----------' '---------------' '---------------'
+  for n in $_WORKERS_LIST; do
+    WD=\$(oc describe node \"\$n\") || rc=\$?
+    WALLOC=\$(echo \"\$WD\" | awk '/^Allocatable:/{f=1;next} f && /memory:/{print \$2; exit}')
+    read -r _ WREQV WREQP WLIMV WLIMP <<<\"\$(echo \"\$WD\" | awk '/^Allocated resources:/{f=1} f && /^  memory /{print; exit}')\"
+    printf '%-20s %-15s %-20s %-20s\n' \"\$n\" \"\$WALLOC\" \"\$WREQV \$WREQP\" \"\$WLIMV \$WLIMP\"
+  done
+  echo ''
   for n in $_NODES_LIST; do
     echo \"=== \$n ===\"
     D=\$(oc describe node \"\$n\") || rc=\$?
