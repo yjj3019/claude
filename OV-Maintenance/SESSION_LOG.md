@@ -386,3 +386,28 @@
 ### 💬 인계 메모
 - 4-2 대상 선정이 이제 Q_NS와 분리됐으므로, 향후 Q_NS 관련 로직을 바꿀 때 Q_PEER_IP/Q_PEER_NS는 별개로 취급할 것(같이 바뀌는 게 아님).
 - INFRA_NS_RE는 `openshift-*`/`kube-*`/`default`만 제외한다 — 고객사가 별도 관리형 네임스페이스(예: `istio-system`, `cert-manager` 등)에 엄격한 NetworkPolicy를 걸어둔 경우는 여전히 오탐 가능. 재발 시 패턴 추가 검토.
+
+## 세션 백업: 2026-09-14 (이어서 — 기존 항목 4건 보강, 신규 항목 2건 승인 대기)
+
+### 무엇을 했는가
+사용자가 2~7번 6건의 개선 요청을 일괄 제시(1번은 별도로 이미 처리된 것으로 추정, 번호 이어붙임):
+- (2) 3-6 PVC 조회: VM/Pod 어디에도 바인딩되지 않은 PVC 클러스터 전체 목록 추가 — jq로 전체 PVC 목록과 전체 Pod의 spec.volumes를 대조(comm -23). jq 없으면 "jq 필요" 안내로 저하.
+- (3) 정지된 Pod 리스트 + DaemonSet Completed vs 비정상종료 구분 — **신규 항목 번호 필요, 미구현·확인 대기**.
+- (4) 5-1 VM runStrategy 감사(spec.running deprecated 여부, RerunOnFailure 설정 여부) — **신규 항목 번호 필요, 미구현·확인 대기**. 사용자가 준 patch/for문(runStrategy 변경)은 클러스터 상태를 바꾸는 쓰기 작업이라 자동화 대상에서 명시적으로 제외하기로 판단(읽기전용 감사만 하고 조치는 리포트에 안내 텍스트로만 남길 계획) — 아직 사용자에게 이 판단을 확인받지 않음.
+- (5) 5-2 Live Migration: 정책상 건너뛰어도 실제 트리거 없는 `oc get vmim -A` 조회는 항상 리포트에 남기도록 변경 — 구현·검증 완료.
+- (6) 5-6 NHC/FAR: FenceAgentsRemediation 객체가 실존할 때만 `oc get far -A -o yaml` 상세 추가 — 구현·검증 완료(이번 클러스터엔 FAR 없어서 기본 목록만 출력됨을 확인).
+- (7) 5-7: `-o wide` 추가 + virt-handler DaemonSet이 전체 워커 노드에 기동됐는지 자동 대조(누락 시 rc=1) — 구현·검증 완료.
+
+### 검증
+- `bash -n` clean, rhel-prod 실클러스터 재실행 exit 0. 3-6에서 실제 orphan PVC 3개(aap-hub-redis-data-snapshot-restore, gitlab-system의 postgresql/redis) 발견 — 합성 테스트가 아닌 진짜 탐지. 5-7 virt-handler 커버리지 "모든 워커 노드에 virt-handler 기동 확인됨" 확인. 5-6은 FAR 0개라 상세 블록 생략됨을 확인(조건부 로직 정상 동작).
+- 워크트리/Windows local/rhel-prod 3곳 md5(`179ea375...`) 전부 일치.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (3-6/5-2/5-6/5-7 블록)
+- Active errors: 없음
+- Last CMD(원격): `./OCP-HCK-Score.sh` → 전체 통과, `ocp-healthcheck-report-20260914-181131-1096047.txt/.html` 생성.
+
+### 💬 인계 메모
+- **신규 항목 2건은 코드/xlsx 모두 미착수** — 다음 세션에서 사용자 응답(번호/배치 확인)을 받으면 이전 라운드들과 동일한 패턴(스크립트 추가 → rhel-prod 실클러스터 검증 → check_reconstructed.xlsx에 rhel-prod에서 직접 행 추가 → 3곳 동기화)으로 진행.
+- runStrategy 변경 patch 명령은 절대 스크립트에서 자동 실행하지 말 것 — 사용자가 예시로 준 것이지 "자동화해달라"는 요청인지 "감사만 해달라"는 요청인지 명시적으로 확인 필요(현재는 읽기전용 감사만 하기로 잠정 판단, 확정 아님).

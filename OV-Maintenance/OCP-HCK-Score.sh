@@ -299,10 +299,28 @@ run_cmd "3-5" "PV 리스트/상세 조회" "oc get pv / oc describe pv" -- bash 
   oc get pv || rc=\$?
   if [ -n '$Q_PV' ]; then oc describe pv '$Q_PV' || rc=\$?; else echo '(PV 없음 - 건너뜀)'; fi
   exit \$rc"
+# Pod/VM 어디에도 바인딩되지 않고 남아있는 PVC 전체 목록(클러스터 전체) — 고객 요구사항(2026-09-14).
+# VM 디스크는 virt-launcher Pod의 volume으로 잡히므로 Pod의 spec.volumes만 대조하면 VM PVC도 포함된다.
+# jq가 필요(3절의 jq 소프트 의존성과 동일한 선택적 저하 패턴).
+if [ "$HAS_JQ" -eq 1 ]; then
+  ALL_PVC_LIST=$(oc get pvc -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u)
+  USED_PVC_LIST=$(oc get pods -A -o json 2>/dev/null | jq -r '.items[] | .metadata.namespace as $ns | (.spec.volumes // [])[] | select(.persistentVolumeClaim) | $ns + "/" + .persistentVolumeClaim.claimName' | sort -u)
+  if [ -n "$ALL_PVC_LIST" ]; then
+    ORPHAN_PVC_LIST=$(comm -23 <(printf '%s\n' "$ALL_PVC_LIST") <(printf '%s\n' "$USED_PVC_LIST"))
+    PVC_ORPHAN_REPORT="${ORPHAN_PVC_LIST:-(모두 Pod/VM에 바인딩되어 있음)}"
+  else
+    PVC_ORPHAN_REPORT="(클러스터 전체에 PVC 없음)"
+  fi
+else
+  PVC_ORPHAN_REPORT="(jq 미설치 — 이 점검은 jq가 필요합니다)"
+fi
 run_cmd "3-6" "PVC 리스트/상세 조회" "oc get pvc -n <ns> / oc describe pvc" -- bash -c "
   rc=0
   if [ -n '$Q_NS' ]; then oc get pvc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   if [ -n '$Q_NS' ] && [ -n '$Q_PVC' ]; then oc describe pvc '$Q_PVC' -n '$Q_NS' || rc=\$?; else echo '(PVC 없음 - 건너뜀)'; fi
+  echo ''
+  echo '[Pod/VM에 바인딩되지 않은 PVC — 클러스터 전체]'
+  echo '$PVC_ORPHAN_REPORT'
   exit \$rc"
 run_cmd "3-7" "알람 이벤트 조회" "oc get event -n <ns> --sort-by='.lastTimestamp'" -- bash -c "
   set -o pipefail
@@ -496,8 +514,10 @@ if [ "$CAN_VMTEST" -eq 1 ]; then
   fi
 else
   raw "[건너뜀: ${SKIP_REASON}]"
+  raw "[참고] 실제 마이그레이션을 트리거하지 않는 읽기전용 조회 — 현재 클러스터의 VirtualMachineInstanceMigration 목록:"
+  oc get vmim -A >>"$REPORT" 2>&1
   raw "[결과] skip"
-  warn "5-2 건너뜀 (${SKIP_REASON})"
+  warn "5-2 건너뜀 (${SKIP_REASON}) — 기존 vmim 목록은 리포트에 기록됨"
 fi
 
 item_header "5-3" "VM Console 접속 확인" "virtctl console <vm> -n <ns>"
@@ -514,18 +534,35 @@ run_cmd "5-4" "VM CPU/Memory 리소스 사용률 확인" "oc adm top pod -n <ns>
   if [ -n '$V_NS' ]; then oc adm top pod -n '$V_NS' -l kubevirt.io=virt-launcher; else echo '(VM 없음 - 건너뜀)'; fi"
 run_cmd "5-5" "VM 디스크(DataVolume/PVC) 바인딩 상태 확인" "oc get dv,pvc -n <ns>" -- bash -c "
   if [ -n '$V_NS' ]; then oc get dv,pvc -n '$V_NS'; else echo '(VM 없음 - 건너뜀)'; fi"
-run_cmd "5-6" "NodeHealthCheck / Fence Agent 동작 확인" "oc get nhc / oc get far -A" -- bash -c "
+run_cmd "5-6" "NodeHealthCheck / Fence Agent 동작 확인" "oc get nhc / oc get far -A / (존재 시) oc get far -A -o yaml" -- bash -c "
   rc=0
   oc get nhc || rc=\$?
   oc get far -A || rc=\$?
+  FAR_COUNT=\$(oc get far -A --no-headers 2>/dev/null | wc -l)
+  if [ \"\$FAR_COUNT\" -gt 0 ]; then
+    echo ''
+    echo '[FenceAgentsRemediation 상세 — 리붓 등 발생 원인 확인용]'
+    oc get far -A -o yaml || rc=\$?
+  fi
   exit \$rc"
 
-run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n openshift-cnv / oc get pods -n openshift-cnv -l kubevirt.io" -- bash -c "
+run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n openshift-cnv / oc get pods -n openshift-cnv -l kubevirt.io -o wide" -- bash -c "
   rc=0
   oc get hco -n openshift-cnv || rc=\$?
   echo '--- virt-*/cdi-* Pod 상태 ---'
-  oc get pods -n openshift-cnv -l 'kubevirt.io in (virt-operator,virt-controller,virt-handler,virt-api)' || rc=\$?
+  oc get pods -n openshift-cnv -l 'kubevirt.io in (virt-operator,virt-controller,virt-handler,virt-api)' -o wide || rc=\$?
   oc get pods -n openshift-cnv -l 'cdi.kubevirt.io' || rc=\$?
+  echo ''
+  echo '[virt-handler DaemonSet 워커 노드 커버리지 확인]'
+  WORKERS=\$(oc get nodes -l node-role.kubernetes.io/worker -o custom-columns=NAME:.metadata.name --no-headers 2>/dev/null | sort -u)
+  VH_NODES=\$(oc get pods -n openshift-cnv -l kubevirt.io=virt-handler -o custom-columns=NODE:.spec.nodeName --no-headers 2>/dev/null | sort -u)
+  MISSING=\$(comm -23 <(printf '%s\n' \"\$WORKERS\") <(printf '%s\n' \"\$VH_NODES\"))
+  if [ -n \"\$MISSING\" ]; then
+    echo \"[경고] virt-handler가 기동되지 않은 워커 노드: \$MISSING\"
+    rc=1
+  else
+    echo '(모든 워커 노드에 virt-handler 기동 확인됨)'
+  fi
   exit \$rc"
 
 # request 메모리 기준 스케줄링 실패(실사용량이 아니라 Allocated request 소진율이 원인)를
