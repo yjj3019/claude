@@ -95,7 +95,11 @@ python3 fill_checklist.py <1단계에서 생성된 .txt>
 
 ## 항목 수 (참고)
 
-xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 58개 점검항목. `fill_checklist.py`가 종료코드 0으로 끝나고 요약 표에 "총 58개 채움, 0개 리포트 매칭 실패"가 나오면 전 항목이 정상 반영된 것.
+xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 60개 점검항목(2026-09-14: 5-8/5-9 노드 메모리 항목 추가로 58→60). `fill_checklist.py`가 종료코드 0으로 끝나고 요약 표에 "총 60개 채움, 0개 리포트 매칭 실패"가 나오면 전 항목이 정상 반영된 것.
+
+## xlsx 파일은 Windows가 아니라 rhel-prod에서 수정할 것
+
+`check_reconstructed.xlsx`를 새로 만들거나 행을 추가/수정하는 작업은 **반드시 rhel-prod(Linux)에서** 해야 한다. Windows 로컬에는 사내 NASCA DRM 에이전트가 상주하면서 xlsx 파일이 Windows에서 생성/저장되면 자동으로 DRM을 씌우는데, 그러면 openpyxl이 `BadZipFile`로 열지 못하게 된다(원본 `check.xlsx`가 애초에 못 열렸던 것과 동일한 증상 — 2026-09-11/14에 "원인불명 손상"으로 오인했던 현상의 정체). Windows 로컬의 xlsx 사본은 rhel-prod에서 완성한 결과를 내려받아 열어보는 용도로만 사용할 것.
 
 ## rc(종료코드) 정확도에 대한 주의 — 2026-09-11 수정됨
 
