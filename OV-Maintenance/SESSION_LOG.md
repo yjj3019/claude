@@ -411,3 +411,27 @@
 ### 💬 인계 메모
 - **신규 항목 2건은 코드/xlsx 모두 미착수** — 다음 세션에서 사용자 응답(번호/배치 확인)을 받으면 이전 라운드들과 동일한 패턴(스크립트 추가 → rhel-prod 실클러스터 검증 → check_reconstructed.xlsx에 rhel-prod에서 직접 행 추가 → 3곳 동기화)으로 진행.
 - runStrategy 변경 patch 명령은 절대 스크립트에서 자동 실행하지 말 것 — 사용자가 예시로 준 것이지 "자동화해달라"는 요청인지 "감사만 해달라"는 요청인지 명시적으로 확인 필요(현재는 읽기전용 감사만 하기로 잠정 판단, 확정 아님).
+
+## 세션 백업: 2026-09-14 (이어서 — 신규 항목 3-11/5-12 추가, 64→66개)
+
+### 무엇을 했는가
+직전 라운드에서 확인 대기 중이던 신규 항목 2건을 AskUserQuestion으로 승인받음: "3-11로 추가(권장)", "읽기전용 감사만(권장)".
+1. `.sh`에 3-11(3.API연동 섹션 끝) 추가 — `oc get pods -A --field-selector=status.phase!=Running`로 정지된 Pod 전체를 조회한 뒤 Job/DaemonSet 소유 Succeeded는 "정상 종료로 추정", 그 외는 "확인 필요"로 awk로 자동 분류.
+2. `.sh`에 5-12(5.Virtualization 섹션 끝) 추가 — `oc get vm -A -o custom-columns=...RUNNING,RUNSTRATEGY`로 전체 VM을 조회하고, spec.running이 `<none>`이 아니거나(=deprecated 필드 잔존) runStrategy가 RerunOnFailure가 아닌 VM만 별도로 플래그. 사용자가 준 `oc patch vm ... runStrategy=RerunOnFailure` 변경 명령은 클러스터 쓰기 작업이라 스크립트에서 자동 실행하지 않고, 리포트에 "직접 적용하라"는 안내 텍스트만 남기도록 구현(승인된 방향).
+3. `check_reconstructed.xlsx`를 rhel-prod에서 갱신 — 3.API연동은 기존 14행 끝에 3-11을 단순 append(병합셀 영향 없음). 5.Virtualization은 기존 각주 병합행(A14:F14)을 해제 → `insert_rows(13)`으로 5-12 자리 확보 → 병합을 새 위치(A15:F15)로 재적용 → 5-11(row12) 서식을 복사해 새 행(row13) 채움. 이전 라운드들과 동일한 "unmerge → insert → shift → re-merge" 패턴 재사용.
+
+### 검증
+- `bash -n` clean, rhel-prod 실클러스터 재실행 exit 0 — 3-11이 실제 Evicted Pod 2건(trivy-server ReplicaSet)을 Job 소유 Succeeded(trivy-db-refresh 등)와 정확히 구분해 출력. 5-12가 hjin-project 네임스페이스의 여러 VM에서 `spec.running=false`(deprecated) 잔존 + runStrategy 미설정(`<none>`/`Halted`)을 실제로 발견 — 고객이 우려한 문제가 그대로 재현된 유의미한 발견.
+- `fill_checklist.py`로 66/66 채움, 0개 매칭 실패, exit 0 확인(테스트 출력 파일은 /tmp에 만들었다가 삭제).
+- 워크트리/Windows local/rhel-prod 3곳 `OCP-HCK-Score.sh`(md5 `e28ada21...`) + `check_reconstructed.xlsx`(md5 `2e48f12d...`) 전부 일치. rhel-prod의 스크래치 스크립트(`add_3_11_5_12.py`/`inspect_xlsx.py`)와 백업(`.bak`)은 사용 후 삭제.
+- README.md 항목 수 표기(64→66) 갱신.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (3-11: 3-10 다음/섹션4 시작 전, 5-12: 5-11 다음/섹션 종료 전), `check_reconstructed.xlsx`(3.API연동 row15, 5.Virtualization row13)
+- Active errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-182453-1107536.txt check_reconstructed.xlsx /tmp/test_fill_*.xlsx` → "총 66개 채움, 0개 리포트 매칭 실패".
+
+### 💬 인계 메모
+- 이제 항목 총 66개 — PROGRESS.md Next #1(원본 check.xlsx DRM 반영 여부 결정)에 3-11/5-12도 포함해서 사용자가 판단해야 함.
+- 5-12는 읽기전용 감사만 한다 — 향후 사용자가 "patch까지 자동으로 해달라"고 명시적으로 요청하지 않는 한 절대 `oc patch vm`을 스크립트에서 실행하지 말 것(클러스터 상태를 바꾸는 쓰기 작업이라 이 헬스체크 스크립트의 "읽기전용/비파괴적" 원칙에 위배).

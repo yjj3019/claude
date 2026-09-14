@@ -333,6 +333,23 @@ run_cmd "3-9" "Pod CPU/Memory 사용량 조회" "oc adm top pod -n <ns>" -- bash
 run_cmd "3-10" "Pod 로그 조회" "oc logs <pod> -n <ns>" -- bash -c "
   if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then oc logs '$Q_POD' -n '$Q_NS' --tail=100; else echo '(Pod 없음 - 건너뜀)'; fi"
 
+# 정지된(non-Running) Pod 전체 목록 — 고객 요구사항(2026-09-14). Job/DaemonSet 소유의
+# Succeeded는 정상 종료로 분류하고, 그 외(Failed/Pending/Unknown 또는 소유자 불명의 Succeeded)만
+# "확인 필요"로 구분해 보여준다(둘 다 rc에는 영향 없음 — 사람이 리포트를 보고 판단).
+run_cmd "3-11" "정지된(non-Running) Pod 리스트 확인 — 정상 종료(Job/DaemonSet)와 비정상 종료 구분" "oc get pods -A --field-selector=status.phase!=Running" -- bash -c "
+  rc=0
+  RAW=\$(oc get pods -A --field-selector=status.phase!=Running -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,STATUS:.status.phase,REASON:.status.reason,OWNER:.metadata.ownerReferences[0].kind,NODE:.spec.nodeName --no-headers 2>/dev/null) || rc=\$?
+  if [ -z \"\$RAW\" ]; then
+    echo '(정지된 Pod 없음 — 모든 Pod가 Running 상태)'
+  else
+    echo '[정상 종료로 추정 — Job/DaemonSet 소유의 Succeeded]'
+    echo \"\$RAW\" | awk '(\$3==\"Succeeded\" && (\$5==\"Job\" || \$5==\"DaemonSet\")){print; f=1} END{if(!f) print \"(해당 없음)\"}'
+    echo ''
+    echo '[확인 필요 — 그 외 비정상 종료/대기 상태]'
+    echo \"\$RAW\" | awk '!(\$3==\"Succeeded\" && (\$5==\"Job\" || \$5==\"DaemonSet\")){print; f=1} END{if(!f) print \"(해당 없음)\"}'
+  fi
+  exit \$rc"
+
 # ════════════════════════════════════════════════════════════
 section "4. Network 상태 확인"
 # 3번 앞에서 자동 탐지한 대상을 기본값으로 재사용
@@ -607,6 +624,30 @@ run_cmd "5-10" "전체 VM(virt-launcher) Pod의 memory request 확인" "oc get p
 # FailedScheduling은 특정 Pod명을 미리 알아야 하는 진단 명령이었으나, 현재 클러스터에
 # 실제로 발생 중인 이벤트를 직접 조회하면 대상을 몰라도 자동 점검 가능(없으면 "정상").
 run_cmd "5-11" "VM 스케줄링 실패(FailedScheduling) 이벤트 확인" "oc get events -A --field-selector reason=FailedScheduling --sort-by=.lastTimestamp" -- oc get events -A --field-selector reason=FailedScheduling --sort-by=.lastTimestamp
+
+# VM 실행 정책 감사 — 고객 요구사항(2026-09-14). spec.running은 deprecated 필드라 남아있으면
+# 제거가 필요하고, runStrategy는 RerunOnFailure를 권장한다는 고객 가이드를 읽기전용으로 감사만
+# 한다(클러스터 상태를 바꾸는 oc patch/for문은 이 점검의 범위 밖 — 사람이 직접 판단 후 적용).
+run_cmd "5-12" "VM 실행 정책(spec.running/runStrategy) 설정 확인" "oc get vm -A -o custom-columns=NAME:.metadata.name,RUNNING:.spec.running,RUNSTRATEGY:.spec.runStrategy" -- bash -c "
+  rc=0
+  RAW=\$(oc get vm -A -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,RUNNING:.spec.running,RUNSTRATEGY:.spec.runStrategy --no-headers 2>/dev/null) || rc=\$?
+  if [ -z \"\$RAW\" ]; then
+    echo '(클러스터에 VM 없음)'
+  else
+    echo \"\$RAW\"
+    echo ''
+    echo '[확인 필요 — spec.running(deprecated) 잔존 또는 runStrategy가 RerunOnFailure가 아님]'
+    FLAGGED=\$(echo \"\$RAW\" | awk '\$3!=\"<none>\" || \$4!=\"RerunOnFailure\"')
+    if [ -n \"\$FLAGGED\" ]; then
+      echo \"\$FLAGGED\"
+      echo '[안내] spec.running은 더 이상 제공되지 않는 deprecated 필드입니다 — 마이그레이션/VM 생성 시'
+      echo '       이 필드가 남아있다면 제거하고 runStrategy를 RerunOnFailure로 맞추는 것을 권장합니다.'
+      echo '       이 점검은 읽기전용이라 자동 변경하지 않으니, oc patch vm 명령으로 직접 적용하세요.'
+    else
+      echo '(모든 VM이 RerunOnFailure로 설정되어 있고 spec.running 잔존 없음)'
+    fi
+  fi
+  exit \$rc"
 
 # ════════════════════════════════════════════════════════════
 write ""
