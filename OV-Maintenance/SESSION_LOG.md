@@ -314,3 +314,33 @@
 ### 💬 인계 메모
 - 이제 `check_reconstructed.xlsx`에는 항목이 언제 추가됐는지 알려주는 시각적 단서가 전혀 없다 — "이 항목 언제 생겼어?" 같은 질문이 오면 PROGRESS.md의 Done 섹션(날짜별로 정리돼 있음)을 근거로 답할 것.
 - 이번에도 `strip_new_markers.py`는 사용 후 rhel-prod에서 즉시 삭제했다 — xlsx 편집용 1회성 스크립트는 결과 파일만 남기고 정리하는 패턴을 계속 유지.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 2연속 실행 피드백 9건 진단·수정)
+
+### ✅ 완료 작업
+- 사용자가 rhel-prod에서 스크립트를 두 번 실행한 결과를 붙여넣으며 9가지 문제/개선 요청을 한 번에 전달(섹션2 stdout 누락, 목록외 Operator 경고, 5-7 이후 python 문법에러 덤프, 실패 항목 미표시, 0바이트 더미 파일, 섹션별 출력형식 불일치, 넘버링 통일 제안, CO 테이블에 VERSION/SINCE 추가 제안 등).
+- 코드를 직접 읽어 9건 전부 근본원인 규명(자세한 내용은 PROGRESS.md Done 참고). 3건(넘버링 변경/CO 개별출력/VERSION·SINCE 추가)은 xlsx 항목번호·fill_checklist.py 파서에 영향을 주는 설계결정이라 AskUserQuestion으로 확인 후 전원 "진행" 승인받음.
+- `OCP-HCK-Score.sh` 수정: 섹션2 루프 raw→write 전환, `OPERATORS` 배열 끝에 control-plane-machine-set/olm 추가(2-33/2-34로만 신규 — 기존 2-1~2-32 번호는 안 건드림), CO 테이블에 VERSION/SINCE 컬럼 추가하며 jq유무 분기를 하나로 통합, 3.API연동 10개 항목 3-1-1..3-3-1 → 3-1..3-10 플랫 넘버링, `FAILED_ITEMS` 배열로 종료 요약에 실패 항목 번호 표시, `: > "$REPORT"`를 oc-login 검증 통과 후로 이동(0바이트 더미 파일 방지).
+- rhel-prod의 배포본이 그 시점 여러 커밋 뒤처진 구버전(58787 vs 워크트리 63982 bytes)이었던 것도 확인 — 최신본 재업로드로 함께 해소(5-7 이후 python 덤프의 실제 원인).
+- **실행 중 발견한 부수 버그**: CO 컬럼을 6필드→8필드로 늘리면서 `fill_checklist.py`의 `parts[5]` 인덱스가 DEGRADED 필드를 가리키게 돼 요약이 "2.ClusterOperator False 34"로 깨지는 것을 재검증 도중 직접 목격 → `parts[7]`로 즉시 수정, self-check 픽스처(SAMPLE_REPORT)도 8필드 포맷으로 동기화.
+- `check_reconstructed.xlsx`는 rhel-prod에서 `update_numbering.py`(1회성, 사용 후 삭제)로 편집: 2.ClusterOperator에 2-33/2-34 신규 행 추가(33행 서식 복사), 3.API연동 10개 항목번호 갱신. 기존 32개 CO 행과 3.API연동의 배너행(A2/A10/A13, 기존 "5-2."/"5-3." 오탈자 포함)은 손대지 않음.
+- 실클러스터 최종 검증(rhel-prod, kube:admin): `bash -n`+임베드 python `py_compile` 클린, self-check exit 0, 전체 스크립트 실행 exit 0(34개 CO 개별 출력, 목록외 경고 소멸, FAIL_COUNT가 "4-2"를 정확히 지목, VERSION/SINCE 정상 채워짐), `fill_checklist.py`로 64/64 채움·0개 매칭실패·exit 0, 2.ClusterOperator 요약 "정상 34" 확인.
+- 워크트리 다운로드 → xlsx md5 3곳(워크트리/rhel-prod) 일치 확인 → 코드 커밋(`783f7f5`) → PROGRESS.md/SESSION_LOG.md 갱신 커밋 진행 중.
+- **부수 발견**: 워크트리의 `check_reconstructed.xlsx`가 마지막 커밋(`59fa821`)과 다른 md5(`6df26...`)로 되어 있는 걸 작업 시작 시 발견 — rhel-prod는 커밋된 정상본(`23dbfed1...`)과 일치했으므로 워크트리 쪽이 원인불명의 로컬 드리프트였다고 판단, `git checkout --`로 커밋본으로 되돌린 뒤 작업 시작(이번 라운드의 xlsx 변경은 이 복구된 상태 위에 적용됨).
+
+### 🚧 진행 중
+- 없음.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조.
+- 4-2(Pod간 Networking)가 이번 실행에서 실패로 기록됨 — 사용자가 원인 조사를 요청하면 리포트의 4-2 원본 출력(ping 실패 여부/대상 Pod)부터 확인할 것.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance`.
+- Last File: `OCP-HCK-Score.sh` / `fill_checklist.py` / `check_reconstructed.xlsx` (64개 항목 체계로 확장, xlsx md5 `aac49aaecfdeaa2210547fce1b8b1ecd`)
+- Active Errors: 없음(4-2는 스크립트 버그가 아니라 대상 Pod의 실제 네트워킹 상태로 추정 — 별도 조사 필요 시 다음 세션에서).
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-170519-1043414.txt` → `총 64개 채움, 0개 리포트 매칭 실패`.
+
+### 💬 인계 메모
+- OPERATORS 배열에 신규 CO를 추가할 때는 항상 **배열 끝에 append**할 것 — 알파벳순 등으로 중간에 끼워 넣으면 그 뒤 모든 2-N 번호가 밀리면서 xlsx의 기존 행 전부를 다시 맞춰야 하는 대참사가 된다(이번에 이걸 피하려고 일부러 끝에 붙임).
+- fill_checklist.py의 CO_LINE 파싱은 `.sh`가 출력하는 파이프 구분 필드 수/순서에 그대로 의존한다(`parts[7]`) — `.sh`의 2절 출력 포맷을 바꿀 때마다 fill_checklist.py도 반드시 같이 확인할 것(이번에 한 번 놓쳤다가 실행 중 잡음).
