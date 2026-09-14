@@ -195,3 +195,29 @@
 - **openpyxl 교훈**: `ws.insert_rows(n, amount=k)`는 셀 값/행 자체는 밀어주지만 **병합 셀 범위(`ws.merged_cells`)는 자동으로 안 밀린다.** 병합이 있는 시트에 행을 삽입할 땐 반드시 삽입 전 병합 해제 → 삽입 → 병합 범위를 수동으로 `row_shift`한 뒤 재병합할 것. 이번에 조용히(에러 없이) 값이 사라졌던 게 위험한 지점 — 반드시 저장 후 재오픈해서 값 확인하는 습관 유지.
 - **`check_reconstructed.xlsx` "손상" 미스터리 해결**: 사용자 확인 — Windows 쪽에 사내 NASCA DRM 에이전트가 떠 있어서, xlsx 파일이 Windows 로컬에서 수정/생성되면 **자동으로 DRM이 부여**된다. openpyxl이 `BadZipFile`로 못 여는 게 이 DRM wrapping 때문(원본 `check.xlsx`가 애초에 못 열렸던 것과 동일한 메커니즘) — 실제 파일 손상이 아니었다. **앞으로 xlsx 파일(`check_reconstructed.xlsx`) 수정 작업은 Windows 로컬이 아니라 rhel-prod(Linux, DRM 에이전트 없음)에서 수행할 것.** Windows 로컬 사본은 "결과를 받아보는 용도"로만 취급.
 - `EnterWorktree` 도구가 기존에 잘 동작하던 워크트리에 대해 "git identity를 검증할 수 없다"며 거부하는 현상 발생(같은 세션 내 두 워크트리 모두). `git worktree list`/직접 `git status`로는 문제 없었음 — 파일 Edit는 워크트리 경로에 직접 지정하면 정상 동작(가드가 경로 기준으로만 판단하는 듯). 재발 시 이 우회법 사용.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 재로그인 후 5-8/5-9 실클러스터 최종 검증)
+
+### ✅ 완료 작업
+- 사용자가 rhel-prod에 재로그인("로그인 완료했어") → `oc whoami` 정상 확인 → `./OCP-HCK-Score.sh` 전체 실행, 5-8/5-9 둘 다 `✔`로 통과.
+- 원문 대조 중 **5-8의 실버그 발견**: `grep -A2 -E 'Capacity:|Allocatable:'`가 각 블록(실제 9~13줄)을 2줄만 캡처해서, `oc describe node`가 알파벳순으로 나열하는 KubeVirt bridge/device 리소스(`bridge.network.kubevirt.io/...`)만 잡히고 정작 필요한 cpu/memory/pods/ephemeral-storage가 전부 누락됨. `oc describe node worker01.ocp.score | sed -n '/^Capacity:/,/^System Info:/p'`로 실제 블록 길이 확인 후, `sed -n '/^Capacity:/,/^Allocatable:/{/^Allocatable:/!p}'` / `sed -n '/^Allocatable:/,/^System Info:/{/^System Info:/!p}'` 방식(다음 헤더 직전까지 정확히 절단, 리소스 개수에 무관)으로 교체.
+- 전체 재실행 없이 수정된 로직만 실제 노드 2개(worker01/master01)로 단독 재현 테스트 → cpu/memory/pods/ephemeral-storage/hugepages 전부 정상 출력 확인.
+- 5-9는 수정 불필요 — 첫 실행부터 실제 클러스터 설정값 `{"memoryOvercommitPercentage":150}`을 정확히 가져옴. **150% 메모리 오버커밋이 실제로 설정돼 있음을 확인** — 고객이 우려하던 "request 소진으로 인한 VM 스케줄링 실패" 가능성의 실제 근거가 되는 유의미한 발견.
+- bash -n / heredoc py_compile 재확인 → 워크트리 커밋(`0a81e6f`) → 로컬/rhel-prod 재업로드, md5 3곳 일치(`cd67422b...`) 확인.
+- `./OCP-HCK-Score.sh` 전체 재실행(리포트 `ocp-healthcheck-report-20260914-104242-789794.txt`) → `fill_checklist.py`로 60개 항목 전체 채움: "총 60개 채움, 0개 리포트 매칭 실패", exit 0. 5-8/5-9 둘 다 "정상"으로 정확히 반영됨.
+
+### 🚧 진행 중
+- 없음 — 이번 라운드(5-8/5-9 추가 + 실클러스터 검증)는 완전히 종료.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `0a81e6f`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `OCP-HCK-Score.sh` md5 3곳 일치(`cd67422b...`).
+- Last File: `OCP-HCK-Score.sh` (5-8 grep 범위 버그 수정, 실클러스터 검증 통과)
+- Active Errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-104242-789794.txt check_reconstructed.xlsx checklist_20260914.xlsx` → `총 60개 채움, 0개 리포트 매칭 실패`, exit 0
+
+### 💬 인계 메모
+- **교훈**: `grep -A<N>` 같은 고정폭 추출은 리소스 개수가 클러스터/노드마다 다를 수 있는 `oc describe` 출력에는 위험하다 — 이번에 실제로 핵심 값(cpu/memory/pods)이 조용히 빠졌었다. 앞으로 비슷한 블록 추출이 필요하면 `sed -n '/시작패턴/,/끝패턴/{/끝패턴/!p}'`처럼 다음 헤더를 명시적 경계로 쓸 것 — `-A` 카운트 추측 금지.
+- 5-9가 드러낸 `memoryOvercommitPercentage: 150`은 스크립트 검증용 부산물이 아니라 실제 운영상 의미 있는 값이다 — 사용자에게 별도로 언급해도 좋을 만한 발견.
