@@ -245,3 +245,27 @@
 ### 💬 인계 메모
 - **새 DRM 규칙이 실전에서 잘 작동함을 확인**: xlsx 편집용 python 스크립트를 로컬에서 작성 → `uploadFile`로 rhel-prod에 올림 → `runRemoteCommand`로 그쪽에서 실행 → 결과를 `downloadFile`로 받아옴, 이 패턴을 앞으로 xlsx 수정마다 반복할 것. 로컬에서 openpyxl로 직접 저장하지 말 것.
 - 고객 요구사항이 "재해석"을 거쳐 원래 보류했던 항목들이 결국 다 들어간 사례 — 사용자가 명령의 "진짜 의도"를 설명해주면 자동화 가능 범위가 크게 달라질 수 있으니, 애매한 요구사항은 "왜 이게 필요한지" 물어보는 게 범위 판단에 중요하다는 교훈.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 자동탐지 안내문 + 판정 어휘 통일)
+
+### ✅ 완료 작업
+- 사용자가 실제 실행 결과(`No resources found in openshift-ovn-kubernetes`, VM start/stop 건너뜀, `top pod` 결과 없음 등)를 붙여넣고 "왜 결과가 없냐" 질문 → `.sh`의 `Q_NS`(무작위 Running Pod의 네임스페이스, 192행)와 `V_NS`/`V_VM`(실행중 여부 무관 무작위 VM, 229행) 자동탐지 코드를 직접 확인해서 근거 있게 답변(추측 아님) — 인프라 네임스페이스는 PVC가 원래 없고, 꺼진 VM이 뽑히면 top 결과가 없는 게 정상, 5-1/5-2는 안전장치로 항상 건너뜀.
+- 사용자가 "관련 내용을 함께 설명되면 좋겠어"(리포트 자체에 넣어달라는 의미로 해석) → `[자동 탐지된 점검 대상]` 블록 바로 뒤에 이 설명을 `raw` 텍스트로 고정 삽입하도록 `.sh` 수정. `fill_checklist.py`가 이 자유 텍스트를 항목 헤더로 오인해 파싱을 깨뜨리지 않는지 실제로 재실행해서 확인(62/62 채움 그대로 유지).
+- 사용자가 "✅ 정상 vs 정상 표기 차이가 왜 나냐" 질문 → 2절(CO)은 `.sh`가 이모지 포함 문자열을 직접 박아넣고 `fill_checklist.py`는 그대로 승계하는 반면, 1/3/4/5절은 rc 기반으로 `fill_checklist.py`가 직접 한글로 변환(`STATUS_MAP`)한다는 구조적 차이를 코드 근거로 설명. 이전 Opus 리뷰 M4(판정 어휘 혼재, 폐쇄망 구형 Excel 이모지 깨짐 우려)로 이미 지적됐던 사항임을 언급.
+- 사용자가 "통일해줘" 요청 → CO VERDICT 문자열에서 이모지만 제거(`정상`/`주의(Progressing)`/`이상(Degraded)`/`이상(Available)`), 괄호 사유는 유지해 심각도 정보는 보존. HTML 파서가 이모지가 아니라 "정상"/"주의"/"이상" 한글 부분문자열로만 매칭한다는 걸 먼저 확인해서 안전하게 변경 가능함을 검증 후 진행. `fill_checklist.py`의 self-check 샘플/assertion도 동기화. rhel-prod 실행으로 2-1/2-2가 이모지 없이 정확히 나오고, `fill_checklist.py` 요약 표에서 2.ClusterOperator가 다른 절과 같은 "정상" 라벨로 합산되는 것까지 확인.
+
+### 🚧 진행 중
+- 없음 — 이번 라운드(자동탐지 안내문 + 판정 어휘 통일) 완전히 종료.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `cb373f3`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `OCP-HCK-Score.sh`/`fill_checklist.py`/`README.md` md5 3곳 일치.
+- Last File: `OCP-HCK-Score.sh` (CO VERDICT 이모지 제거, 자동탐지 안내문 추가)
+- Active Errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-134710-916200.txt check_reconstructed.xlsx checklist_20260914_unified.xlsx` → `총 62개 채움, 0개 리포트 매칭 실패`, exit 0. 확인 후 테스트 산출물은 삭제(`rm checklist_20260914_unified.xlsx`).
+
+### 💬 인계 메모
+- 이번 라운드는 전부 "사용자가 실제 결과를 보고 질문 → 코드 근거로 답 → (필요시) 요청받아 수정"의 반복이었다. 매번 추측하지 않고 `.sh`/`fill_checklist.py` 소스를 직접 읽어서 답한 게 정확도를 지켰다 — 다음에도 "왜 이렇게 나와?" 류 질문엔 먼저 코드를 확인할 것.
+- 판정 어휘 통일로 Codex/Opus 리뷰의 M4가 완전히 해소됐다 — PROGRESS.md의 "보류 중" 목록에서 제거함.
