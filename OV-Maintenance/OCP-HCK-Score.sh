@@ -44,6 +44,25 @@ FAILED_ITEMS=()
 write() { echo -e "$1" | tee -a "$REPORT" >/dev/null; }
 raw()   { echo -e "$1" >> "$REPORT"; }
 
+# 방어적 경계 검증(team agent 리뷰 Suggestion, 2026-09-14): 이 스크립트는 클러스터에서
+# 자동탐지한 네임스페이스/Pod/노드 등 이름을 bash -c "... '$VAR' ..." 형태로 nested
+# 삽입한다. K8s apiserver가 오브젝트 이름을 RFC1123으로 검증하므로 값에 작은따옴표가
+# 물리적으로 존재할 수 없어 오늘 시점엔 안전하지만(보안 리뷰로 확인됨), 그 전제가 실제로
+# 지켜지는지 매 실행마다 스스로 재확인한다 — 위반되면 nested quoting이 깨지기 전에
+# 해당 값을 무조건 비워서 안전하게 만든다(고쳐 쓰지 않고 버림).
+assert_safe_name() {
+  # 사용법: assert_safe_name <변수명> <값> — 안전하면 0, 아니면 경고 후 1
+  local name="$1" val="$2"
+  [ -z "$val" ] && return 0
+  case "$val" in
+    *[!a-zA-Z0-9._:/-]*)
+      warn "자동탐지 값 ${name}='${val}' 이 예상 문자 범위(영숫자/-._:/)를 벗어나 안전을 위해 비웁니다 — 클러스터 리소스 이름을 직접 확인하세요."
+      return 1
+      ;;
+  esac
+  return 0
+}
+
 section() {
   write ""
   write "════════════════════════════════════════════════════════"
@@ -269,6 +288,16 @@ raw "     4-2(Pod간 통신 대상 IP)는 인프라 네임스페이스를 제외
 raw "     ICMP를 막아둔 Pod가 뽑히면 rc=1로 실패합니다 — 이 경우도 스크립트 결함이 아니라 그 Pod의 실제"
 raw "     보안 정책이 원인이니, 리포트 하단의 대상 Pod/Namespace로 'oc get networkpolicy -n <ns>'를 직접 확인하세요."
 raw "     특정 네임스페이스/VM을 반드시 점검해야 한다면 위 무작위 결과 대신 수동 명령으로 재확인하세요."
+
+# 아래 각 값은 이후 bash -c "... '$VAR' ..." 형태로 여러 항목에 nested 삽입되므로,
+# 여기서 한 번에 안전성을 재확인한다(위반 시 값을 비워 해당 항목은 "대상 없음"으로 처리됨).
+for _n in Q_NS Q_POD Q_NODE Q_NODE2 Q_SVC Q_PVC Q_PV Q_ROUTE Q_PEER_IP Q_PEER_NS \
+          Q_NODE_TARGET_IP V_NS V_VM V_NS_SAFE V_VM_SAFE; do
+  _v="${!_n}"
+  assert_safe_name "$_n" "$_v" || eval "$_n=''"
+done
+unset _n _v
+
 ok "자동 탐지 완료 — 아래 항목은 위 대상을 기준으로 자동 실행됩니다"
 
 # ════════════════════════════════════════════════════════════
@@ -303,10 +332,10 @@ run_cmd "3-5" "PV 리스트/상세 조회" "oc get pv / oc describe pv" -- bash 
 # VM 디스크는 virt-launcher Pod의 volume으로 잡히므로 Pod의 spec.volumes만 대조하면 VM PVC도 포함된다.
 # jq가 필요(3절의 jq 소프트 의존성과 동일한 선택적 저하 패턴).
 if [ "$HAS_JQ" -eq 1 ]; then
-  ALL_PVC_LIST=$(oc get pvc -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"' | sort -u)
-  USED_PVC_LIST=$(oc get pods -A -o json 2>/dev/null | jq -r '.items[] | .metadata.namespace as $ns | (.spec.volumes // [])[] | select(.persistentVolumeClaim) | $ns + "/" + .persistentVolumeClaim.claimName' | sort -u)
+  ALL_PVC_LIST=$(oc get pvc -A -o json 2>/dev/null | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)"' | LC_ALL=C sort -u)
+  USED_PVC_LIST=$(oc get pods -A -o json 2>/dev/null | jq -r '.items[] | .metadata.namespace as $ns | (.spec.volumes // [])[] | select(.persistentVolumeClaim) | $ns + "/" + .persistentVolumeClaim.claimName' | LC_ALL=C sort -u)
   if [ -n "$ALL_PVC_LIST" ]; then
-    ORPHAN_PVC_LIST=$(comm -23 <(printf '%s\n' "$ALL_PVC_LIST") <(printf '%s\n' "$USED_PVC_LIST"))
+    ORPHAN_PVC_LIST=$(LC_ALL=C comm -23 <(printf '%s\n' "$ALL_PVC_LIST") <(printf '%s\n' "$USED_PVC_LIST"))
     PVC_ORPHAN_REPORT="${ORPHAN_PVC_LIST:-(모두 Pod/VM에 바인딩되어 있음)}"
   else
     PVC_ORPHAN_REPORT="(클러스터 전체에 PVC 없음)"
@@ -379,6 +408,7 @@ PING_POD="$N_POD"
 NETDEBUG_NS="score-debug"
 NETDEBUG_POD=$(oc get pods -n "$NETDEBUG_NS" -l app=score-debug --field-selector=status.phase=Running \
   -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+assert_safe_name "NETDEBUG_POD" "$NETDEBUG_POD" || NETDEBUG_POD=""
 if [ -n "$NETDEBUG_POD" ]; then
   PING_NS="$NETDEBUG_NS"
   PING_POD="$NETDEBUG_POD"
@@ -580,9 +610,9 @@ run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n
   oc get pods -n openshift-cnv -l 'cdi.kubevirt.io' || rc=\$?
   echo ''
   echo '[virt-handler DaemonSet 워커 노드 커버리지 확인]'
-  WORKERS=\$(oc get nodes -l node-role.kubernetes.io/worker -o custom-columns=NAME:.metadata.name --no-headers 2>/dev/null | sort -u)
-  VH_NODES=\$(oc get pods -n openshift-cnv -l kubevirt.io=virt-handler -o custom-columns=NODE:.spec.nodeName --no-headers 2>/dev/null | sort -u)
-  MISSING=\$(comm -23 <(printf '%s\n' \"\$WORKERS\") <(printf '%s\n' \"\$VH_NODES\"))
+  WORKERS=\$(oc get nodes -l node-role.kubernetes.io/worker -o custom-columns=NAME:.metadata.name --no-headers 2>/dev/null | LC_ALL=C sort -u)
+  VH_NODES=\$(oc get pods -n openshift-cnv -l kubevirt.io=virt-handler -o custom-columns=NODE:.spec.nodeName --no-headers 2>/dev/null | LC_ALL=C sort -u)
+  MISSING=\$(LC_ALL=C comm -23 <(printf '%s\n' \"\$WORKERS\") <(printf '%s\n' \"\$VH_NODES\"))
   if [ -n \"\$MISSING\" ]; then
     echo \"[경고] virt-handler가 기동되지 않은 워커 노드: \$MISSING\"
     rc=1
