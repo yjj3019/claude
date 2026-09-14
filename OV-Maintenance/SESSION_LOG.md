@@ -365,3 +365,24 @@
 ### 💬 인계 메모
 - 4-2는 "무작위 대상이 NetworkPolicy로 보호된 인프라 Pod로 뽑히면 정상적으로 실패"하는 구조적 한계 — 사용자에게 두 가지 개선안(인프라 네임스페이스 제외 / 안내문 추가) 제시, 결정 대기 중(PROGRESS.md Next #3).
 - 인쇄 시 다크모드 CSS 변수 누출 같은 버그는 `@media print` 안에서 `:root`/다크 셀렉터를 그대로 복제해 같은 특이도·더 뒤 소스 순서로 덮어써야 확실히 이긴다 — 이후 팔레트 관련 CSS 변수를 더 추가할 때는 print 블록의 재정의 목록도 같이 갱신할 것.
+
+## 세션 백업: 2026-09-14 (이어서 — 4-2 개선안 2건 구현)
+
+### 무엇을 했는가
+직전 라운드에서 제시한 4-2 개선안 두 가지를 사용자가 "둘 다 진행" 요청 → 둘 다 구현.
+1. Q_PEER_IP(4-2 통신 대상) 선정 로직을 Q_NS(대표 네임스페이스) 의존에서 분리. `INFRA_NS_RE='^(openshift(-.*)?|kube-.*|default)$'`로 인프라 네임스페이스를 제외하고 클러스터 전체 Running Pod 중 무작위 선정. Q_NS 자체는 다른 항목(3-1~3-6 등)에서 그대로 사용되므로 영향 없음. 사용자 네임스페이스에 Running Pod가 전혀 없으면 기존처럼 DNS 서비스 IP로 폴백.
+2. 자동탐지 안내 블록(라인 108/116 부근)에 "4-2는 인프라 네임스페이스를 제외하고 뽑지만 사용자 정의 NetworkPolicy가 남아있으면 그래도 실패할 수 있다"는 설명 + `oc get networkpolicy -n <ns>` 확인 안내 추가, 대상 IP 옆에 네임스페이스 병기.
+
+### 검증
+- `bash -n` clean, rhel-prod 실클러스터 재실행 — 대상이 이전 라운드의 `openshift-cnv`(NetworkPolicy 차단됨) 대신 `netobserv`로 자동 재선정됐고, 4-2가 `[결과] rc=0`으로 정상 통과(3/3 ping 응답 확인). 전체 실행 exit 0, FAIL_COUNT 0.
+- 워크트리/Windows local/rhel-prod 3곳 md5(`47118445...`) 전부 일치.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (Q_PEER_IP 선정 로직, ~213~226행 / 자동탐지 안내, ~256~267행)
+- Active errors: 없음
+- Last CMD(원격): `./OCP-HCK-Score.sh` → 전체 통과, `ocp-healthcheck-report-20260914-180059-1086546.txt/.html` 생성, 4-2 rc=0.
+
+### 💬 인계 메모
+- 4-2 대상 선정이 이제 Q_NS와 분리됐으므로, 향후 Q_NS 관련 로직을 바꿀 때 Q_PEER_IP/Q_PEER_NS는 별개로 취급할 것(같이 바뀌는 게 아님).
+- INFRA_NS_RE는 `openshift-*`/`kube-*`/`default`만 제외한다 — 고객사가 별도 관리형 네임스페이스(예: `istio-system`, `cert-manager` 등)에 엄격한 NetworkPolicy를 걸어둔 경우는 여전히 오탐 가능. 재발 시 패턴 추가 검토.

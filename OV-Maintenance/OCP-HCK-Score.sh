@@ -210,16 +210,20 @@ Q_PV=$(oc get pv -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/d
 Q_ROUTE=""
 [ -n "$Q_NS" ] && Q_ROUTE=$(oc get route -n "$Q_NS" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null | rand_line)
 
-# 같은 namespace 안의 '다른' Pod 중 무작위 1개의 IP (Pod간 통신 테스트용 목적지)
+# Pod간 통신(ping, 4-2) 테스트 대상 — 인프라 네임스페이스(openshift-*/kube-*/default 등)는
+# NetworkPolicy로 ICMP를 막아두는 경우가 흔해(예: HCO의 kubevirt-apiserver-proxy-np가 ingress를
+# TCP 8080만 허용) 정상 상태에서도 ping이 실패하는 오탐을 유발한다. 사용자 워크로드 네임스페이스의
+# Running Pod 중에서만 무작위로 고른다(다른 항목의 대표 네임스페이스 Q_NS는 그대로 유지).
+INFRA_NS_RE='^(openshift(-.*)?|kube-.*|default)$'
+Q_PEER_NS=""
 Q_PEER_IP=""
-if [ -n "$Q_NS" ]; then
-  Q_PEER_IP=$(oc get pods -n "$Q_NS" --field-selector=status.phase=Running \
-    -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.podIP}{"\n"}{end}' 2>/dev/null \
-    | awk -v me="$Q_POD" '$1!=me && $2!="" {print $2}' | rand_line)
-  # 같은 ns에 다른 Pod가 없으면, DNS 서비스 IP로 대체 (항상 존재하는 안전한 ping 대상)
-  if [ -z "$Q_PEER_IP" ]; then
-    Q_PEER_IP=$(oc get svc -n openshift-dns dns-default -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
-  fi
+read -r Q_PEER_NS Q_PEER_IP <<<"$(oc get pods -A --field-selector=status.phase=Running \
+  -o jsonpath='{range .items[*]}{.metadata.namespace}{" "}{.status.podIP}{"\n"}{end}' 2>/dev/null \
+  | awk -v re="$INFRA_NS_RE" '$1 !~ re && $2!="" {print}' | rand_line)"
+# 사용자 네임스페이스에 Running Pod가 전혀 없으면 안전한 대체 대상(DNS 서비스)으로 폴백
+if [ -z "$Q_PEER_IP" ]; then
+  Q_PEER_NS="openshift-dns"
+  Q_PEER_IP=$(oc get svc -n openshift-dns dns-default -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
 fi
 
 # 노드 인터페이스 ping 대상: 두 번째로 뽑힌 노드의 INTERNAL-IP
@@ -253,7 +257,7 @@ raw "  Service         : ${Q_SVC:-없음}"
 raw "  PV              : ${Q_PV:-없음}"
 raw "  PVC             : ${Q_PVC:-없음}"
 raw "  Route           : ${Q_ROUTE:-없음}"
-raw "  Pod간 통신 대상 IP : ${Q_PEER_IP:-없음}"
+raw "  Pod간 통신 대상 IP : ${Q_PEER_IP:-없음} (ns: ${Q_PEER_NS:-없음}, 인프라 네임스페이스 제외하고 선정)"
 raw "  VM(대표)        : ${V_NS:-없음}/${V_VM:-없음}"
 raw "  ※ 위 대상은 매 실행마다 클러스터 전체에서 무작위로 재선정됩니다(같은 대상만 반복 점검하는 것을 방지)."
 raw "     Namespace/Pod(대표)는 '현재 Running 중인 임의의 Pod 1개'의 네임스페이스이므로, 그 네임스페이스가"
@@ -261,6 +265,9 @@ raw "     인프라 성격(예: openshift-ovn-kubernetes 등)이면 PVC/최근 �
 raw "     정상적으로 나올 수 있습니다 — 이는 결함이 아니라 해당 네임스페이스의 실제 상태입니다."
 raw "     VM(대표)는 '실행 중 여부와 무관하게 클러스터 전체 VM 중 무작위 1개'이므로, 하필 꺼져있는 VM이"
 raw "     뽑히면 5-4(CPU/Memory) 등에서 virt-launcher Pod가 없어 'No resources found'가 나올 수 있습니다."
+raw "     4-2(Pod간 통신 대상 IP)는 인프라 네임스페이스를 제외하고 뽑지만, 그래도 사용자 정의 NetworkPolicy가"
+raw "     ICMP를 막아둔 Pod가 뽑히면 rc=1로 실패합니다 — 이 경우도 스크립트 결함이 아니라 그 Pod의 실제"
+raw "     보안 정책이 원인이니, 리포트 하단의 대상 Pod/Namespace로 'oc get networkpolicy -n <ns>'를 직접 확인하세요."
 raw "     특정 네임스페이스/VM을 반드시 점검해야 한다면 위 무작위 결과 대신 수동 명령으로 재확인하세요."
 ok "자동 탐지 완료 — 아래 항목은 위 대상을 기준으로 자동 실행됩니다"
 
