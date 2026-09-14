@@ -2,12 +2,16 @@
 
 ## 📍 현재 상태 (Session Status)
 - 세션 시작: 2026-09-10 (다중 세션에 걸쳐 진행, 마지막 갱신 2026-09-14)
-- 마지막 작업: 사용자가 rhel-prod에서 스크립트를 두 번 연속 실행한 뒤 9가지 문제/개선을 일괄 보고 → 정적분석으로 근본원인 9건 전부 진단 후 AskUserQuestion으로 큰 설계결정 3건(넘버링 변경/CO 개별출력/VERSION·SINCE 컬럼) 승인받아 전부 구현. 실클러스터 재검증까지 완료(아래 Done 참고).
+- 마지막 작업: 사용자가 9건 피드백이 전부 충족됐는지 재확인 요청 → 코드·실행결과 대조로 9건 전부 해소 확인. 이어서 4-2 실패 원인 심층조사(무작위 대상이 NetworkPolicy로 ICMP 차단된 kubevirt-apiserver-proxy Pod였음, 스크립트 결함 아님) 및 HTML→PDF 인쇄 스타일 개선(다크모드 브라우저에서 인쇄 시 CSS 커스텀 프로퍼티가 다크 팔레트로 남아 흰 배경에 밝은 글자가 겹쳐 안 보이던 결함 수정) 진행.
+- 이전 작업: 사용자가 rhel-prod에서 스크립트를 두 번 연속 실행한 뒤 9가지 문제/개선을 일괄 보고 → 정적분석으로 근본원인 9건 전부 진단 후 AskUserQuestion으로 큰 설계결정 3건(넘버링 변경/CO 개별출력/VERSION·SINCE 컬럼) 승인받아 전부 구현. 실클러스터 재검증까지 완료(아래 Done 참고).
 - 진행률: `OCP-HCK-Score.sh`가 `.sh` 자체 버그 5건 수정(섹션2 stdout 누락, 0바이트 더미 리포트, 실패 항목 미표시, CO 목록 누락 2건, 넘버링 비일관) + 기능 개선 2건(3.API연동 넘버링 3-1-1→3-1 플랫화, CO 테이블에 VERSION/SINCE 추가) 반영. `fill_checklist.py`도 CO 파싱 컬럼 위치를 새 8필드 포맷에 맞춰 동기화(안 했으면 2.ClusterOperator 요약이 "False"로 깨졌을 것 — 실행 중 발견해 즉시 수정). `check_reconstructed.xlsx`는 2.ClusterOperator에 2-33/2-34(control-plane-machine-set/olm) 신규 추가 + 3.API연동 항목번호 3-1-1..3-3-1 → 3-1..3-10 갱신. 실클러스터 재실행으로 64/64 채움·0개 매칭실패·exit 0 확인. 원본 DRM `check.xlsx` 자체에 대한 자동 반영은 여전히 대상 밖(사용자 수작업).
 - 블로커: `check.xlsx`가 NASCA DRM으로 wrapping되어 있어 Claude가 직접 열람/수정 불가 — `fill_checklist.py`는 DRM 없는 `check_reconstructed.xlsx`(또는 동일 구조 사본)만 대상으로 하며, 원본 DRM 파일 자동화는 범위 밖.
 - **중요 운영 규칙(2026-09-14 확정)**: `check_reconstructed.xlsx`(및 향후 만들 다른 xlsx)는 **반드시 rhel-prod(Linux)에서만 생성/수정할 것.** Windows 로컬에는 사내 NASCA DRM 에이전트가 떠 있어 xlsx 파일을 Windows에서 만들거나 저장하면 자동으로 DRM이 부여되어 openpyxl이 `BadZipFile`로 못 열게 된다(2026-09-11/14에 "원인불명 손상"으로 오인했던 현상의 정체). Windows 로컬 사본은 rhel-prod에서 완성된 결과를 다운로드해 보는 용도로만 사용.
 
 ## ✅ 완료된 항목 (Done)
+- **HTML→PDF 인쇄 스타일 개선(다크모드 결함 수정)**: 사용자가 "PDF 스타일을 더 정갈하고 시인성 좋게" 요청 → `@media print` 블록을 분석한 결과, `body`의 배경/글자색만 흰색/검정으로 강제할 뿐 `--ink`/`--accent`/`--good` 등 CSS 커스텀 프로퍼티 자체는 그대로 남아있어, 브라우저/OS가 다크 모드면 인쇄 시 다크 테마 값(거의 흰색 글자색)이 흰 배경 위에 그대로 적용되어 텍스트가 거의 안 보이는 구조적 결함을 발견. `@media print`에 `:root, :root:not([data-theme="light"]), :root[data-theme="dark"]` 전부를 대상으로 밝은 팔레트 값을 강제 재정의(소스 순서상 가장 마지막이라 다크모드 미디어쿼리를 항상 덮어씀)해 인쇄 시 항상 밝은 배경/어두운 글자를 보장하도록 수정. 추가로 가독성 개선: 헤딩 고아줄 방지(`h2,.block-head{break-after:avoid}`), 로그 블록 줄바꿈을 `word-break:break-all`(단어 중간에서 강제 절단)에서 `overflow-wrap:anywhere`(필요할 때만 절단)로 교체해 덜 지저분하게, 로그 폰트 소폭 확대(11.5px→12px, line-height 1.7), 상태 pill/chip에 `border:1px solid currentColor` 추가(흑백 프린터로 재인쇄해도 색상 의미가 테두리로 유지되도록). 실클러스터 재실행(rhel-prod)으로 HTML 226KB 정상 생성, 새 print 팔레트 값(`--ink:#1a1810`)이 실제 파일에 반영됐는지 확인 | 파일: [OCP-HCK-Score.sh](OCP-HCK-Score.sh)
+- **4-2(Pod간 Networking) 실패 원인 심층조사**: 사용자 요청으로 rhel-prod에서 직접 재현 — 무작위 선정된 통신 대상 IP(`10.128.2.177`)가 `openshift-cnv` 네임스페이스의 `kubevirt-apiserver-proxy` Pod였고, HCO가 배포한 `kubevirt-apiserver-proxy-np` NetworkPolicy가 ingress를 TCP 8080 포트 하나만 허용(ICMP 등 그 외 전부 차단)하도록 설정돼 있어 ping이 100% 실패하는 게 정상임을 확인. `score-debug` Pod에서 직접 ping 재현으로 스크립트 로직·rc 처리 자체는 정확함을 검증 — 스크립트 결함이 아니라 "무작위 대상 선정이 NetworkPolicy로 보호된 인프라 Pod를 뽑을 수 있다"는 설계상 한계. 개선안(인프라 네임스페이스 제외 또는 리포트에 안내문 추가) 제시했으나 사용자 결정 대기 중, 아직 미적용.
+- **사용자 재확인: 9건 피드백 전부 충족 확인**: 코드(섹션2 write() 전환/CO 목록 확장/FAILED_ITEMS/truncate 시점/넘버링/VERSION·SINCE 테이블)와 rhel-prod 최신 실행 결과(md5 일치, HTML 정상 생성, 0바이트 더미파일 없음)를 대조해 9건 전부 실제로 해소됐음을 확인.
 - **버그 수정 5건(정밀분석 1차)**: CO VERDICT 판정 우선순위(Degraded>Available>Progressing) if/elif 화, `run_cmd`의 `&&`체인/`if`무-else로 인한 성공·실패 오판정 다수 수정(3-1-1~3-1-6, 4-1~4-4, 5-4/5-5), 3-1-7 `bash -c` 내부 `set -o pipefail` 미상속 수정, 고정 32개 Operator 목록 밖 항목 탐지 로직 추가, SNO 자기ping 안내·CNV 스킵 사유 구분(VM없음/virtctl없음/정책스킵) | 파일: [OCP-HCK-Score.sh](OCP-HCK-Score.sh)
 - **HTML/PDF 리포트 기능 내장**: python3 heredoc을 스크립트 안에 임베드해 .txt 생성 직후 자동으로 .html 대시보드까지 생성(노드 토폴로지, CO 상태 도넛, 섹션별 수집현황 바, 접이식 항목 카드). 브라우저 인쇄(Ctrl+P)로 PDF 저장 — 외부 라이브러리 의존성 없음, python3 없으면 텍스트 리포트만 생성(선택적 저하)
 - **Codex + Opus 독립 적대적 리뷰 → Fable 종합**: 3단계 팀 리뷰로 Critical 4건(C1 jq없을때 파서 크래시, C2 "전체정상" 배지 신뢰성, C3 VM 파괴테스트 안전장치 부재, C4 run_cmd 실패 미누적/exit 항상 0) + Major 5건(M1 동시실행 파일충돌, M3 민감정보 권한, M4 비UTF-8 크래시, M5 폐쇄망 폰트요청, M6 meta charset)을 Top5 순서로 서브에이전트 통해 순차 수정·rhel-prod 실클러스터 검증 완료
@@ -33,6 +37,7 @@
 ## 🔄 진행 중 / 다음 우선순위 (Next)
 1. **사용자: 원본 check.xlsx(DRM)에 반영 여부 결정** — `check_reconstructed.xlsx`의 신규 행(1-4/4-5/5-7~5-11, 이제 강조 표시 없이 일반 행과 동일한 서식)을 그대로 원본 DRM 파일에 수동 입력하거나, 재구성본을 새 체크리스트로 채택할지 결정. Claude는 DRM 파일을 직접 열 수 없어 이 이상 자동화 불가 — `fill_checklist.py`도 DRM 원본은 대상으로 하지 않음.
 2. **(낮은 우선순위, 보류 중 재검토)** Fable 리포트의 잔여 Minor 항목들(M7 4-2 dns-default ICMP fallback을 TCP체크로 교체, M9 플레이스홀더 치환 순서 리스크) — 사용자가 명시적으로 요청할 때만 진행. (고객이 제시한 메모리 진단 명령 7개는 5-8~5-11로, 판정 어휘 혼재 문제는 이모지 제거로, 신규항목 강조 문제는 서식 통일로 전부 해소 완료.)
+3. **사용자: 4-2 무작위 대상 선정 개선 방향 결정** — 무작위 Pod간 통신 대상이 NetworkPolicy로 ICMP 차단된 인프라 Pod로 뽑히면 정상적으로 실패한다(false-positive). (a) 대상 선정 시 `openshift-*`/`kube-*` 등 인프라 네임스페이스 제외, (b) 리포트에 "NetworkPolicy로 보호된 Pod가 대상이면 정상적으로 실패할 수 있음" 안내문 추가 — 둘 중 선택 또는 둘 다, 사용자 결정 대기.
 
 ## ⚠️ 결정 및 트레이드오프 (Decisions)
 - **HTML 생성은 python3 선택적 의존성으로 설계**: jq/virtctl과 동일한 선택적-저하 패턴 유지. 이유: 폐쇄망 bastion에 python3가 없을 가능성을 배제할 수 없음(실제로는 RHEL8/9 기본 포함이라 위험 낮음).

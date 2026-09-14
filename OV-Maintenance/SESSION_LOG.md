@@ -344,3 +344,24 @@
 ### 💬 인계 메모
 - OPERATORS 배열에 신규 CO를 추가할 때는 항상 **배열 끝에 append**할 것 — 알파벳순 등으로 중간에 끼워 넣으면 그 뒤 모든 2-N 번호가 밀리면서 xlsx의 기존 행 전부를 다시 맞춰야 하는 대참사가 된다(이번에 이걸 피하려고 일부러 끝에 붙임).
 - fill_checklist.py의 CO_LINE 파싱은 `.sh`가 출력하는 파이프 구분 필드 수/순서에 그대로 의존한다(`parts[7]`) — `.sh`의 2절 출력 포맷을 바꿀 때마다 fill_checklist.py도 반드시 같이 확인할 것(이번에 한 번 놓쳤다가 실행 중 잡음).
+
+## 세션 백업: 2026-09-14 (이어서 — 9건 재확인 / 4-2 원인조사 / PDF 인쇄 스타일 개선)
+
+### 무엇을 했는가
+1. 사용자가 앞서 보고한 9건 피드백을 그대로 재게시하며 "모두 충족하는지 체크해줘" 요청 → 코드(write()/OPERATORS/FAILED_ITEMS/truncate 시점/넘버링/VERSION·SINCE 테이블)와 rhel-prod 최신 실행결과를 하나씩 대조해 9건 전부 해소됨을 재확인.
+2. 4-2(Pod간 Networking) 실패 원인 심층조사 요청 → rhel-prod에서 직접 재현. 무작위 통신대상 `10.128.2.177`이 `openshift-cnv`의 `kubevirt-apiserver-proxy` Pod였고, `kubevirt-apiserver-proxy-np` NetworkPolicy가 ingress TCP 8080만 허용(ICMP 차단)하도록 설정돼 있어 ping 실패가 정상임을 확인. score-debug Pod에서 직접 ping 재현으로 검증.
+3. "HTML→PDF 인쇄 스타일을 더 정갈하고 시인성 좋게" 요청 → `@media print` CSS를 분석해 다크모드 결함 발견(body 배경/글자색만 강제 override, `--ink` 등 CSS 변수는 다크값 잔존 → 다크모드 브라우저에서 인쇄 시 흰 배경에 거의 흰 글자). `:root`/`:root:not([data-theme="light"])`/`:root[data-theme="dark"]` 전부를 print 블록에서 밝은 팔레트로 강제 재정의해 수정. 추가로 헤딩 고아줄 방지, 로그 줄바꿈을 break-all→overflow-wrap:anywhere로 교체, 로그 폰트 소폭 확대, 상태 pill에 currentColor 테두리 추가(흑백 인쇄 대비).
+
+### 검증
+- `bash -n` clean, rhel-prod 실클러스터 전체 재실행 exit 0(이번 실행은 4-2도 통과 — 무작위 대상이 이번엔 NetworkPolicy 없는 Pod로 뽑힘), HTML 226KB 정상 생성, 새 print 팔레트 값(`--ink:#1a1810`)이 실제 출력 파일에 반영됨을 grep으로 확인.
+- 워크트리/Windows local/rhel-prod 3곳 `OCP-HCK-Score.sh` md5(`ce7e899c...`) 전부 일치 확인.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (`@media print` 블록, ~1068~1096행)
+- Active errors: 없음
+- Last CMD(원격): `./OCP-HCK-Score.sh` → 전체 통과, `ocp-healthcheck-report-20260914-175139-1077796.html` 생성.
+
+### 💬 인계 메모
+- 4-2는 "무작위 대상이 NetworkPolicy로 보호된 인프라 Pod로 뽑히면 정상적으로 실패"하는 구조적 한계 — 사용자에게 두 가지 개선안(인프라 네임스페이스 제외 / 안내문 추가) 제시, 결정 대기 중(PROGRESS.md Next #3).
+- 인쇄 시 다크모드 CSS 변수 누출 같은 버그는 `@media print` 안에서 `:root`/다크 셀렉터를 그대로 복제해 같은 특이도·더 뒤 소스 순서로 덮어써야 확실히 이긴다 — 이후 팔레트 관련 CSS 변수를 더 추가할 때는 print 블록의 재정의 목록도 같이 갱신할 것.

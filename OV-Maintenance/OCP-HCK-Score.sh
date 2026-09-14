@@ -1068,13 +1068,28 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
 @page{ size:A4; margin:16mm 14mm }
 
 @media print{
-  body{background:#fff; padding:0; color:#000}
+  /* 다크 모드 브라우저에서 인쇄해도 항상 밝은 팔레트로 고정 — 그대로 두면
+     body 배경/글자색만 흰색/검정으로 바뀌고 --ink/--accent 등 CSS 변수는
+     다크 테마 값(거의 흰색)에 머물러, 흰 배경에 밝은 글자가 겹쳐 안 보이게 된다. */
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"]{
+    --bg:#ffffff; --surface:#ffffff; --surface-2:#f2f0e8; --border:#c7c0a9;
+    --ink:#1a1810; --ink-dim:#4a4433; --ink-faint:#726a55;
+    --accent:#0d5c54; --accent-soft:#e2efec;
+    --good:#256b30; --good-bg:#deefdc;
+    --warn:#7d5400; --warn-bg:#f8edc8;
+    --crit:#9c231b; --crit-bg:#f8ddda;
+    --mono-surface:#f5f3ea;
+    --seal-ring:rgba(0,0,0,.1);
+  }
+  body{padding:0}
   .cover{border-bottom:2px solid #000; break-after:avoid}
   .topbar{position:static; backdrop-filter:none; margin:0 0 18px; border-bottom:1px solid #999}
   .btn-print{display:none}
+  h2,.block-head{break-after:avoid}
   .item{border:1px solid #999; break-inside:avoid}
   .item summary::before{display:none}
-  .item-body pre{max-height:none; overflow:visible; border-color:#999; white-space:pre-wrap; word-break:break-all}
+  .item-body pre{max-height:none; overflow:visible; border-color:#999; white-space:pre-wrap; overflow-wrap:anywhere; word-break:normal; font-size:12px; line-height:1.7}
+  .pill,.seal,.item-status,.co-chip{border:1px solid currentColor}
   .card,.lane{break-inside:avoid; border-color:#999}
   section.block{break-inside:avoid-page}
   *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
