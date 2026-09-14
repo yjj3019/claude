@@ -290,3 +290,27 @@
 
 ### 💬 인계 메모
 - 워커 노드 요약 표를 위해 워커 3대는 `oc describe node`를 두 번(요약 표용 1번 + 상세 블록용 1번) 호출한다 — 읽기 전용 점검 스크립트라 성능에 영향 없다고 판단해 중복 호출을 감수함(코드 단순성 우선).
+
+## 📅 세션 백업: 2026-09-14 (이어서 — check_reconstructed.xlsx 신규항목 강조 제거)
+
+### ✅ 완료 작업
+- "그럼 실행하면 되는거야?" 질문에 실행 명령(`./OCP-HCK-Score.sh`, `python3 fill_checklist.py <report>.txt`) 안내. 이후 사용자가 실제로 재실행한 듯 새 리포트(`ocp-healthcheck-report-20260914-141401-939952.txt`)가 원격에 생성돼 있는 것을 이후 작업에서 확인.
+- 사용자가 "배포용 파일이라 연두색 강조·[신규] 추가 비고는 안 좋다, 이력은 우리 기록에만 남기면 된다"고 지적 → `check_reconstructed.xlsx`를 훑어서 강조된 행 7개(1-4/4-5/5-7/5-8/5-9/5-10/5-11, 전부 fill=00E2EFDA + "[신규] YYYY-MM-DD 추가" 비고) 정확히 특정.
+- `strip_new_markers.py` 작성 — 각 시트의 "일반 행"(예: 1-1, 4-1, 5-1) 서식(fill+font)을 대상 7행에 그대로 복사하고 비고 열만 비움. rhel-prod에 업로드해서 그쪽에서 실행(DRM 규칙 준수), 결과를 워크북 전체 재스캔으로 검증(00E2EFDA/"신규" 텍스트 완전히 없음 확인 — 점검개요·3.API연동 시트의 기존 파란색 라벨/배너 행은 원래 서식이라 그대로 둠, 오탐 아님을 재확인).
+- 강조 제거된 파일을 새 리포트(20260914-141401)로 `fill_checklist.py` 재실행해 62개 전부 강조 없이 정상 반영되는 것까지 확인, 워크트리 다운로드 → md5 일치 → 즉시 커밋 → 로컬 동기화.
+
+### 🚧 진행 중
+- 없음.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조 — 이제 신규 행도 서식상 일반 행과 구분이 안 되므로, 원본에 반영할 때 "어느 행이 새로 추가됐는지"는 PROGRESS.md/SESSION_LOG.md 기록을 봐야 한다는 점을 사용자에게 상기시킬 것.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `e9c862f`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `check_reconstructed.xlsx` md5 3곳 일치(`23dbfed1...`).
+- Last File: `check_reconstructed.xlsx` (신규항목 강조 제거, 60개 항목 전부 일반 행과 동일 서식)
+- Active Errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-141401-939952.txt check_reconstructed.xlsx /tmp/final_check.xlsx` → `총 62개 채움, 0개 리포트 매칭 실패`, E5(1-4) 강조 없이 "정상" 확인 후 결과 파일 삭제.
+
+### 💬 인계 메모
+- 이제 `check_reconstructed.xlsx`에는 항목이 언제 추가됐는지 알려주는 시각적 단서가 전혀 없다 — "이 항목 언제 생겼어?" 같은 질문이 오면 PROGRESS.md의 Done 섹션(날짜별로 정리돼 있음)을 근거로 답할 것.
+- 이번에도 `strip_new_markers.py`는 사용 후 rhel-prod에서 즉시 삭제했다 — xlsx 편집용 1회성 스크립트는 결과 파일만 남기고 정리하는 패턴을 계속 유지.
