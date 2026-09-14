@@ -513,12 +513,16 @@ run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n
 # 진단하려면 노드별 Capacity/Allocatable/Allocated resources가 필요하다는 고객 요구사항
 # 반영(2026-09-14). 대상은 위에서 이미 자동 탐지해둔 전체 노드 목록(_NODES)을 그대로 재사용.
 _NODES_LIST="${_NODES[*]}"
-run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진율) 확인" "oc describe node <각 노드> | grep -A2 'Capacity:|Allocatable:' / grep -A10 'Allocated resources'" -- bash -c "
+run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진율) 확인" "oc describe node <각 노드> | sed -n '/Capacity:/,/Allocatable:/p;/Allocatable:/,/System Info:/p' / grep -A10 'Allocated resources'" -- bash -c "
   rc=0
   for n in $_NODES_LIST; do
     echo \"=== \$n ===\"
     D=\$(oc describe node \"\$n\") || rc=\$?
-    echo \"\$D\" | grep -A2 -E 'Capacity:|Allocatable:'
+    # -A2 고정폭은 KubeVirt bridge/device 플러그인 항목 수가 노드마다 달라서 cpu/memory/pods
+    # 같은 핵심 값을 놓칠 수 있었음(2026-09-14 첫 구현 버그, 실클러스터에서 발견) — Capacity:/
+    # Allocatable: 블록을 다음 헤더 직전까지 정확히 잘라내는 방식으로 교체.
+    echo \"\$D\" | sed -n '/^Capacity:/,/^Allocatable:/{/^Allocatable:/!p}'
+    echo \"\$D\" | sed -n '/^Allocatable:/,/^System Info:/{/^System Info:/!p}'
     echo \"\$D\" | grep -A10 'Allocated resources'
     echo ''
   done
