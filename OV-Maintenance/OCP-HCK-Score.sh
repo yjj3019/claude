@@ -530,6 +530,15 @@ run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진
 
 run_cmd "5-9" "OpenShift Virtualization 메모리 Overcommit(higherWorkloadDensity) 설정 확인" "oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath={.spec.higherWorkloadDensity}" -- oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.spec.higherWorkloadDensity}{"\n"}'
 
+# 고객 요구사항 추가분(2026-09-14): "노드별 Pod request 상세"는 실제로는 "전체 VM
+# (virt-launcher) Pod의 memory request"를 뜻했음 — 특정 노드명이 필요 없어 클러스터
+# 전체를 한 번에 자동 점검 가능(특정 VM의 request 확인도 이 표에 포함되므로 별도 항목 불필요).
+run_cmd "5-10" "전체 VM(virt-launcher) Pod의 memory request 확인" "oc get pods -A -l kubevirt.io=virt-launcher -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,NODE:.spec.nodeName,REQ:.spec.containers[*].resources.requests.memory" -- oc get pods -A -l kubevirt.io=virt-launcher -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,NODE:.spec.nodeName,REQ:.spec.containers[*].resources.requests.memory
+
+# FailedScheduling은 특정 Pod명을 미리 알아야 하는 진단 명령이었으나, 현재 클러스터에
+# 실제로 발생 중인 이벤트를 직접 조회하면 대상을 몰라도 자동 점검 가능(없으면 "정상").
+run_cmd "5-11" "VM 스케줄링 실패(FailedScheduling) 이벤트 확인" "oc get events -A --field-selector reason=FailedScheduling --sort-by=.lastTimestamp" -- oc get events -A --field-selector reason=FailedScheduling --sort-by=.lastTimestamp
+
 # ════════════════════════════════════════════════════════════
 write ""
 write "════════════════════════════════════════════════════════"
