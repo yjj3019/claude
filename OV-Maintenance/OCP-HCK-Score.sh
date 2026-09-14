@@ -138,13 +138,16 @@ for op in "${OPERATORS[@]}"; do
       AVAIL=$(echo "$JSON" | jq -r '.status.conditions[]|select(.type=="Available")|.status')
       PROG=$(echo "$JSON"  | jq -r '.status.conditions[]|select(.type=="Progressing")|.status')
       DEG=$(echo "$JSON"   | jq -r '.status.conditions[]|select(.type=="Degraded")|.status')
-      VERDICT="✅ 정상"
+      # 이모지 없는 순수 텍스트 판정(2026-09-14, 사용자 요청으로 어휘 통일) — 1/3/4/5절의
+      # "정상/확인필요/건너뜀/수동확인"과 같은 표기 체계를 쓰되, CO는 심각도 구분이 유의미해서
+      # "이상(사유)"/"주의(사유)"로 세분화해 유지한다(폐쇄망 구형 Excel의 이모지 깨짐 문제도 해소).
+      VERDICT="정상"
       if [ "$DEG" == "True" ]; then
-        VERDICT="❌ 이상(Degraded)"
+        VERDICT="이상(Degraded)"
       elif [ "$AVAIL" != "True" ]; then
-        VERDICT="❌ 이상(Available)"
+        VERDICT="이상(Available)"
       elif [ "$PROG" == "True" ]; then
-        VERDICT="⚠ 주의(Progressing)"
+        VERDICT="주의(Progressing)"
       fi
       raw "2-${idx} | ${op} | ${AVAIL} | ${PROG} | ${DEG} | ${VERDICT}"
     fi

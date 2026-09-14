@@ -44,7 +44,7 @@ python3 fill_checklist.py <1단계에서 생성된 .txt>
 - `output.xlsx`를 생략하면 입력 `.txt`와 같은 이름(`.xlsx` 확장자)으로 저장. 세 번째 인자로 직접 지정 가능: `fill_checklist.py report.txt template.xlsx custom_output.xlsx`
 - **템플릿은 절대 수정하지 않음** — output 경로가 템플릿과 같으면 즉시 에러로 거부(원본 파괴 방지).
 - 항목번호(1-1, 2-1~2-32, 3-1-1, 4-1, 5-1 ...)를 헤더 텍스트("번호"/"점검결과")로 열 위치를 찾아 기준 삼아 `.txt` 리포트와 xlsx 행을 1:1 매칭해서 `점검결과` 열만 채움. Command 등 다른 열과 서식(헤더 색상, 컬럼 너비)은 그대로 유지.
-- 판정 매핑: `ok`→정상 / `attention`→확인필요 / `skip`→건너뜀 / `manual`→수동확인. ClusterOperator(2절)는 리포트의 판정 문자열(`✅ 정상` / `⚠ 주의(...)` / `❌ 이상(...)`)을 그대로 사용.
+- 판정 매핑: `ok`→정상 / `attention`→확인필요 / `skip`→건너뜀 / `manual`→수동확인. ClusterOperator(2절)는 리포트의 판정 문자열(`정상` / `주의(...)` / `이상(...)`)을 그대로 사용 — 2026-09-14부터 이모지 없이 전체 절이 같은 순수 텍스트 어휘를 쓰도록 통일(폐쇄망 구형 Excel에서 이모지가 깨지는 문제, `COUNTIF` 등 엑셀 집계 시 2절만 빠지던 문제 해소).
 - 실행 중 섹션별로 그룹핑된 색상 브리핑(`[번호] 설명 -> 판정`)과 마지막에 섹션별/전체 요약 표를 출력함. 터미널이 아니면(파일 리다이렉트 등) 색상은 자동으로 꺼짐.
 - 리포트에 없는 항목은 stderr 경고를 남기고 계속 진행하되, 하나라도 있으면 **종료코드 1**로 끝남(자동화/CI가 불완전한 결과를 감지할 수 있도록). 템플릿에 항목번호가 중복되거나 `점검결과` 셀이 병합돼 있는 경우도 경고와 함께 안전하게 스킵됨(크래시하지 않음).
 - 로직 자체가 정상인지 빠르게 확인하려면:
@@ -78,10 +78,10 @@ python3 fill_checklist.py <1단계에서 생성된 .txt>
 
 `OCP-HCK-Score.sh`가 32개 Operator마다 `oc get co <name> -o json`의 `status.conditions`를 확인해 우선순위대로 판정한다(`.sh` 140행 부근):
 
-1. `DEGRADED=True` → **❌ 이상(Degraded)** (최우선)
-2. `AVAILABLE≠True` → **❌ 이상(Available)**
-3. `PROGRESSING=True` → **⚠ 주의(Progressing)**
-4. 위 셋 다 아니면 → **✅ 정상**
+1. `DEGRADED=True` → **이상(Degraded)** (최우선)
+2. `AVAILABLE≠True` → **이상(Available)**
+3. `PROGRESSING=True` → **주의(Progressing)**
+4. 위 셋 다 아니면 → **정상**
 
 `jq`가 없는 환경에서는 조건 파싱을 못 하므로 `oc get co` 원본 라인만 기록하고 xlsx에는 `[jq 없음 - 원본 확인]`으로 채워짐 — 이 경우도 사람이 원본을 봐야 한다.
 

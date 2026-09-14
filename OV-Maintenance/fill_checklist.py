@@ -327,8 +327,8 @@ error: some failure
 
 번호 | Operator | AVAILABLE | PROGRESSING | DEGRADED | 판정
 --------------------------------------------------------------
-2-1 | authentication | True | False | False | ✅ 정상
-2-2 | baremetal | True | True | False | ⚠ 주의(Progressing)
+2-1 | authentication | True | False | False | 정상
+2-2 | baremetal | True | True | False | 주의(Progressing)
 
 ════════════════════════════════════════════════════════
 ■ 3. API 연동 확인
@@ -375,8 +375,8 @@ def _self_check():
     results = parse_report(SAMPLE_REPORT)
     assert results["1-1"] == "정상", results
     assert results["1-2"] == "확인필요", results
-    assert results["2-1"] == "✅ 정상", results
-    assert results["2-2"] == "⚠ 주의(Progressing)", results
+    assert results["2-1"] == "정상", results
+    assert results["2-2"] == "주의(Progressing)", results
     assert results["3-1-1"] == "정상", results
     assert results["4-1"] == "건너뜀", results
     assert results["5-3"] == "수동확인", results
@@ -404,7 +404,7 @@ def _self_check():
     ws4.append(["4-1", "d", "c", "s", None, None])
     ws4.merge_cells(start_row=2, start_column=4, end_row=2, end_column=5)  # D2:E2 -> E2(점검결과) becomes a MergedCell
 
-    results["2-10"] = "✅ 정상"
+    results["2-10"] = "정상"
     results["1-4"] = "정상"
     results["4-1"] = "정상"
     filled, missing, summary = fill_workbook(wb, results)
@@ -414,7 +414,7 @@ def _self_check():
     assert "1-3" in missing
     assert ws3["A2"].value.startswith("3-1.") and ws3["E2"].value is None
     assert ws3["E3"].value == "정상"
-    assert ws2["E2"].value == "✅ 정상", "two-digit item number (2-10) not matched by ITEM_NUM_RE"
+    assert ws2["E2"].value == "정상", "two-digit item number (2-10) not matched by ITEM_NUM_RE"
     assert ws1["E5"].value == "정상", "whitespace-padded item number was silently dropped"
     assert filled.count("1-1") == 1, "duplicate item number was double-counted: %r" % filled
     assert "4-1" in missing, "merged 점검결과 cell should be reported, not silently skipped"
