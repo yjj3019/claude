@@ -462,3 +462,41 @@
 ### 💬 인계 메모
 - `FOLD_MARKER` 메커니즘은 5-8 외 다른 항목에도 재사용 가능 — 어떤 run_cmd든 그 출력에 정확히 이 문자열 `"===== 아래는 각 노드 상세 원본(참고용) ====="`을 echo하면 그 앞부분이 자동으로 요약 승격된다. 다른 항목에 적용할 때는 마커 문자열이 항목 성격에 안 맞을 수 있으니(예: "각 노드"라는 표현이 5-8 전용), 범용화하려면 마커 문자열을 항목별로 파라미터화하는 리팩터링이 추가로 필요할 수 있음(현재는 상수 하나만 있음).
 - section 1(1-1~1-4)은 여전히 기존 방식(`<details class="item"><summary>...` 단일 구조, `__ITEMS1_HTML__` 래퍼)을 그대로 씀 — 이번 리팩터링은 3/4/5절 item_block()에만 적용됨(1절은 원래도 개별 항목이 아니라 통짜 "Node 원본 조회 결과" 카드 하나였어서 범위 밖으로 판단, 사용자가 지적하지도 않음).
+
+## 세션 백업: 2026-09-14 (이어서 — team agent 적대적 리뷰 3종 병렬, Major 5건 수정)
+
+### 무엇을 했는가
+사용자 요청 "team agent 로 전체적으로 리뷰 진행해줘"에 따라 code-reviewer/security-reviewer/documentation-reviewer 서브에이전트 3개를 병렬 실행. 각각에 "승인이 아니라 결함 발굴"을 명시하고, 대상 파일 전체(`OCP-HCK-Score.sh` 1300+줄, `fill_checklist.py`, `CLAUDE.md`/`README.md`/`PROGRESS.md`/`check_reconstructed.xlsx`)와 이번 세션에서 새로 추가/수정된 부분(3-6/3-11/4-2/5-2/5-6/5-7/5-8/5-12/item_block 리팩터링/print CSS)을 구체적으로 지목해 브리핑.
+
+**리뷰 결과 종합**:
+- 보안 Major 2건: 5-6 FAR yaml의 BMC/IPMI 자격증명 평문 노출 가능, 3-10 Pod 로그의 시크릿/PII 노출 가능.
+- 코드품질 Major 1건 + Minor 1건: `fill_checklist.py` docstring의 "verbatim 포팅" 주장이 실제(두 파서가 갈라짐)와 다름, `FOLD_MARKER`가 전역 적용됨.
+- 문서정합성 Major 6건: CLAUDE.md의 옛 넘버링/32개CO/"xlsx 없음" 서술, PROGRESS.md 내부 모순(64/64 vs 66/66), Next #1 누락(3-11/5-12).
+- 셸 인젝션 우려는 k8s RFC1123 이름 규칙 덕분에 실질 위험 없음(3개 리뷰어 모두 독립적으로 확인).
+- Suggestion 등급(nested quoting 방어적 강화, LC_ALL=C 고정)은 보류.
+
+**수정 실행**:
+1. 3-10에 sed 기반 시크릿 마스킹 추가(password/token/secret/apikey/authorization 키-값, Bearer 토큰, AWS 액세스키).
+2. 5-6의 FAR yaml 상세에 동일 계열 마스킹 추가.
+3. **수정 중 자체 결함 발견**: 3-10의 첫 마스킹 정규식이 `\S+`(공백 전까지만 매칭)를 써서, "Authorization: Bearer abc.def123XYZ" 같은 줄에서 앞부분 규칙이 "Bearer"라는 단어 하나만 삼키고 그 뒤의 실제 토큰은 마스킹되지 않은 채 그대로 노출되는 우회 버그가 있었음 — rhel-prod에서 합성 입력(`printf 'Authorization: Bearer abc.def123XYZ\n' | sed -E ...`)으로 직접 재현, `\S+`를 `.+`(줄 끝까지 소비)로 교체해 재검증(토큰 완전히 마스킹됨 확인).
+4. `fill_checklist.py` 모듈 docstring 정정(verbatim 주장 삭제, 실제 차이점과 "둘 다 확인" 경고 추가).
+5. `FOLD_MARKER_ITEMS = {"5-8"}`로 스코프 제한.
+6. 프로젝트 `CLAUDE.md` 대대적 갱신 — Repository Overview에 fill_checklist.py/check_reconstructed.xlsx/DRM 규칙 추가, CO 개수 32→34, 5절 설명에 5-8~5-12 추가, 넘버링 예시를 flat 스키마로 교체, "절대 쓰기 작업 자동 실행 안 함" 원칙을 Conventions에 명문화.
+7. README.md 파일명 포맷(`HHMM`→`HHMMSS`) 수정.
+8. PROGRESS.md 내부 모순 정정 + Next #1에 3-11/5-12 추가.
+9. 미검증(unverified) 상태였던 "xlsx 66행 대응 여부"를 rhel-prod에서 `fill_checklist.py` 재실행으로 직접 해소("총 66개 채움, 0개 매칭 실패").
+
+### 검증
+- `bash -n`/`py_compile` clean(수정 전후 두 차례). rhel-prod 실클러스터 전체 재실행(마스킹 수정 전/후 각 1회, 총 2회) exit 0, 회귀 없음. 마스킹 규칙은 합성 입력으로 별도 단위 검증(정상 로그 줄은 그대로, 시크릿 패턴 줄만 마스킹됨 확인).
+- 워크트리/Windows local/rhel-prod 3곳 `OCP-HCK-Score.sh`(md5 `a63e62a3...`)/`fill_checklist.py`(md5 `03f0e08f...`) 전부 일치. `CLAUDE.md`/`README.md`도 rhel-prod에 동기화(DRM 대상 아님, 참고용).
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (3-10:~333행대, 5-6:~562행대, FOLD_MARKER:~949행대), `fill_checklist.py`(모듈 docstring), `CLAUDE.md`(전체)
+- Active errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-190932-1144849.txt check_reconstructed.xlsx /tmp/...` → "총 66개 채움, 0개 리포트 매칭 실패".
+
+### 💬 인계 메모
+- 시크릿 마스킹은 "최선노력 심층방어"이지 보장이 아니다 — 스크립트 주석에도 명시함. 완전한 시크릿 탐지는 불가능하므로, 정말 민감한 클러스터라면 3-10(Pod 로그)/5-6(FAR yaml) 자체를 옵트인으로 바꾸는 것도 고려할 수 있음(사용자가 아직 요청 안 함).
+- 마스킹 정규식을 다시 건드릴 일이 있으면 `\S+`가 아니라 `.+`(줄 끝까지)를 쓸 것 — 이번에 실제로 겪은 "Bearer 같은 두 단어짜리 토큰 표현에서 앞 단어만 삼키는" 함정을 반복하지 말 것.
+- team agent 리뷰는 이번이 처음 이 프로젝트에서 시도됨 — code-reviewer(Tools: Read/Grep/Glob)와 documentation-reviewer는 파일 실행 도구가 없어 "xlsx 실제 행 수" 같은 검증은 위임한 코디네이터(이 세션)가 rhel-prod에서 직접 확인해야 했다. 다음에도 비슷한 리뷰를 시킬 때는 "실행 검증이 필요한 항목은 [unverified]로 표시하고 조정자가 확인"이라는 역할 분담을 미리 브리핑에 넣으면 좋다.

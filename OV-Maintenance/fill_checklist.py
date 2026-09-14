@@ -8,9 +8,14 @@ Usage: python3 fill_checklist.py <report.txt> [template.xlsx] [output.xlsx]
   - output.xlsx 생략 시 report.txt와 같은 이름(.xlsx 확장자)으로 저장.
     예) fill_checklist.py report.txt  ->  report.xlsx
 
-Parsing logic (ITEM_HDR/RESULT_LINE/parse_items, section-2 pipe parsing) is
-ported verbatim from the python heredoc embedded in OCP-HCK-Score.sh
-(around lines 542-611) — do not re-derive it.
+Parsing logic (ITEM_HDR/RESULT_LINE/parse_items, section-2 pipe parsing)
+started as a port of the python heredoc embedded in OCP-HCK-Score.sh
+(its own parse_items(), currently around line 725) but the two have since
+diverged: this file's parse_items() dynamically scans for the closing
+DASH line, while the heredoc's still uses a fixed line offset. They
+happen to agree today because item_header() always emits a fixed-shape
+block, but do not assume they stay in sync — if you change either
+parser, check the other (2026-09-14 code review finding).
 """
 import os
 import re

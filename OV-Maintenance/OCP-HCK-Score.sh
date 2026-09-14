@@ -330,8 +330,16 @@ run_cmd "3-8" "Node CPU/Memory 사용량 조회" "oc adm top node" -- oc adm top
 run_cmd "3-9" "Pod CPU/Memory 사용량 조회" "oc adm top pod -n <ns>" -- bash -c "
   if [ -n '$Q_NS' ]; then oc adm top pod -n '$Q_NS'; else echo '(네임스페이스 없음 - 건너뜀)'; fi"
 
-run_cmd "3-10" "Pod 로그 조회" "oc logs <pod> -n <ns>" -- bash -c "
-  if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then oc logs '$Q_POD' -n '$Q_NS' --tail=100; else echo '(Pod 없음 - 건너뜀)'; fi"
+# 보안 리뷰 지적(2026-09-14): 무작위로 뽑힌 Pod의 애플리케이션 로그에 토큰/암호/PII가
+# 찍혀 있으면 그대로 리포트에 남는다 — 흔한 시크릿 패턴을 최선노력으로 마스킹한다
+# (완전한 시크릿 탐지는 불가능하므로 이건 심층방어이지 보장이 아님).
+run_cmd "3-10" "Pod 로그 조회" "oc logs <pod> -n <ns> --tail=100 (시크릿 패턴 마스킹 적용)" -- bash -c "
+  if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then
+    oc logs '$Q_POD' -n '$Q_NS' --tail=100 \
+      | sed -E 's/(password|passwd|token|secret|apikey|api_key|access_key|authorization)([[:space:]]*[:=][[:space:]]*).+/\1\2***MASKED***/gI; s/Bearer [A-Za-z0-9._-]+/Bearer ***MASKED***/g; s/AKIA[0-9A-Z]{16}/***MASKED_AWS_KEY***/g'
+  else
+    echo '(Pod 없음 - 건너뜀)'
+  fi"
 
 # 정지된(non-Running) Pod 전체 목록 — 고객 요구사항(2026-09-14). Job/DaemonSet 소유의
 # Succeeded는 정상 종료로 분류하고, 그 외(Failed/Pending/Unknown 또는 소유자 불명의 Succeeded)만
@@ -558,8 +566,9 @@ run_cmd "5-6" "NodeHealthCheck / Fence Agent 동작 확인" "oc get nhc / oc get
   FAR_COUNT=\$(oc get far -A --no-headers 2>/dev/null | wc -l)
   if [ \"\$FAR_COUNT\" -gt 0 ]; then
     echo ''
-    echo '[FenceAgentsRemediation 상세 — 리붓 등 발생 원인 확인용]'
-    oc get far -A -o yaml || rc=\$?
+    echo '[FenceAgentsRemediation 상세 — 리붓 등 발생 원인 확인용, BMC/IPMI 자격증명 마스킹 적용]'
+    oc get far -A -o yaml \
+      | sed -E 's/((password|passwd|secret|token)[[:space:]]*:[[:space:]]*).+/\1\"***MASKED***\"/gI; s/(--?(password|passwd|secret|token)[= ]+)[^ ]+/\1***MASKED***/gI' || rc=\$?
   fi
   exit \$rc"
 
@@ -935,16 +944,19 @@ STATUS_LABEL = {
 
 # 항목 원문에 이 구분선이 있으면, 그 앞부분(핵심 요약 테이블 등)은 드랍다운 밖에 항상 노출하고
 # 뒷부분(상세 원본)만 접어서 보여준다 — "드랍다운을 펼쳐야만 요약을 볼 수 있다"는 피드백 반영.
-# 사용자 요청(2026-09-14)으로 5-8(워커 노드 요약 표)에 처음 적용, 필요 시 다른 항목의 run_cmd
-# 출력에도 같은 구분선 문자열을 echo하면 동일하게 동작한다.
+# 사용자 요청(2026-09-14)으로 5-8(워커 노드 요약 표)에 처음 적용. FOLD_MARKER_ITEMS에 없는
+# 항목에는 적용하지 않는다 — 3-7/3-10처럼 자유 텍스트(이벤트 메시지/Pod 로그)를 그대로 담는
+# 항목까지 전역으로 검사하면, 우연히 같은 문구가 로그에 찍혔을 때 의도치 않게 분할될 수
+# 있어서다(코드 리뷰 지적, 2026-09-14). 다른 항목에 재사용하려면 이 set에 번호를 추가할 것.
 FOLD_MARKER = "===== 아래는 각 노드 상세 원본(참고용) ====="
+FOLD_MARKER_ITEMS = {"5-8"}
 
 def item_block(it, open_attn=True):
     label, cls = STATUS_LABEL[it["status"]]
     open_attr = " open" if (it["status"] == "attention" and open_attn) else ""
     raw_body = it["body"]
     summary_html = ""
-    if FOLD_MARKER in raw_body:
+    if it["num"] in FOLD_MARKER_ITEMS and FOLD_MARKER in raw_body:
         summary_part, raw_body = raw_body.split(FOLD_MARKER, 1)
         summary_part = summary_part.strip("\n")
         if summary_part.strip():

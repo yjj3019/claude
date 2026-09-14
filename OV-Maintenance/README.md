@@ -28,7 +28,7 @@ cd OV-Maintenance
   ```bash
   RUN_VM_DISRUPTIVE=yes ./OCP-HCK-Score.sh
   ```
-- 결과: `ocp-healthcheck-report-<YYYYMMDD-HHMM>-<PID>.txt`와 동일 이름의 `.html`이 현재 디렉터리에 생성됨. `.html`은 브라우저로 열어 우측 상단 "PDF로 저장"으로 PDF 변환 가능.
+- 결과: `ocp-healthcheck-report-<YYYYMMDD-HHMMSS>-<PID>.txt`와 동일 이름의 `.html`이 현재 디렉터리에 생성됨. `.html`은 브라우저로 열어 우측 상단 "PDF로 저장"으로 PDF 변환 가능.
 
 ### 2단계 — 엑셀 자동 반영 (`fill_checklist.py`)
 
