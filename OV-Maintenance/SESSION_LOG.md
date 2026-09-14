@@ -166,3 +166,32 @@
 ### 💬 인계 메모
 - `check_reconstructed.xlsx` 손상 원인은 끝내 특정하지 못했다(mtime이 원래 생성 시각 그대로라 언제 손상됐는지 단서가 없음) — 향후 이 파일을 다시 열었을 때 또 손상돼 있으면, Windows Bash 도구의 바이너리 파일 `cp`/경로 처리 쪽을 의심해볼 것. rhel-prod 사본이 현재 유일한 "확실히 정상" 소스다.
 - 이번 세션 마감 처리: PROGRESS.md 갱신 + Notion(또는 SESSION_LOG.md 폴백) 기록을 이 블록과 함께 수행.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 노드 메모리 점검 항목 추가)
+
+### ✅ 완료 작업
+- 사용자가 고객 요구사항 전달: VM이 request 메모리 기준으로 스케줄링 실패할 수 있는데 현재 `oc adm top node`는 실사용량만 보여줌 — 노드별 Capacity/Allocatable/Allocated(request 소진율) 상세가 필요하다며 7개 점검 명령 제시, 추가 가능 여부 검토 요청.
+- 세션 시작하자마자 `check_reconstructed.xlsx`가 **또** "손상"(BadZipFile)돼 있는 것 발견(이번엔 제가 손대기도 전, 지난번과도 다른 해시) — rhel-prod 정상본으로 재복구. 원인은 이 라운드 끝에 사용자가 확인해줌: 실제 손상이 아니라 **Windows의 사내 NASCA DRM 에이전트가 xlsx를 자동으로 DRM wrapping**하는 것(인계 메모 참조) — 향후 xlsx 작업은 rhel-prod에서 하기로 방침 변경.
+- 7개 명령을 자동화 가능성 기준(수동 타겟 필요 여부)으로 분류해 표로 제시 → 사용자가 AskUserQuestion으로 "1-3+6번만(노드 전체 Capacity/Allocatable/Allocated + CNV Overcommit 설정)" + "스크립트+xlsx 둘 다" 선택.
+- `OCP-HCK-Score.sh`에 5-8(노드별 메모리 상세, 이미 자동탐지된 `_NODES` 배열 재사용 — 수동 타겟 불필요)/5-9(HyperConverged `higherWorkloadDensity` 확인) 추가. `EnterWorktree` 도구가 일시적으로 워크트리 identity 검증에 실패했으나(`git worktree list`/직접 `git status`로는 정상 확인됨) 워크트리 경로에 직접 Edit해서 우회 진행.
+- `check_reconstructed.xlsx`에도 5-8/5-9 행 추가 시도 중 **openpyxl `insert_rows()`가 기존 병합 셀(각주 행 A10:F10)을 자동으로 밀어주지 않는** 버그성 동작을 발견 — 5-9 행이 번호 칸만 채워지고 나머지가 조용히 사라짐. 병합 해제 → insert_rows → 병합 범위 수동 shift 후 재병합하는 방식으로 수정, 재검증(60개 항목 전부 정상 기록, 각주 병합도 A12:F12로 정확히 이동) 완료.
+- bash -n / 임베드 python heredoc py_compile / 가짜 `oc` 함수로 5-8의 for-루프+grep 로직 단독 재현 테스트(3개 노드 모두 정상 출력, exit 0) / `fill_checklist.py --self-check` / 60행 템플릿 대상 synthetic 리포트 CLI 실행(코드 수정 없이 헤더기반 탐색으로 정상 인식) — 전부 통과.
+- **미검증**: rhel-prod의 `oc` 로그인 세션이 3일 경과로 만료(`Unauthorized`) — 실클러스터로 5-8/5-9 최종 검증은 사용자가 재로그인해야 가능.
+
+### 🚧 진행 중
+- 사용자가 요청하지 않은 나머지 4개 명령(4번 노드별 Pod request 상세, 5번 FailedScheduling 이벤트, 7번 특정 VM request)은 "트러블슈팅 참고용" 성격으로 판단해 의도적으로 보류 — 요청 시 진행.
+- rhel-prod `oc login` 재인증 후 5-8/5-9 실클러스터 검증 필요.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 사용자가 rhel-prod에 재로그인하면 `./OCP-HCK-Score.sh` 재실행 → 5-8/5-9가 실제로 올바른 노드 목록·메모리 수치를 담아오는지 확인, `fill_checklist.py`로 60개 항목 전체 채움(exit 0) 재검증.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `d7f2815`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `OCP-HCK-Score.sh`/`check_reconstructed.xlsx` md5 3곳 일치(`2abc0af5.../93aa29a7...`).
+- Last File: `check_reconstructed.xlsx` (5-8/5-9 행 추가 + 병합셀 버그 수정)
+- Active Errors: rhel-prod `oc whoami` → `Unauthorized`(세션 만료, 스크립트 결함 아님)
+- Last CMD(원격): `bash -n OCP-HCK-Score.sh` → `syntax OK`
+
+### 💬 인계 메모
+- **openpyxl 교훈**: `ws.insert_rows(n, amount=k)`는 셀 값/행 자체는 밀어주지만 **병합 셀 범위(`ws.merged_cells`)는 자동으로 안 밀린다.** 병합이 있는 시트에 행을 삽입할 땐 반드시 삽입 전 병합 해제 → 삽입 → 병합 범위를 수동으로 `row_shift`한 뒤 재병합할 것. 이번에 조용히(에러 없이) 값이 사라졌던 게 위험한 지점 — 반드시 저장 후 재오픈해서 값 확인하는 습관 유지.
+- **`check_reconstructed.xlsx` "손상" 미스터리 해결**: 사용자 확인 — Windows 쪽에 사내 NASCA DRM 에이전트가 떠 있어서, xlsx 파일이 Windows 로컬에서 수정/생성되면 **자동으로 DRM이 부여**된다. openpyxl이 `BadZipFile`로 못 여는 게 이 DRM wrapping 때문(원본 `check.xlsx`가 애초에 못 열렸던 것과 동일한 메커니즘) — 실제 파일 손상이 아니었다. **앞으로 xlsx 파일(`check_reconstructed.xlsx`) 수정 작업은 Windows 로컬이 아니라 rhel-prod(Linux, DRM 에이전트 없음)에서 수행할 것.** Windows 로컬 사본은 "결과를 받아보는 용도"로만 취급.
+- `EnterWorktree` 도구가 기존에 잘 동작하던 워크트리에 대해 "git identity를 검증할 수 없다"며 거부하는 현상 발생(같은 세션 내 두 워크트리 모두). `git worktree list`/직접 `git status`로는 문제 없었음 — 파일 Edit는 워크트리 경로에 직접 지정하면 정상 동작(가드가 경로 기준으로만 판단하는 듯). 재발 시 이 우회법 사용.
