@@ -269,3 +269,24 @@
 ### 💬 인계 메모
 - 이번 라운드는 전부 "사용자가 실제 결과를 보고 질문 → 코드 근거로 답 → (필요시) 요청받아 수정"의 반복이었다. 매번 추측하지 않고 `.sh`/`fill_checklist.py` 소스를 직접 읽어서 답한 게 정확도를 지켰다 — 다음에도 "왜 이렇게 나와?" 류 질문엔 먼저 코드를 확인할 것.
 - 판정 어휘 통일로 Codex/Opus 리뷰의 M4가 완전히 해소됐다 — PROGRESS.md의 "보류 중" 목록에서 제거함.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 5-8 워커노드 요약 표 추가)
+
+### ✅ 완료 작업
+- 사용자가 기존 요구사항 충족 여부를 재확인하는 김에 "워커노드별 메모리 사용률 표가 있으면 더 좋겠다"고 추가 요청. `node-role.kubernetes.io/worker` 라벨로 워커 노드만 추려서 NODE/ALLOCATABLE/MEM_REQUEST(%)/MEM_LIMIT(%) 요약 표를 5-8의 맨 앞(기존 전체노드 상세 블록보다 먼저)에 추가.
+- rhel-prod에서 표 로직만 먼저 단독 실행해 포맷 확인 → bash -n → 전체 스크립트 실행 → 리포트에서 표가 정확한 위치(전체노드 상세 앞)에 나오는 것 확인 → `fill_checklist.py`로 62/62 채움·exit 0 재검증까지 원샷으로 완료.
+
+### 🚧 진행 중
+- 없음.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `63b21c8`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `OCP-HCK-Score.sh` md5 3곳 일치(`cb94b61e...`).
+- Last File: `OCP-HCK-Score.sh` (5-8 워커노드 요약 표 추가)
+- Active Errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260914-140430-929288.txt check_reconstructed.xlsx checklist_20260914_table.xlsx` → `총 62개 채움, 0개 리포트 매칭 실패`(확인 후 삭제)
+
+### 💬 인계 메모
+- 워커 노드 요약 표를 위해 워커 3대는 `oc describe node`를 두 번(요약 표용 1번 + 상세 블록용 1번) 호출한다 — 읽기 전용 점검 스크립트라 성능에 영향 없다고 판단해 중복 호출을 감수함(코드 단순성 우선).
