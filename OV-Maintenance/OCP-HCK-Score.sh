@@ -600,6 +600,7 @@ run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진
     read -r _ WREQV WREQP WLIMV WLIMP <<<\"\$(echo \"\$WD\" | awk '/^Allocated resources:/{f=1} f && /^  memory /{print; exit}')\"
     printf '%-20s %-15s %-20s %-20s\n' \"\$n\" \"\$WALLOC\" \"\$WREQV \$WREQP\" \"\$WLIMV \$WLIMP\"
   done
+  echo '===== 아래는 각 노드 상세 원본(참고용) ====='
   echo ''
   for n in $_NODES_LIST; do
     echo \"=== \$n ===\"
@@ -932,21 +933,38 @@ STATUS_LABEL = {
     "manual": ("수동 확인 필요", "st-manual"),
 }
 
+# 항목 원문에 이 구분선이 있으면, 그 앞부분(핵심 요약 테이블 등)은 드랍다운 밖에 항상 노출하고
+# 뒷부분(상세 원본)만 접어서 보여준다 — "드랍다운을 펼쳐야만 요약을 볼 수 있다"는 피드백 반영.
+# 사용자 요청(2026-09-14)으로 5-8(워커 노드 요약 표)에 처음 적용, 필요 시 다른 항목의 run_cmd
+# 출력에도 같은 구분선 문자열을 echo하면 동일하게 동작한다.
+FOLD_MARKER = "===== 아래는 각 노드 상세 원본(참고용) ====="
+
 def item_block(it, open_attn=True):
     label, cls = STATUS_LABEL[it["status"]]
     open_attr = " open" if (it["status"] == "attention" and open_attn) else ""
-    body = esc(it["body"]) if it["body"].strip() else "(출력 없음)"
-    return f'''<details class="item{open_attr}">
-      <summary>
+    raw_body = it["body"]
+    summary_html = ""
+    if FOLD_MARKER in raw_body:
+        summary_part, raw_body = raw_body.split(FOLD_MARKER, 1)
+        summary_part = summary_part.strip("\n")
+        if summary_part.strip():
+            summary_html = f'<pre class="item-summary">{esc(summary_part)}</pre>'
+    body = esc(raw_body) if raw_body.strip() else "(출력 없음)"
+    return f'''<div class="item">
+      <div class="item-head">
         <span class="item-num">{esc(it["num"])}</span>
         <span class="item-desc">{esc(it["desc"])}</span>
         <span class="item-status {cls}">{label}</span>
-      </summary>
-      <div class="item-body">
-        <div class="item-cmd">$ {esc(it["cmd"])}</div>
-        <pre>{body}</pre>
       </div>
-    </details>'''
+      {summary_html}
+      <details class="item-toggle{open_attr}">
+        <summary>원본 로그 보기</summary>
+        <div class="item-body">
+          <div class="item-cmd">$ {esc(it["cmd"])}</div>
+          <pre>{body}</pre>
+        </div>
+      </details>
+    </div>'''
 
 items1_html = "".join(item_block(i, open_attn=False) for i in items1)
 items3_html = "".join(item_block(i) for i in items3)
@@ -1123,9 +1141,22 @@ section.block{margin-bottom:44px}
 .item summary::-webkit-details-marker{display:none}
 .item summary::before{content:"▸"; color:var(--ink-faint); font-size:11px; transition:transform .15s}
 .item[open] summary::before{transform:rotate(90deg)}
+.item-head{display:flex; align-items:center; gap:12px; padding:11px 14px; font-size:13.5px}
 .item-num{font-family:"IBM Plex Mono"; color:var(--ink-faint); font-size:12px; flex:none; width:52px}
 .item-desc{flex:1; min-width:0}
 .item-status{font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; flex:none}
+.item-summary{
+  margin:0 14px 10px; padding:10px 12px; background:var(--accent-soft); border:1px solid var(--border);
+  border-radius:8px; font-family:"IBM Plex Mono"; font-size:12px; line-height:1.6; white-space:pre;
+  overflow-x:auto; color:var(--ink);
+}
+.item-toggle{border-top:1px solid var(--border)}
+.item-toggle summary{
+  list-style:none; cursor:pointer; padding:8px 14px; font-size:12px; color:var(--accent); user-select:none;
+}
+.item-toggle summary::-webkit-details-marker{display:none}
+.item-toggle summary::before{content:"▸ "; font-size:10px}
+.item-toggle[open] summary::before{content:"▾ "}
 .item-body{padding:0 14px 14px}
 .item-cmd{font-family:"IBM Plex Mono"; font-size:11.5px; color:var(--accent); background:var(--accent-soft); border-radius:6px; padding:7px 10px; margin-bottom:8px; overflow-x:auto; white-space:pre}
 .item-body pre{
@@ -1172,7 +1203,8 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
   .btn-print{display:none}
   h2,.block-head{break-after:avoid}
   .item{border:1px solid #999; break-inside:avoid}
-  .item summary::before{display:none}
+  .item summary::before, .item-toggle summary::before{display:none}
+  .item-toggle{border-top-color:#999}
   .item-body pre{max-height:none; overflow:visible; border-color:#999; white-space:pre-wrap; overflow-wrap:anywhere; word-break:normal; font-size:12px; line-height:1.7}
   .pill,.seal,.item-status,.co-chip{border:1px solid currentColor}
   .card,.lane{break-inside:avoid; border-color:#999}
@@ -1249,11 +1281,6 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
   </section>
 
   <section class="block">
-    <div class="block-head"><span class="sec-no">부록</span><h2>이번 점검 자동 탐지 대상</h2><span class="count">실행마다 무작위 재선정</span></div>
-    <div class="tgt-grid">__TARGETS_HTML__</div>
-  </section>
-
-  <section class="block">
     <div class="block-head"><span class="sec-no">03</span><h2>API 연동 확인</h2><span class="count">__C3_OK__/__C3_TOTAL__ 건 수집</span></div>
     __ITEMS3_HTML__
   </section>
@@ -1266,6 +1293,11 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
   <section class="block">
     <div class="block-head"><span class="sec-no">05</span><h2>Virtualization 점검</h2><span class="count">__C5_OK__/__C5_TOTAL__ 건 수집</span></div>
     __ITEMS5_HTML__
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="sec-no">부록</span><h2>이번 점검 자동 탐지 대상</h2><span class="count">실행마다 무작위 재선정</span></div>
+    <div class="tgt-grid">__TARGETS_HTML__</div>
   </section>
 </main>
 

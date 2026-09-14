@@ -435,3 +435,30 @@
 ### 💬 인계 메모
 - 이제 항목 총 66개 — PROGRESS.md Next #1(원본 check.xlsx DRM 반영 여부 결정)에 3-11/5-12도 포함해서 사용자가 판단해야 함.
 - 5-12는 읽기전용 감사만 한다 — 향후 사용자가 "patch까지 자동으로 해달라"고 명시적으로 요청하지 않는 한 절대 `oc patch vm`을 스크립트에서 실행하지 말 것(클러스터 상태를 바꾸는 쓰기 작업이라 이 헬스체크 스크립트의 "읽기전용/비파괴적" 원칙에 위배).
+
+## 세션 백업: 2026-09-14 (이어서 — HTML 리포트 UX 개선: 드랍다운 구조 / 부록 위치)
+
+### 무엇을 했는가
+사용자가 (앞서 이미 반영된 6건 재확인 요청에 이어) 새로운 HTML UX 피드백 2건 제시:
+1. "현재 드랍방식으로 되어 있어 선택하지 않으면 내용 확인이 안 됩니다" — 5-8 워커 노드 요약 표를 예로 들며, 전체 확인이 필요한 핵심 데이터는 드랍박스 상단에 항상 노출되고 상세 로그만 드랍다운으로 접히면 좋겠다는 요청.
+2. "부록, 이번 점검 자동 탐지 대상" 섹션 위치가 가독성을 떨어뜨린다 — 최상단/최하단으로 옮기거나 삭제 요청.
+
+구현:
+- `.sh`의 embedded python `item_block()`을 리팩터링: 기존엔 `<details class="item"><summary>머리글</summary><div class="item-body">...</div></details>` 단일 구조라 머리글(summary)만 항상 보이고 나머지 전부(요약이든 상세든)가 접혀 있었음. 이제 `<div class="item">`(머리글, 항상 노출) 다음에 선택적 `<pre class="item-summary">`(항상 노출), 그 다음 `<details class="item-toggle"><summary>원본 로그 보기</summary>...</details>`(상세만 접힘) 구조로 변경.
+- "요약으로 승격할 부분"을 항목마다 하드코딩하지 않고, `FOLD_MARKER = "===== 아래는 각 노드 상세 원본(참고용) ====="` 문자열을 기준으로 자동 분리하는 범용 메커니즘 채택 — run_cmd 출력에 이 구분선만 echo하면 그 앞부분이 자동으로 요약이 된다. 5-8의 쉘 블록(워커 표 출력 직후)에 이 구분선을 추가해 첫 적용.
+- CSS: `.item-head`(기존 `.item summary`와 동일한 레이아웃, 클릭 불필요), `.item-summary`(강조된 배경의 항상-노출 pre), `.item-toggle`/`.item-toggle summary`(작은 "▸ 원본 로그 보기" 토글) 추가. 인쇄 스타일의 `.item summary::before{display:none}`을 `.item summary::before, .item-toggle summary::before{display:none}`으로 확장.
+- main 섹션 순서를 01→02→부록→03→04→05에서 01→02→03→04→05→부록(최하단, `</main>` 직전)으로 재배치.
+
+### 검증
+- `bash -n` clean, rhel-prod 실클러스터 재실행 exit 0(모든 항목 통과). 생성된 HTML을 grep/python으로 직접 검사: `item-summary` 클래스가 5-8 카드에 실제로 렌더링되어 워커 노드 표(worker01~03의 ALLOCATABLE/REQUEST/LIMIT)가 `item-toggle`보다 먼저(=항상 보이는 위치에) 나오는 것 확인, "부록" section이 파일 내에서 마지막 section(05.Virtualization 다음, `</main>` 직전)으로 이동됐음을 grep -n으로 라인 번호 대조 확인.
+- 워크트리/Windows local/rhel-prod 3곳 md5(`fe614445...`) 전부 일치.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (`item_block()` 함수 ~936행대, CSS ~1136행대, main 섹션 순서 ~1268행대, 5-8 쉘 블록 ~597행대)
+- Active errors: 없음
+- Last CMD(원격): `./OCP-HCK-Score.sh` → 전체 통과, `ocp-healthcheck-report-20260914-184540-1123558.txt/.html` 생성.
+
+### 💬 인계 메모
+- `FOLD_MARKER` 메커니즘은 5-8 외 다른 항목에도 재사용 가능 — 어떤 run_cmd든 그 출력에 정확히 이 문자열 `"===== 아래는 각 노드 상세 원본(참고용) ====="`을 echo하면 그 앞부분이 자동으로 요약 승격된다. 다른 항목에 적용할 때는 마커 문자열이 항목 성격에 안 맞을 수 있으니(예: "각 노드"라는 표현이 5-8 전용), 범용화하려면 마커 문자열을 항목별로 파라미터화하는 리팩터링이 추가로 필요할 수 있음(현재는 상수 하나만 있음).
+- section 1(1-1~1-4)은 여전히 기존 방식(`<details class="item"><summary>...` 단일 구조, `__ITEMS1_HTML__` 래퍼)을 그대로 씀 — 이번 리팩터링은 3/4/5절 item_block()에만 적용됨(1절은 원래도 개별 항목이 아니라 통짜 "Node 원본 조회 결과" 카드 하나였어서 범위 밖으로 판단, 사용자가 지적하지도 않음).
