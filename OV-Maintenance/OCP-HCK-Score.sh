@@ -39,7 +39,7 @@ err()  { echo -e "${RED}  ✘${NC} $1"; }
 REPORT="ocp-healthcheck-report-$(date +%Y%m%d-%H%M%S)-$$.txt"
 HTML_REPORT="${REPORT%.txt}.html"
 FAIL_COUNT=0
-: > "$REPORT"
+FAILED_ITEMS=()
 
 write() { echo -e "$1" | tee -a "$REPORT" >/dev/null; }
 raw()   { echo -e "$1" >> "$REPORT"; }
@@ -78,6 +78,7 @@ run_cmd() {
     ok "$num $desc"
   else
     FAIL_COUNT=$((FAIL_COUNT+1))
+    FAILED_ITEMS+=("$num")
     warn "$num $desc (명령 실행 실패 또는 오류 — 리포트 확인)"
   fi
 }
@@ -95,6 +96,7 @@ fi
 if ! oc whoami &>/dev/null; then
   err "'oc login' 먼저 실행하세요."; exit 1
 fi
+: > "$REPORT"
 HAS_JQ=0
 command -v jq &>/dev/null && HAS_JQ=1
 HAS_PY=0
@@ -124,46 +126,44 @@ OPERATORS=(
   network node-tuning openshift-apiserver openshift-controller-manager
   openshift-samples operator-lifecycle-manager operator-lifecycle-manager-catalog
   operator-lifecycle-manager-packageserver service-ca storage
+  control-plane-machine-set olm
 )
 raw ""
-raw "번호 | Operator | AVAILABLE | PROGRESSING | DEGRADED | 판정"
-raw "--------------------------------------------------------------"
+raw "번호 | Operator | VERSION | AVAILABLE | PROGRESSING | DEGRADED | SINCE | 판정"
+raw "-------------------------------------------------------------------------------"
 idx=1
 for op in "${OPERATORS[@]}"; do
-  if [ "$HAS_JQ" -eq 1 ]; then
-    JSON=$(oc get co "$op" -o json 2>/dev/null)
-    if [ -z "$JSON" ]; then
-      raw "2-${idx} | ${op} | - | - | - | [조회 실패/미존재]"
-    else
+  # native `oc get co` 한 줄로 VERSION/SINCE까지 항상 확보하고(jq 유무와 무관),
+  # jq가 있으면 AVAILABLE/PROGRESSING/DEGRADED만 JSON conditions로 더 정확히 덮어쓴다.
+  LINE=$(oc get co "$op" --no-headers 2>/dev/null)
+  if [ -z "$LINE" ]; then
+    write "2-${idx} | ${op} | - | - | - | - | - | [조회 실패/미존재]"
+  else
+    read -r _ VERSION AVAIL PROG DEG SINCE _ <<<"$LINE"
+    if [ "$HAS_JQ" -eq 1 ]; then
+      JSON=$(oc get co "$op" -o json 2>/dev/null)
       AVAIL=$(echo "$JSON" | jq -r '.status.conditions[]|select(.type=="Available")|.status')
       PROG=$(echo "$JSON"  | jq -r '.status.conditions[]|select(.type=="Progressing")|.status')
       DEG=$(echo "$JSON"   | jq -r '.status.conditions[]|select(.type=="Degraded")|.status')
-      # 이모지 없는 순수 텍스트 판정(2026-09-14, 사용자 요청으로 어휘 통일) — 1/3/4/5절의
-      # "정상/확인필요/건너뜀/수동확인"과 같은 표기 체계를 쓰되, CO는 심각도 구분이 유의미해서
-      # "이상(사유)"/"주의(사유)"로 세분화해 유지한다(폐쇄망 구형 Excel의 이모지 깨짐 문제도 해소).
-      VERDICT="정상"
-      if [ "$DEG" == "True" ]; then
-        VERDICT="이상(Degraded)"
-      elif [ "$AVAIL" != "True" ]; then
-        VERDICT="이상(Available)"
-      elif [ "$PROG" == "True" ]; then
-        VERDICT="주의(Progressing)"
-      fi
-      raw "2-${idx} | ${op} | ${AVAIL} | ${PROG} | ${DEG} | ${VERDICT}"
     fi
-  else
-    LINE=$(oc get co "$op" --no-headers 2>/dev/null)
-    if [ -z "$LINE" ]; then
-      raw "2-${idx} | ${op} | [조회 실패/미존재]"
-    else
-      raw "2-${idx} | ${op} | ${LINE}"
+    # 이모지 없는 순수 텍스트 판정(2026-09-14, 사용자 요청으로 어휘 통일) — 1/3/4/5절의
+    # "정상/확인필요/건너뜀/수동확인"과 같은 표기 체계를 쓰되, CO는 심각도 구분이 유의미해서
+    # "이상(사유)"/"주의(사유)"로 세분화해 유지한다(폐쇄망 구형 Excel의 이모지 깨짐 문제도 해소).
+    VERDICT="정상"
+    if [ "$DEG" == "True" ]; then
+      VERDICT="이상(Degraded)"
+    elif [ "$AVAIL" != "True" ]; then
+      VERDICT="이상(Available)"
+    elif [ "$PROG" == "True" ]; then
+      VERDICT="주의(Progressing)"
     fi
+    write "2-${idx} | ${op} | ${VERSION} | ${AVAIL} | ${PROG} | ${DEG} | ${SINCE} | ${VERDICT}"
   fi
   idx=$((idx+1))
 done
-ok "Cluster Operator 32개 상태 수집 완료 (jq 미설치 시 원본 라인만 기록 — 3번째 컬럼부터 AVAILABLE/PROGRESSING/DEGRADED/SINCE 순)"
+ok "Cluster Operator ${#OPERATORS[@]}개 상태 수집 완료"
 
-# 위 고정 32개 목록에 없는 Operator가 클러스터에 실재하면(버전 차이/클라우드 특화 등)
+# 위 고정 목록에 없는 Operator가 클러스터에 실재하면(버전 차이/클라우드 특화 등)
 # 그 상태를 놓칠 수 있으므로 실제 CO 목록과 대조해 목록 밖 항목만 별도로 남긴다.
 ALL_CO=$(oc get co -o jsonpath='{.items[*].metadata.name}' 2>/dev/null)
 EXTRA_CO=""
@@ -171,7 +171,7 @@ for co in $ALL_CO; do
   printf '%s\n' "${OPERATORS[@]}" | grep -qx "$co" || EXTRA_CO="${EXTRA_CO}${co} "
 done
 if [ -n "$EXTRA_CO" ]; then
-  raw "[목록 외 Operator 발견] ${EXTRA_CO}(고정 32개 목록에 없음 — 'oc get co ${EXTRA_CO}'로 별도 확인 필요)"
+  raw "[목록 외 Operator 발견] ${EXTRA_CO}(고정 ${#OPERATORS[@]}개 목록에 없음 — 'oc get co ${EXTRA_CO}'로 별도 확인 필요)"
   warn "목록 외 Operator ${EXTRA_CO}발견 — 리포트 확인"
 fi
 
@@ -267,45 +267,45 @@ ok "자동 탐지 완료 — 아래 항목은 위 대상을 기준으로 자동 
 # ════════════════════════════════════════════════════════════
 section "3. API 연동 확인"
 
-run_cmd "3-1-1" "Namespace 리스트/상세 조회" "oc get ns / oc describe ns" -- bash -c "
+run_cmd "3-1" "Namespace 리스트/상세 조회" "oc get ns / oc describe ns" -- bash -c "
   rc=0
   oc get ns || rc=\$?
   if [ -n '$Q_NS' ]; then oc describe ns '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-2" "Pod 리스트/상세 조회" "oc get po -n <ns> / oc describe po" -- bash -c "
+run_cmd "3-2" "Pod 리스트/상세 조회" "oc get po -n <ns> / oc describe po" -- bash -c "
   rc=0
   if [ -n '$Q_NS' ]; then oc get po -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then oc describe po '$Q_POD' -n '$Q_NS' || rc=\$?; else echo '(Pod 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-3" "Node 리스트/상세 조회" "oc get node / oc describe node" -- bash -c "
+run_cmd "3-3" "Node 리스트/상세 조회" "oc get node / oc describe node" -- bash -c "
   rc=0
   oc get node || rc=\$?
   if [ -n '$Q_NODE' ]; then oc describe node '$Q_NODE' || rc=\$?; else echo '(Node 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-4" "Service 리스트/상세 조회" "oc get svc -n <ns> / oc describe svc" -- bash -c "
+run_cmd "3-4" "Service 리스트/상세 조회" "oc get svc -n <ns> / oc describe svc" -- bash -c "
   rc=0
   if [ -n '$Q_NS' ]; then oc get svc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   if [ -n '$Q_NS' ] && [ -n '$Q_SVC' ]; then oc describe svc '$Q_SVC' -n '$Q_NS' || rc=\$?; else echo '(Service 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-5" "PV 리스트/상세 조회" "oc get pv / oc describe pv" -- bash -c "
+run_cmd "3-5" "PV 리스트/상세 조회" "oc get pv / oc describe pv" -- bash -c "
   rc=0
   oc get pv || rc=\$?
   if [ -n '$Q_PV' ]; then oc describe pv '$Q_PV' || rc=\$?; else echo '(PV 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-6" "PVC 리스트/상세 조회" "oc get pvc -n <ns> / oc describe pvc" -- bash -c "
+run_cmd "3-6" "PVC 리스트/상세 조회" "oc get pvc -n <ns> / oc describe pvc" -- bash -c "
   rc=0
   if [ -n '$Q_NS' ]; then oc get pvc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   if [ -n '$Q_NS' ] && [ -n '$Q_PVC' ]; then oc describe pvc '$Q_PVC' -n '$Q_NS' || rc=\$?; else echo '(PVC 없음 - 건너뜀)'; fi
   exit \$rc"
-run_cmd "3-1-7" "알람 이벤트 조회" "oc get event -n <ns> --sort-by='.lastTimestamp'" -- bash -c "
+run_cmd "3-7" "알람 이벤트 조회" "oc get event -n <ns> --sort-by='.lastTimestamp'" -- bash -c "
   set -o pipefail
   if [ -n '$Q_NS' ]; then oc get event -n '$Q_NS' --sort-by='.lastTimestamp' | tail -50; else echo '(네임스페이스 없음 - 건너뜀)'; fi"
 
-run_cmd "3-2-1" "Node CPU/Memory 사용량 조회" "oc adm top node" -- oc adm top node
-run_cmd "3-2-2" "Pod CPU/Memory 사용량 조회" "oc adm top pod -n <ns>" -- bash -c "
+run_cmd "3-8" "Node CPU/Memory 사용량 조회" "oc adm top node" -- oc adm top node
+run_cmd "3-9" "Pod CPU/Memory 사용량 조회" "oc adm top pod -n <ns>" -- bash -c "
   if [ -n '$Q_NS' ]; then oc adm top pod -n '$Q_NS'; else echo '(네임스페이스 없음 - 건너뜀)'; fi"
 
-run_cmd "3-3-1" "Pod 로그 조회" "oc logs <pod> -n <ns>" -- bash -c "
+run_cmd "3-10" "Pod 로그 조회" "oc logs <pod> -n <ns>" -- bash -c "
   if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then oc logs '$Q_POD' -n '$Q_NS' --tail=100; else echo '(Pod 없음 - 건너뜀)'; fi"
 
 # ════════════════════════════════════════════════════════════
@@ -453,6 +453,7 @@ if [ "$CAN_VMTEST" -eq 1 ]; then
     ok "5-1 VM 기동/재기동/종료 확인 — Stopped/Running 상태 도달 확인됨"
   else
     FAIL_COUNT=$((FAIL_COUNT+1))
+    FAILED_ITEMS+=("5-1")
     warn "5-1 VM 기동/재기동/종료 확인 실패(상태 미도달 또는 명령 실패) — 리포트 확인"
   fi
 else
@@ -483,6 +484,7 @@ if [ "$CAN_VMTEST" -eq 1 ]; then
     ok "5-2 Live Migration 확인 — Succeeded 도달 확인됨"
   else
     FAIL_COUNT=$((FAIL_COUNT+1))
+    FAILED_ITEMS+=("5-2")
     warn "5-2 Live Migration 확인 실패(Succeeded 미도달 또는 명령 실패) — 리포트 확인"
   fi
 else
@@ -680,14 +682,16 @@ extra_co_line = ""
 for ln in sec2["lines"]:
     if ln.startswith("2-") and "|" in ln:
         parts = [p.strip() for p in ln.split("|")]
-        if len(parts) >= 6:
-            # idx | name | avail | prog | deg | verdict
-            co_rows.append({"idx": parts[0], "name": parts[1], "avail": parts[2],
-                             "prog": parts[3], "deg": parts[4], "verdict": parts[5]})
+        if len(parts) >= 8:
+            # idx | name | version | avail | prog | deg | since | verdict
+            co_rows.append({"idx": parts[0], "name": parts[1], "version": parts[2],
+                             "avail": parts[3], "prog": parts[4], "deg": parts[5],
+                             "since": parts[6], "verdict": parts[7]})
         else:
-            # jq 미설치 환경: "idx | name | <oc 원본 라인>" 3필드뿐 — 판정 불가로 기록(크래시 방지)
+            # 예상 밖 필드 수 — 판정 불가로 기록(크래시 방지)
             co_rows.append({"idx": parts[0], "name": parts[1] if len(parts) > 1 else "?",
-                             "avail": "", "prog": "", "deg": "", "verdict": "[jq 없음 - 원본 확인]"})
+                             "version": "", "avail": "", "prog": "", "deg": "", "since": "",
+                             "verdict": "[형식 확인 필요 - 원본 확인]"})
     if ln.startswith("[목록 외 Operator 발견]"):
         extra_co_line = ln
 
@@ -707,7 +711,7 @@ for ln in sec2["lines"]:
 co_ok = sum(1 for r in co_rows if "정상" in r["verdict"])
 co_warn = sum(1 for r in co_rows if "주의" in r["verdict"])
 co_crit = sum(1 for r in co_rows if "이상" in r["verdict"])
-co_unjudged = sum(1 for r in co_rows if "jq 없음" in r["verdict"])
+co_unjudged = sum(1 for r in co_rows if "형식 확인 필요" in r["verdict"])
 # jq는 있지만 oc get co 자체가 빈 응답이었던 것 — "정상"으로 절대 세지 않는다.
 co_lookup_failed = sum(1 for r in co_rows if "조회 실패" in r["verdict"])
 extra_co_names = []
@@ -810,7 +814,7 @@ coverage_html = (
 
 # ---------------------------------------------------------------- CO grid
 def co_chip(r):
-    if "jq 없음" in r["verdict"] or "조회 실패" in r["verdict"]:
+    if "형식 확인 필요" in r["verdict"] or "조회 실패" in r["verdict"]:
         cls = "co-unjudged"
     elif "정상" in r["verdict"]:
         cls = "co-ok"
@@ -825,7 +829,7 @@ extra_co_html = ""
 if extra_co_names:
     chips = "".join(f'<div class="co-chip co-unknown"><span class="co-dot"></span>{esc(n)}</div>' for n in extra_co_names)
     extra_co_html = f'''<div class="co-extra">
-      <div class="co-extra-label">⚑ 고정 32개 목록 밖 Operator (신규 발견 — 별도 확인 필요)</div>
+      <div class="co-extra-label">⚑ 고정 34개 목록 밖 Operator (신규 발견 — 별도 확인 필요)</div>
       <div class="co-grid">{chips}</div>
     </div>'''
 
@@ -1137,7 +1141,7 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
   </section>
 
   <section class="block">
-    <div class="block-head"><span class="sec-no">02</span><h2>Cluster Operator 상태</h2><span class="count">고정 32개 + 목록 외 __EXTRA_COUNT__개</span></div>
+    <div class="block-head"><span class="sec-no">02</span><h2>Cluster Operator 상태</h2><span class="count">고정 34개 + 목록 외 __EXTRA_COUNT__개</span></div>
     <div class="card">
       <div class="co-grid">__CO_GRID_HTML__</div>
       __EXTRA_CO_HTML__
@@ -1230,7 +1234,7 @@ echo ""
 # FAIL_COUNT는 run_cmd/5-1/5-2가 실제 명령 실패 시 누적한다 — cron/모니터링이
 # 점검 실패를 exit code로 감지할 수 있도록 여기서 반영한다.
 if [ "$FAIL_COUNT" -gt 0 ]; then
-  echo -e "${YELLOW}⚠ 총 ${FAIL_COUNT}개 항목에서 명령 실행 실패가 감지되었습니다 — 리포트를 확인하세요.${NC}"
+  echo -e "${YELLOW}⚠ 총 ${FAIL_COUNT}개 항목에서 명령 실행 실패가 감지되었습니다: ${FAILED_ITEMS[*]} — 리포트를 확인하세요.${NC}"
   exit 1
 fi
 exit 0

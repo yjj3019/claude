@@ -161,11 +161,12 @@ def parse_report(text):
     if sec2:
         for ln in sec2["lines"]:
             if CO_LINE_RE.match(ln):
+                # idx | name | version | avail | prog | deg | since | verdict (2026-09-14)
                 parts = [p.strip() for p in ln.split("|")]
-                if len(parts) >= 6:
-                    results[parts[0]] = parts[5]
+                if len(parts) >= 8:
+                    results[parts[0]] = parts[7]
                 else:
-                    results[parts[0]] = "[jq 없음 - 원본 확인]"
+                    results[parts[0]] = "[형식 확인 필요 - 원본 확인]"
 
     for sec_num in ("1", "3", "4", "5"):
         sec = next((s for s in sections if s["num"] == sec_num), None)
@@ -325,17 +326,17 @@ error: some failure
 ■ 2. Cluster Operator 상태 확인
 ════════════════════════════════════════════════════════
 
-번호 | Operator | AVAILABLE | PROGRESSING | DEGRADED | 판정
---------------------------------------------------------------
-2-1 | authentication | True | False | False | 정상
-2-2 | baremetal | True | True | False | 주의(Progressing)
+번호 | Operator | VERSION | AVAILABLE | PROGRESSING | DEGRADED | SINCE | 판정
+-------------------------------------------------------------------------------
+2-1 | authentication | 4.20.16 | True | False | False | 3d17h | 정상
+2-2 | baremetal | 4.20.16 | True | True | False | 580d | 주의(Progressing)
 
 ════════════════════════════════════════════════════════
 ■ 3. API 연동 확인
 ════════════════════════════════════════════════════════
 
 --------------------------------------------------------
-[3-1-1] Namespace 목록 조회
+[3-1] Namespace 목록 조회
 Command : oc get ns
 --------------------------------------------------------
 [결과] rc=0
@@ -377,7 +378,7 @@ def _self_check():
     assert results["1-2"] == "확인필요", results
     assert results["2-1"] == "정상", results
     assert results["2-2"] == "주의(Progressing)", results
-    assert results["3-1-1"] == "정상", results
+    assert results["3-1"] == "정상", results
     assert results["4-1"] == "건너뜀", results
     assert results["5-3"] == "수동확인", results
     assert "1-3" not in results
@@ -393,7 +394,7 @@ def _self_check():
     ws1.append(["1-3", "d", "c", "s", None, None])
     ws3 = wb["3.API연동"]
     ws3.append(["3-1. 배너 행", None, None, None, None, None])
-    ws3.append(["3-1-1", "d", "c", "s", None, None])
+    ws3.append(["3-1", "d", "c", "s", None, None])
     ws2 = wb["2.ClusterOperator"]
     ws2.append(["2-10", "d", "c", "s", None, None])  # regression: two-digit numbers (2-10..2-32) must still match
 
