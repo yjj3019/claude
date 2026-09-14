@@ -221,3 +221,27 @@
 ### 💬 인계 메모
 - **교훈**: `grep -A<N>` 같은 고정폭 추출은 리소스 개수가 클러스터/노드마다 다를 수 있는 `oc describe` 출력에는 위험하다 — 이번에 실제로 핵심 값(cpu/memory/pods)이 조용히 빠졌었다. 앞으로 비슷한 블록 추출이 필요하면 `sed -n '/시작패턴/,/끝패턴/{/끝패턴/!p}'`처럼 다음 헤더를 명시적 경계로 쓸 것 — `-A` 카운트 추측 금지.
 - 5-9가 드러낸 `memoryOvercommitPercentage: 150`은 스크립트 검증용 부산물이 아니라 실제 운영상 의미 있는 값이다 — 사용자에게 별도로 언급해도 좋을 만한 발견.
+
+## 📅 세션 백업: 2026-09-14 (이어서 — 5-10/5-11 추가, 고객 요구사항 완전 반영)
+
+### ✅ 완료 작업
+- 사용자가 원 요구사항 4번("노드별 Pod request 상세")에 주석을 달아 재전달 — 실은 "노드별"이 아니라 "전체 VM(virt-launcher) Pod의 memory request"를 뜻했고, 7번("특정 VM request")도 이 표에 포함되는 상동 관계임을 확인. AskUserQuestion으로 5-10(전체 VM request, 재해석으로 완전자동화 가능해져 추가 권장) / 5-11(FailedScheduling 자동탐지, 지난번엔 보류했으나 이번엔 추가 선택) 둘 다 승인받음.
+- `OCP-HCK-Score.sh`에 5-10(`oc get pods -A -l kubevirt.io=virt-launcher -o custom-columns=NS,NAME,NODE,REQ`)/5-11(`oc get events -A --field-selector reason=FailedScheduling --sort-by=.lastTimestamp`) 추가 — 둘 다 단일 명령, 클러스터 전체, 수동 타겟 불필요. bash -n 통과 후 rhel-prod에서 명령 단독 실행으로 먼저 검증(5-10: VM 29개 나열 성공 / 5-11: **실제로 존재하던** FailedScheduling 이벤트를 진짜로 잡아냄 — metrics-server가 anti-affinity/taint로 스케줄 실패 중이었음, VM 관련은 아니지만 자동탐지 로직 자체의 실전 검증으로는 이상적).
+- **xlsx는 이번에 처음으로 새 DRM 규칙을 실전 적용**: `add_5_10_11.py`를 작성해 rhel-prod에 업로드 후 그쪽에서 실행 — 병합 셀(각주 행) 해제→삽입→재병합까지 원격에서 처리, 결과를 다운로드해서 md5 대조(워크트리/로컬/rhel-prod 즉시 일치 확인, DRM 재발 없음).
+- 전체 스크립트 재실행 → `fill_checklist.py`로 62개 항목 전체 채움 최종 확인(0개 매칭 실패, exit 0).
+
+### 🚧 진행 중
+- 없음 — 고객이 제시한 메모리 진단 명령 7개(노드 Capacity/Allocatable/Allocated, 노드별 request 소진율, Pod별 request, FailedScheduling, Overcommit, VM request)가 5-8~5-11 4개 항목으로 전부 반영 완료.
+
+### ⏭️ 다음 세션 즉시 실행 항목
+- 없음(사용자 명시 요청 없으면). 재개 시 PROGRESS.md의 "Next" 1번(원본 check.xlsx DRM 반영 여부 결정) 참조.
+
+### 🧩 런타임 스냅샷
+- Branch/Path: 워크트리(브랜치 `worktree-fill-checklist-xlsx`, 최신 커밋 `07fe25d`) + 로컬 `C:\AI-Codding\claude\OV-Maintenance` + 원격 rhel-prod `/home/jjyoo/OV-Maintenance` — `OCP-HCK-Score.sh`/`check_reconstructed.xlsx` md5 3곳 일치.
+- Last File: `check_reconstructed.xlsx` (rhel-prod에서 직접 편집, 5-10/5-11 반영, 14행 체계)
+- Active Errors: 없음
+- Last CMD(원격): `python3 fill_checklist.py <최신리포트> check_reconstructed.xlsx checklist_20260914_v2.xlsx` → `총 62개 채움, 0개 리포트 매칭 실패`, exit 0
+
+### 💬 인계 메모
+- **새 DRM 규칙이 실전에서 잘 작동함을 확인**: xlsx 편집용 python 스크립트를 로컬에서 작성 → `uploadFile`로 rhel-prod에 올림 → `runRemoteCommand`로 그쪽에서 실행 → 결과를 `downloadFile`로 받아옴, 이 패턴을 앞으로 xlsx 수정마다 반복할 것. 로컬에서 openpyxl로 직접 저장하지 말 것.
+- 고객 요구사항이 "재해석"을 거쳐 원래 보류했던 항목들이 결국 다 들어간 사례 — 사용자가 명령의 "진짜 의도"를 설명해주면 자동화 가능 범위가 크게 달라질 수 있으니, 애매한 요구사항은 "왜 이게 필요한지" 물어보는 게 범위 판단에 중요하다는 교훈.
