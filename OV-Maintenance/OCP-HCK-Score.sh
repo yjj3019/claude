@@ -509,6 +509,23 @@ run_cmd "5-7" "KubeVirt/CDI 플랫폼 컴포넌트 상태 확인" "oc get hco -n
   oc get pods -n openshift-cnv -l 'cdi.kubevirt.io' || rc=\$?
   exit \$rc"
 
+# request 메모리 기준 스케줄링 실패(실사용량이 아니라 Allocated request 소진율이 원인)를
+# 진단하려면 노드별 Capacity/Allocatable/Allocated resources가 필요하다는 고객 요구사항
+# 반영(2026-09-14). 대상은 위에서 이미 자동 탐지해둔 전체 노드 목록(_NODES)을 그대로 재사용.
+_NODES_LIST="${_NODES[*]}"
+run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진율) 확인" "oc describe node <각 노드> | grep -A2 'Capacity:|Allocatable:' / grep -A10 'Allocated resources'" -- bash -c "
+  rc=0
+  for n in $_NODES_LIST; do
+    echo \"=== \$n ===\"
+    D=\$(oc describe node \"\$n\") || rc=\$?
+    echo \"\$D\" | grep -A2 -E 'Capacity:|Allocatable:'
+    echo \"\$D\" | grep -A10 'Allocated resources'
+    echo ''
+  done
+  exit \$rc"
+
+run_cmd "5-9" "OpenShift Virtualization 메모리 Overcommit(higherWorkloadDensity) 설정 확인" "oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath={.spec.higherWorkloadDensity}" -- oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.spec.higherWorkloadDensity}{"\n"}'
+
 # ════════════════════════════════════════════════════════════
 write ""
 write "════════════════════════════════════════════════════════"
