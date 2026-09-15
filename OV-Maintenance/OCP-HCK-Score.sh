@@ -563,11 +563,41 @@ run_cmd "4-1" "Node Network Interface 연동 확인(전체 노드, 실사용 인
   fi
   exit \$rc"
 
-run_cmd "4-2" "Pod간 Networking 확인" "oc get pod -o wide / oc rsh -> ping" -- bash -c "
+# ping 실패 시 TCP 폴백 추가(2026-09-15) — 이 클러스터는 OVN-Kubernetes UDN 레벨에서
+# ICMP를 기본 차단하고 허용목록(udn-open-ports-icmp-v4)에 없는 Pod IP는 ping이 항상
+# 100% 실패한다(실검증: 같은 노드의 다른 Pod는 정상 ping됨, NetworkPolicy 없음, L3 자체는
+# 정상). 대상 네임스페이스를 openshift-*/kube-*로 제외해도 무작위로 뽑힌 일반 Pod가
+# 허용목록 밖이면 동일하게 재발하므로(실측: gitea-operator ns) — ping 단독 판정은 구조적
+# 오탐 소지가 있음. 대상 Pod가 컨테이너 포트를 하나라도 선언했으면 TCP 3-way handshake로
+# L3/L4 도달성을 보조 검증하고, 그마저 실패해야 진짜 실패로 판정한다.
+run_cmd "4-2" "Pod간 Networking 확인" "oc get pod -o wide / oc rsh -> ping (ICMP 차단 시 TCP 폴백)" -- bash -c "
   rc=0
   if [ -n '$PING_NS' ]; then oc get pod -o wide -n '$PING_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   if [ -n '$PING_NS' ] && [ -n '$PING_POD' ] && [ -n '$N_PEER_IP' ]; then
-    oc rsh -n '$PING_NS' '$PING_POD' ping -c 3 '$N_PEER_IP' || rc=\$?
+    if oc rsh -n '$PING_NS' '$PING_POD' ping -c 3 '$N_PEER_IP'; then
+      :
+    else
+      prc=\$?
+      PEER_PORTS=\$(oc get pods -A --field-selector=status.podIP='$N_PEER_IP' -o jsonpath='{range .items[0].spec.containers[*].ports[?(@.protocol!=\"UDP\")]}{.containerPort} {end}' 2>/dev/null)
+      if [ -n \"\$PEER_PORTS\" ]; then
+        echo \"[ping 실패 — TCP 폴백 시도: $N_PEER_IP, 후보 포트=\$PEER_PORTS (클러스터 UDN ICMP 허용목록 정책으로 ping만 차단될 수 있음)]\"
+        tcp_ok=0
+        for p in \$PEER_PORTS; do
+          if oc rsh -n '$PING_NS' '$PING_POD' timeout 3 bash -c \"echo > /dev/tcp/$N_PEER_IP/\$p\" 2>/dev/null; then
+            echo \"[TCP 연결 성공(포트 \$p) — L3/L4 도달성은 정상, ICMP만 정책상 차단된 것으로 판단]\"
+            tcp_ok=1
+            break
+          fi
+        done
+        if [ \"\$tcp_ok\" -eq 0 ]; then
+          echo '[선언된 모든 포트에서 TCP 폴백 실패 — 실제 통신 장애로 판단]'
+          rc=\$prc
+        fi
+      else
+        echo '[대상 Pod에 선언된 TCP 포트 없음 — TCP 폴백 불가, ping 실패만으로 판정]'
+        rc=\$prc
+      fi
+    fi
   else
     echo '(Pod 또는 통신 대상 IP 없음 - ping 건너뜀)'
   fi
