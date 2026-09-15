@@ -547,3 +547,33 @@
 ### 💬 인계 메모
 - 이제 진행 상황 갱신은 HTML 아티팩트 대신 이 Notion 트래커의 "상태" 속성을 바꾸는 방식으로 한다 — 항목이 완료되면 해당 행의 상태를 "완료"로 바꿀 것(전체 재작성 아님). 새 요구사항은 이 표에 행을 추가하면 팀 누구나 확인 가능.
 - HTML 로드맵 아티팩트(https://claude.ai/artifact/ETFEfKGtrHMg5SmkpYm1ii)는 그대로 남아있지만 이제 "한 시점의 스냅샷 보고서"로만 취급 — 실시간 갱신은 Notion이 source of truth.
+
+## 세션 백업: 2026-09-15 (Notion 트래커 20건 일괄 구현 + master03 실장애 발견)
+
+### 무엇을 했는가
+사용자가 Notion 요구사항 트래커의 미완료 20건(부분완료3/미착수7/논의필요10)을 "전부 완료 처리 방침으로 하나씩 처리"해달라고 요청. D트랙(구조개편 10건, 팀 논의 필요로 분류했던 것)도 포함할지 AskUserQuestion으로 확인 → "D트랙 포함 전체 구현" 승인받아 한 번에 구현(66→68개 항목).
+
+주요 구현: 1-5(노드 스펙+사용량, 신규)/3-12(healthz+kubelet, 신규) 추가, 3-10↔3-11 넘버링 스왑(정지Pod 확인 먼저), 2절 CO 출력 고정폭 재포맷(txt: 파이프 유지+패딩, HTML: 칩→테이블), 3-1~3-6/5-6/5-8 드랍다운 요약승격 확대, 3-5/3-6 PV/PVC 요약화, 4-1 전체노드 확대, 4-3/4-4 축소, 5-1/5-2 라벨 명시, 5-5 Released PV/DV 점검, 5-8 단위통일, 5-9 오버커밋 실사용 대비, 3절 섹션명 리프레이밍, 점검범위 원칙 문서화.
+
+**구현 직후 subagent(code-reviewer) 정적 리뷰**로 Critical 3건 + Minor 1건 발견·수정: (1) 4-1 `grep 'state UP'`이 `ip -o addr` 출력엔 없는 필드라 항상 무의미했음. (2) 5-5 DataVolume PHASE 컬럼을 `$5`로 잘못 가정해 전체 DV가 항상 오탐. (3) 5-9 grep이 Requests/Limits 퍼센트를 둘 다 매치해 오버커밋 탐지가 항상 조용히 실패. (4) 5-8 numfmt가 `--from` 미지정으로 no-op.
+
+**rhel-prod 1차 실클러스터 실행 중 두 가지를 실시간으로 발견**:
+1. `oc login` 세션이 실행 준비 중 만료 → 사용자 재로그인 대기.
+2. 4-1의 `oc debug node/master03.ocp.score`가 11분+ 멈춤 → `ps --forest`로 직접 프로세스 확인, `kill -9`로 정리해 다음 노드로 진행시킴. 동시에 3-12(신규 healthz 항목)가 같은 시점에 master03의 kubelet=Unknown, etcd healthz 실패를 정확히 진단 — 두 증상이 정확히 같은 원인(master03 실제 NotReady 장애)임을 교차 확인. 스크립트에 노드별 `timeout 60` 보호를 추가.
+3. 1차 실행 결과 검토 중 **5-8에서 자체 버그 발견**: 오늘 추가한 주석 안에 이스케이프 안 된 큰따옴표(`"invalid number"`)가 nested `bash -c "..."` 문자열을 조기 종료시켜, 이후 스크립트 소스코드 자체가 리포트에 그대로 출력되고 bash 문법에러(`-c: line 13: syntax error`)까지 발생하는 Critical 결함이었음. 전체 파일을 재스캔해 동일 패턴의 다른 인스턴스가 없는지 확인(없음 확인).
+
+수정 후 **2차 실클러스터 실행**: 68/68 채움·0개 매칭실패, 5-8 문법에러 재발 없음(rc=0), 4-1은 master03만 60초 타임아웃 경고 후 나머지 5개 노드 정상 처리(hang 없이 13분 만에 전체 완료 — 1차 실행 33분 대비 대폭 단축), 5-5가 실제로 UploadReady 상태로 머문 DataVolume 1건을 발견(합성이 아닌 진짜 탐지). 남은 실패 3건(1-5/4-1/5-5의 일부)은 전부 master03 실제 장애가 원인임을 직접 확인.
+
+### 검증
+- `bash -n` 매 수정마다 통과. rhel-prod 실클러스터 2회 완주(1차 33분, 2차 13분). `fill_checklist.py` 68/68 채움·0개 매칭실패.
+- 워크트리/Windows local/rhel-prod 3곳 `OCP-HCK-Score.sh`(md5 `892aa7d5...`)/`check_reconstructed.xlsx`(md5 `f46d92c2...`) 전부 일치.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Active errors: 없음(스크립트 자체). **master03.ocp.score 노드가 실제로 NotReady 상태** — 스크립트 밖의 실제 인프라 이슈, PROGRESS.md Next #0에 긴급 항목으로 기록.
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260915-143445-1874807.txt check_reconstructed.xlsx ...` → "총 68개 채움, 0개 리포트 매칭 실패".
+
+### 💬 인계 메모
+- **master03 장애는 스크립트 문제가 아니라 실제 클러스터 인시던트다** — 사용자/인프라팀에 별도 보고 필요. 이 세션에서는 원인 진단(3-12로 확인)까지만 하고 복구 조치는 하지 않았음(범위 밖).
+- 오늘 겪은 "nested bash -c 안 주석에 이스케이프 안 된 큰따옴표" 버그 패턴은 앞으로 이 스크립트에 주석을 추가할 때마다 반드시 조심할 것 — 특히 `bash -c "..."` 블록 **내부**(들여쓰기된) 주석에 `"..."` 형태의 한국어 인용을 쓰지 말 것. 대신 작은따옴표나 따옴표 없는 표현 사용.
+- Notion 트래커의 20개 항목 상태를 "완료"로 갱신하고 각각 처리 방법을 기록하는 작업이 아직 남음(다음 턴에서 진행).

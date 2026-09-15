@@ -18,6 +18,11 @@
 #               oc label vm <vm-name> -n <ns> healthcheck.ocp.score/disruptive-test=allowed
 #               RUN_VM_DISRUPTIVE=yes ./OCP-HCK-Score.sh
 #
+#  점검 범위 원칙(2026-09-15 확정, 백인균/이주석 지적 반영): 이 스크립트는 "월 정기점검"
+#             (매달 반복 실행해도 안전하고 의미 있는 읽기전용 상태 확인)과 "구조/구성진단"
+#             (설계·오버커밋·리소스 배치 같은 구성상의 문제를 들춰내는 심층 점검)을 함께
+#             다룬다 — 두 성격을 억지로 분리하지 않고 한 리포트에 담되, 클러스터 상태를
+#             바꾸는 항목(5-1/5-2)만 "구축/변경검증용"으로 별도 표기하고 기본 제외한다.
 #  참고 : 4-2(Pod간 통신) 테스트는 무작위 Pod에 ping이 없을 수 있어,
 #         score-debug 네임스페이스에 아래처럼 전용 디버그 Pod를 미리 띄워두면
 #         자동으로 그 Pod를 사용합니다(없으면 기존처럼 자동 탐지 Pod 사용):
@@ -134,6 +139,18 @@ run_cmd "1-2" "전체 Node Role 확인 (master/worker/infra/router 등)" "oc get
 run_cmd "1-3" "Node 버전 일치 확인" "oc get nodes -o wide" -- oc get nodes -o wide
 run_cmd "1-4" "VM 스케줄링 가능 Node 라벨 확인 (kubevirt.io/schedulable)" "oc get nodes -l kubevirt.io/schedulable=true" -- oc get nodes -l kubevirt.io/schedulable=true
 
+# 노드별 스펙 + 현재 리소스 사용량 — 고객 요구사항(2026-09-15, 백인균): 1절이 노드
+# 존재/역할/버전만 확인해 정보가 부족했음. Capacity(스펙)와 oc adm top(현재 사용량)을 함께.
+run_cmd "1-5" "노드별 스펙(CPU/Memory Capacity) 및 현재 리소스 사용량 확인" "oc describe node | grep -A2 Capacity / oc adm top node" -- bash -c "
+  rc=0
+  oc get nodes -o custom-columns=NAME:.metadata.name,CPU_CAPACITY:.status.capacity.cpu,MEM_CAPACITY:.status.capacity.memory,ARCH:.status.nodeInfo.architecture,OS:.status.nodeInfo.osImage || rc=\$?
+  echo ''
+  echo '--- 현재 리소스 사용량(oc adm top node) ---'
+  oc adm top node || rc=\$?
+  echo '===== 아래는 상세 원본(참고용) ====='
+  oc describe node || rc=\$?
+  exit \$rc"
+
 # ════════════════════════════════════════════════════════════
 section "2. Cluster Operator 상태 확인"
 OPERATORS=(
@@ -147,16 +164,20 @@ OPERATORS=(
   operator-lifecycle-manager-packageserver service-ca storage
   control-plane-machine-set olm
 )
+# 고정폭 정렬 테이블로 개선(2026-09-15, 김수용 제안) — 파이프(|) 구분자는 HTML 파서
+# (embedded python)와 fill_checklist.py의 CO_LINE_RE가 그대로 의존하므로 유지하되,
+# 각 필드를 고정폭으로 패딩해 이전처럼 들쭉날쭉하지 않고 줄이 맞도록 함.
+CO_FMT='%-6s | %-38s | %-9s | %-10s | %-12s | %-10s | %-8s | %s\n'
 raw ""
-raw "번호 | Operator | VERSION | AVAILABLE | PROGRESSING | DEGRADED | SINCE | 판정"
-raw "-------------------------------------------------------------------------------"
+raw "$(printf "$CO_FMT" 'NO' 'OPERATOR' 'VERSION' 'AVAILABLE' 'PROGRESSING' 'DEGRADED' 'SINCE' 'VERDICT')"
+raw "$(printf '%.0s-' {1..115})"
 idx=1
 for op in "${OPERATORS[@]}"; do
   # native `oc get co` 한 줄로 VERSION/SINCE까지 항상 확보하고(jq 유무와 무관),
   # jq가 있으면 AVAILABLE/PROGRESSING/DEGRADED만 JSON conditions로 더 정확히 덮어쓴다.
   LINE=$(oc get co "$op" --no-headers 2>/dev/null)
   if [ -z "$LINE" ]; then
-    write "2-${idx} | ${op} | - | - | - | - | - | [조회 실패/미존재]"
+    write "$(printf "$CO_FMT" "2-${idx}" "$op" '-' '-' '-' '-' '-' '[조회 실패/미존재]')"
   else
     read -r _ VERSION AVAIL PROG DEG SINCE _ <<<"$LINE"
     if [ "$HAS_JQ" -eq 1 ]; then
@@ -176,7 +197,7 @@ for op in "${OPERATORS[@]}"; do
     elif [ "$PROG" == "True" ]; then
       VERDICT="주의(Progressing)"
     fi
-    write "2-${idx} | ${op} | ${VERSION} | ${AVAIL} | ${PROG} | ${DEG} | ${SINCE} | ${VERDICT}"
+    write "$(printf "$CO_FMT" "2-${idx}" "$op" "$VERSION" "$AVAIL" "$PROG" "$DEG" "$SINCE" "$VERDICT")"
   fi
   idx=$((idx+1))
 done
@@ -220,6 +241,7 @@ mapfile -t _NODES < <(oc get nodes -o jsonpath='{range .items[*]}{.metadata.name
   | (command -v shuf &>/dev/null && shuf || awk 'BEGIN{srand()} {print rand()"\t"$0}' | sort -n | cut -f2-))
 Q_NODE="${_NODES[0]:-}"
 Q_NODE2="${_NODES[1]:-${_NODES[0]:-}}"
+_NODES_LIST="${_NODES[*]}"
 
 Q_SVC=""
 Q_PVC=""
@@ -301,30 +323,72 @@ unset _n _v
 ok "자동 탐지 완료 — 아래 항목은 위 대상을 기준으로 자동 실행됩니다"
 
 # ════════════════════════════════════════════════════════════
-section "3. API 연동 확인"
+# 섹션명 리프레이밍(2026-09-15, 백인균 제안) — "API 연동 확인"보다 "워크로드/리소스
+# 현황 확인"의 의미가 크다는 지적 반영. 항목번호(3-1 등)는 그대로 유지.
+section "3. 워크로드/리소스 현황 및 API 연동 확인"
 
+# 3-1~3-4: 상세조회(describe)는 접어두고, 목록/개수 같은 핵심만 항상 노출(2026-09-15,
+# 이주석/백인균 — "상세 조회 전체는 불필요한 정보" 지적 반영). describe는 여전히 하되
+# FOLD_MARKER 뒤로 이동시켜 원본은 보존하되 드랍다운에만 담는다.
 run_cmd "3-1" "Namespace 리스트/상세 조회" "oc get ns / oc describe ns" -- bash -c "
   rc=0
   oc get ns || rc=\$?
+  echo '===== 아래는 상세 원본(참고용) ====='
   if [ -n '$Q_NS' ]; then oc describe ns '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
   exit \$rc"
 run_cmd "3-2" "Pod 리스트/상세 조회" "oc get po -n <ns> / oc describe po" -- bash -c "
   rc=0
-  if [ -n '$Q_NS' ]; then oc get po -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
+  if [ -n '$Q_NS' ]; then
+    oc get po -n '$Q_NS' || rc=\$?
+    echo ''
+    NS_POD_COUNT=\$(oc get po -n '$Q_NS' --no-headers 2>/dev/null | wc -l)
+    NS_RUNNING_COUNT=\$(oc get po -n '$Q_NS' --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l)
+    echo \"[요약] ${Q_NS} 네임스페이스: 전체 \$NS_POD_COUNT개 / Running \$NS_RUNNING_COUNT개\"
+  else
+    echo '(네임스페이스 없음 - 건너뜀)'
+  fi
+  echo '===== 아래는 상세 원본(참고용) ====='
   if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then oc describe po '$Q_POD' -n '$Q_NS' || rc=\$?; else echo '(Pod 없음 - 건너뜀)'; fi
   exit \$rc"
 run_cmd "3-3" "Node 리스트/상세 조회" "oc get node / oc describe node" -- bash -c "
   rc=0
   oc get node || rc=\$?
+  echo '===== 아래는 상세 원본(참고용) ====='
   if [ -n '$Q_NODE' ]; then oc describe node '$Q_NODE' || rc=\$?; else echo '(Node 없음 - 건너뜀)'; fi
   exit \$rc"
 run_cmd "3-4" "Service 리스트/상세 조회" "oc get svc -n <ns> / oc describe svc" -- bash -c "
   rc=0
   if [ -n '$Q_NS' ]; then oc get svc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
+  echo '===== 아래는 상세 원본(참고용) ====='
   if [ -n '$Q_NS' ] && [ -n '$Q_SVC' ]; then oc describe svc '$Q_SVC' -n '$Q_NS' || rc=\$?; else echo '(Service 없음 - 건너뜀)'; fi
   exit \$rc"
+# PV/PVC 개수+총 용량 요약(2026-09-15, 이주석 제안) — VM 1000대 규모 클러스터에서 PVC
+# 전체 리스트가 1000행 넘게 그대로 나오는 문제 대응. 상세 리스트는 FOLD_MARKER로 접고
+# 개수/총 용량만 항상 노출.
+_size_to_gi() {
+  awk '
+    function tonum(v,   num,suf,mult){
+      if (!match(v, /^[0-9.]+/)) return 0
+      num=substr(v,RSTART,RLENGTH); suf=substr(v,RLENGTH+1)
+      if (suf=="Ki") mult=1/1024/1024
+      else if (suf=="Mi") mult=1/1024
+      else if (suf=="Gi") mult=1
+      else if (suf=="Ti") mult=1024
+      else if (suf=="Pi") mult=1024*1024
+      else mult=1/1024/1024/1024
+      return num*mult
+    }
+    {sum+=tonum($1)} END{printf "%.1f", sum+0}'
+}
+PV_COUNT=$(oc get pv --no-headers 2>/dev/null | wc -l | tr -d ' ')
+PV_TOTAL_GI=$(oc get pv -o custom-columns=CAP:.spec.capacity.storage --no-headers 2>/dev/null | _size_to_gi)
+PVC_COUNT=$(oc get pvc -A --no-headers 2>/dev/null | wc -l | tr -d ' ')
+PVC_TOTAL_GI=$(oc get pvc -A -o custom-columns=CAP:.status.capacity.storage --no-headers 2>/dev/null | _size_to_gi)
+
 run_cmd "3-5" "PV 리스트/상세 조회" "oc get pv / oc describe pv" -- bash -c "
   rc=0
+  echo '[요약] 전체 PV 개수: $PV_COUNT개, 총 용량: 약 ${PV_TOTAL_GI}Gi'
+  echo '===== 아래는 상세 원본(참고용) ====='
   oc get pv || rc=\$?
   if [ -n '$Q_PV' ]; then oc describe pv '$Q_PV' || rc=\$?; else echo '(PV 없음 - 건너뜀)'; fi
   exit \$rc"
@@ -345,11 +409,13 @@ else
 fi
 run_cmd "3-6" "PVC 리스트/상세 조회" "oc get pvc -n <ns> / oc describe pvc" -- bash -c "
   rc=0
-  if [ -n '$Q_NS' ]; then oc get pvc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
-  if [ -n '$Q_NS' ] && [ -n '$Q_PVC' ]; then oc describe pvc '$Q_PVC' -n '$Q_NS' || rc=\$?; else echo '(PVC 없음 - 건너뜀)'; fi
+  echo '[요약] 전체 PVC 개수(클러스터 전체): $PVC_COUNT개, 총 용량: 약 ${PVC_TOTAL_GI}Gi'
   echo ''
   echo '[Pod/VM에 바인딩되지 않은 PVC — 클러스터 전체]'
   echo '$PVC_ORPHAN_REPORT'
+  echo '===== 아래는 상세 원본(참고용) ====='
+  if [ -n '$Q_NS' ]; then oc get pvc -n '$Q_NS' || rc=\$?; else echo '(네임스페이스 없음 - 건너뜀)'; fi
+  if [ -n '$Q_NS' ] && [ -n '$Q_PVC' ]; then oc describe pvc '$Q_PVC' -n '$Q_NS' || rc=\$?; else echo '(PVC 없음 - 건너뜀)'; fi
   exit \$rc"
 run_cmd "3-7" "알람 이벤트 조회" "oc get event -n <ns> --sort-by='.lastTimestamp'" -- bash -c "
   set -o pipefail
@@ -359,21 +425,11 @@ run_cmd "3-8" "Node CPU/Memory 사용량 조회" "oc adm top node" -- oc adm top
 run_cmd "3-9" "Pod CPU/Memory 사용량 조회" "oc adm top pod -n <ns>" -- bash -c "
   if [ -n '$Q_NS' ]; then oc adm top pod -n '$Q_NS'; else echo '(네임스페이스 없음 - 건너뜀)'; fi"
 
-# 보안 리뷰 지적(2026-09-14): 무작위로 뽑힌 Pod의 애플리케이션 로그에 토큰/암호/PII가
-# 찍혀 있으면 그대로 리포트에 남는다 — 흔한 시크릿 패턴을 최선노력으로 마스킹한다
-# (완전한 시크릿 탐지는 불가능하므로 이건 심층방어이지 보장이 아님).
-run_cmd "3-10" "Pod 로그 조회" "oc logs <pod> -n <ns> --tail=100 (시크릿 패턴 마스킹 적용)" -- bash -c "
-  if [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then
-    oc logs '$Q_POD' -n '$Q_NS' --tail=100 \
-      | sed -E 's/(password|passwd|token|secret|apikey|api_key|access_key|authorization)([[:space:]]*[:=][[:space:]]*).+/\1\2***MASKED***/gI; s/Bearer [A-Za-z0-9._-]+/Bearer ***MASKED***/g; s/AKIA[0-9A-Z]{16}/***MASKED_AWS_KEY***/g'
-  else
-    echo '(Pod 없음 - 건너뜀)'
-  fi"
-
-# 정지된(non-Running) Pod 전체 목록 — 고객 요구사항(2026-09-14). Job/DaemonSet 소유의
-# Succeeded는 정상 종료로 분류하고, 그 외(Failed/Pending/Unknown 또는 소유자 불명의 Succeeded)만
+# 넘버링 교체(2026-09-15, 이주석 제안) — 정지된 Pod 확인을 먼저(3-10), Pod 로그 조회를
+# 뒤로(3-11) 배치. 정지된(non-Running) Pod 전체 목록: Job/DaemonSet 소유의 Succeeded는
+# 정상 종료로 분류하고, 그 외(Failed/Pending/Unknown 또는 소유자 불명의 Succeeded)만
 # "확인 필요"로 구분해 보여준다(둘 다 rc에는 영향 없음 — 사람이 리포트를 보고 판단).
-run_cmd "3-11" "정지된(non-Running) Pod 리스트 확인 — 정상 종료(Job/DaemonSet)와 비정상 종료 구분" "oc get pods -A --field-selector=status.phase!=Running" -- bash -c "
+run_cmd "3-10" "정지된(non-Running) Pod 리스트 확인 — 정상 종료(Job/DaemonSet)와 비정상 종료 구분" "oc get pods -A --field-selector=status.phase!=Running" -- bash -c "
   rc=0
   RAW=\$(oc get pods -A --field-selector=status.phase!=Running -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,STATUS:.status.phase,REASON:.status.reason,OWNER:.metadata.ownerReferences[0].kind,NODE:.spec.nodeName --no-headers 2>/dev/null) || rc=\$?
   if [ -z \"\$RAW\" ]; then
@@ -385,6 +441,45 @@ run_cmd "3-11" "정지된(non-Running) Pod 리스트 확인 — 정상 종료(Jo
     echo '[확인 필요 — 그 외 비정상 종료/대기 상태]'
     echo \"\$RAW\" | awk '!(\$3==\"Succeeded\" && (\$5==\"Job\" || \$5==\"DaemonSet\")){print; f=1} END{if(!f) print \"(해당 없음)\"}'
   fi
+  exit \$rc"
+
+# 보안 리뷰 지적(2026-09-14): 무작위로 뽑힌 Pod의 애플리케이션 로그에 토큰/암호/PII가
+# 찍혀 있으면 그대로 리포트에 남는다 — 흔한 시크릿 패턴을 최선노력으로 마스킹한다
+# (완전한 시크릿 탐지는 불가능하므로 이건 심층방어이지 보장이 아님).
+# 대상 확대(2026-09-15, 이주석 제안) — 무작위 Running Pod 1개가 아니라, 바로 위 3-10에서
+# 찾은 non-Running(Terminating/Init 등) Pod들의 로그를 우선 조회한다(리포트 크기 관리를
+# 위해 최대 5개·각 --tail=20으로 제한). non-Running Pod가 없으면 기존처럼 대표 Pod 로그.
+run_cmd "3-11" "Pod 로그 조회 — non-Running Pod 우선(시크릿 패턴 마스킹 적용)" "oc logs <non-Running pod> -n <ns> --tail=20 (최대 5개) / 없으면 대표 Pod --tail=100" -- bash -c "
+  rc=0
+  mask_secrets() { sed -E 's/(password|passwd|token|secret|apikey|api_key|access_key|authorization)([[:space:]]*[:=][[:space:]]*).+/\1\2***MASKED***/gI; s/Bearer [A-Za-z0-9._-]+/Bearer ***MASKED***/g; s/AKIA[0-9A-Z]{16}/***MASKED_AWS_KEY***/g'; }
+  NONRUNNING=\$(oc get pods -A --field-selector=status.phase!=Running -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name --no-headers 2>/dev/null | head -5)
+  if [ -n \"\$NONRUNNING\" ]; then
+    TOTAL=\$(oc get pods -A --field-selector=status.phase!=Running --no-headers 2>/dev/null | wc -l | tr -d ' ')
+    echo \"[non-Running Pod \$TOTAL개 중 최대 5개 로그 표시]\"
+    while read -r pns pname; do
+      echo \"--- \${pns}/\${pname} ---\"
+      oc logs \"\$pname\" -n \"\$pns\" --tail=20 2>&1 | mask_secrets || rc=1
+      echo ''
+    done <<< \"\$NONRUNNING\"
+  elif [ -n '$Q_NS' ] && [ -n '$Q_POD' ]; then
+    echo '[non-Running Pod 없음 — 대표 Pod 로그로 대체]'
+    oc logs '$Q_POD' -n '$Q_NS' --tail=100 2>&1 | mask_secrets || rc=\$?
+  else
+    echo '(Pod 없음 - 건너뜀)'
+  fi
+  exit \$rc"
+
+# kube-apiserver 헬스 + kubelet 상태 — 고객 요구사항(2026-09-15, 백인균). "API 연동 확인"의
+# 원래 목적(API 서비스 자체가 정상인지)에 가장 직접적인 지표. `oc get --raw /healthz`는
+# 현재 kubeconfig가 가리키는 apiserver에 직접 헬스체크를 보낸다(임의 IP:port curl과 동일 효과).
+run_cmd "3-12" "kube-apiserver Health / kubelet 상태 확인" "oc get --raw /healthz / oc get nodes (kubelet Ready 조건)" -- bash -c "
+  rc=0
+  echo '[kube-apiserver /healthz]'
+  oc get --raw /healthz || rc=\$?
+  echo ''
+  echo ''
+  echo '[kubelet 상태 — Node Ready 조건]'
+  oc get nodes -o custom-columns=NAME:.metadata.name,KUBELET_READY:.status.conditions[-1].status,MSG:.status.conditions[-1].message || rc=\$?
   exit \$rc"
 
 # ════════════════════════════════════════════════════════════
@@ -415,17 +510,37 @@ if [ -n "$NETDEBUG_POD" ]; then
   raw "[4-2용 대상 Pod 교체] score-debug Pod 사용: ${PING_NS}/${PING_POD} (4-3/4-4는 원래 자동 탐지 대상 ${N_NS}/${N_POD} 유지)"
 fi
 
-run_cmd "4-1" "Node Network Interface 연동 확인" "oc debug node/<node> -- chroot /host ip a" -- bash -c "
+# 전체 노드로 확대 + 실사용 인터페이스만 표시(2026-09-15, 백인균 제안) — 기존엔 노드 1대만
+# 확인했고 lo까지 다 나와 가독성이 떨어졌음. `ip -o addr`(주소 할당된 인터페이스만, 한 줄당
+# 1개)에서 lo와 IPv6 link-local(fe80, 노이즈성) 행만 제외한다. 노드 간 ping은 기존처럼
+# 대표 노드쌍 1회.
+# [코드리뷰 수정: 최초 구현은 `grep 'state UP'`을 썼으나 `ip -o addr` 출력에는 그 텍스트가
+#  존재하지 않아(그건 `ip link` 전용 필드) 항상 매치 실패로 무의미했음 — addr 출력 자체가
+#  "주소가 할당된" 인터페이스만 보여주므로 상태 필터 없이 lo/link-local만 제외하는 것으로 교체]
+# 실운영 중 발견(2026-09-15): 전체 노드로 확대하면서 노드 1대가 API 연결 지연 등으로
+# oc debug가 멈추면 나머지 노드는 물론 스크립트 전체가 무한정 걸린다 — 노드별로 timeout을
+# 걸어 한 노드가 막혀도 나머지는 계속 진행되게 한다(실제로 실클러스터 검증 중 master03에서
+# TLS handshake 지연으로 oc debug가 11분 넘게 걸린 것을 발견하고 추가).
+run_cmd "4-1" "Node Network Interface 연동 확인(전체 노드, 실사용 인터페이스만)" "oc debug node/<각 노드> -- chroot /host ip -o a (lo/link-local 제외, 노드당 60초 timeout)" -- bash -c "
   rc=0
-  if [ -n '$N_NODE' ]; then
-    oc debug node/'$N_NODE' -- chroot /host ip a || rc=\$?
-    if [ -n '$N_TARGET_IP' ]; then
-      oc debug node/'$N_NODE' -- chroot /host ping -c 3 '$N_TARGET_IP' || rc=\$?
-    else
-      echo '(대상 노드 IP 없음 - ping 건너뜀)'
+  for n in $_NODES_LIST; do
+    echo \"=== \$n ===\"
+    OUT=\$(timeout 60 oc debug node/\"\$n\" -- chroot /host ip -o a 2>&1)
+    trc=\$?
+    if [ \"\$trc\" -eq 124 ]; then
+      echo \"[경고] \$n : oc debug 60초 타임아웃 — 노드 응답 지연 또는 API 연결 문제 가능성, 직접 확인 필요\"
+      rc=1
+      continue
     fi
+    [ \"\$trc\" -ne 0 ] && rc=\$trc
+    echo \"\$OUT\" | grep -v '^[0-9]*: lo' | grep -v 'inet6 fe80' || echo '(표시할 인터페이스 없음)'
+  done
+  if [ -n '$N_NODE' ] && [ -n '$N_TARGET_IP' ]; then
+    echo ''
+    echo \"--- 노드간 ping: \$N_NODE -> \$N_TARGET_IP ---\"
+    timeout 30 oc debug node/'$N_NODE' -- chroot /host ping -c 3 '$N_TARGET_IP' || rc=\$?
   else
-    echo '(대상 Node 없음 - 건너뜀)'
+    echo '(대상 노드 IP 없음 - ping 건너뜀)'
   fi
   exit \$rc"
 
@@ -439,11 +554,11 @@ run_cmd "4-2" "Pod간 Networking 확인" "oc get pod -o wide / oc rsh -> ping" -
   fi
   exit \$rc"
 
-run_cmd "4-3" "Cluster 외부-내부 Networking 확인" "oc get svc -o wide / oc get route / curl" -- bash -c "
+# 축소(2026-09-15, 백인균 제안) — svc -o wide 상세 대신 서비스 목록만 + curl 실검증에 집중.
+run_cmd "4-3" "Cluster 외부-내부 Networking 확인" "oc get svc -n <ns> / curl" -- bash -c "
   rc=0
   if [ -n '$N_NS' ]; then
-    oc get svc -o wide -n '$N_NS' || rc=\$?
-    oc get route -n '$N_NS' || rc=\$?
+    oc get svc -n '$N_NS' || rc=\$?
     if [ -n '$N_ROUTE' ]; then
       URL=\$(oc get route '$N_ROUTE' -n '$N_NS' -o jsonpath='{.spec.host}') || rc=\$?
       [ -n \"\$URL\" ] && { curl -sk -o /dev/null -w 'HTTP %{http_code}\\n' \"https://\$URL\" || rc=\$?; }
@@ -455,10 +570,11 @@ run_cmd "4-3" "Cluster 외부-내부 Networking 확인" "oc get svc -o wide / oc
   fi
   exit \$rc"
 
-run_cmd "4-4" "Pod 추가 네트워크(Multus) IP 할당 확인" "oc describe pod / network-status annotation" -- bash -c "
+# 축소(2026-09-15, 이주석/백인균 제안) — describe pod 전체 덤프는 불필요, network-status
+# annotation만으로 Multus 추가 IP 할당 여부 확인 가능.
+run_cmd "4-4" "Pod 추가 네트워크(Multus) IP 할당 확인" "network-status annotation" -- bash -c "
   rc=0
   if [ -n '$N_NS' ] && [ -n '$N_POD' ]; then
-    oc describe pod '$N_POD' -n '$N_NS' || rc=\$?
     echo '--- network-status annotation ---'
     oc get pod '$N_POD' -n '$N_NS' -o jsonpath='{.metadata.annotations.k8s\.v1\.cni\.cncf\.io/network-status}' || rc=\$?
     echo ''
@@ -496,7 +612,10 @@ else
   raw "[파괴적 테스트 대상] ${V_NS_SAFE}/${V_VM_SAFE} (라벨 healthcheck.ocp.score/disruptive-test=allowed 로 선정)"
 fi
 
-item_header "5-1" "VM 기동/재기동/종료 정상 동작 확인" "virtctl start/stop <vm> -n <ns> / oc get vm,vmi -n <ns>"
+# 정기점검 범위 명확화(2026-09-15, 백인균 제안) — 5-1/5-2는 VM 상태를 바꾸는
+# 구축/변경검증 성격의 테스트라 월간 정기점검에서는 기본 제외(RUN_VM_DISRUPTIVE=yes일
+# 때만 수행되는 기존 게이트가 이미 이 결정을 구현하고 있음 — 라벨 문구로 명확화).
+item_header "5-1" "VM 기동/재기동/종료 정상 동작 확인 [구축/변경검증용 — 정기점검 기본 제외]" "virtctl start/stop <vm> -n <ns> / oc get vm,vmi -n <ns>"
 if [ "$CAN_VMTEST" -eq 1 ]; then
   raw "[테스트 전 상태]"; oc get vm,vmi -n "$V_NS_SAFE" >>"$REPORT" 2>&1
   rc51=0
@@ -542,7 +661,7 @@ else
   warn "5-1 건너뜀 (${SKIP_REASON})"
 fi
 
-item_header "5-2" "Live Migration 동작 확인" "virtctl migrate <vm> -n <ns> / oc get vmim -n <ns>"
+item_header "5-2" "Live Migration 동작 확인 [구축/변경검증용 — 정기점검 기본 제외]" "virtctl migrate <vm> -n <ns> / oc get vmim -n <ns>"
 if [ "$CAN_VMTEST" -eq 1 ]; then
   rc52=0
   virtctl migrate "$V_VM_SAFE" -n "$V_NS_SAFE" >>"$REPORT" 2>&1 || rc52=1
@@ -587,13 +706,34 @@ warn "5-3 VM Console 접속은 대화형 세션이라 자동 실행할 수 없�
 
 run_cmd "5-4" "VM CPU/Memory 리소스 사용률 확인" "oc adm top pod -n <ns> -l kubevirt.io=virt-launcher" -- bash -c "
   if [ -n '$V_NS' ]; then oc adm top pod -n '$V_NS' -l kubevirt.io=virt-launcher; else echo '(VM 없음 - 건너뜀)'; fi"
-run_cmd "5-5" "VM 디스크(DataVolume/PVC) 바인딩 상태 확인" "oc get dv,pvc -n <ns>" -- bash -c "
-  if [ -n '$V_NS' ]; then oc get dv,pvc -n '$V_NS'; else echo '(VM 없음 - 건너뜀)'; fi"
-run_cmd "5-6" "NodeHealthCheck / Fence Agent 동작 확인" "oc get nhc / oc get far -A / (존재 시) oc get far -A -o yaml" -- bash -c "
+# 관점 전환(2026-09-15, 백인균 제안) — 단순 Bound 확인보다, reclaimPolicy로 남아있는
+# Released PV와 Succeeded가 아닌 상태로 오래 머무는 DataVolume이 실무적으로 더 유의미.
+run_cmd "5-5" "VM 디스크(DataVolume/PVC) 바인딩 상태 확인 — Released PV / 비정상 DV 점검 포함" "oc get dv,pvc -n <ns> / oc get pv (Released 필터) / oc get dv -A (non-Succeeded 필터)" -- bash -c "
   rc=0
+  if [ -n '$V_NS' ]; then oc get dv,pvc -n '$V_NS' || rc=\$?; else echo '(VM 없음 - 건너뜀)'; fi
+  echo ''
+  echo '[확인 필요 — Released 상태로 남아있는 PV (reclaimPolicy로 재사용 안 된 채 방치)]'
+  RELEASED=\$(oc get pv --field-selector=status.phase=Released --no-headers 2>/dev/null)
+  if [ -n \"\$RELEASED\" ]; then echo \"\$RELEASED\"; rc=1; else echo '(해당 없음)'; fi
+  echo ''
+  echo '[확인 필요 — Succeeded가 아닌 상태의 DataVolume(클러스터 전체)]'
+  # [코드리뷰 수정] --no-headers 출력의 고정 컬럼 위치(\$5)에 의존했으나 CDI 버전마다
+  # printer-column 구성이 달라질 수 있어 실제로는 PHASE가 \$3인 경우가 많고 전체 DV가
+  # 항상 오탐되는 결함이었음 — status.phase를 jsonpath로 명시 지정해 버전에 안전하게 함.
+  DV_BAD=\$(oc get dv -A -o custom-columns=NS:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase --no-headers 2>/dev/null | awk '\$3!=\"Succeeded\"')
+  if [ -n \"\$DV_BAD\" ]; then echo \"\$DV_BAD\"; rc=1; else echo '(해당 없음 — 전부 Succeeded)'; fi
+  exit \$rc"
+# 단순화(2026-09-15, 천민솔 제안) vs 상세유지(이주석 제안) 절충 — 존재/생성 개수는
+# 항상 노출하는 요약으로 두고("생성 조건 충족 여부"만 한눈에), yaml 상세는 접어서 필요할
+# 때만 펼쳐보게 한다. 둘 다 만족.
+run_cmd "5-6" "NodeHealthCheck / Fence Agent 동작 확인" "oc get nhc / oc get far -A (개수 요약) / 상세는 접힘" -- bash -c "
+  rc=0
+  NHC_COUNT=\$(oc get nhc --no-headers 2>/dev/null | wc -l | tr -d ' ')
+  FAR_COUNT=\$(oc get far -A --no-headers 2>/dev/null | wc -l | tr -d ' ')
+  echo \"[요약] NHC \${NHC_COUNT}개, FAR(FenceAgentsRemediation) \${FAR_COUNT}개 — FAR은 노드 장애/리붓 시 생성되는 게 정상 동작이며, 0개면 최근 격리 이벤트 없음\"
+  echo '===== 아래는 상세 원본(참고용) ====='
   oc get nhc || rc=\$?
   oc get far -A || rc=\$?
-  FAR_COUNT=\$(oc get far -A --no-headers 2>/dev/null | wc -l)
   if [ \"\$FAR_COUNT\" -gt 0 ]; then
     echo ''
     echo '[FenceAgentsRemediation 상세 — 리붓 등 발생 원인 확인용, BMC/IPMI 자격증명 마스킹 적용]'
@@ -637,9 +777,16 @@ run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진
     WD=\$(oc describe node \"\$n\") || rc=\$?
     WALLOC=\$(echo \"\$WD\" | awk '/^Allocatable:/{f=1;next} f && /memory:/{print \$2; exit}')
     read -r _ WREQV WREQP WLIMV WLIMP <<<\"\$(echo \"\$WD\" | awk '/^Allocated resources:/{f=1} f && /^  memory /{print; exit}')\"
-    printf '%-20s %-15s %-20s %-20s\n' \"\$n\" \"\$WALLOC\" \"\$WREQV \$WREQP\" \"\$WLIMV \$WLIMP\"
+    # 단위 통일(2026-09-15, 백인균 제안) — WALLOC은 이미 Ki 단위인데 WREQV/WLIMV는 raw byte라
+    # 단위가 안 맞았음. numfmt로 사람이 읽기 쉬운 단위(Ki/Mi/Gi)로 통일(numfmt 없으면 raw 유지).
+    # [코드리뷰 수정] --from 미지정 시 기본이 'none'이라 입력에 Mi/Gi 접미사가 붙어 있으면
+    # invalid number 에러로 매번 실패해(에러는 숨겨짐) 사실상 no-op였음 — --from=auto로 raw byte든
+    # 이미 접미사가 붙은 값이든 둘 다 정확히 인식하도록 수정.
+    WREQV_H=\$(numfmt --from=auto --to=iec \"\$WREQV\" 2>/dev/null || echo \"\$WREQV\")
+    WLIMV_H=\$(numfmt --from=auto --to=iec \"\$WLIMV\" 2>/dev/null || echo \"\$WLIMV\")
+    printf '%-20s %-15s %-20s %-20s\n' \"\$n\" \"\$WALLOC\" \"\$WREQV_H \$WREQP\" \"\$WLIMV_H \$WLIMP\"
   done
-  echo '===== 아래는 각 노드 상세 원본(참고용) ====='
+  echo '===== 아래는 상세 원본(참고용) ====='
   echo ''
   for n in $_NODES_LIST; do
     echo \"=== \$n ===\"
@@ -654,7 +801,29 @@ run_cmd "5-8" "노드별 메모리 Capacity/Allocatable/Allocated(Request 소진
   done
   exit \$rc"
 
-run_cmd "5-9" "OpenShift Virtualization 메모리 Overcommit(higherWorkloadDensity) 설정 확인" "oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath={.spec.higherWorkloadDensity}" -- oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.spec.higherWorkloadDensity}{"\n"}'
+# 관점 전환(2026-09-15, 백인균 제안) — 설정값 자체보다 "설정 대비 실사용"이 중요하다는
+# 지적 반영. 워커 노드 중 메모리 request 소진율이 100%를 넘는(실질적으로 오버커밋이
+# 실제로 벌어지고 있는) 노드를 자동으로 골라낸다.
+run_cmd "5-9" "OpenShift Virtualization 메모리 Overcommit 설정 및 실사용 대비 확인" "oc get hyperconverged ... higherWorkloadDensity / 워커 노드별 memory request 소진율 100% 초과 여부" -- bash -c "
+  rc=0
+  OVERCOMMIT=\$(oc get hyperconverged kubevirt-hyperconverged -n openshift-cnv -o jsonpath='{.spec.higherWorkloadDensity}' 2>/dev/null) || rc=\$?
+  echo \"[Overcommit 설정] higherWorkloadDensity: \${OVERCOMMIT:-미설정(기본 비활성)}\"
+  echo ''
+  echo '[설정 대비 실사용 — 메모리 request 소진율이 100%를 넘는 워커 노드]'
+  FOUND=0
+  for n in $_WORKERS_LIST; do
+    WD=\$(oc describe node \"\$n\" 2>/dev/null)
+    # [코드리뷰 수정] 이 memory 라인엔 Requests(%)/Limits(%) 두 퍼센트가 같이 있어서
+    # grep -oE가 둘 다 매치해 WREQP가 2줄짜리 값이 되고 이후 -ge 비교가 조용히 항상 실패하던
+    # 결함이었음 — head -1로 첫 번째(Requests) 값만 취하도록 수정.
+    WREQP=\$(echo \"\$WD\" | awk '/^Allocated resources:/{f=1} f && /^  memory /{print; exit}' | grep -oE '\([0-9]+%\)' | head -1 | tr -d '()%')
+    if [ -n \"\$WREQP\" ] && [ \"\$WREQP\" -ge 100 ] 2>/dev/null; then
+      echo \"[확인 필요] \$n : memory request \${WREQP}% (오버커밋이 실제로 발생 중)\"
+      FOUND=1
+    fi
+  done
+  [ \"\$FOUND\" -eq 0 ] && echo '(request 100%를 넘는 워커 노드 없음)'
+  exit \$rc"
 
 # 고객 요구사항 추가분(2026-09-14): "노드별 Pod request 상세"는 실제로는 "전체 VM
 # (virt-launcher) Pod의 memory request"를 뜻했음 — 특정 노드명이 필요 없어 클러스터
@@ -937,19 +1106,34 @@ coverage_html = (
     coverage_bar("5.", "Virtualization", c5)
 )
 
-# ---------------------------------------------------------------- CO grid
-def co_chip(r):
-    if "형식 확인 필요" in r["verdict"] or "조회 실패" in r["verdict"]:
-        cls = "co-unjudged"
-    elif "정상" in r["verdict"]:
-        cls = "co-ok"
-    elif "주의" in r["verdict"]:
-        cls = "co-warn"
-    else:
-        cls = "co-crit"
-    return f'<div class="co-chip {cls}" title="{esc(r["name"])}: AVAILABLE={esc(r["avail"])} PROGRESSING={esc(r["prog"])} DEGRADED={esc(r["deg"])}"><span class="co-dot"></span>{esc(r["name"])}</div>'
+# ---------------------------------------------------------------- CO table
+# 가로 나열 칩 → 세로 표로 개선(2026-09-15, 김수용 제안) — 한눈에 스캔하기 쉽도록.
+def co_row_cls(verdict):
+    if "형식 확인 필요" in verdict or "조회 실패" in verdict:
+        return "co-unjudged"
+    elif "정상" in verdict:
+        return "co-ok"
+    elif "주의" in verdict:
+        return "co-warn"
+    return "co-crit"
 
-co_grid_html = "".join(co_chip(r) for r in co_rows)
+def co_table_row(r):
+    cls = co_row_cls(r["verdict"])
+    return f'''<tr class="{cls}">
+      <td class="mono">{esc(r["idx"])}</td>
+      <td>{esc(r["name"])}</td>
+      <td class="mono">{esc(r["version"])}</td>
+      <td class="mono">{esc(r["avail"])}</td>
+      <td class="mono">{esc(r["prog"])}</td>
+      <td class="mono">{esc(r["deg"])}</td>
+      <td class="mono">{esc(r["since"])}</td>
+      <td><span class="co-badge {cls}">{esc(r["verdict"])}</span></td>
+    </tr>'''
+
+co_grid_html = f'''<table class="co-table">
+  <thead><tr><th>NO</th><th>OPERATOR</th><th>VERSION</th><th>AVAILABLE</th><th>PROGRESSING</th><th>DEGRADED</th><th>SINCE</th><th>VERDICT</th></tr></thead>
+  <tbody>{"".join(co_table_row(r) for r in co_rows)}</tbody>
+</table>'''
 extra_co_html = ""
 if extra_co_names:
     chips = "".join(f'<div class="co-chip co-unknown"><span class="co-dot"></span>{esc(n)}</div>' for n in extra_co_names)
@@ -978,8 +1162,8 @@ STATUS_LABEL = {
 # 항목에는 적용하지 않는다 — 3-7/3-10처럼 자유 텍스트(이벤트 메시지/Pod 로그)를 그대로 담는
 # 항목까지 전역으로 검사하면, 우연히 같은 문구가 로그에 찍혔을 때 의도치 않게 분할될 수
 # 있어서다(코드 리뷰 지적, 2026-09-14). 다른 항목에 재사용하려면 이 set에 번호를 추가할 것.
-FOLD_MARKER = "===== 아래는 각 노드 상세 원본(참고용) ====="
-FOLD_MARKER_ITEMS = {"5-8"}
+FOLD_MARKER = "===== 아래는 상세 원본(참고용) ====="
+FOLD_MARKER_ITEMS = {"1-5", "3-1", "3-2", "3-3", "3-4", "3-5", "3-6", "5-6", "5-8"}
 
 def item_block(it, open_attn=True):
     label, cls = STATUS_LABEL[it["status"]]
@@ -1161,7 +1345,19 @@ section.block{margin-bottom:44px}
 .tgt-k{font-size:11px; color:var(--ink-faint); letter-spacing:.02em}
 .tgt-v{font-family:"IBM Plex Mono"; font-size:12.5px; margin-top:2px; word-break:break-all}
 
-.co-grid{display:flex; flex-wrap:wrap; gap:6px}
+.co-table{width:100%; border-collapse:collapse; font-size:12.5px}
+.co-table th{
+  text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint);
+  padding:8px 10px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface);
+}
+.co-table td{padding:6px 10px; border-bottom:1px solid var(--border); font-size:12.5px}
+.co-table tbody tr:hover{background:var(--surface-2)}
+.co-badge{font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap}
+.co-badge.co-ok{color:var(--good); background:var(--good-bg)}
+.co-badge.co-warn{color:var(--warn); background:var(--warn-bg)}
+.co-badge.co-crit{color:var(--crit); background:var(--crit-bg)}
+.co-badge.co-unjudged{color:var(--ink-faint); background:var(--surface-2)}
+.co-grid{display:flex; flex-wrap:wrap; gap:6px; overflow-x:auto}
 .co-chip{
   display:inline-flex; align-items:center; gap:6px; font-family:"IBM Plex Mono"; font-size:11.5px;
   padding:5px 9px; border-radius:7px; background:var(--surface-2); border:1px solid var(--border); color:var(--ink-dim);
@@ -1323,7 +1519,7 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
   </section>
 
   <section class="block">
-    <div class="block-head"><span class="sec-no">03</span><h2>API 연동 확인</h2><span class="count">__C3_OK__/__C3_TOTAL__ 건 수집</span></div>
+    <div class="block-head"><span class="sec-no">03</span><h2>워크로드/리소스 현황 및 API 연동 확인</h2><span class="count">__C3_OK__/__C3_TOTAL__ 건 수집</span></div>
     __ITEMS3_HTML__
   </section>
 
@@ -1349,9 +1545,10 @@ footer{max-width:1080px; margin:48px auto 0; padding-top:18px; border-top:1px so
 </footer>
 
 <script>
-window.addEventListener('beforeprint', function () {
-  document.querySelectorAll('details').forEach(function (d) { d.open = true; });
-});
+// PDF 페이지 수 축소(2026-09-15, 이주석 제안 — "70페이지+ 나온다") — 이전엔 인쇄 시
+// 모든 항목의 원본 로그(.item-toggle)를 강제로 펼쳐서 항목당 수십 줄씩 그대로 PDF에
+// 찍혔음. 화면에서 보이는 상태(확인 필요 항목만 열림) 그대로 인쇄하도록 강제 펼침을 제거.
+// 항목 머리글 + 요약은 어차피 접힘과 무관하게 항상 보이므로 정보 손실은 없다.
 </script>
 """
 
