@@ -151,6 +151,25 @@ run_cmd "1-5" "노드별 스펙(CPU/Memory Capacity) 및 현재 리소스 사용
   oc describe node || rc=\$?
   exit \$rc"
 
+# Machine Config(MCP) 현황 확인 — 고객 요구사항(2026-09-15, 장성빈). MCP가 Updated 상태이고
+# 각 노드의 current/desired 렌더드 MachineConfig가 일치하는지(업그레이드/설정 반영이 밀린
+# 노드가 없는지) 자동 판정한다.
+run_cmd "1-6" "Machine Config(MCP) 현황 확인" "oc get mcp / oc get nodes (currentConfig vs desiredConfig)" -- bash -c "
+  rc=0
+  echo '[MCP 상태 — UPDATED=True, UPDATING=False, DEGRADED=False, PAUSED=<none>/false, READY=TOTAL이 정상]'
+  oc get mcp -o custom-columns='NAME:.metadata.name,CONFIG:.status.configuration.name,UPDATED:.status.conditions[?(@.type==\"Updated\")].status,UPDATING:.status.conditions[?(@.type==\"Updating\")].status,DEGRADED:.status.conditions[?(@.type==\"Degraded\")].status,PAUSED:.spec.paused,READY:.status.readyMachineCount,TOTAL:.status.machineCount' || rc=\$?
+  echo ''
+  echo '[노드별 current/desired 렌더드 MachineConfig 일치 여부 — CURRENT==DESIRED, STATE=Done, REASON 비어있음이 정상]'
+  NODE_MC=\$(oc get nodes -o custom-columns='NAME:.metadata.name,CURRENT:.metadata.annotations.machineconfiguration\.openshift\.io/currentConfig,DESIRED:.metadata.annotations.machineconfiguration\.openshift\.io/desiredConfig,STATE:.metadata.annotations.machineconfiguration\.openshift\.io/state,REASON:.metadata.annotations.machineconfiguration\.openshift\.io/reason' --no-headers 2>&1) || rc=\$?
+  echo \"\$NODE_MC\"
+  MISMATCH=\$(echo \"\$NODE_MC\" | awk '\$2!=\$3')
+  if [ -n \"\$MISMATCH\" ]; then
+    echo ''
+    echo \"[확인 필요] current/desired MachineConfig가 다른 노드: \$MISMATCH\"
+    rc=1
+  fi
+  exit \$rc"
+
 # ════════════════════════════════════════════════════════════
 section "2. Cluster Operator 상태 확인"
 OPERATORS=(

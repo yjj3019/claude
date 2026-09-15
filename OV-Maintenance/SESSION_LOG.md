@@ -577,3 +577,24 @@
 - **master03 장애는 스크립트 문제가 아니라 실제 클러스터 인시던트다** — 사용자/인프라팀에 별도 보고 필요. 이 세션에서는 원인 진단(3-12로 확인)까지만 하고 복구 조치는 하지 않았음(범위 밖).
 - 오늘 겪은 "nested bash -c 안 주석에 이스케이프 안 된 큰따옴표" 버그 패턴은 앞으로 이 스크립트에 주석을 추가할 때마다 반드시 조심할 것 — 특히 `bash -c "..."` 블록 **내부**(들여쓰기된) 주석에 `"..."` 형태의 한국어 인용을 쓰지 말 것. 대신 작은따옴표나 따옴표 없는 표현 사용.
 - Notion 트래커의 20개 항목 상태를 "완료"로 갱신하고 각각 처리 방법을 기록하는 작업이 아직 남음(다음 턴에서 진행).
+
+## 세션 백업: 2026-09-15 (이어서 — 누락된 MCP 항목 보완, 68→69개, 3차 검증)
+
+### 무엇을 했는가
+Notion 갱신 준비 중 20건을 재점검하다 **장성빈 제안 "Machine Config(MCP) 현황 확인" 항목이 실제로는 구현되지 않았던 것을 발견**(직전 라운드에서 20건이라 세었지만 실제 구현은 19건뿐이었음). 1-6으로 신규 추가: `oc get mcp`(UPDATED/UPDATING/DEGRADED/PAUSED/READY/TOTAL) + `oc get nodes`(currentConfig vs desiredConfig, STATE, REASON) 두 명령을 그대로 반영, awk로 current≠desired 노드를 자동 검출해 "확인 필요"로 플래그.
+
+### 검증
+- 스크립트 반영 전, 정확한 jsonpath 문법을 rhel-prod에서 단독 실행으로 먼저 확인(`@.type=="Updated"` 형태 이스케이프가 nested bash -c 안에서 올바르게 전달되는지) — 이 시점에 이미 실제로 worker MCP가 Updating=True(2/3 Ready)이고 worker02가 current≠desired(STATE=Working)임을 확인.
+- `check_reconstructed.xlsx`에 1-6 행 추가(rhel-prod, 1.Cluster구성 시트 끝에 append).
+- **3차 실클러스터 전체 재실행**: 1-6이 rc=1로 worker02의 MachineConfig 불일치를 정확히 재탐지(합성이 아닌 진짜 탐지). `fill_checklist.py` 69/69 채움, 0개 매칭 실패, exit 0.
+- 워크트리/Windows local/rhel-prod 3곳 `OCP-HCK-Score.sh`(md5 `ae799a6c...`)/`check_reconstructed.xlsx`(md5 `c48323d6...`) 전부 일치.
+
+### 💾 실행 스냅샷
+- Branch/Path: `.claude/worktrees/fill-checklist-xlsx/OV-Maintenance` (main)
+- Last file: `OCP-HCK-Score.sh` (1-6 블록, 1-5 바로 다음)
+- Active errors: 없음(master03 NotReady는 여전히 인프라 이슈로 별도 추적 — PROGRESS.md Next #0 참고, 3차 실행 시점엔 2.ClusterOperator가 "정상 33/주의 1"로 1·2차보다 호전된 것으로 보아 부분 회복 중일 가능성)
+- Last CMD(원격): `python3 fill_checklist.py ocp-healthcheck-report-20260915-145710-1893118.txt check_reconstructed.xlsx ...` → "총 69개 채움, 0개 리포트 매칭 실패".
+
+### 💬 인계 메모
+- 총 20건을 처리한다고 할 때, "숫자만 세지 말고 각 항목을 Notion 페이지 ID와 하나씩 실제로 대조"하는 습관이 필요하다는 교훈 — 이번에 숫자(3+7+10=20)만 믿고 실제 구현 목록을 항목별로 재대조하지 않아 MCP 1건을 빠뜨렸었음.
+- 다음 작업: Notion 트래커 20개 항목(B1-B3/C1-C6/D1-D10/MCP) 전부 "완료" 상태로 갱신 + 각 항목 설명에 처리방법 기록.

@@ -95,7 +95,7 @@ VERSION/SINCE는 항상 `oc get co <name>` 원본 라인에서 가져오고, `jq
 
 ## 항목 수 (참고)
 
-xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 66개 점검항목(2026-09-14: ClusterOperator 목록에 control-plane-machine-set/olm 추가로 62→64, 이어서 3-11 정지된 Pod 확인·5-12 VM 실행 정책 확인 추가로 64→66). `fill_checklist.py`가 종료코드 0으로 끝나고 요약 표에 "총 66개 채움, 0개 리포트 매칭 실패"가 나오면 전 항목이 정상 반영된 것.
+xlsx 5개 시트(1.Cluster구성/2.ClusterOperator/3.API연동/4.Network/5.Virtualization) 총 69개 점검항목(2026-09-14: ClusterOperator 목록에 control-plane-machine-set/olm 추가로 62→64, 이어서 3-11 정지된 Pod 확인·5-12 VM 실행 정책 확인 추가로 64→66. 2026-09-15: 1-5 노드 스펙/사용량·1-6 Machine Config 확인·3-12 kube-apiserver Health 추가로 66→69, 3-10/3-11 넘버링 스왑). `fill_checklist.py`가 종료코드 0으로 끝나고 요약 표에 "총 69개 채움, 0개 리포트 매칭 실패"가 나오면 전 항목이 정상 반영된 것.
 
 ## xlsx 파일은 Windows가 아니라 rhel-prod에서 수정할 것
 
