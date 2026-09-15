@@ -84,3 +84,4 @@
 
 ## 📎 Notion 기록 URL
 - https://app.notion.com/p/3d8b44a2dd2e818ea8ddc80eea6bdce5 ("OV-Maintenance - 2026-09-11", Claude Work Space 하위 신규 생성. 향후 이력은 이 페이지의 "## 개발 이력" 섹션에 누적)
+- https://app.notion.com/p/cb73efeb0a804af3b056b97c813cc9c2 ("요구사항 트래커" 데이터베이스, 위 페이지 하위. 항목명/영역/상태(완료·부분완료·미착수·논의필요)/설명/제안자/제안일 속성. 팀이 직접 요구사항 행을 추가하거나 상태를 바꿀 수 있는 협업용 소스 — 2026-09-15에 34건 초기 등록(완료15·부분완료3·미착수6·논의필요10). "진행 현황 보드"(상태별 그룹) / "진척도 차트"(도넛) 뷰 포함. 이전에 만든 HTML 로드맵 아티팩트(https://claude.ai/artifact/ETFEfKGtrHMg5SmkpYm1ii)는 스냅샷 보고서로 유지하되, 팀이 실시간으로 갱신하는 소스는 이제 이 Notion 트래커.
