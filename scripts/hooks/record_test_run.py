@@ -55,15 +55,17 @@ def main() -> int:
         data = json.load(sys.stdin)
         if data.get("tool_name") != "Bash":
             return 0
+        command = data.get("tool_input", {}).get("command", "")
+        if not isinstance(command, str):
+            raise ValueError("invalid command")
+        if not is_verification_command(command) and "run_verification.py" not in command:
+            return 0  # Ordinary Bash calls need no Git subprocess or content hashing.
         cwd = Path(data.get("cwd", "."))
         root = repository(cwd)
         session = data["session_id"]
         state = load_state(root, session)
         if state is None:
             raise ValueError("SessionStart baseline missing")
-        command = data.get("tool_input", {}).get("command", "")
-        if not isinstance(command, str):
-            raise ValueError("invalid command")
         current = snapshot(root)
         try:
             code = verification_result(command, data, cwd, current)

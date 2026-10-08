@@ -288,6 +288,19 @@ class SessionVerificationTest(unittest.TestCase):
 
 
 class ExtractExitCodeTest(unittest.TestCase):
+    def test_ordinary_bash_skips_git_and_session_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = RECORD
+            if script not in HOOK_MODULES:
+                spec = importlib.util.spec_from_file_location("fef_hook_record", script)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                HOOK_MODULES[script] = module
+            with patch.object(HOOK_MODULES[script], "repository", side_effect=AssertionError("unneeded Git")):
+                result = run_hook(script, {"tool_name": "Bash", "tool_input": {"command": "echo hello"}}, Path(directory))
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stderr, "")
+
     def test_defensive_host_exit_metadata(self):
         from lib.verification_commands import extract_exit_code
         self.assertEqual(extract_exit_code({"tool_result": {"exit_code": 0}}), 0)
