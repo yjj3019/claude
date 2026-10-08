@@ -21,11 +21,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import shutil
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACK_NAME = "fef-claude"
@@ -64,6 +65,8 @@ RUNTIME_DOCS = frozenset(
     }
 )
 MARKER_FILE = "CLAUDE.md"
+MANIFEST_FILE = ".fef-manifest.json"
+GENERATED_FILES = ("SKILL.md", "INSTALL_NOTE.md")
 
 # (label, home marker dir, skills/packs root relative to home)
 HOSTS: list[tuple[str, str, str]] = [
@@ -308,7 +311,7 @@ Claude-oriented engineering guidance: Kernel, task packs, routing, and integrity
 
 ## Layout
 
-- `CLAUDE.md` — runtime entry (inlined Kernel + Autoload)
+- `CLAUDE.md` — runtime entry (inlined Kernel + selective routing)
 - `AGENTS.md` — lightweight repository entry for AGENTS-compatible hosts
 - `kernel/` `policies/` `modules/` `domains/` `reviewers/` `workflows/`
 - `docs/loading-map.md` — task pack routing; `docs/adaptive-effort.md` — L0–L3 tiers; `docs/model-usage.md` — model floor
@@ -351,28 +354,110 @@ def _hash_file(path: Path) -> bytes:
     return digest.digest()
 
 
+def _copy_ignore(directory: str, names: list[str]) -> set[str]:
+    """Use the same runtime-only selection for copying and source hashes."""
+    ignored = set(COPY_IGNORE(directory, names))
+    rel = Path(directory).relative_to(REPO_ROOT)
+    if rel == Path(".claude"):
+        ignored.update({".verification", ".test-run-marker"} & set(names))
+    if rel == Path("docs"):
+        ignored.update(
+            name for name in names
+            if (Path(directory) / name).is_dir() or name not in RUNTIME_DOCS
+        )
+    elif rel.parts and rel.parts[0] == "docs":
+        ignored.update(names)
+    return ignored
+
+
+def _source_file_hashes(with_tests: bool) -> dict[str, str]:
+    files: dict[str, str] = {}
+    for relative, source in pack_source_paths(with_tests):
+        if source.is_file():
+            files[relative] = _hash_file(source).hex()
+            continue
+        for directory, dirs, names in os.walk(source, followlinks=True):
+            ignored = _copy_ignore(directory, dirs + names)
+            dirs[:] = [name for name in dirs if name not in ignored]
+            for name in names:
+                if name not in ignored:
+                    path = Path(directory) / name
+                    files[path.relative_to(REPO_ROOT).as_posix()] = _hash_file(path).hex()
+    return files
+
+
+def _fingerprint(files: dict[str, str], with_tests: bool) -> str:
+    payload = json.dumps(
+        {"with_tests": with_tests, "files": files}, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _read_manifest(pack_dir: Path) -> dict:
+    """Validate metadata before using any stored path to read a file."""
+    manifest = json.loads((pack_dir / MANIFEST_FILE).read_text(encoding="utf-8"))
+    if (
+        not isinstance(manifest, dict)
+        or manifest.get("version") != 1
+        or type(manifest.get("with_tests")) is not bool
+        or not isinstance(manifest.get("files"), dict)
+        or not manifest["files"]
+    ):
+        raise ValueError("unsupported or invalid manifest format")
+    for name, checksum in manifest["files"].items():
+        if (
+            not isinstance(name, str)
+            or not name
+            or "\\" in name
+            or ":" in name
+            or "\x00" in name
+            or PurePosixPath(name).is_absolute()
+            or any(part in {"", ".", ".."} for part in name.split("/"))
+            or name == MANIFEST_FILE
+            or not isinstance(checksum, str)
+            or len(checksum) != 64
+            or any(char not in "0123456789abcdef" for char in checksum)
+        ):
+            raise ValueError("invalid manifest path or checksum")
+    if not set(REQUIRED_VERIFY_FILES + GENERATED_FILES).issubset(manifest["files"]):
+        raise ValueError("manifest is missing required files")
+    return manifest
+
+
+def _manifest_problems(pack_dir: Path, manifest: dict) -> list[str]:
+    problems: list[str] = []
+    for name, checksum in sorted(manifest["files"].items()):
+        path = pack_dir / name
+        try:
+            if not path.resolve().is_relative_to(pack_dir.resolve()):
+                problems.append(f"file escapes pack directory: {name}")
+            elif not path.is_file():
+                problems.append(f"missing file: {name}")
+            elif _hash_file(path).hex() != checksum:
+                problems.append(f"modified file: {name}")
+        except (OSError, RuntimeError) as exc:
+            problems.append(f"cannot read {name}: {exc}")
+    return problems
+
+
 def pack_content_fingerprint(pack_dir: Path) -> str | None:
-    """Fingerprint of key pack files (empty if required markers missing)."""
+    """Fingerprint verified shipped content; legacy installs require --force."""
     if not pack_dir.is_dir():
         return None
-    digest = hashlib.sha256()
-    for name in REQUIRED_FILES:
-        file_path = pack_dir / name
-        if not file_path.is_file():
-            return None
-        digest.update(name.encode("utf-8"))
-        digest.update(_hash_file(file_path))
-    return digest.hexdigest()
+    try:
+        manifest = _read_manifest(pack_dir)
+    except (OSError, ValueError):
+        return None
+    if _manifest_problems(pack_dir, manifest):
+        return None
+    files = {name: checksum for name, checksum in manifest["files"].items()
+             if name not in GENERATED_FILES}
+    return _fingerprint(files, manifest["with_tests"])
 
 
 def source_pack_fingerprint(*, with_tests: bool = False) -> str:
-    """Fingerprint of the pack that install_pack would write (key entry files)."""
-    digest = hashlib.sha256()
-    for name in REQUIRED_FILES:
-        file_path = REPO_ROOT / name
-        digest.update(name.encode("utf-8"))
-        digest.update(_hash_file(file_path))
-    return digest.hexdigest()
+    """Fingerprint every source file selected by the actual copy policy."""
+    return _fingerprint(_source_file_hashes(with_tests), with_tests)
 
 
 def install_pack(
@@ -385,7 +470,7 @@ def install_pack(
     """Copy the pack into skills_root/fef-claude/.
 
     S4-09: existing dest is preserved unless --force. Identical content hash
-    (CLAUDE.md/AGENTS.md/README.md) is skipped without --force. No silent rmtree.
+    of the shipped payload is skipped without --force. No silent rmtree.
     """
     skills_root = skills_root.expanduser()
     if skills_root.exists() and not skills_root.is_dir():
@@ -400,7 +485,7 @@ def install_pack(
         dest_fp = pack_content_fingerprint(dest)
         src_fp = source_pack_fingerprint(with_tests=with_tests)
         if not force and dest_fp is not None and dest_fp == src_fp:
-            # Identical entry files — skip (non-destructive) unless --force.
+            # Identical verified payload — skip (non-destructive) unless --force.
             return dest
         if not force:
             raise SystemExit(
@@ -410,46 +495,22 @@ def install_pack(
         shutil.rmtree(dest)
     dest.mkdir(parents=True, exist_ok=True)
 
-    def _docs_ignore(directory: str, names: list[str]) -> set[str]:
-        """Exclude history/dev docs and subtrees from default install (S3-09)."""
-        ignored = set(COPY_IGNORE(directory, names))
-        dir_path = Path(directory)
-        # When copying the docs/ tree, keep only RUNTIME_DOCS files at top level
-        # and drop nested history trees (releases/, reviews/, …).
-        try:
-            rel = dir_path.relative_to(REPO_ROOT)
-        except ValueError:
-            return ignored
-        if rel == Path("docs"):
-            for name in names:
-                path = dir_path / name
-                if path.is_dir():
-                    ignored.add(name)
-                elif path.is_file() and name not in RUNTIME_DOCS:
-                    ignored.add(name)
-        elif rel.parts and rel.parts[0] == "docs":
-            # Any nested docs path should already be skipped via dir ignore;
-            # belt-and-suspenders: ignore everything under unexpected subtrees.
-            ignored.update(names)
-        return ignored
-
     for relative, source in items:
         target = dest / relative
         if source.is_dir():
-            ignore = _docs_ignore if relative == "docs" or relative.startswith("docs/") else COPY_IGNORE
-            # copytree ignore is called for every directory; use _docs_ignore always
-            # so nested docs filters apply, and COPY_IGNORE patterns still apply.
-            def _combined(directory: str, names: list[str]) -> set[str]:
-                ignored = set(COPY_IGNORE(directory, names))
-                ignored |= _docs_ignore(directory, names)
-                return ignored
-            shutil.copytree(source, target, ignore=_combined)
+            shutil.copytree(source, target, ignore=_copy_ignore)
         else:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
 
     write_skill_hint(dest)
     write_bootstrap_note(dest)
+    files = _source_file_hashes(with_tests)
+    files.update({name: _hash_file(dest / name).hex() for name in GENERATED_FILES})
+    (dest / MANIFEST_FILE).write_text(
+        json.dumps({"version": 1, "with_tests": with_tests, "files": files},
+                   sort_keys=True, indent=2) + "\n", encoding="utf-8"
+    )
 
     if not (dest / MARKER_FILE).is_file():
         shutil.rmtree(dest, ignore_errors=True)
@@ -462,6 +523,14 @@ def verify_install(dest_pack: Path) -> list[str]:
     problems: list[str] = []
     if not dest_pack.is_dir():
         return [f"missing pack directory: {dest_pack}"]
+    try:
+        manifest = _read_manifest(dest_pack)
+    except FileNotFoundError:
+        problems.append("missing integrity manifest (legacy install); reinstall with --force")
+    except (OSError, ValueError) as exc:
+        problems.append(f"invalid integrity manifest: {exc}; reinstall with --force")
+    else:
+        problems.extend(_manifest_problems(dest_pack, manifest))
     for name in REQUIRED_VERIFY_FILES:
         if not (dest_pack / name).is_file():
             problems.append(f"missing file: {name}")
@@ -591,7 +660,7 @@ def main(argv: list[str] | None = None) -> int:
         "--force",
         action="store_true",
         help="Allow overwriting an existing fef-claude/ pack (default: refuse; "
-        "identical entry-file hash is skipped without --force)",
+        "identical verified payload hash is skipped without --force)",
     )
     parser.add_argument(
         "--list-targets",
@@ -705,8 +774,19 @@ def main(argv: list[str] | None = None) -> int:
         failed = False
         for pack in roots:
             print(f"Checking: {pack}")
-            problems = verify_install(pack) if pack != REPO_ROOT else []
-            if pack == REPO_ROOT:
+            # An installed script can check its own tree. Generated markers
+            # distinguish it from the clone, including pre-manifest installs.
+            checking_source = pack == REPO_ROOT and not any(
+                (pack / name).is_file() for name in GENERATED_FILES + (MANIFEST_FILE,)
+            )
+            problems = [] if checking_source else verify_install(pack)
+            if not checking_source and not problems and pack.resolve() != REPO_ROOT.resolve():
+                manifest = _read_manifest(pack)
+                if pack_content_fingerprint(pack) != source_pack_fingerprint(
+                    with_tests=manifest["with_tests"]
+                ):
+                    problems.append("installed pack differs from current source; reinstall with --force")
+            if checking_source:
                 for name in REQUIRED_FILES:
                     if not (pack / name).is_file():
                         problems.append(f"missing file: {name}")

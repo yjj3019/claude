@@ -9,7 +9,7 @@ Structural token/load estimates only — not host wall-clock latency benchmarks.
 
 Latency budget (documented): simple Q&A cold-start = CLAUDE.md + AGENTS.md
 (host may inject both; see PROGRESS.md pack-ablation correction). Default
-fail threshold for --fail-over-cold-start is MAX_COLD_START_BYTES (9000).
+fail threshold for --fail-over-cold-start is MAX_COLD_START_BYTES (5500).
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ PACK_DIRS = ("modules", "domains", "workflows", "reviewers", "policies", "docs",
 # Structural cold-start budget for CLAUDE.md + AGENTS.md (S3-01). Hosts may
 # inject both (PROGRESS.md). CLAUDE.md alone stays under MAX_CLAUDE_ENTRY_BYTES
 # in validate_framework. Not a host latency SLA.
-MAX_COLD_START_BYTES = 9000
+MAX_COLD_START_BYTES = 5500
 
 
 def file_bytes(rel: str | Path) -> int:
@@ -125,7 +125,9 @@ def main(argv=None) -> int:
     )
     print("=" * 72)
     print()
-    print("FEF load estimates; excludes host/system prompts and tool schemas.")
+    print("FEF structural estimates; excludes host/system prompts and tool schemas.")
+    print("CLAUDE+AGENTS is an explicit both-files scenario, not the default native Code load.")
+    print("Routes below use a CLI preview; manual selection additionally reads the loading map.")
     print("Bytes: UTF-8 without BOM. Tokens: uncalibrated bytes/4 heuristic.")
     print(f"{'Scenario':<42} {'bytes':>8} {'~tokens':>8}  files")
     print("-" * 100)
@@ -135,6 +137,7 @@ def main(argv=None) -> int:
         f"CLAUDE.md, AGENTS.md"
     )
 
+    map_bytes = file_bytes("docs/loading-map.md")
     max_route = 0
     for route in routes:
         label = route.get("id") or route.get("label") or "route"
@@ -145,6 +148,7 @@ def main(argv=None) -> int:
         files = "CLAUDE.md+AGENTS.md" + ("; " + ", ".join(present) if present else " (packs via detect)")
         print(f"{label:<42} {total:>8} {rough_tokens(total):>8}  {files}")
 
+    print(f"{'Manual selection: add loading map':<42} {map_bytes:>8} {rough_tokens(map_bytes):>8}  docs/loading-map.md")
     dump = entry + all_pack_bytes()
     print(
         f"{'ANTI-PATTERN all packs+docs+kernel':<42} {dump:>8} {rough_tokens(dump):>8}  "

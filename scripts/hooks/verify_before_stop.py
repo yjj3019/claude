@@ -1,53 +1,15 @@
 #!/usr/bin/env python3
-"""Stop hook: mechanical enforcement of Kernel rule 14.
+"""One-shot verification reminder for worktree changes since SessionStart.
 
-If tracked or new *.py / *.md / *.json files were modified during the session
-but no verification runner has been executed since the latest modification,
-block the stop once and ask for verification. Fails open on any error so it
-can never trap a session.
-
-S3-07: gate .md/.json as well as .py. Accepted verification commands are
-recorded by record_test_run.py (segment-anchored runners plus framework
-validate scripts).
+Session snapshots cover Git-visible files and deletions, across languages.
+Errors fail open with a diagnostic; a reminder is not a test-coverage proof.
 """
 import json
-import subprocess
 import sys
 from pathlib import Path
 
-MARKER = Path(".claude") / ".test-run-marker"
-GATED_SUFFIXES = (".py", ".md", ".json")
-
-
-def path_from_status_line(line: str) -> str:
-    """Extract the current on-disk path from one git status --porcelain line.
-
-    Rename/copy entries are "XY old/path.py -> new/path.py"; only the target
-    (post-arrow) path still exists on disk.
-    """
-    path = line[3:].strip()
-    if " -> " in path:
-        path = path.split(" -> ", 1)[1]
-    return path.strip(chr(34))
-
-
-def changed_gated_files() -> list:
-    proc = subprocess.run(
-        ["git", "status", "--porcelain"], capture_output=True, text=True, timeout=10
-    )
-    if proc.returncode != 0:
-        return []
-    files = []
-    for line in proc.stdout.splitlines():
-        path = path_from_status_line(line)
-        if path.startswith("scripts/hooks/"):
-            continue
-        if not path.endswith(GATED_SUFFIXES):
-            continue
-        candidate = Path(path)
-        if candidate.exists():
-            files.append(candidate)
-    return files
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from lib.verification_state import digest, hook_error, load_state, repository, snapshot
 
 
 def main() -> int:
@@ -55,28 +17,26 @@ def main() -> int:
         data = json.load(sys.stdin)
         if data.get("stop_hook_active"):
             return 0
-        changed = changed_gated_files()
-        if not changed:
+        root = repository(data.get("cwd", "."))
+        state = load_state(root, data["session_id"])
+        if state is None:
+            raise ValueError("SessionStart baseline missing")
+        current = snapshot(root)
+        if current == state["baseline"]:
+            return 0  # An already-dirty, read-only session needs no new test.
+        verification = state.get("verification")
+        if (isinstance(verification, dict) and verification.get("snapshot") == digest(current)
+                and type(verification.get("returncode")) is int and verification["returncode"] == 0):
             return 0
-        newest_change = max(f.stat().st_mtime for f in changed)
-        if MARKER.exists() and MARKER.stat().st_mtime >= newest_change:
-            return 0
-        names = ", ".join(str(f) for f in changed[:5])
         print(json.dumps({
             "decision": "block",
-            "reason": (
-                "Kernel rule 14: modified gated files (" + names + ") have no "
-                "verification run recorded after the latest change. Run the "
-                "relevant suite (e.g. python3 -m unittest discover -s tests "
-                "-p test_*.py) or framework validate "
-                "(python3 scripts/validate_framework.py / "
-                "python3 scripts/validate_repository.py), report the result, "
-                "then finish. If verification is genuinely not applicable, "
-                "state that explicitly as a limitation before finishing."
-            ),
+            "reason": "Worktree changed since SessionStart without successful verification of the current state. "
+                      "Run relevant checks, e.g. python scripts/run_verification.py -- python -m unittest discover -s tests. "
+                      "Inspect the actual result and coverage; disclose failures or explain why verification is inapplicable. "
+                      "This reminder does not prove correctness and will not loop."
         }))
-    except Exception:
-        pass
+    except Exception as error:
+        hook_error(error)
     return 0
 
 

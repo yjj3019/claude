@@ -1,21 +1,11 @@
 # AGENTS.md
 
-Lightweight entry for AGENTS-compatible hosts. **Read `CLAUDE.md` first** — it is the persistent runtime bootstrap (inlined Kernel, Autoload, Context Budget, Model-Invariant Floor, Adaptive Effort). Do not duplicate those contracts here.
+Read `CLAUDE.md` first; do not load a second copy of the inlined Kernel.
 
 ## Guidance Layout
 
-- `kernel/` — always-on reasoning behavior (also inlined in `CLAUDE.md`)
-- `policies/` — trigger-loaded Evidence, FileHandling, ToolExecution, Freshness, …
-- `modules/` `domains/` `reviewers/` `workflows/` — task packs via `docs/loading-map.md`
-- `docs/adaptive-effort.md` — L0–L3 model tiers (detail; see `CLAUDE.md` Adaptive Effort)
-- `docs/model-usage.md` — load only when choosing/switching models
-- `scripts/validate_framework.py` / `install_pack.py` / `measure_load.py` / `detect_task.py`
-- `tests/` — golden tests and unit tests
-
-## Use Rule
-
-When this repository is the working root, apply `CLAUDE.md` first and follow its routing. Do not load every file by default.
-
-## Multi-repo
-
-Default `python3 scripts/install_pack.py --auto` installs **host skills only**. If the user wants sibling-repo install, use `--siblings PATH`, `FEF_SIBLING_ROOTS`, `--siblings-only`, and/or `--scan-sibling-parent` (parent-dir scan is off by default). Existing `fef-claude/` is preserved unless `--force`. Details: README.
+- `kernel/` is the source; policies, modules, domains and reviewers are task-selected.
+- `config/routes.json` / `scripts/detect_task.py` preview routes; `docs/loading-map.md` supports manual selection.
+- Adaptive Effort preferences: `docs/adaptive-effort.md`, only when choosing models.
+- Validate: `python scripts/validate_repository.py`; tests: `python -m unittest discover -s tests`.
+- Install: `python scripts/install_pack.py --auto` copies host skills only; sibling install is opt-in and existing packs require `--force` to replace.

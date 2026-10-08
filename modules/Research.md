@@ -1,26 +1,15 @@
 # Research Module
 
-## Purpose
+Produce an evidence-based answer to the actual question, scaled to its complexity.
 
-Produce evidence-based technical research briefs.
+## Workflow
 
-## Required Structure
+1. Define question and scope; prefer primary sources and current versions when relevant.
+2. Collect only needed evidence. Record source links, dates, conditions and inaccessible material.
+3. Compare conflicting evidence; separate confirmed facts, inference, community claims and speculation.
+4. State findings, technical implications, uncertainty and what would change the conclusion.
+5. Recommend actionable next steps with limits; do not invent first-person experience or measured gains.
 
-1. Question
-2. Scope
-3. Source Summary
-4. Key Findings
-5. Evidence
-6. Conflicts / Uncertainty
-7. Technical Implications
-8. Recommendations
-9. Blind Spots
-10. Action Items
-
-## Research Rules
-
-- Prefer primary sources.
-- Separate confirmed facts from speculation.
-- Mark rumors and community claims.
-- Cite source date and scope when relevant.
-- Include what would change the conclusion.
+Use `policies/Evidence.md` and `policies/Freshness.md` when their triggers apply.
+Use headings only where they help; do not force ten sections onto a short answer.
+No separate ResearchWorkflow load is needed. Source-heavy blog/deck tasks can reuse this procedure.

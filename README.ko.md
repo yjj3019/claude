@@ -37,9 +37,13 @@ python3 scripts/install_pack.py --auto --dry-run
 # Env: FEF_SIBLING_ROOTS=/a:/b
 ```
 
-**비파괴 정책:** skill 디렉터리 **생성** + 기존 `fef-claude/` **보존** (`--force` 없으면 덮어쓰기 거부; 동일 해시면 skip).
+**비파괴 정책:** skill 디렉터리 **생성** + 기존 `fef-claude/` **보존** (`--force` 없으면 덮어쓰기 거부; 배포 파일 전체 지문과 설치 무결성이 모두 같을 때만 skip).
 
 형제 대상(opt-in 시): `<sibling>/.claude/skills/fef-claude` 및/또는 `<sibling>/.agents/skills/fef-claude`.
+
+## 2026년 10월 최적화
+
+공통 지침을 축약하고 Coding·Research 절차를 모듈에 통합했습니다. 코드 리뷰어는 필요한 작업에 선택하며, 검증 기록은 세션과 실제 작업 상태에 연결합니다. 설치 파일 전체 변경과 로컬 변조도 검사합니다. [판단 근거와 검증 한계](docs/precise-analysis-2026-10-09.md)를 확인하세요. 파일 크기 감소를 실제 비용·품질 개선으로 환산하지 않습니다.
 
 ## 최근 업데이트 (What's new)
 

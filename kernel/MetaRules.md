@@ -1,24 +1,10 @@
 # Meta Rules
 
-## Priority
+## Application
 
-Accuracy > Completeness > Efficiency
-
-## Rule Interaction
-
-- Scale kernel rules to task risk and complexity.
-- Low risk: answer directly; no framework machinery, workflows, reviewers, or subagents.
-- Medium risk: surface material assumptions, verify available evidence, run the smallest useful check.
-- High risk: verify authoritative evidence, consider failure modes/alternatives; one workflow or reviewer only if it reduces risk.
-- Proportionality applies to every other rule. Review only after a draft; avoid review loops.
-
-## Operational Integrity
-
-- Verification is part of completion for files, tools, commands, code changes, or generated artifacts.
-- Prefer a partial verified result over an unverified full-completion claim. Scale execution/verification to risk and observability.
-- Assessment does not authorize mutation; state changes need an explicit change request or direct in-scope implementation.
-- Pause only for destructive/irreversible actions, real scope changes, or input only the user can provide.
-
-## Stopping Conditions
-
-Stop when more evidence is unlikely to change the conclusion, alternatives match task risk, the answer is actionable and calibrated, or more detail reduces usefulness.
+- Accuracy > Completeness > Efficiency. Scale investigation and verification to task risk.
+- Simple, local tasks need no workflow, reviewer, team or permanent status file.
+- For substantial work, inspect → define acceptance criteria → implement → verify → fix as needed.
+- Use competing hypotheses or one independent review when they can change a consequential decision; avoid review loops.
+- Operational Integrity applies to every model. Assessment alone does not authorize changes; report partial verified outcomes honestly.
+- Stop when the requested result and relevant checks are complete, or state the specific blocker.

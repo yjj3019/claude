@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 import subprocess
 import sys
@@ -265,6 +266,173 @@ class InstallPackTests(unittest.TestCase):
         problems = install_pack.verify_install(pack)
         self.assertTrue(any("validate_framework.py" in p for p in problems))
 
+
+
+    def test_check_detects_modified_or_missing_shipped_file(self):
+        for relative, missing in (("policies/Evidence.md", False), ("modules/Coding.md", True)):
+            with self.subTest(relative=relative):
+                dest = self.home / ("missing" if missing else "modified")
+                pack = install_pack.install_pack(dest)
+                path = pack / relative
+                if missing:
+                    path.unlink()
+                else:
+                    path.write_bytes(path.read_bytes() + b"\nlocal edit\n")
+                proc = self._run("--check", "--dest", str(dest))
+                self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+                self.assertIn(relative, proc.stdout)
+                self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+
+    def test_installed_script_checks_its_own_manifest(self):
+        pack = install_pack.install_pack(self.home / "skills")
+        (pack / "modules" / "Coding.md").unlink()
+        proc = subprocess.run(
+            [sys.executable, "-X", "utf8", str(pack / "scripts" / "install_pack.py"), "--check"],
+            cwd=str(pack), capture_output=True, text=True, encoding="utf-8",
+            env={**os.environ, "AI_PACK_DIR": "", "AI_SKILLS_DIR": "",
+                 "CURSOR_PACK_DIR": "", "CURSOR_SKILLS_DIR": "", "CODEX_HOME": ""},
+        )
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("modules/Coding.md", proc.stdout)
+
+
+class PackIntegrityTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.addCleanup(self.temp.cleanup)
+        self.source = self.root / "source"
+        self.source.mkdir()
+        for name in install_pack.REQUIRED_DIRS:
+            (self.source / name).mkdir()
+        files = set(install_pack.REQUIRED_FILES + install_pack.REQUIRED_VERIFY_FILES)
+        files.update(f"scripts/{name}" for name in (
+            "validate_framework.py", "sync_kernel.py", "install_pack.py", "detect_task.py"
+        ))
+        files.update(("policies/Evidence.md", "modules/Coding.md", "config/routes.json",
+                      ".claude/hooks/check.py", "docs/loading-map.md"))
+        for name in files:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f"fixture: {name}\n", encoding="utf-8")
+        patcher = patch.object(install_pack, "REPO_ROOT", self.source)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.skills = self.root / "skills"
+
+    def test_policy_only_change_refuses_without_force_then_updates(self):
+        pack = install_pack.install_pack(self.skills)
+        old_fp = install_pack.source_pack_fingerprint()
+        policy = self.source / "policies" / "Evidence.md"
+        policy.write_bytes(policy.read_bytes() + b"changed\n")
+        self.assertNotEqual(install_pack.source_pack_fingerprint(), old_fp)
+        with patch("sys.stdout"):
+            self.assertEqual(install_pack.main(["--check", "--dest", str(self.skills)]), 1)
+        with self.assertRaisesRegex(SystemExit, "Refusing to overwrite"):
+            install_pack.install_pack(self.skills)
+        self.assertNotEqual((pack / "policies" / "Evidence.md").read_bytes(), policy.read_bytes())
+        install_pack.install_pack(self.skills, force=True)
+        self.assertEqual((pack / "policies" / "Evidence.md").read_bytes(), policy.read_bytes())
+        self.assertEqual(install_pack.verify_install(pack), [])
+
+    def test_hook_route_and_module_only_changes_affect_fingerprint(self):
+        for relative in (".claude/hooks/check.py", "config/routes.json", "modules/Coding.md"):
+            with self.subTest(relative=relative):
+                before = install_pack.source_pack_fingerprint()
+                path = self.source / relative
+                path.write_bytes(path.read_bytes() + b"changed\n")
+                self.assertNotEqual(install_pack.source_pack_fingerprint(), before)
+
+    def test_unchanged_source_skips_and_unshipped_files_do_not_churn(self):
+        pack = install_pack.install_pack(self.skills)
+        fp = install_pack.source_pack_fingerprint()
+        mtime = (pack / "CLAUDE.md").stat().st_mtime_ns
+        for relative in ("PROGRESS.md", "docs/development.md", "scripts/__pycache__/cached.pyc",
+                         "docs/reviews/history.md", "tests/dev.py",
+                         ".claude/.verification/private-session.json", ".claude/.test-run-marker"):
+            path = self.source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"unshipped changes\n")
+        self.assertEqual(install_pack.source_pack_fingerprint(), fp)
+        self.assertEqual(install_pack.pack_content_fingerprint(pack), fp)
+        self.assertEqual(install_pack.install_pack(self.skills), pack)
+        self.assertEqual((pack / "CLAUDE.md").stat().st_mtime_ns, mtime)
+        self.assertFalse((pack / "docs" / "development.md").exists())
+        self.assertFalse((pack / ".claude" / ".verification").exists())
+
+    def test_with_tests_option_is_part_of_fingerprint(self):
+        pack = install_pack.install_pack(self.skills)
+        (self.source / "tests").mkdir()
+        (self.source / "tests" / "test_runtime.py").write_bytes(b"test content\n")
+        self.assertNotEqual(install_pack.source_pack_fingerprint(with_tests=True),
+                            install_pack.source_pack_fingerprint())
+        with self.assertRaisesRegex(SystemExit, "Refusing to overwrite"):
+            install_pack.install_pack(self.skills, with_tests=True)
+        install_pack.install_pack(self.skills, with_tests=True, force=True)
+        self.assertTrue((pack / "tests" / "test_runtime.py").is_file())
+        self.assertEqual(install_pack.pack_content_fingerprint(pack),
+                         install_pack.source_pack_fingerprint(with_tests=True))
+
+    def test_legacy_install_requires_explicit_reinstall(self):
+        pack = install_pack.install_pack(self.skills)
+        (pack / install_pack.MANIFEST_FILE).unlink()
+        marker = pack / "KEEP.txt"
+        marker.write_bytes(b"keep\n")
+        self.assertIn("legacy install", "; ".join(install_pack.verify_install(pack)))
+        with self.assertRaisesRegex(SystemExit, "Refusing to overwrite"):
+            install_pack.install_pack(self.skills)
+        self.assertEqual(marker.read_bytes(), b"keep\n")
+        install_pack.install_pack(self.skills, force=True)
+        self.assertEqual(install_pack.verify_install(pack), [])
+
+    def test_generated_files_are_verified(self):
+        pack = install_pack.install_pack(self.skills)
+        (pack / "SKILL.md").write_bytes(b"modified hint\n")
+        self.assertIn("modified file: SKILL.md", install_pack.verify_install(pack))
+        self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+
+    def test_directory_symlink_contents_match_copy_policy(self):
+        linked = self.root / "linked"
+        linked.mkdir()
+        (linked / "policy.md").write_bytes(b"linked content\n")
+        try:
+            (self.source / "policies" / "linked").symlink_to(linked, target_is_directory=True)
+        except OSError as exc:
+            self.skipTest(f"directory symlinks unavailable: {exc}")
+        pack = install_pack.install_pack(self.skills)
+        self.assertEqual(install_pack.pack_content_fingerprint(pack),
+                         install_pack.source_pack_fingerprint())
+        self.assertFalse((pack / "policies" / "linked").is_symlink())
+        (pack / "policies" / "linked" / "policy.md").write_bytes(b"modified\n")
+        self.assertIn("modified file: policies/linked/policy.md", install_pack.verify_install(pack))
+
+    def test_installed_symlink_cannot_reference_external_file(self):
+        pack = install_pack.install_pack(self.skills)
+        policy = pack / "policies" / "Evidence.md"
+        outside = self.root / "outside.md"
+        outside.write_bytes(policy.read_bytes())
+        policy.unlink()
+        try:
+            policy.symlink_to(outside)
+        except OSError as exc:
+            self.skipTest(f"file symlinks unavailable: {exc}")
+        self.assertIn("file escapes pack directory: policies/Evidence.md",
+                      install_pack.verify_install(pack))
+        self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+
+    def test_invalid_manifest_paths_and_versions_are_rejected(self):
+        pack = install_pack.install_pack(self.skills)
+        path = pack / install_pack.MANIFEST_FILE
+        original = json.loads(path.read_text(encoding="utf-8"))
+        for name in ("../outside", "/absolute", "C:/absolute", "bad\\path", "foo//bar",
+                     "foo/./bar", "foo/../../bar"):
+            with self.subTest(name=name):
+                manifest = {**original, "files": {**original["files"], name: "0" * 64}}
+                path.write_text(json.dumps(manifest), encoding="utf-8")
+                self.assertIn("invalid integrity manifest", "; ".join(install_pack.verify_install(pack)))
+                self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+        path.write_text(json.dumps({**original, "version": 2}), encoding="utf-8")
+        self.assertIn("invalid integrity manifest", "; ".join(install_pack.verify_install(pack)))
 
 
 class SiblingDiscoveryTests(unittest.TestCase):

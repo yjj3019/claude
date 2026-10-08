@@ -4,14 +4,41 @@
       {
         "matcher": "Bash",
         "hooks": [
-          {"type": "command", "command": "python scripts/hooks/record_test_run.py"}
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/record_test_run.py\""
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          {"type": "command", "command": "python scripts/hooks/verify_before_stop.py"}
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/verify_before_stop.py\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/session_start.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/record_test_run.py\""
+          }
         ]
       }
     ]

@@ -1,16 +1,22 @@
 # Claude Projects Guide
 
-UI labels and file limits can change by Claude version; use the equivalent Project instructions and knowledge/file controls available in the current UI.
+1. Put the compact CLAUDE.md core in Project Instructions.
+2. Add only needed policies, task module and product domains to Knowledge. Avoid uploading duplicate Kernel files.
+3. Add the loading map only if the project needs manual selection across routes. Coding and Research modules already contain their procedure.
+4. Name the required uploaded files and acceptance criteria in the task. Do not assume naming a file proves it was read in full.
+5. Use reviewer files as a focused review prompt for consequential work. They do not create native subagents.
+6. Check for stale duplicates and missing sources after updates; verify a representative result against the actual source and rubric.
 
-1. Clone this repository or download a release ZIP.
-2. Create a Claude Project for the target workstream.
-3. Use `CLAUDE.md` as Project Instructions or the primary runtime file.
-4. Add `kernel/CoreKernel.md`, `kernel/MetaRules.md`, `kernel/Checklist.md`, and `docs/loading-map.md` to Project Knowledge.
-5. Add only the policies, module, domain, workflow, and Reviewer needed for the project. Preserve their repository paths or filenames.
-6. When file count or size is limited, prioritize Kernel → loading map → Integrity Policies → primary Module/Domain → Workflow → one Reviewer.
-7. Start with a representative request, such as “Use the RHEL RCA route and state which Packs are loaded.”
-8. Confirm normal loading by checking that the response names no missing required file, selects no more than one Reviewer, and does not exceed Pack limits.
-9. If loading fails, check filenames, stale duplicates, missing referenced Packs, and whether `CLAUDE.md` was placed in instructions rather than only uploaded as unused knowledge.
-10. For updates, compare the release notes, replace changed runtime files, remove stale duplicates, and repeat the representative loading check.
+Knowledge retrieval and instructions are different. Paid Projects can use RAG near the context
+limit; retrieval does not guarantee every referenced file is fully included.
+Do not transfer Code slash commands, hooks, local auto-memory, native Advisor or agent teams
+into Projects instructions as executable features.
 
-Do not upload every Domain Pack by default. Keep Project instructions short and task knowledge selective.
+Prefer clear scope, relevant references, output examples where they resolve ambiguity, and
+verifiable criteria over repeated behavior commands. Use a short handoff for long work only.
+Measure quality, missing constraints and retries using what the Projects account exposes;
+Code API cost estimates are not Projects subscription bills.
+
+See [Projects](https://support.claude.com/en/articles/9519177-how-can-i-create-and-manage-projects),
+[Projects RAG](https://support.claude.com/en/articles/11473015-retrieval-augmented-generation-rag-for-projects)
+and [usage limits](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).

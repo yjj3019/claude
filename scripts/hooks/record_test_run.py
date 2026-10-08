@@ -1,24 +1,53 @@
 #!/usr/bin/env python3
-"""PostToolUse(Bash) hook: record verification runs (S3-07).
+"""Record a recognized verification result against this session and Git snapshot."""
+from __future__ import annotations
 
-Touches .claude/.test-run-marker when a Bash call runs a recognized
-verification command (see scripts/lib/verification_commands.py and
-verification_runners.json). Always exits 0.
-
-S3-07: runners must start a shell segment (command-start or after [;&|]);
-grep/prose mentions do not credit.
-
-Exit-code policy (fail-closed): credit only when an explicit exit code is
-present and equals 0. Unknown/missing exit codes do not write the marker.
-Prefers missing verification over a false-green marker.
-"""
 import json
+import re
+import shlex
 import sys
 from pathlib import Path
 
-# Allow running as scripts/hooks/*.py
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lib.verification_commands import extract_exit_code, is_verification_command
+from lib.verification_state import (RESULT_PREFIX, digest, hook_error, load_state,
+                                    repository, save_state, snapshot)
+
+WRAPPER = Path(__file__).resolve().parents[1] / "run_verification.py"
+
+
+def verification_result(command: str, data: dict, cwd: Path, current: dict) -> int | None:
+    # An aggregate shell exit does not prove the verification runner succeeded.
+    if any(char in command for char in (";", "&", "|", "\n", "<", ">", "`", "$")):
+        return None
+    response = data.get("tool_response", {})
+    if isinstance(response, dict) and response.get("interrupted"):
+        return None
+    args = shlex.split(command)
+    if len(args) >= 4 and re.fullmatch(r"(python(?:3(?:\.\d+)?)?|py)(?:\.exe)?", Path(args[0]).name):
+        candidate = (cwd / args[1]).resolve()
+        if candidate == WRAPPER and args[2] == "--":
+            if not is_verification_command(shlex.join(args[3:])):
+                return None
+            response = data.get("tool_response", {})
+            if not isinstance(response, dict) or response.get("interrupted"):
+                return None
+            lines = str(response.get("stdout", "")).splitlines()
+            if not lines or not lines[-1].startswith(RESULT_PREFIX):
+                return None
+            result = json.loads(lines[-1][len(RESULT_PREFIX):])
+            if not isinstance(result, dict):
+                return None
+            if (result.get("argv_digest") != digest(args[3:])
+                    or result.get("snapshot") != digest(current)
+                    or result.get("snapshot_before") != result.get("snapshot")):
+                return None
+            code = result.get("returncode")
+            return code if type(code) is int else None
+    if not is_verification_command(command):
+        return None
+    code = extract_exit_code(data)
+    return code if type(code) is int else None
 
 
 def main() -> int:
@@ -26,17 +55,26 @@ def main() -> int:
         data = json.load(sys.stdin)
         if data.get("tool_name") != "Bash":
             return 0
-        command = str(data.get("tool_input", {}).get("command", ""))
-        if not is_verification_command(command):
-            return 0
-        code = extract_exit_code(data)
-        if code is None or int(code) != 0:
-            return 0
-        marker = Path(".claude") / ".test-run-marker"
-        marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text(command[:500], encoding="utf-8")
-    except Exception:
-        pass
+        cwd = Path(data.get("cwd", "."))
+        root = repository(cwd)
+        session = data["session_id"]
+        state = load_state(root, session)
+        if state is None:
+            raise ValueError("SessionStart baseline missing")
+        command = data.get("tool_input", {}).get("command", "")
+        if not isinstance(command, str):
+            raise ValueError("invalid command")
+        current = snapshot(root)
+        try:
+            code = verification_result(command, data, cwd, current)
+        except ValueError as error:
+            hook_error(error)
+            code = None  # A malformed attempt must invalidate an earlier pass.
+        if code is not None or is_verification_command(command) or "run_verification.py" in command:
+            state["verification"] = {"snapshot": digest(current), "returncode": code}
+            save_state(root, session, state)
+    except Exception as error:
+        hook_error(error)
     return 0
 
 

@@ -14,10 +14,10 @@ ROOT = Path(__file__).resolve().parents[1]
 LOADING_MAP = ROOT / "docs" / "loading-map.md"
 CLAUDE = ROOT / "CLAUDE.md"
 # CLAUDE.md alone must not balloon (detail lives in docs/).
-MAX_CLAUDE_ENTRY_BYTES = 7000
+MAX_CLAUDE_ENTRY_BYTES = 4500
 # Combined cold-start (CLAUDE.md + AGENTS.md); hosts may inject both (PROGRESS.md).
 # Align with measure_load.MAX_COLD_START_BYTES.
-MAX_COLD_START_BYTES = 9000
+MAX_COLD_START_BYTES = 5500
 HEAVY_NON_DEFAULT_PATHS = (
     "PROGRESS.md",
     "SESSION_LOG.md",
@@ -209,7 +209,7 @@ def validate_loading_map(errors: list[str]) -> None:
         if task == "Proposal consistency check" and refs.count("reviewers/ProposalConsistencyReviewer.md") != 1:
             fail("Proposal consistency check must use only reviewers/ProposalConsistencyReviewer.md", errors)
         if task == "Code modification":
-            for rel in ["modules/Coding.md", "workflows/CodingWorkflow.md"]:
+            for rel in ["modules/Coding.md"]:
                 if rel not in refs:
                     fail(f"Code modification route missing: {rel}", errors)
 
@@ -519,11 +519,11 @@ def validate_reviewer_output(errors: list[str]) -> None:
             fail(f"{path.relative_to(ROOT)} missing ## Output section", errors)
 
 
-# Floors sit just under today's smallest real pack in each family, so an
+# Floors reflect the compact core and compatibility entries, so an
 # accidental gutting fails while every current file passes. Raise a floor only
 # together with the pack it describes.
 PACK_CONTENT_FLOORS = {
-    "kernel": (700, 1),
+    "kernel": (200, 1),
     "policies": (350, 1),
     "modules": (120, 1),
     "domains": (200, 1),

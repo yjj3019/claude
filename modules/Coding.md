@@ -1,29 +1,15 @@
 # Coding Module
 
-## Purpose
+Deliver the smallest complete, verified change in the assigned worktree.
+Use `policies/FileHandling.md` and `policies/ToolExecution.md` for file and execution contracts.
 
-Deliver minimal, complete, and validated code changes in the assigned repository.
+## Workflow
 
-Use `policies/FileHandling.md` for shared file rules and `policies/ToolExecution.md` for command, failure, and approval rules.
+1. Confirm target, scope and protected files; inspect implementation, callers, tests and conventions.
+2. Reproduce or characterize the failure; choose the shared root cause and acceptance criteria.
+3. Implement a narrow fix using existing APIs. Add meaningful regression tests for changed behavior; never weaken tests to hide failure.
+4. Run targeted validation, then relevant lint/typecheck, broader tests or build. Preserve command, cwd, exit status and failure evidence.
+5. Inspect actual diff for unrelated work, secrets and generated artifacts; report behavior, checks, failures and residual risk.
 
-## Required Behaviors
-
-- Reproduce or clearly characterize the failure before changing code when feasible.
-- Read the target implementation, relevant callers, tests, configuration, and type definitions before editing.
-- Identify the narrowest shared root cause rather than patching symptoms at multiple call sites.
-- Use existing APIs, libraries, patterns, and project conventions. Do not invent interfaces.
-- Make the smallest complete change that satisfies the request.
-- Do not modify tests merely to hide a regression.
-- Add or update tests when the behavioral contract changes or a regression would otherwise remain uncovered.
-- Validate with the project-defined test, build, lint, format, or type-check commands.
-- Inspect the final diff for unrelated changes, secrets, debug code, and accidental generated files.
-
-## Completion Contract
-
-A code task is complete only when:
-
-1. the intended files were changed in the assigned worktree
-2. the requested behavior is implemented
-3. validation was executed or the inability to validate is explicitly reported
-4. failures and residual risks are disclosed
-5. the final summary names changed files and validation results
+Use Plan Mode for nontrivial work and an optional CodeChangeReviewer for consequential changes.
+No separate CodingWorkflow load is needed. Completion requires verified state, not merely a plan, edit or command invocation.

@@ -17,6 +17,8 @@ FEF should improve consistency, calibration, and reviewability across both roles
 
 Load `docs/model-usage.md` **only** when choosing or switching among Opus / Fable / Sonnet / Haiku, or when tuning effort/thinking for the active model. Do **not** load it every turn, and do not load it for ordinary single-model tasks that already follow the Model-Invariant Floor. Model choice does not justify loading extra packs; escalate the model instead of dumping docs.
 
+The roster below preserves dated repository preferences, not current API identifiers or automatic host settings. Keep the active model for ordinary work; verify availability, supported effort and current pricing before switching. A tool preview is advisory and cannot switch a model or grant permissions.
+
 ## Model Roster (user-authoritative, 2026-09-06)
 
 | Model | Product label | Role |
@@ -76,6 +78,14 @@ Choose the smallest shape that fits the dependency structure:
 Keep Markdown files under `workflows/` distinct from executable external automation. A project lesson remains local until repeated evidence, a clear trigger, and a removal condition justify broader promotion; update an existing lesson rather than duplicating it.
 
 Raise the automation level one shape at a time: single session, then subagent, then team or scheduled/external automation. Move up only after the smaller shape has measured success rate, cost, and rollback safety, tracked the same way as the Effort Calibration Guardrail below; do not start at the largest shape a task could theoretically use.
+
+### Optional Advisor and Effort Calibration
+
+Keep the dated user-authoritative roster and routing constraints above. Before adding a second model, compare supported effort levels on the chosen model in separate sessions, measuring accepted-task quality, total usage/cost, and latency. This complements model-before-packs: if effort cannot close the gap, compare a stronger model or advisor without loading unrelated packs. See [cost and intelligence optimization](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence).
+
+- **Claude Code:** selectively use the native experimental `/advisor` feature for consequential decisions or recurring ambiguous failures, after checking account/model support. `claude --advisor opus` selects an advisor for one session; `/advisor opus` saves a default. Code has no setting to cap or force advisor calls, and each advisor call reads the full transcript without advisor-side caching. Prompt timing requests are not an execution guarantee. See [Code Advisor](https://code.claude.com/docs/en/advisor).
+- **API only:** `max_uses` caps advisor calls per request, not per task or conversation; a conversation-wide cap needs client-side counting. Advisor `caching` is optional and off by default. These API controls are not Code settings. See [API Advisor](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool).
+- **Projects:** do not treat Code Advisor commands, hooks, or agent files as native Projects features. Use a focused independent-review prompt when needed. The community [advisor-opus](https://github.com/shalomeir/advisor-opus) plugin is deprecated in favor of the native Code feature, so it is not a default installation recommendation.
 
 ## Model and Effort Examples
 
