@@ -4,7 +4,7 @@
 
 - User authorized implementation, GitHub publication and Notion record. Compact core (69 lines), integrated Coding/Research procedures, conditional coding review, session-scoped verification and full shipped-file integrity are implemented.
 - Structural LF bytes: CLAUDE 6980→3913; explicit CLAUDE+AGENTS 8283→4558; Coding preview 15173→9265; Coding with manual map 24217→15696. These are not live token/cost/quality results.
-- Tests/validators, remote CI and final publication are being verified. No paid Claude evaluation or global installation is performed.
+- Published to GitHub main through PR #28, merge commit `307b06c802a05a26b52c690b0859d41b957b9dc2`. Final-code CI and post-merge CI passed on Python 3.11/3.12/3.14: 152 tests per version, repository/route/install checks, 9 executable golden fixtures and an expected negative control. Windows full regression: 151 tests passed (2 symlink-privilege skips); the subsequently added ordinary-Bash fast-path test also passed. Notion write and existing history were verified by readback. No paid Claude evaluation, native-host E2E or global installation was performed.
 - Notion project record: https://app.notion.com/p/398b44a2dd2e81729cb9dab78c31a5e7
 - Decisions and sources: `docs/precise-analysis-2026-10-09.md`. Old entries below are historical.
 
