@@ -1,199 +1,307 @@
+"""Regression coverage for session-scoped verification and native Bash payloads."""
 import json
+import importlib.util
+import io
 import os
 import subprocess
 import sys
 import tempfile
-import time
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-RECORD = ROOT / "scripts" / "hooks" / "record_test_run.py"
-VERIFY = ROOT / "scripts" / "hooks" / "verify_before_stop.py"
-sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "scripts" / "hooks"))
+SCRIPTS = ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+from lib.verification_state import RESULT_PREFIX, digest, load_state, snapshot
+
+START = SCRIPTS / "hooks" / "session_start.py"
+RECORD = SCRIPTS / "hooks" / "record_test_run.py"
+STOP = SCRIPTS / "hooks" / "verify_before_stop.py"
+WRAPPER = SCRIPTS / "run_verification.py"
 
 
-def run_hook(script, payload, cwd):
-    return subprocess.run(
-        [sys.executable, str(script)], input=json.dumps(payload),
-        capture_output=True, text=True, cwd=cwd, timeout=30,
-    )
+HOOK_MODULES = {}
 
 
-def init_git_repo(root):
-    env = os.environ.copy()
-    for cmd in (["git", "init", "-q"],
-                ["git", "config", "user.email", "t@t.t"],
-                ["git", "config", "user.name", "T"]):
-        subprocess.run(cmd, cwd=root, check=True, capture_output=True, env=env)
+def run_hook(script, payload, cwd, native=False):
+    data = {"session_id": "session-A", "cwd": str(cwd), **payload}
+    if native:
+        return subprocess.run([sys.executable, str(script)], input=json.dumps(data),
+                              capture_output=True, text=True, cwd=cwd, timeout=30)
+    # Exercise the public JSON entry point with real Git/filesystem operations.
+    # Separate integration cases below also launch the scripts as subprocesses.
+    if script not in HOOK_MODULES:
+        spec = importlib.util.spec_from_file_location("fef_hook_" + script.stem, script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        HOOK_MODULES[script] = module
+    stdout, stderr = io.StringIO(), io.StringIO()
+    with patch("sys.stdin", io.StringIO(json.dumps(data))), redirect_stdout(stdout), redirect_stderr(stderr):
+        code = HOOK_MODULES[script].main()
+    return SimpleNamespace(returncode=code, stdout=stdout.getvalue(), stderr=stderr.getvalue())
 
 
-class RecordTestRunHookTest(unittest.TestCase):
-    def test_marker_written_for_test_command(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            proc = run_hook(RECORD, {"tool_name": "Bash",
-                                     "tool_input": {"command": "python3 -m unittest discover -s tests"},
-                                     "tool_response": {"returncode": 0}}, root)
-            self.assertEqual(proc.returncode, 0)
-            self.assertTrue((root / ".claude" / ".test-run-marker").exists())
-
-    def test_marker_not_written_for_non_test_command(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            proc = run_hook(RECORD, {"tool_name": "Bash", "tool_input": {"command": "ls -la"}}, root)
-            self.assertEqual(proc.returncode, 0)
-            self.assertFalse((root / ".claude" / ".test-run-marker").exists())
-
-    def test_garbage_input_fails_open(self):
-        with tempfile.TemporaryDirectory() as d:
-            proc = subprocess.run([sys.executable, str(RECORD)], input="not json",
-                                  capture_output=True, text=True, cwd=d, timeout=30)
-            self.assertEqual(proc.returncode, 0)
-
-    def test_marker_not_written_when_test_command_failed(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            proc = run_hook(RECORD, {"tool_name": "Bash",
-                                     "tool_input": {"command": "pytest tests/"},
-                                     "tool_response": {"returncode": 1}}, root)
-            self.assertEqual(proc.returncode, 0)
-            self.assertFalse((root / ".claude" / ".test-run-marker").exists())
-
-    def test_marker_written_when_test_command_succeeded(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            proc = run_hook(RECORD, {"tool_name": "Bash",
-                                     "tool_input": {"command": "pytest tests/"},
-                                     "tool_response": {"returncode": 0}}, root)
-            self.assertEqual(proc.returncode, 0)
-            self.assertTrue((root / ".claude" / ".test-run-marker").exists())
+def git(root, *args):
+    return subprocess.run(["git", *args], cwd=root, check=True, capture_output=True)
 
 
-class VerifyBeforeStopHookTest(unittest.TestCase):
-    def make_dirty_repo(self, root):
-        init_git_repo(root)
-        target = root / "app.py"
-        target.write_text("x = 1\n", encoding="utf-8")
-        subprocess.run(["git", "add", "-A"], cwd=root, check=True, capture_output=True)
-        subprocess.run(["git", "commit", "-qm", "init"], cwd=root, check=True, capture_output=True)
-        target.write_text("x = 2\n", encoding="utf-8")
+class SessionVerificationTest(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        git(self.root, "init", "-q")
+        git(self.root, "config", "user.email", "test@example.invalid")
+        git(self.root, "config", "user.name", "Test")
+        (self.root / ".gitignore").write_text(".claude/.verification/\n__pycache__/\n", encoding="utf-8")
+        (self.root / "app.py").write_text("x = 1\n", encoding="utf-8")
+        git(self.root, "add", "-A")
+        git(self.root, "commit", "-qm", "baseline")
+        self.start()
 
-    def test_blocks_when_python_changed_and_no_marker(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            self.make_dirty_repo(root)
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
-            self.assertEqual(proc.returncode, 0)
-            out = json.loads(proc.stdout)
-            self.assertEqual(out["decision"], "block")
-            self.assertIn("app.py", out["reason"])
+    def start(self, session="session-A", source="startup"):
+        result = run_hook(START, {"session_id": session, "source": source}, self.root)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stderr, "")
 
-    def test_allows_when_marker_is_fresh(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            self.make_dirty_repo(root)
-            time.sleep(0.05)
-            marker = root / ".claude" / ".test-run-marker"
-            marker.parent.mkdir(parents=True, exist_ok=True)
-            marker.write_text("unittest", encoding="utf-8")
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
-            self.assertEqual(proc.stdout.strip(), "")
+    def change(self, text="x = 2\n"):
+        (self.root / "app.py").write_text(text, encoding="utf-8")
 
-    def test_blocks_when_change_is_newer_than_marker(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            self.make_dirty_repo(root)
-            marker = root / ".claude" / ".test-run-marker"
-            marker.parent.mkdir(parents=True, exist_ok=True)
-            marker.write_text("unittest", encoding="utf-8")
-            time.sleep(0.05)
-            (root / "app.py").write_text("x = 3\n", encoding="utf-8")
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
-            self.assertIn("block", proc.stdout)
+    def record(self, code=0, session="session-A", command="python -m unittest discover", response=None):
+        return run_hook(RECORD, {"session_id": session, "tool_name": "Bash",
+                                "tool_input": {"command": command},
+                                "tool_response": {"returncode": code} if response is None else response}, self.root)
 
-    def test_never_loops_when_stop_hook_active(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            self.make_dirty_repo(root)
-            proc = run_hook(VERIFY, {"stop_hook_active": True}, root)
-            self.assertEqual(proc.stdout.strip(), "")
+    def stop(self, session="session-A", **payload):
+        return run_hook(STOP, {"session_id": session, **payload}, self.root)
 
-    def test_allows_clean_worktree(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            init_git_repo(root)
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
-            self.assertEqual(proc.stdout.strip(), "")
+    def assert_blocked(self, session="session-A"):
+        result = self.stop(session)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(json.loads(result.stdout)["decision"], "block")
 
-    def test_fails_open_outside_git(self):
-        with tempfile.TemporaryDirectory() as d:
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, Path(d))
-            self.assertEqual(proc.returncode, 0)
-            self.assertEqual(proc.stdout.strip(), "")
+    def test_clean_session_needs_no_verification(self):
+        self.assertEqual(self.stop().stdout, "")
 
+    def test_preexisting_dirty_read_only_session_does_not_block(self):
+        self.change()
+        self.start("read-only")
+        self.assertEqual(self.stop("read-only").stdout, "")
 
-class PathFromStatusLineTest(unittest.TestCase):
-    """Direct unit tests of the porcelain-line parser, independent of whether
-    this git version/config actually emits "R" rename lines for a given
-    scenario (empirically inconsistent -- observed as plain D+A pairs here).
-    Per the documented `git status --porcelain` v1 format, rename/copy
-    entries can appear as "R  old -> new"; the parser must handle that
-    format if it's ever emitted, not just the common case."""
+    def test_changed_file_requires_verification(self):
+        self.change()
+        self.assert_blocked()
 
-    def test_plain_modified_path(self):
-        from verify_before_stop import path_from_status_line
-        self.assertEqual(path_from_status_line(" M app.py"), "app.py")
+    def test_successful_explicit_exit_verifies_current_snapshot(self):
+        self.change()
+        self.record()
+        self.assertEqual(self.stop().stdout, "")
 
-    def test_untracked_path(self):
-        from verify_before_stop import path_from_status_line
-        self.assertEqual(path_from_status_line("?? new_file.py"), "new_file.py")
+    def test_failed_test_cannot_verify(self):
+        self.change()
+        self.record(code=1)
+        self.assert_blocked()
 
-    def test_rename_keeps_target_path(self):
-        from verify_before_stop import path_from_status_line
-        self.assertEqual(path_from_status_line("R  old.py -> renamed.py"), "renamed.py")
+    def test_unknown_native_exit_invalidates_earlier_success(self):
+        self.change()
+        self.record()
+        self.record(response={"stdout": "collected tests", "stderr": "", "interrupted": False})
+        self.assert_blocked()
 
-    def test_quoted_path_is_unquoted(self):
-        from verify_before_stop import path_from_status_line
-        self.assertEqual(path_from_status_line(' M "has space.py"'), "has space.py")
+    def test_bool_exit_code_is_not_integer_success(self):
+        self.change()
+        self.record(code=False)
+        self.assert_blocked()
 
+    def test_interrupted_tool_cannot_verify(self):
+        self.change()
+        self.record(response={"returncode": 0, "interrupted": True})
+        self.assert_blocked()
 
+    def test_compound_pipeline_or_masked_exit_cannot_verify(self):
+        self.change()
+        for command in ("pytest | head", "pytest; true", "pytest || true", "echo ok; pytest"):
+            self.record(command=command)
+            self.assert_blocked()
 
-class VerifyMarkdownGateTest(unittest.TestCase):
-    def test_blocks_when_markdown_changed_and_no_marker(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            init_git_repo(root)
-            target = root / "README.md"
-            target.write_text("# a\n", encoding="utf-8")
-            subprocess.run(["git", "add", "-A"], cwd=root, check=True, capture_output=True)
-            subprocess.run(["git", "commit", "-qm", "init"], cwd=root, check=True, capture_output=True)
-            target.write_text("# b\n", encoding="utf-8")
-            proc = run_hook(VERIFY, {"stop_hook_active": False}, root)
-            self.assertEqual(proc.returncode, 0)
-            out = json.loads(proc.stdout)
-            self.assertEqual(out["decision"], "block")
-            self.assertIn("README.md", out["reason"])
-            self.assertIn("validate_framework.py", out["reason"])
+    def test_later_edit_with_same_mtime_invalidates_success(self):
+        self.change()
+        self.record()
+        stamp = (self.root / "app.py").stat().st_mtime_ns
+        self.change("x = 3\n")
+        os.utime(self.root / "app.py", ns=(stamp, stamp))
+        self.assert_blocked()
 
+    def test_verification_is_not_shared_across_sessions(self):
+        self.start("session-B")
+        self.change()
+        self.record()
+        self.assertEqual(self.stop().stdout, "")
+        self.assert_blocked("session-B")
 
-class RecordFailClosedTest(unittest.TestCase):
-    def test_fail_closed_when_exit_code_unknown(self):
-        with tempfile.TemporaryDirectory() as d:
-            root = Path(d)
-            # omit exit metadata on a known-good runner command from sibling tests
-            cmd = [c for c in (
-                "python3 -m unittest discover -s tests",
-            )][0]
-            proc = run_hook(RECORD, {"tool_name": "Bash",
-                                     "tool_input": {"command": cmd}}, root)
-            self.assertEqual(proc.returncode, 0)
-            self.assertFalse((root / ".claude" / ".test-run-marker").exists())
+    def test_resume_and_compact_preserve_pending_changes(self):
+        self.change()
+        for source in ("resume", "compact"):
+            self.start(source=source)
+            self.assert_blocked()
+
+    def test_clear_establishes_new_baseline(self):
+        self.change()
+        self.start(source="clear")
+        self.assertEqual(self.stop().stdout, "")
+
+    def test_nested_untracked_types_and_unicode_are_detected(self):
+        nested = self.root / "새 폴더"
+        nested.mkdir()
+        (nested / "new file.ts").write_text("export const x = 1;", encoding="utf-8")
+        self.assert_blocked()
+
+    def test_deleted_file_is_detected(self):
+        (self.root / "app.py").unlink()
+        self.assert_blocked()
+
+    def test_staged_rename_with_spaces_is_detected(self):
+        git(self.root, "mv", "app.py", "renamed file.py")
+        self.assert_blocked()
+        self.record()
+        self.assertEqual(self.stop().stdout, "")
+
+    def test_new_commit_changes_snapshot_even_when_worktree_clean(self):
+        self.change()
+        git(self.root, "add", "app.py")
+        git(self.root, "commit", "-qm", "edit")
+        self.assert_blocked()
+
+    def test_nested_cwd_uses_same_repository(self):
+        child = self.root / "folder"
+        child.mkdir()
+        self.change()
+        result = run_hook(RECORD, {"tool_name": "Bash", "tool_input": {"command": "pytest"},
+                                  "tool_response": {"exit_code": 0}}, child)
+        self.assertEqual(result.stderr, "")
+        self.assertEqual(self.stop().stdout, "")
+
+    def test_stop_hook_active_never_loops(self):
+        self.change()
+        self.assertEqual(self.stop(stop_hook_active=True).stdout, "")
+
+    def test_missing_or_corrupt_state_is_visible_and_fails_open(self):
+        result = self.stop("unknown")
+        self.assertEqual(result.stdout, "")
+        self.assertIn("unavailable", result.stderr)
+        from lib.verification_state import state_path
+        state_path(self.root, "session-A").write_text("not json", encoding="utf-8")
+        result = self.stop()
+        self.assertEqual(result.stdout, "")
+        self.assertIn("unavailable", result.stderr)
+
+    def test_non_verification_bash_does_not_credit(self):
+        self.change()
+        self.record(command="echo pytest")
+        self.assert_blocked()
+
+    def test_native_script_json_entrypoints(self):
+        result = run_hook(START, {"session_id": "native"}, self.root, native=True)
+        self.assertEqual(result.returncode, 0)
+        self.change()
+        result = run_hook(RECORD, {"session_id": "native", "tool_name": "Bash",
+                                  "tool_input": {"command": "pytest"},
+                                  "tool_response": {"exit_code": 0}}, self.root, native=True)
+        self.assertEqual(result.stderr, "")
+        result = run_hook(STOP, {"session_id": "native"}, self.root, native=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+
+    def test_state_contains_no_raw_command_arguments(self):
+        self.change()
+        self.record(command="pytest --password=CANARY_TEST_ONLY")
+        state = json.dumps(load_state(self.root, "session-A"))
+        self.assertNotIn("CANARY_TEST_ONLY", state)
+
+    def test_real_wrapper_success_credits_native_payload_without_exit_code(self):
+        self.change()
+        (self.root / "test_app.py").write_text(
+            "import unittest\nfrom app import x\nclass TestApp(unittest.TestCase):\n"
+            "    def test_x(self): self.assertEqual(x, 2); print('partial', end='')\n", encoding="utf-8")
+        result = subprocess.run([sys.executable, str(WRAPPER), "--", "python", "-m",
+                                 "unittest", "discover", "-s", "."], cwd=self.root,
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(RESULT_PREFIX, result.stdout)
+        self.assertIn("OK", result.stderr)
+        command = 'python "' + WRAPPER.as_posix() + '" -- python -m unittest discover -s .'
+        self.record(command=command, response={"stdout": result.stdout, "stderr": result.stderr,
+                                              "interrupted": False, "isImage": False})
+        self.assertEqual(self.stop().stdout, "")
+
+    def test_real_wrapper_failure_preserves_exit_and_stderr(self):
+        (self.root / "test_failure.py").write_text(
+            "import unittest\nclass Fail(unittest.TestCase):\n"
+            "    def test_failure(self): self.fail('expected failure')\n", encoding="utf-8")
+        result = subprocess.run([sys.executable, str(WRAPPER), "--", "python", "-m",
+                                 "unittest", "discover", "-s", "."], cwd=self.root,
+                                capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("expected failure", result.stderr)
+        command = 'python "' + WRAPPER.as_posix() + '" -- python -m unittest discover -s .'
+        self.record(command=command, response={"stdout": result.stdout, "interrupted": False})
+        self.assert_blocked()
+
+    def test_stale_or_wrong_wrapper_footer_cannot_verify(self):
+        self.change()
+        command = 'python "' + WRAPPER.as_posix() + '" -- pytest'
+        record = {"argv_digest": digest(["pytest"]), "returncode": 0,
+                  "snapshot": digest(snapshot(self.root))}
+        self.change("x = 3\n")
+        self.record(command=command, response={"stdout": RESULT_PREFIX + json.dumps(record)})
+        self.assert_blocked()
+
+    def test_malformed_wrapper_attempt_invalidates_previous_pass(self):
+        self.change()
+        command = 'python "' + WRAPPER.as_posix() + '" -- pytest'
+        for footer in ("invalid JSON", "[]"):
+            self.record()
+            self.record(command=command, response={"stdout": RESULT_PREFIX + footer})
+            self.assert_blocked()
+
+    def test_wrapper_changed_during_run_cannot_verify(self):
+        self.change()
+        current = digest(snapshot(self.root))
+        command = 'python "' + WRAPPER.as_posix() + '" -- pytest'
+        record = {"argv_digest": digest(["pytest"]), "returncode": 0,
+                  "snapshot_before": "different-state", "snapshot": current}
+        self.record(command=command, response={"stdout": RESULT_PREFIX + json.dumps(record)})
+        self.assert_blocked()
+
+    def test_non_bash_and_garbage_input_fail_open(self):
+        self.change()
+        result = run_hook(RECORD, {"tool_name": "Read"}, self.root)
+        self.assertEqual(result.returncode, 0)
+        self.assert_blocked()
+        result = subprocess.run([sys.executable, str(STOP)], input="not json",
+                                cwd=self.root, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("unavailable", result.stderr)
 
 
 class ExtractExitCodeTest(unittest.TestCase):
-    def test_accepts_tool_result_and_top_level_exit_code(self):
+    def test_ordinary_bash_skips_git_and_session_state(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = RECORD
+            if script not in HOOK_MODULES:
+                spec = importlib.util.spec_from_file_location("fef_hook_record", script)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                HOOK_MODULES[script] = module
+            with patch.object(HOOK_MODULES[script], "repository", side_effect=AssertionError("unneeded Git")):
+                result = run_hook(script, {"tool_name": "Bash", "tool_input": {"command": "echo hello"}}, Path(directory))
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stderr, "")
+
+    def test_defensive_host_exit_metadata(self):
         from lib.verification_commands import extract_exit_code
         self.assertEqual(extract_exit_code({"tool_result": {"exit_code": 0}}), 0)
         self.assertEqual(extract_exit_code({"exit_code": 1}), 1)

@@ -44,9 +44,13 @@ python3 scripts/install_pack.py --siblings-only --scan-sibling-parent
 python3 scripts/install_pack.py --auto --dry-run
 ```
 
-**Non-destructive policy:** install **creates** skill directories when needed and **preserves** an existing `fef-claude/` pack unless you pass `--force` (identical entry-file hash is skipped). No silent `rmtree` overwrite.
+**Non-destructive policy:** install **creates** skill directories when needed and **preserves** an existing `fef-claude/` pack unless you pass `--force` (identical shipped-file fingerprint plus intact installation is skipped). No silent `rmtree` overwrite.
 
 Sibling targets (when opted in): `<sibling>/.claude/skills/fef-claude` and/or `<sibling>/.agents/skills/fef-claude` when `.claude/`, `.cursor/`, `AGENTS.md`, or `.git` markers warrant creating those skills dirs.
+
+## 2026-10 optimization
+
+Compact core; integrated Coding/Research procedures; optional coding reviewer; session-scoped verification; shipped-file installation integrity. See [optimization decisions](docs/precise-analysis-2026-10-09.md) for sources, limits and structural measurements.
 
 ## What's new (pack updates)
 
@@ -70,7 +74,7 @@ It provides:
 - golden tests
 - Claude Code / Claude Projects usage guides
 
-Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. Coding tasks use the Coding Module, Workflow, and optional Reviewer; policies are selected by task trigger rather than loaded globally.
+Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. Coding tasks use the Coding Module (integrated workflow) and optional Reviewer; policies are selected by task trigger rather than loaded globally.
 
 ## Memory Bootstrap
 

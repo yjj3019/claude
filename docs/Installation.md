@@ -12,7 +12,7 @@ python3 scripts/install_pack.py --auto
 
 - `--auto` detects Claude Code, Codex, Grok, Cursor, and AGENTS-compatible skills roots and installs `fef-claude/` (**host skills only**).
 - Sibling install is **opt-in**: `--siblings PATH`, `FEF_SIBLING_ROOTS`, `--siblings-only`, and/or `--scan-sibling-parent` (parent-dir scan default OFF).
-- Existing `fef-claude/` is **preserved** unless `--force` (identical entry-file hash is skipped). Non-destructive = create skill dirs + preserve existing pack.
+- Existing `fef-claude/` is **preserved** unless `--force` (identical shipped-file fingerprint plus intact installation is skipped). Non-destructive = create skill dirs + preserve existing pack.
 - `--print-bootstrap` — host/sibling one-liners (sibling remains opt-in).
 - `--print-claude` prints exact steps to paste `CLAUDE.md` into Claude Project Instructions.
 - `--check` verifies an install; with `--with-tests`, also runs `validate_framework.py`.

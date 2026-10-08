@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — 2026-10-09
+
+- Compact generated core and pointer entry; merge Coding/Research default procedures with compatible old paths; make coding review conditional.
+- Session baseline/content-hash verification and real-exit argv wrapper replace the shared marker; retain visible fail-open diagnostics and Stop loop protection.
+- Fingerprint all shipped files, verify installed manifests and omit local session state; preserve overwrite protection.
+- Update Code/Projects, effort/Advisor and context/harness guidance without adding model calls or dependencies.
+
 ## Unreleased
 
 - Fixed a Round 4 routing regression: the trivia/definition short-circuit in `high_risk_hits` ran before the action-verb check, so a high-risk request phrased as a question ("production DB 마이그레이션 순서 알려줘", "what does the production rollout plan look like? apply it today") was scored `risk=low`, `kernel_only_safe=true` even with a deploy/migration/rollout verb present — quietly reopening the Round 2 P0 gap that gate was meant to close. `scripts/lib/routing.py` now checks action verbs first and only falls through to trivia/definition suppression when none matched; bare single-word `알려줘`/`뭐야` triggers were dropped (compound phrasing like "뜻이 뭐야" still suppresses). Added a 4-sentence regression fixture to `tests/test_harness.py`. (S4-04)

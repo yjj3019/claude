@@ -10,6 +10,7 @@ from pathlib import Path
 
 import validate_framework
 import validate_routes
+from measure_load import MAX_COLD_START_BYTES
 from run_golden_tests import validate as validate_golden_tests
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,10 +60,10 @@ def run_sync_kernel_check() -> int:
 
 
 def run_measure_load_budget() -> int:
-    """S3-01: fail if CLAUDE.md+AGENTS.md cold-start exceeds 9000 bytes."""
+    """Fail if the explicit both-entry structural scenario exceeds its budget."""
     script = ROOT / "scripts" / "measure_load.py"
     result = subprocess.run(
-        ["python", str(script), "--fail-over-cold-start", "9000"],
+        ["python", str(script), "--fail-over-cold-start", str(MAX_COLD_START_BYTES)],
         cwd=ROOT,
         text=True,
         encoding="utf-8",

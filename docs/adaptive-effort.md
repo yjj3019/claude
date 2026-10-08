@@ -4,6 +4,14 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 
 **When to load:** only when choosing/switching models by complexity, explaining L0–L3, or resolving an escalation dispute. Do **not** preload on L0–L1 cold-start.
 
+## Host and Effort Guardrail
+
+These dated tiers are repository preferences, not current API model IDs or automatic routing.
+Keep the active host model for ordinary work; verify available models and supported effort before switching.
+Compare accepted-task quality, retries, total usage and latency at supported effort levels before adding Advisor or a second model.
+Escalate model before expanding packs only for a capability gap; gather missing task evidence instead of buying a stronger model to guess.
+The 2026-09-06 roster is retained for compatibility; it does not promise current availability or fixed price ratios.
+
 ## Tier Table
 
 | Tier | Signals (examples) | Model default | Load |

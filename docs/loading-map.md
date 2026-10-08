@@ -1,22 +1,12 @@
-# FEF Loading Map
+# Loading Map
 
-This file selects task-specific FEF packs. It is a routing table, not a new reasoning layer.
-
-**Latency > completeness of pack load.** This map is deferred until a substantial task needs it. Simple/low-risk cold-start stays Kernel-only (`CLAUDE.md`). Do not treat PROGRESS, SESSION_LOG, CHANGELOG, README, optimization reports, or model-usage as required loads from this map.
-
-Here, `workflows/` means Markdown task procedures loaded as prompts, not executable Claude Code `.claude/workflows/` dynamic workflows.
+Load only files relevant to the task. Simple, low-risk work uses the inlined Kernel.
+For mapped work, preview with `python scripts/detect_task.py --task "..."`; do not also load this map unless manual selection or clarification is needed.
 
 ## Load Limits
 
-Maximum load per task:
-
-- Module: 1
-- Domain: up to 2
-- Workflow: 1
-- Reviewer: 1
-- Policies: up to 3
-
-Simple low-risk questions may skip this map and use the Kernel only. Select at most one Reviewer file per artifact. Run it at most once, only after a draft exists. Do not pass Reviewer output or the revised artifact through another Reviewer. Do not add new permanent layers; add capabilities as files inside existing directories.
+Module 1; Domain ≤2; Workflow 1; Reviewer 1; Policies ≤3.
+Required Integrity Policies follow triggers; never trim them to make a route look lighter.
 
 ## Task Map
 
@@ -27,10 +17,10 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 | RHEL operations manual | `modules/Manual.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/ManualWorkflow.md` | `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; `policies/Review.md` |
 | Linux/RHEL RCA | `modules/RCA.md` | `domains/RHEL.md`; optional `domains/Linux.md` | `workflows/RCAWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Evidence.md`; `policies/Thinking.md`; `policies/Review.md` |
 | OpenShift architecture review | `modules/Architecture.md` | `domains/OpenShift.md`; optional `domains/Kubernetes.md` | `workflows/ArchitectureWorkflow.md` | `reviewers/ArchitectureReviewer.md` | `policies/Thinking.md`; `policies/Evidence.md`; `policies/Review.md` |
-| Technical research brief / Current-version research | `modules/Research.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | None | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
+| Technical research brief / Current-version research | `modules/Research.md` | Relevant domain only | None (procedure in module) | None | `policies/Evidence.md`; `policies/Freshness.md`; `policies/Calibration.md` |
 | Technical blog post | `modules/Blog.md` | Relevant domain only | `workflows/ResearchWorkflow.md` | `reviewers/TechnicalReviewer.md` | `policies/Writing.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Prompt review | `modules/PromptEngineering.md` | None | `workflows/PromptWorkflow.md` | `reviewers/PromptReviewer.md` | `policies/Thinking.md`; `policies/Review.md`; optional `policies/Evidence.md` |
-| Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | `workflows/CodingWorkflow.md` | `reviewers/CodeChangeReviewer.md` | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
+| Code modification | `modules/Coding.md` | Relevant domain only when product-specific behavior matters | None (procedure in module) | optional `reviewers/CodeChangeReviewer.md` for consequential changes | `policies/FileHandling.md`; `policies/ToolExecution.md`; optional `policies/Freshness.md` |
 | File-backed technical analysis (manual-selection only; no keyword route) | `modules/Research.md` | Relevant domain only | None | Optional `reviewers/TechnicalReviewer.md` for high-risk deliverables | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Review.md` |
 | Knowledge-governance audit (manual-selection only; no keyword route) | `modules/Research.md` | None | None | Optional `reviewers/DocumentationReviewer.md` for external-facing guidance | `policies/FileHandling.md`; `policies/Evidence.md`; optional `policies/Freshness.md` |
 | Executive summary (manual-selection only; no keyword route) | `modules/ExecutiveSummary.md` | Relevant domain only | None | Optional `reviewers/DocumentationReviewer.md` for external-facing summaries | `policies/Writing.md`; optional `policies/Decision.md` when the summary carries a recommendation |
@@ -43,39 +33,26 @@ Simple low-risk questions may skip this map and use the Kernel only. Select at m
 
 ## Selection Rules
 
-1. Start with the user task, not the available files.
-2. Load the smallest set that can produce an accurate, reviewable answer.
-3. Prefer one domain. Add a second domain only when the task crosses a real product or platform boundary.
-4. Use reviewers for external-facing artifacts, high-risk technical recommendations, substantial code changes, or user-requested review.
-5. Skip workflows for short rewrites, definitions, and low-risk answers.
-6. Never select more than one reviewer. Use a combined reviewer when a task requires multiple review dimensions.
-7. If a required pack is missing, follow the missing-pack behavior in the repository `CLAUDE.md`; do not silently substitute another pack.
-8. For proposal work, select `ProposalReviewer` for general proposal quality, `TechnicalReviewer` when technical claims are the primary review target, or the combined `ProposalConsistencyReviewer` for the mapped consistency-check task. Never load two of them for one artifact.
-9. **Domain overflow (≤2):** when more than two domains match, `detect()` keeps the **top 2 by keyword-match rank** — **more keyword hits first, then earlier mention order in the ask** (current behavior; mention-order is intentional, not accidental) — and emits an explicit **warning naming every dropped domain** (e.g. Ansible). This is not a silent trim — operators must see the drop. An optional per-domain `rank` field in `config/routes.json` is a **future** enhancement only; do **not** change trim silently unless/until that field exists and is documented. Integrity policies required by the route (Evidence / FileHandling / ToolExecution / Freshness) are never stripped. If a dropped domain is required, narrow the task and re-detect. Other pack-limit violations still fail validation loudly. (S4-07)
-10. Weak **coding fallback** keywords (`error`, `fix`, `수정해`, …) are gated so prose/Q&A/typo-fix asks (e.g. “what is the error budget concept?”, “이 문서의 오탈자 수정해”) do **not** select the Coding workflow+reviewer pack (`R2-P1-FALLBACK-OVERFIRE`).
-11. **Unmapped + high-risk:** evaluate `high_risk_keywords` before the unmapped early return. High-risk unmapped asks get `risk_level=high`, `kernel_only_safe=false`, and minimal safety (`policies/Evidence.md`) plus a warning — never the lightest Kernel-only config (`R2-P0-UNMAPPED-HIGHRISK`).
+- Start from the requested outcome. Coding and Research modules include their workflow; compatibility entries need no second load.
+- Select relevant product domains only. RHEL subsumes Linux; OpenShift subsumes Kubernetes.
+- Ansible/Satellite keywords apply across routes. Domain overflow keeps two by keyword hits then mention order and warns about every dropped domain; if a dropped domain is required, narrow/re-detect.
+- Review is optional unless requested or consequential risk requires it; use one reviewer after a draft, never review loops.
+- Weak coding fallback keywords require code evidence. Unmapped high-risk tasks receive Evidence plus a warning, never a silently safe Kernel-only result.
+- Missing required pack: report the gap and limit work safely. Optional missing material matters only if it changes confidence.
 
 ## Policy Classes
 
-- Integrity Policies: Evidence, FileHandling, Freshness, ToolExecution, and selected safety or security rules. These preserve truthful evidence, execution, and risk boundaries.
-- Preference Policies: Writing, Review, Calibration, Thinking, and Decision. Explicit user output constraints override these defaults.
+Integrity: Evidence, FileHandling, Freshness, ToolExecution and applicable safety/security. User instructions override preference defaults when integrity holds.
 
 ## Policy Selection Rules
 
-Load no policy by default unless the task trigger requires it.
-
 | Trigger | Required policy |
 |---|---|
-| External factual or technical claims | `policies/Evidence.md` |
-| Current, version-sensitive, lifecycle, CVE, support, subscription, or policy claims | `policies/Freshness.md` |
-| Reading, modifying, comparing, generating, or validating files | `policies/FileHandling.md` |
-| Executing commands, tests, builds, deployments, or tool actions | `policies/ToolExecution.md` |
-| High-impact deliverable requiring a formal review pass | `policies/Review.md` |
-| Recommendation or architecture choice requiring an explicit trade-off record | `policies/Decision.md` |
+| External factual/technical claims | `policies/Evidence.md` |
+| Current/version-sensitive/support/CVE claims | `policies/Freshness.md` |
+| Reading/modifying/generating files | `policies/FileHandling.md` |
+| Commands/tests/builds/tool actions | `policies/ToolExecution.md` |
+| Formal review | `policies/Review.md` |
+| Recommendation requiring trade-offs | `policies/Decision.md` |
 
-Maximum policies per task: 3. When more than three triggers apply:
-
-1. Preserve policies tied to observable execution risk.
-2. Prefer a selected Workflow or Reviewer for task-specific checks.
-3. Do not load a policy whose rules are already fully enforced by the selected Workflow or Reviewer.
-4. Do not create wrapper policies merely to bypass the policy limit.
+At most three: prioritize execution risk and avoid duplicating rules already covered by the selected workflow/reviewer. If necessary safety contracts cannot fit, narrow the task rather than silently drop them.

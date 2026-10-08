@@ -166,8 +166,8 @@
         "수정해"
       ],
       "module": "modules/Coding.md",
-      "workflow": "workflows/CodingWorkflow.md",
-      "reviewer": "reviewers/CodeChangeReviewer.md",
+      "workflow": null,
+      "reviewer": null,
       "policies": [
         "policies/FileHandling.md",
         "policies/ToolExecution.md"
@@ -256,7 +256,7 @@
         "최신 버전"
       ],
       "module": "modules/Research.md",
-      "workflow": "workflows/ResearchWorkflow.md",
+      "workflow": null,
       "reviewer": null,
       "policies": [
         "policies/Evidence.md",

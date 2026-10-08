@@ -42,3 +42,6 @@ claude/
 rpm/
 tmp/
 scratch_notion_ai_simple.md
+
+# Per-session verification snapshots; never ship or commit local state.
+.claude/.verification/
