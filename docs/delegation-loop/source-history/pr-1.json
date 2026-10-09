@@ -1,0 +1,11 @@
+{
+  "number": 1,
+  "title": "Add AI Delegation Loop v1.2 Agent Skill",
+  "body": "## 변경 사항\n\n- Grok Build·Codex·Claude Code의 프로젝트/사용자 설치 경로와 명시 호출 방법을 추가했습니다.\n- ChatGPT·Claude·Grok 웹/앱 설치 안내, 계정/조직 조건과 지침 첨부 대체 절차를 공식 문서에 근거해 제공합니다.\n- 18개 합성 사례, 재실행 가능한 실행기, 응답과 해시를 담은 결과 JSON, 설치 프로브와 한국어 보고서를 포함합니다.\n- 전체 PR은 README와 스킬 패키지의 18개 파일입니다.\n\n## 실제 시뮬레이션 결과\n\n로그인된 세 CLI를 사용해 두 라운드, 총 24개 새 세션에서 432개 사례 판정을 비교했습니다. 18개 서로 다른 사례를 반복한 결과이며 독립된 업무 432개를 뜻하지 않습니다.\n\n| 도구 | 미적용 | 적용 |\n| --- | --- | --- |\n| Codex | 70/72 | 72/72 |\n| Claude Code | 71/72 | 72/72 |\n| Grok Build | 69/72 | 72/72 |\n| 합계 | 210/216 (97.2%) | 216/216 (100%) |\n\n이 합성 입력에서 스킬 고유의 검증 등급과 실패 중단 규칙 일치율이 2.8%p 증가했습니다. 실제 업무 시간 절감이나 일반 성능 향상을 입증한 시험은 아닙니다.\n\n## 검증\n\n- Skill Creator 형식 검사, 내부 링크/파일 구성 검사, Python 문법 검사: 통과.\n- 채점기 self-check와 실행 실패·타임아웃·잘못된 플랫폼 입력 점검: 통과.\n- 공개 결과에서 자격 증명과 불필요한 비공개 실행 메타데이터를 제외했습니다.\n- Claude Code·Grok Build 로컬 프로브: 실제 보조 프롬프트 읽기, 첫 질문과 업무 파일 미생성 확인.\n- Codex: 스킬 명시 호출과 첫 질문 확인. 읽기 전용 Windows 시험의 보조파일 접근은 두 번 차단됐고 세 번째 자동 승인 심사 시도는 타임아웃되어 **UNVERIFIED**입니다. 거부 응답은 확인되지 않았으며 ACL/보안 정책을 변경하지 않았습니다.\n- 웹 업로드 화면, 자동 호출, 전체 인터뷰와 실무 운영은 미검증입니다.\n- GitHub Actions 실행 성공을 주장하지 않습니다.\n\n[설치 안내](https://github.com/yjj3019/DelegationLoop/blob/b12d240893699a88a49ccb7ce4235ffa051b3293/skills/ai-delegation-loop/installation.ko.md) · [시뮬레이션 보고서](https://github.com/yjj3019/DelegationLoop/blob/b12d240893699a88a49ccb7ce4235ffa051b3293/skills/ai-delegation-loop/tests/simulation-report.ko.md)\n\n사용자가 세 플랫폼 설치 안내와 시뮬레이션 완료 후 머지를 명시적으로 요청했습니다.",
+  "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1",
+  "state": "closed",
+  "merged_at": "2026-10-08T18:57:14Z",
+  "author": "yjj3019",
+  "head": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+  "base": "bc92c6199ecc6a7afa20be4ff1f450055805f2af"
+}

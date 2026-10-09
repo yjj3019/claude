@@ -93,3 +93,15 @@ python -m unittest discover -s tests -p "test_*.py"
 ```
 
 구조/라우팅 시뮬레이션: [docs/simulation-10-report-2026-09-06.md](docs/simulation-10-report-2026-09-06.md)
+
+## AI 위임 루프 (별도 선택 설치)
+
+반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.3 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. 산출물 계약을 보존하고, 독립 프롬프트의 자료·승인 경계와 검증 기준 유지·일반 규칙 재검증을 보완했습니다. 기본 설치·ZIP은 실행 자료와 수용 기준만 포함하며, 과거 실험은 저장소에 보존합니다(`--with-evidence`로 포함 가능). [측정과 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md)를 구분합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
+
+```sh
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
+python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
+```
+
+[플랫폼별 설치](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md)와 [이력 보존·출처·미확정 라이선스·검증 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md)를 확인하세요. v1.2 모델 시험은 HISTORICAL이며 수정본에는 STALE입니다. 현재 문서 계약·채점기 검사는 별도 hash로 기록합니다. 수정본 모델 행동과 Codex 보조 프롬프트 읽기는 UNVERIFIED입니다.

@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "date": "2026-10-09",
+  "before_commit": "0163af554b3576924b8db247b5259ee03355d377",
+  "after_package_version": "1.3",
+  "scope": "Windows/Python 3.14 working-tree measurements; no model latency/quality measurement",
+  "before": {
+    "commit": "0163af554b3576924b8db247b5259ee03355d377",
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "win32",
+    "package": {
+      "files": 23,
+      "bytes": 239215
+    },
+    "fef-claude": {
+      "files": 94,
+      "bytes": 307873,
+      "install_seconds": 1.6512717999867164,
+      "contains_source_history": false
+    },
+    "ai-delegation-loop": {
+      "files": 23,
+      "bytes": 239215,
+      "install_seconds": 1.2028959000017494,
+      "contains_source_history": false
+    },
+    "force_install": {
+      "source_file_hash_passes": 4,
+      "source_inventory_passes": 7,
+      "force_seconds": 1.1373086999519728
+    },
+    "validator_seconds": {
+      "runs": [
+        0.9100098999915645,
+        0.7871145000099204,
+        0.9477777000283822
+      ],
+      "median": 0.9100098999915645,
+      "samples": 3
+    },
+    "default_read": {
+      "AGENTS.md": {
+        "bytes": 656,
+        "approx_tokens_utf8_bytes_div4": 164
+      },
+      "CLAUDE.md": {
+        "bytes": 3982,
+        "approx_tokens_utf8_bytes_div4": 996
+      },
+      "skills/ai-delegation-loop/SKILL.md": {
+        "bytes": 5347,
+        "approx_tokens_utf8_bytes_div4": 1337
+      }
+    },
+    "measurement_limit": "Warm local filesystem, three validator subprocess samples; byte/4 is only a rough token estimate; no model latency or quality measurement."
+  },
+  "after": {
+    "commit": "0163af554b3576924b8db247b5259ee03355d377",
+    "working_tree_modified": true,
+    "python": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+    "platform": "win32",
+    "package": {
+      "files": 23,
+      "bytes": 246262
+    },
+    "fef-claude": {
+      "files": 94,
+      "bytes": 308940,
+      "normalized_lf_bytes": 301560,
+      "install_seconds": 1.683569000044372,
+      "contains_source_history": false
+    },
+    "ai-delegation-loop": {
+      "files": 14,
+      "bytes": 62892,
+      "normalized_lf_bytes": 62892,
+      "install_seconds": 0.9777209000312723,
+      "contains_source_history": false
+    },
+    "force_install": {
+      "source_file_hash_passes": 3,
+      "source_inventory_passes": 3,
+      "force_seconds": 0.15340000001015142
+    },
+    "validator_seconds": {
+      "runs": [
+        0.7755471999989823,
+        0.7763305000262335,
+        0.6570224000024609
+      ],
+      "median": 0.7755471999989823,
+      "samples": 3
+    },
+    "default_read": {
+      "AGENTS.md": {
+        "bytes": 656,
+        "normalized_lf_bytes": 645,
+        "approx_tokens_utf8_bytes_div4": 164
+      },
+      "CLAUDE.md": {
+        "bytes": 3982,
+        "normalized_lf_bytes": 3913,
+        "approx_tokens_utf8_bytes_div4": 996
+      },
+      "skills/ai-delegation-loop/SKILL.md": {
+        "bytes": 5847,
+        "normalized_lf_bytes": 5847,
+        "approx_tokens_utf8_bytes_div4": 1462
+      }
+    },
+    "measurement_limit": "Warm local filesystem, three validator subprocess samples; byte/4 is only a rough token estimate; no model latency or quality measurement."
+  },
+  "code_sha256": {
+    "scripts/delegation/install.py": "c7f29ca551719dd17205562f5842d17619f4e571c4722f544715aca5e21f2747",
+    "scripts/delegation/validate_skill.py": "7cda5b1af2934ada1a79ba6c59666698279912f7fb97cfe5e64b73076f4812c6",
+    "scripts/install_pack.py": "83186fa58b0b044550225c7892b39d4be8a6d70e2299b949bdc20216e89d2f4f",
+    "skills/ai-delegation-loop/SKILL.md": "95593b2055b0ef28dbb0f42799dca1bcbf525bf563d7222fbc2898173cbc6190"
+  },
+  "tests": {
+    "before_delegation": {
+      "count": 35,
+      "seconds": 79.265,
+      "concurrent_full_fef_suite": true
+    },
+    "after_delegation": {
+      "count": 49,
+      "seconds": 51.935,
+      "concurrent_full_fef_suite": false
+    },
+    "full_fef_recheck": {
+      "count": 152,
+      "seconds": 846.302,
+      "head": "0163af554b3576924b8db247b5259ee03355d377"
+    },
+    "comparison_limit": "Suite counts and host contention differ; do not infer a test-speed improvement."
+  }
+}

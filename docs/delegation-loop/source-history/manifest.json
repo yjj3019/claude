@@ -1,0 +1,405 @@
+{
+  "source": "https://github.com/yjj3019/DelegationLoop",
+  "captured_date": "2026-10-09",
+  "refs": {
+    "refs/heads/main": "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "refs/remotes/origin/HEAD": "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "refs/remotes/origin/feat/ai-delegation-loop-v1.2": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "refs/remotes/origin/main": "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "refs/remotes/origin/optimize/three-platforms": "01351414e10df3c177939e4fef8393609ece6c55"
+  },
+  "commits": [
+    "01351414e10df3c177939e4fef8393609ece6c55",
+    "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "bc92c6199ecc6a7afa20be4ff1f450055805f2af"
+  ],
+  "objects": {
+    "commit": 5,
+    "tree": 26,
+    "blob": 42
+  },
+  "files": {
+    "refs/heads/main": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "blob": "5428f2268add06cfffca8b66294379d8f312136d",
+        "sha256": "c61c712116182d80dc01ccae41c0275193ffbd247e026b70f53ce2bf30b02bcf",
+        "bytes": 3265
+      },
+      {
+        "path": "skills/ai-delegation-loop/SKILL.md",
+        "mode": "100644",
+        "blob": "fe4f4fe590c33a02c2819e461b22202f1f93d3b1",
+        "sha256": "3c48893888f12a3b0f15033b76773d76a53d31894d84435fb0d066456ca45510",
+        "bytes": 4832
+      },
+      {
+        "path": "skills/ai-delegation-loop/installation.ko.md",
+        "mode": "100644",
+        "blob": "16ce5b929729785d5bc8185e1ead0af6e439fefb",
+        "sha256": "7a8f0703e4b8447c970904ac1dfed5484d29e3c383998f165bb7bd29e86d9f68",
+        "bytes": 7279
+      },
+      {
+        "path": "skills/ai-delegation-loop/manual.ko.md",
+        "mode": "100644",
+        "blob": "a5530b2d558c80c8e531d899e439ffdb3e554bd6",
+        "sha256": "70c8816b7b79fb6d70d90f6b6d60b5b3633ee0eb6e8cba2605b625e7fed67c33",
+        "bytes": 12594
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/01-interview.md",
+        "mode": "100644",
+        "blob": "f15095896ce3626bb590724cd032e587b9c15744",
+        "sha256": "d42d0dc6334bd46936736b4a22a19a215f4dfb9fd18ddeb213c58f914ac719ff",
+        "bytes": 2631
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/02-toolbox.md",
+        "mode": "100644",
+        "blob": "0864e882fa81e8d8f590dfa7538adf99f071d1ef",
+        "sha256": "4ac3cc67cf5dc8dbf9a45a52543a7f74028ea352426101d3bf4c633fad349177",
+        "bytes": 2375
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/03-proof.md",
+        "mode": "100644",
+        "blob": "6132d6d82855f3c3c6ce86617ddaaa3637533f1e",
+        "sha256": "37c318e595547f3ea2c69cb0c961922224dfec21025e154af61cfc117d0f9650",
+        "bytes": 1900
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/04-failure-loop.md",
+        "mode": "100644",
+        "blob": "b93e30c7c2afbe735262ca93f817beab3d1259e9",
+        "sha256": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6",
+        "bytes": 2118
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/SKILL.template.md",
+        "mode": "100644",
+        "blob": "67602adcda2fdc76fdb02f515ab7ad96be9b2472",
+        "sha256": "5f307a4544919fc620b330bad7fd536b83c6f07b7a751fdd1e1d5a5fa6f6c5fb",
+        "bytes": 1387
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/files/INDEX.template.md",
+        "mode": "100644",
+        "blob": "2709d80ff016125c7bb18e6b21e5eb549c1c4441",
+        "sha256": "bf70afb064ea328ae0cbed647b09c1e430d5fb7558605b4321eaabe08eaf923f",
+        "bytes": 288
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/notes.template.md",
+        "mode": "100644",
+        "blob": "97bf555a78f6b168a42447970ebd7293f02bc9bf",
+        "sha256": "23ca33fae90e8ce437d7241c7f24fdecc19baeb420cd1feb87bc8b009570e38d",
+        "bytes": 430
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/acceptance-cases.md",
+        "mode": "100644",
+        "blob": "f8937631aa2689c0810f63b3c4fa2132f9649851",
+        "sha256": "bd084d9410b6e55abb86b3bd394b47521b873261100be6e8a707c48018da1d27",
+        "bytes": 3768
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/native-probe-results.json",
+        "mode": "100644",
+        "blob": "622762b900e72c77285892892eb960c1761bdabe",
+        "sha256": "6635c446da2b2721883080c62db50955d6c4d5a4c6543c893b7c5672c113c11b",
+        "bytes": 4291
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/run_native_probe.py",
+        "mode": "100644",
+        "blob": "5c8a0a282449e076b621f795af3a49e2f892ee14",
+        "sha256": "849a5e6304ce6800b6d0708205b0d6ffff6b82344e1e675b26aff86d95f86fd5",
+        "bytes": 8333
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/run_simulation.py",
+        "mode": "100644",
+        "blob": "1f775620f07660ffd5e44a325a7dade0a52496d7",
+        "sha256": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5",
+        "bytes": 7628
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-cases.json",
+        "mode": "100644",
+        "blob": "60fb21b46c47ff3f5e038100c446eced2daaba95",
+        "sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+        "bytes": 4834
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-report.ko.md",
+        "mode": "100644",
+        "blob": "e8ea98fe3969bfef59ad959dd843bafdf93872ed",
+        "sha256": "2267b6d2db5515f9b1073ca4ca4c9c6c61ad080ad4c9af3442d0f2f55116e489",
+        "bytes": 7043
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-results.json",
+        "mode": "100644",
+        "blob": "6e435aa2b7a4f643398fb014b51f9c9c95fdd984",
+        "sha256": "828efcaf34467d35bfef1f4be81d4070f5c69c21ee649d6bf0ff662a4eab89f2",
+        "bytes": 146146
+      }
+    ],
+    "refs/remotes/origin/optimize/three-platforms": [
+      {
+        "path": ".gitattributes",
+        "mode": "100644",
+        "blob": "cf457f35b7d2404cdfa50c0d3af9941afcf13663",
+        "sha256": "850cd65a98fe1e074aeb6be2db16c39cacc88210472cf6c6d6f7c50958a13f61",
+        "bytes": 268
+      },
+      {
+        "path": ".github/workflows/validate.yml",
+        "mode": "100644",
+        "blob": "53a0b842e26159eb297c9a9fdc523627c4c6e8a4",
+        "sha256": "61f15275c1d9b70755283b79a20b972783443055e6d071ffe7ec8ab209c9ede0",
+        "bytes": 708
+      },
+      {
+        "path": ".gitignore",
+        "mode": "100644",
+        "blob": "003204b691382c37fc61b1b950d652253cbd56d5",
+        "sha256": "498bed3e39a7c9030ce0961e2ca7a872a81851bd7d56b549ee7518286d59a2fb",
+        "bytes": 98
+      },
+      {
+        "path": "AGENTS.md",
+        "mode": "100644",
+        "blob": "4ffa3f77610666232fb375d6a7f49ff0141d731c",
+        "sha256": "e137cbb7399e6db96d498431ace5d874d79c7bbd833760e6dcb76da3b624dd5a",
+        "bytes": 2615
+      },
+      {
+        "path": "CLAUDE.md",
+        "mode": "100644",
+        "blob": "43c994c2d3617f947bcb5adf1933e21dabe46bb5",
+        "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+        "bytes": 11
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "blob": "5845b172751f33c4a93130d23f966970e354d0b9",
+        "sha256": "5e30774b2cbb3d5b54982a2119309342561ff89b56a94c0830d58a5fb884c380",
+        "bytes": 4068
+      },
+      {
+        "path": "scripts/install.py",
+        "mode": "100644",
+        "blob": "d706157cef018f4e9c34cc05f849fb1c9871bdc8",
+        "sha256": "58d826397400ee484b989829cf210a83c93e0691ddee9af236e33aabf9ed8541",
+        "bytes": 7960
+      },
+      {
+        "path": "scripts/test_scripts.py",
+        "mode": "100644",
+        "blob": "5e4f002bc1c989bff8ef2e8bcbb133b716e91d3f",
+        "sha256": "8297a97b6e66dabc570ee092367dc99eb4f62a23916e3dd356efdcc45ba0b512",
+        "bytes": 11279
+      },
+      {
+        "path": "scripts/validate_skill.py",
+        "mode": "100644",
+        "blob": "e767c78d35e4f369ba6487d12316ff42b6a66829",
+        "sha256": "27502d38f7e6db3d57a576e7326cb420addbd0945621a0b98a406f1dad170023",
+        "bytes": 16645
+      },
+      {
+        "path": "skills/ai-delegation-loop/SKILL.md",
+        "mode": "100644",
+        "blob": "fe4f4fe590c33a02c2819e461b22202f1f93d3b1",
+        "sha256": "3c48893888f12a3b0f15033b76773d76a53d31894d84435fb0d066456ca45510",
+        "bytes": 4832
+      },
+      {
+        "path": "skills/ai-delegation-loop/agents/openai.yaml",
+        "mode": "100644",
+        "blob": "ed33cad65a546a94092ffe5cf1941f172c80e011",
+        "sha256": "743ab95ac2b8cb959810fcc445ac369e409da17dc2df5f58543d186534a86b0b",
+        "bytes": 275
+      },
+      {
+        "path": "skills/ai-delegation-loop/installation.ko.md",
+        "mode": "100644",
+        "blob": "cb967e379c68107c26b8d55bbab4e221de405036",
+        "sha256": "5f8edd939477cfdc6ea669eeb07958713dc1a918f6699d53caeaae578b7ea9b3",
+        "bytes": 11299
+      },
+      {
+        "path": "skills/ai-delegation-loop/manual.ko.md",
+        "mode": "100644",
+        "blob": "a5530b2d558c80c8e531d899e439ffdb3e554bd6",
+        "sha256": "70c8816b7b79fb6d70d90f6b6d60b5b3633ee0eb6e8cba2605b625e7fed67c33",
+        "bytes": 12594
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/01-interview.md",
+        "mode": "100644",
+        "blob": "f15095896ce3626bb590724cd032e587b9c15744",
+        "sha256": "d42d0dc6334bd46936736b4a22a19a215f4dfb9fd18ddeb213c58f914ac719ff",
+        "bytes": 2631
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/02-toolbox.md",
+        "mode": "100644",
+        "blob": "0864e882fa81e8d8f590dfa7538adf99f071d1ef",
+        "sha256": "4ac3cc67cf5dc8dbf9a45a52543a7f74028ea352426101d3bf4c633fad349177",
+        "bytes": 2375
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/03-proof.md",
+        "mode": "100644",
+        "blob": "6132d6d82855f3c3c6ce86617ddaaa3637533f1e",
+        "sha256": "37c318e595547f3ea2c69cb0c961922224dfec21025e154af61cfc117d0f9650",
+        "bytes": 1900
+      },
+      {
+        "path": "skills/ai-delegation-loop/prompts/04-failure-loop.md",
+        "mode": "100644",
+        "blob": "b93e30c7c2afbe735262ca93f817beab3d1259e9",
+        "sha256": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6",
+        "bytes": 2118
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/SKILL.template.md",
+        "mode": "100644",
+        "blob": "58be6dda85bbf287e8d821ea75e57365b9cd8712",
+        "sha256": "9fcf41b6bcf75815c3a983916c7b0581f289cc03bf2e458558e4fdee9bd0a842",
+        "bytes": 1389
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/files/INDEX.template.md",
+        "mode": "100644",
+        "blob": "2709d80ff016125c7bb18e6b21e5eb549c1c4441",
+        "sha256": "bf70afb064ea328ae0cbed647b09c1e430d5fb7558605b4321eaabe08eaf923f",
+        "bytes": 288
+      },
+      {
+        "path": "skills/ai-delegation-loop/templates/job-playbook/notes.template.md",
+        "mode": "100644",
+        "blob": "97bf555a78f6b168a42447970ebd7293f02bc9bf",
+        "sha256": "23ca33fae90e8ce437d7241c7f24fdecc19baeb420cd1feb87bc8b009570e38d",
+        "bytes": 430
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/acceptance-cases.md",
+        "mode": "100644",
+        "blob": "f8937631aa2689c0810f63b3c4fa2132f9649851",
+        "sha256": "bd084d9410b6e55abb86b3bd394b47521b873261100be6e8a707c48018da1d27",
+        "bytes": 3768
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/native-probe-results.json",
+        "mode": "100644",
+        "blob": "622762b900e72c77285892892eb960c1761bdabe",
+        "sha256": "6635c446da2b2721883080c62db50955d6c4d5a4c6543c893b7c5672c113c11b",
+        "bytes": 4291
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/run_native_probe.py",
+        "mode": "100644",
+        "blob": "5c8a0a282449e076b621f795af3a49e2f892ee14",
+        "sha256": "849a5e6304ce6800b6d0708205b0d6ffff6b82344e1e675b26aff86d95f86fd5",
+        "bytes": 8333
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/run_simulation.py",
+        "mode": "100644",
+        "blob": "1f775620f07660ffd5e44a325a7dade0a52496d7",
+        "sha256": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5",
+        "bytes": 7628
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-cases.json",
+        "mode": "100644",
+        "blob": "60fb21b46c47ff3f5e038100c446eced2daaba95",
+        "sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+        "bytes": 4834
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-report.ko.md",
+        "mode": "100644",
+        "blob": "e8ea98fe3969bfef59ad959dd843bafdf93872ed",
+        "sha256": "2267b6d2db5515f9b1073ca4ca4c9c6c61ad080ad4c9af3442d0f2f55116e489",
+        "bytes": 7043
+      },
+      {
+        "path": "skills/ai-delegation-loop/tests/simulation-results.json",
+        "mode": "100644",
+        "blob": "6e435aa2b7a4f643398fb014b51f9c9c95fdd984",
+        "sha256": "828efcaf34467d35bfef1f4be81d4070f5c69c21ee649d6bf0ff662a4eab89f2",
+        "bytes": 146146
+      }
+    ]
+  },
+  "artifacts": {
+    "DelegationLoop.bundle": {
+      "bytes": 68724,
+      "sha256": "bba18c87965baa407d1fcf9f51d3f0b0f8a60fcbc010dd4cb449d5d50a1437d4"
+    },
+    "pr-1-conversation.json": {
+      "bytes": 1608,
+      "sha256": "e3b996ed41d764c246c4835c9bce4f7d76a617fc69e808e8a3989f302b614ef7"
+    },
+    "pr-1-review-comments.json": {
+      "bytes": 5915,
+      "sha256": "50ba0d7d7539bccc724c502389750f27cf27a4e830c1d8f88063eed0de9b8c57"
+    },
+    "pr-1-reviews.json": {
+      "bytes": 981,
+      "sha256": "7c385d8574375d4e474293e5a4736d4997817ec58be5834fc608b17051a9f42f"
+    },
+    "pr-1.json": {
+      "bytes": 2888,
+      "sha256": "db792c9d9df2d69c9fd3698e7ddbaae11dd1ffc4fdee4d436ebeae722a3cdf00"
+    }
+  },
+  "license": "Unresolved; no source LICENSE; target MIT placeholder is incomplete",
+  "scan": {
+    "scope": "every reachable blob in bundled refs",
+    "patterns": [
+      "AWS access key",
+      "private key block",
+      "GitHub token",
+      "API secret key",
+      "Slack token",
+      "Google API key",
+      "Windows user path",
+      "POSIX home path",
+      "email address"
+    ],
+    "findings": [],
+    "limitations": "Pattern scan is not proof of absence; Git author identities preserved intentionally in history."
+  },
+  "restore": {
+    "clone_mirror": "PASS",
+    "fsck_full": "PASS",
+    "all_ref_ids": "PASS"
+  },
+  "wiki": {
+    "has_wiki_setting": true,
+    "git_endpoint": "Repository not found",
+    "content": "No retrievable Wiki repository"
+  },
+  "discussion": {
+    "pr-1-conversation.json": 1,
+    "pr-1-review-comments.json": 5,
+    "pr-1-reviews.json": 1
+  },
+  "advertised_remote_refs": {
+    "HEAD": "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "refs/heads/main": "1e35bf0a6d16bac0c6e1dccda1014a1e78b7bb96",
+    "refs/heads/feat/ai-delegation-loop-v1.2": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "refs/heads/optimize/three-platforms": "01351414e10df3c177939e4fef8393609ece6c55",
+    "refs/pull/1/head": "b12d240893699a88a49ccb7ce4235ffa051b3293"
+  }
+}

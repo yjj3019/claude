@@ -1,0 +1,8 @@
+# Preserve reproducible package bytes and historical evidence on all platforms.
+skills/ai-delegation-loop/** text eol=lf
+# Preserve historical result blobs exactly, including their original CRLF bytes.
+skills/ai-delegation-loop/tests/native-probe-results.json -text
+skills/ai-delegation-loop/tests/simulation-results.json -text
+scripts/delegation/** text eol=lf
+docs/delegation-loop/** text eol=lf
+docs/delegation-loop/source-history/*.bundle binary

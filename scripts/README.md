@@ -25,6 +25,17 @@ python scripts/measure_load.py
 python scripts/sync_kernel.py --check
 ```
 
-- `install_pack.py` copies the FEF pack to detected AI host skills directories as `fef-claude/` and, with `--auto`, into sibling git repo skill roots (stdlib only). See `--print-bootstrap`.
+- `install_pack.py` copies the FEF pack to detected AI host skills directories as `fef-claude/`; sibling git repo skill roots require explicit opt-in (stdlib only). See `--print-bootstrap`.
 - `measure_load.py` estimates Kernel-only vs per-route UTF-8 load and the full-tree anti-pattern size. Prints a prominent **SIMPLE Q&A COLD-START** line; optional `--fail-over-cold-start` (default 7000 bytes) fails if CLAUDE.md exceeds the structural budget.
 - `markdown_sections.py` provides fence-aware `##` parsing for validators and load tools.
+
+## Delegation tooling
+
+- `install_pack.py --pack ai-delegation-loop --dest /path/to/skills`: separate opt-in install at the same skills root as FEF; `--check`, `--force`, `--dry-run` supported.
+- `delegation/install.py install --target claude codex --scope user`: explicit tool paths; project scope requires `--project-dir`.
+- `delegation/install.py package --output /path/to/package.zip`: reproducible ZIP, refuses existing output unless `--force`.
+- Delegation installation and ZIP default to operational files plus acceptance guidance. Optional `--with-evidence` includes the preserved test runners/reports/JSON. The canonical Git package and history archive stay complete; local runtime links remain valid in both projections.
+- `delegation/validate_skill.py`: scoped format, links, JSON, evidence hashes, version, leak and entry-file validation. Root FEF validation remains separate.
+- `python -m unittest discover -s scripts/delegation -p "test_*.py"`: minimal package fixtures and isolated temporary HOME.
+- `delegation/refresh_evidence.py --check`: reruns static prompt contracts, isolated playbook fixtures and the oracle grader without model execution; verifies current records and preserves historical v1.2 model artifacts. Omit `--check` to regenerate only deterministic current evidence after changes.
+- `python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check`: grader only, no CLI/model usage. Full simulations and native probes need separate authority and model access.

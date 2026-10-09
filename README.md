@@ -206,3 +206,15 @@ python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
 - [Golden Test coverage](docs/golden-test-coverage.md)
 - [Release and versioning](docs/release-process.md)
 - [Simulation-10 report (2026-09-06)](docs/simulation-10-report-2026-09-06.md)
+
+## AI Delegation Loop (separate, opt-in)
+
+The canonical [v1.3 skill](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md) interviews a recurring task, saves its output contract, builds reusable tools, and checks evidence. Standalone prompts retain data/approval boundaries and prohibit weakening criteria or hardcoding fixture answers. FEF's default installation and selective Kernel loading stay unchanged. Install delegation as a sibling of `fef-claude` in the same explicitly chosen skills root:
+
+```sh
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
+python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
+```
+
+Default installation/ZIP includes operational files and acceptance guidance; `--with-evidence` explicitly adds preserved experimental files. See [platform installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md), [measured optimization](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md), and [history, attribution, license and evidence limits](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md). Original licensing remains unresolved. Original v1.2 model results are HISTORICAL/STALE for v1.3. Current static/fixture tests and self-check have separate hashes; model behavior, prompt injection defense and Codex auxiliary prompt reads remain UNVERIFIED.

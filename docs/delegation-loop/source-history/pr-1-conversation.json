@@ -1,0 +1,10 @@
+[
+  {
+    "id": 6059952762,
+    "body": "<!-- codex-pull-request-review-summary -->\n<!-- codex-security-review:v1 {\"blockingSeverityThreshold\":\"P0\",\"headSha\":\"8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5\",\"mergeGateEnabled\":false,\"pullRequestNumber\":1,\"repository\":\"yjj3019/DelegationLoop\",\"status\":\"completed\"} -->\n## Codex Review Summary\n\nThis comment shows the latest Codex review activity on this pull request.\n\n| Review | Status | Commit | Review trigger |\n| --- | --- | --- | --- |\n| 📝 **Code Review** | ✅ **Completed** <relative-time datetime=\"2026-10-08T12:37:47.283790Z\">2026-10-08T12:37:47.283790Z</relative-time> | `8af2bab` | Draft marked ready |\n| 🔒 **Security Review** | ✅ **Completed** <relative-time datetime=\"2026-10-08T12:35:41.579578Z\">2026-10-08T12:35:41.579578Z</relative-time> | `8af2bab` | Draft marked ready |\n\n\n\n<details> <summary>ℹ️ About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\" or \"@codex security review\".\n\nCodex reacts with 👀 while any review is running, comments if it has suggestions, and reacts with 👍 once all reviews finish with no findings.\n\n</details>",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#issuecomment-6059952762",
+    "created_at": "2026-10-08T12:33:21Z",
+    "updated_at": "2026-10-08T12:37:48Z",
+    "author": "chatgpt-codex-connector[bot]"
+  }
+]

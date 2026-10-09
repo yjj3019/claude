@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "package_version": "1.3",
+  "source_version": "1.2",
+  "source_commit": "01351414e10df3c177939e4fef8393609ece6c55",
+  "source_bundle_sha256": "bba18c87965baa407d1fcf9f51d3f0b0f8a60fcbc010dd4cb449d5d50a1437d4",
+  "historical_model_evidence": "STALE_FOR_CURRENT_PACKAGE",
+  "current_model_behavior": "UNVERIFIED",
+  "original_files": [
+    {
+      "path": "skills/ai-delegation-loop/SKILL.md",
+      "source_blob": "fe4f4fe590c33a02c2819e461b22202f1f93d3b1",
+      "source_sha256": "3c48893888f12a3b0f15033b76773d76a53d31894d84435fb0d066456ca45510",
+      "current_sha256": "95593b2055b0ef28dbb0f42799dca1bcbf525bf563d7222fbc2898173cbc6190",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/agents/openai.yaml",
+      "source_blob": "ed33cad65a546a94092ffe5cf1941f172c80e011",
+      "source_sha256": "743ab95ac2b8cb959810fcc445ac369e409da17dc2df5f58543d186534a86b0b",
+      "current_sha256": "743ab95ac2b8cb959810fcc445ac369e409da17dc2df5f58543d186534a86b0b",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/installation.ko.md",
+      "source_blob": "cb967e379c68107c26b8d55bbab4e221de405036",
+      "source_sha256": "5f8edd939477cfdc6ea669eeb07958713dc1a918f6699d53caeaae578b7ea9b3",
+      "current_sha256": "126257c99a06bada3d0ca43700211947ba8b083a0939accf1c9dba2bed44c479",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/manual.ko.md",
+      "source_blob": "a5530b2d558c80c8e531d899e439ffdb3e554bd6",
+      "source_sha256": "70c8816b7b79fb6d70d90f6b6d60b5b3633ee0eb6e8cba2605b625e7fed67c33",
+      "current_sha256": "db43acdf855bf050fd2019918be69ac2657931c8cdd934dcdd32fd0cbb0bf5a0",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/prompts/01-interview.md",
+      "source_blob": "f15095896ce3626bb590724cd032e587b9c15744",
+      "source_sha256": "d42d0dc6334bd46936736b4a22a19a215f4dfb9fd18ddeb213c58f914ac719ff",
+      "current_sha256": "dbbcd979835cc45b43e5b485603cb9dcba85401bd45d6acdef00ae0ffe1033ce",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/prompts/02-toolbox.md",
+      "source_blob": "0864e882fa81e8d8f590dfa7538adf99f071d1ef",
+      "source_sha256": "4ac3cc67cf5dc8dbf9a45a52543a7f74028ea352426101d3bf4c633fad349177",
+      "current_sha256": "95952c891de7e28f01c741372ad2ff3b195299948cd5abf16b3520a8a43d5415",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/prompts/03-proof.md",
+      "source_blob": "6132d6d82855f3c3c6ce86617ddaaa3637533f1e",
+      "source_sha256": "37c318e595547f3ea2c69cb0c961922224dfec21025e154af61cfc117d0f9650",
+      "current_sha256": "e35517f608dea3d2ad84aca77a0f2181cc5dfee3dd19c9e1245dcea8b63d8ad8",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/prompts/04-failure-loop.md",
+      "source_blob": "b93e30c7c2afbe735262ca93f817beab3d1259e9",
+      "source_sha256": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6",
+      "current_sha256": "6afeb63b02843b8f214ef8f3fed9094164dda50547ac4b2579e4d2120b44c972",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/templates/job-playbook/SKILL.template.md",
+      "source_blob": "58be6dda85bbf287e8d821ea75e57365b9cd8712",
+      "source_sha256": "9fcf41b6bcf75815c3a983916c7b0581f289cc03bf2e458558e4fdee9bd0a842",
+      "current_sha256": "5e74854c83481bfca1f793e5c22bb688df47b4a894b8ece343f4b867261c7729",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/templates/job-playbook/files/INDEX.template.md",
+      "source_blob": "2709d80ff016125c7bb18e6b21e5eb549c1c4441",
+      "source_sha256": "bf70afb064ea328ae0cbed647b09c1e430d5fb7558605b4321eaabe08eaf923f",
+      "current_sha256": "bf70afb064ea328ae0cbed647b09c1e430d5fb7558605b4321eaabe08eaf923f",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/templates/job-playbook/notes.template.md",
+      "source_blob": "97bf555a78f6b168a42447970ebd7293f02bc9bf",
+      "source_sha256": "23ca33fae90e8ce437d7241c7f24fdecc19baeb420cd1feb87bc8b009570e38d",
+      "current_sha256": "23ca33fae90e8ce437d7241c7f24fdecc19baeb420cd1feb87bc8b009570e38d",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/acceptance-cases.md",
+      "source_blob": "f8937631aa2689c0810f63b3c4fa2132f9649851",
+      "source_sha256": "bd084d9410b6e55abb86b3bd394b47521b873261100be6e8a707c48018da1d27",
+      "current_sha256": "37a192aad3a1fa3f9f18ef6483f5b1cb8fe65b0124611c8551c8cfe4ad92c94a",
+      "classification": "MODIFIED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/native-probe-results.json",
+      "source_blob": "622762b900e72c77285892892eb960c1761bdabe",
+      "source_sha256": "6635c446da2b2721883080c62db50955d6c4d5a4c6543c893b7c5672c113c11b",
+      "current_sha256": "6635c446da2b2721883080c62db50955d6c4d5a4c6543c893b7c5672c113c11b",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/run_native_probe.py",
+      "source_blob": "5c8a0a282449e076b621f795af3a49e2f892ee14",
+      "source_sha256": "849a5e6304ce6800b6d0708205b0d6ffff6b82344e1e675b26aff86d95f86fd5",
+      "current_sha256": "849a5e6304ce6800b6d0708205b0d6ffff6b82344e1e675b26aff86d95f86fd5",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/run_simulation.py",
+      "source_blob": "1f775620f07660ffd5e44a325a7dade0a52496d7",
+      "source_sha256": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5",
+      "current_sha256": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/simulation-cases.json",
+      "source_blob": "60fb21b46c47ff3f5e038100c446eced2daaba95",
+      "source_sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+      "current_sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+      "classification": "UNCHANGED"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/simulation-report.ko.md",
+      "source_blob": "e8ea98fe3969bfef59ad959dd843bafdf93872ed",
+      "source_sha256": "2267b6d2db5515f9b1073ca4ca4c9c6c61ad080ad4c9af3442d0f2f55116e489",
+      "current_sha256": "cab4a5de3f2889343a2a82407da96bdf62a2ffab895ffe8f84ae97852d2d9468",
+      "classification": "MODIFIED",
+      "historical_copy": "skills/ai-delegation-loop/tests/simulation-report.v1.2.ko.md"
+    },
+    {
+      "path": "skills/ai-delegation-loop/tests/simulation-results.json",
+      "source_blob": "6e435aa2b7a4f643398fb014b51f9c9c95fdd984",
+      "source_sha256": "828efcaf34467d35bfef1f4be81d4070f5c69c21ee649d6bf0ff662a4eab89f2",
+      "current_sha256": "828efcaf34467d35bfef1f4be81d4070f5c69c21ee649d6bf0ff662a4eab89f2",
+      "classification": "UNCHANGED"
+    }
+  ]
+}

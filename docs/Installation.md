@@ -43,3 +43,9 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 ## Example prompt
 
 "Use FEF Core Kernel + Proposal Module + RHEL Domain Pack."
+
+## Separate delegation skill
+
+From this clone, `python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills` installs only delegation beside `fef-claude/`. `--dest` is the skills root, not an installed FEF directory. This explicit selection requires `--dest`; host/sibling discovery is not used. `--dry-run` writes nothing, differing installs are refused, and `--force` preserves a backup outside skill discovery. `--check` compares all installed bytes with the current canonical package.
+
+For tool-specific user/project paths and reproducible ZIPs see [delegation installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md). The root FEF instructions are not replaced. See [provenance and licensing](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md).
