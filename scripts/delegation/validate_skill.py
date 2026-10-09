@@ -293,12 +293,48 @@ def check_evidence(root):
     results = tests / "simulation-results.json"
     if not results.is_file():
         return ["simulation-results.json is missing"]
-    rounds = json.loads(read_text(results)).get("rounds", [])
+    try:
+        rounds = json.loads(read_text(results)).get("rounds", [])
+    except ValueError:
+        return ["simulation-results.json is invalid"]
     frozen = [r["data"] for r in rounds if "reference_sha256" in r.get("data", {})]
     if not frozen:
         return ["no round with reference_sha256 found in simulation-results.json"]
     data, problems = frozen[-1], []
     base = root / "skills" / SKILL
+    status_path = tests / "evidence-status.json"
+    if status_path.is_file():
+        try:
+            status = json.loads(read_text(status_path))
+            history = status["historical"]
+            if (history["status"] != "STALE_FOR_CURRENT_PACKAGE" or history["package_version"] != "1.2"
+                    or history["reference_sha256"] != data["reference_sha256"]
+                    or history["cases_sha256"] != data["cases_sha256"]):
+                problems.append("historical evidence status/version/frozen hashes differ")
+            expected_paths = {"tests/simulation-results.json", "tests/native-probe-results.json",
+                              "tests/simulation-report.v1.2.ko.md"}
+            if set(history["artifact_sha256"]) != expected_paths:
+                problems.append("historical artifact inventory differs")
+            for name, recorded in history["artifact_sha256"].items():
+                if name not in expected_paths or not (base / name).is_file():
+                    problems.append("historical artifact missing or unsupported")
+                elif hashlib.sha256((base / name).read_bytes()).hexdigest() != recorded:
+                    problems.append(name + " historical bytes changed")
+            archive_path = root / "docs/delegation-loop/source-history/manifest.json"
+            archive = json.loads(read_text(archive_path))
+            originals = {entry["path"]: entry["sha256"] for entry in
+                         archive["files"]["refs/remotes/origin/optimize/three-platforms"]}
+            for name in expected_paths:
+                original = name.replace("simulation-report.v1.2.ko.md", "simulation-report.ko.md")
+                if history["artifact_sha256"].get(name) != originals["skills/" + SKILL + "/" + original]:
+                    problems.append(name + " differs from archived source hash")
+            report = read_text(tests / "simulation-report.ko.md")
+            for marker in ("HISTORICAL", "STALE_FOR_CURRENT_PACKAGE", "UNVERIFIED"):
+                if marker not in report:
+                    problems.append("current report must declare " + marker)
+        except (ValueError, KeyError, TypeError, OSError) as error:
+            return ["invalid historical evidence declaration: " + str(error)]
+        return problems
     for name, recorded in sorted(data["reference_sha256"].items()):
         path = base / name
         if not path.is_file() or normalized_sha256(path) != recorded:
@@ -309,6 +345,55 @@ def check_evidence(root):
     if problems:
         problems.append("re-run run_simulation.py and update the report, or state in the report that the "
                         "evidence predates this change and pass --allow-stale-evidence")
+    return problems
+
+
+def check_current_evidence(root):
+    base = root / "skills" / SKILL
+    status_path = base / "tests/evidence-status.json"
+    if not status_path.is_file():
+        return ["current evidence status is missing"]
+    problems = []
+    try:
+        status = json.loads(read_text(status_path))
+        version = parse_frontmatter(read_text(base / "SKILL.md"))["metadata"]["version"]
+        current = status["current"]
+        if status.get("schema") != 1 or status["package_version"] != version or current["model_behavior"] != "UNVERIFIED" or current["model_cli_executed"] is not False:
+            problems.append("current version/model evidence declaration is inaccurate")
+        if current["acceptance_results"] != "tests/acceptance-results.json":
+            return ["unsupported acceptance results path"]
+        results_path = base / current["acceptance_results"]
+        if hashlib.sha256(results_path.read_bytes()).hexdigest() != current["acceptance_results_sha256"]:
+            problems.append("current acceptance result bytes changed")
+        result = json.loads(read_text(results_path))
+        if result.get("schema") != 1 or result["package_version"] != version or result["model_behavior"] != "UNVERIFIED" or result["model_cli_executed"] is not False:
+            problems.append("acceptance result claims wrong version or model execution")
+        if result.get("level") != "L3" or result.get("scope") != "Static prompt contracts, isolated playbook format fixtures and oracle grader self-check; not model behavior":
+            problems.append("acceptance result overclaims deterministic verification scope")
+        expected_refs = {"SKILL.md", "manual.ko.md"} | {p.relative_to(base).as_posix() for p in (base / "prompts").glob("*.md")}
+        if set(result["reference_sha256"]) != expected_refs:
+            problems.append("current reference inventory differs")
+        for name, recorded in result["reference_sha256"].items():
+            if name not in expected_refs or normalized_sha256(base / name) != recorded:
+                problems.append(name + " changed since current acceptance checks")
+        if normalized_sha256(base / "tests/simulation-cases.json") != result["cases_sha256"]:
+            problems.append("current simulation cases changed")
+        allowed_inputs = {"templates/job-playbook/SKILL.template.md", "tests/acceptance-cases.md"}
+        allowed_runners = {"scripts/delegation/test_prompt_contract.py", "scripts/delegation/refresh_evidence.py",
+                           "scripts/delegation/validate_skill.py",
+                           "skills/ai-delegation-loop/tests/run_simulation.py"}
+        for field, allowed, prefix in (("input_sha256", allowed_inputs, base), ("runner_sha256", allowed_runners, root)):
+            if set(result[field]) != allowed:
+                problems.append(field + " inventory differs")
+            for name, recorded in result[field].items():
+                if name not in allowed or normalized_sha256(prefix / name) != recorded:
+                    problems.append(name + " changed since current acceptance checks")
+        required_checks = {"A16-frontmatter-fallback", "A17-proof-before-rerun", "A18-new-action-approval",
+                           "A19-durable-protocol", "A20-multiple-and-external-causes", "oracle-grader-self-check"}
+        if set(result["checks"]) != required_checks or set(result["checks"].values()) != {"PASS"}:
+            problems.append("current acceptance checks missing or failed")
+    except (ValueError, KeyError, TypeError, OSError, FrontmatterError) as error:
+        problems.append("invalid current evidence: " + str(error))
     return problems
 
 
@@ -383,6 +468,7 @@ CHECKS = [
     ("links", check_links),
     ("json", check_json),
     ("evidence", check_evidence),
+    ("current-evidence", check_current_evidence),
     ("version", check_version),
     ("leaks", check_leaks),
     ("openai-yaml", check_openai_yaml),
@@ -403,7 +489,7 @@ def main(argv=None):
         if not problems:
             print("PASS %s" % name)
             continue
-        if name == "evidence" and args.allow_stale_evidence:
+        if name == "evidence" and args.allow_stale_evidence and not (root / "skills" / SKILL / "tests/evidence-status.json").exists():
             print("WARN %s" % name)
         else:
             print("FAIL %s" % name)
@@ -411,6 +497,8 @@ def main(argv=None):
         for problem in problems:
             print("  - %s" % problem)
     print("validation failed" if failed else "validation passed")
+    if (root / "skills" / SKILL / "tests/evidence-status.json").is_file():
+        print("Model evidence: v1.2 HISTORICAL/STALE_FOR_CURRENT_PACKAGE; current model behavior UNVERIFIED")
     return 1 if failed else 0
 
 

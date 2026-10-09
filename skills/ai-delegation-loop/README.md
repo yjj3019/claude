@@ -1,6 +1,6 @@
 # AI Delegation Loop
 
-반복 업무 하나를 인터뷰로 매뉴얼화하고, 재사용 도구와 증거 기반 검증을 쌓는 Agent Skill 모음입니다. v1.2는 [설치 가능한 스킬](SKILL.md)과 한국어 실행 매뉴얼을 제공합니다.
+반복 업무 하나를 인터뷰로 매뉴얼화하고, 재사용 도구와 증거 기반 검증을 쌓는 Agent Skill 모음입니다. v1.2.1은 [설치 가능한 스킬](SKILL.md)과 한국어 실행 매뉴얼을 제공합니다. 인터뷰 단독 사용의 frontmatter, 검증 저장 후 재실행, 실행별 승인과 영구 검증 프로토콜을 보완했습니다. 실패는 복수 레이어와 외부 조건을 함께 분류합니다.
 
 ## 빠른 시작
 
@@ -27,6 +27,8 @@
 ## 검증
 
 Agent Skills의 공식 `SKILL.md` frontmatter 형식에 맞췄습니다. 대상 저장소 루트에서 `python scripts/delegation/validate_skill.py`는 frontmatter 허용 키·이름·길이, 문서 링크와 앵커, 증거 해시, 버전 표기, 비밀정보·개인 경로를 확인하고, `python -m unittest discover -s scripts/delegation -p "test_*.py"`가 이 검증기와 설치 스크립트를 시험합니다. 공식 [skills-ref validator](https://github.com/agentskills/agentskills/tree/main/skills-ref)도 사용할 수 있습니다. 합성 의사결정 비교는 저장소 루트의 `python skills/ai-delegation-loop/tests/run_simulation.py --output ./simulation-results`로 재실행합니다. 로그인된 CLI가 필요하고 모델 사용량이 발생합니다. 시험 조건·결과·제한은 [시뮬레이션 보고서](tests/simulation-report.ko.md)에 기록합니다.
+
+v1.2 모델 결과는 HISTORICAL이며 v1.2.1에는 STALE_FOR_CURRENT_PACKAGE입니다. 현재 버전은 `python scripts/delegation/refresh_evidence.py --check`로 문서 계약·격리된 양식·채점기 self-check와 별도 hash 기록을 확인합니다. 이 명령은 모델 CLI를 실행하지 않습니다. 수정본의 모델 행동과 Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 새 변경 뒤에는 `refresh_evidence.py`로 결정적 검사를 실행하고 현재 기록만 갱신합니다. 원본 모델 결과는 덮어쓰지 않습니다.
 
 ## 출처와 범위
 

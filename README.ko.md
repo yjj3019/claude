@@ -96,7 +96,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 ## AI 위임 루프 (별도 선택 설치)
 
-반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.2 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
+반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.2.1 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. 단독 인터뷰의 frontmatter, 검증 저장 후 재실행, 실행별 승인과 영구 검증 규칙을 보완했습니다. 실패는 복수 레이어와 외부 조건을 함께 분류합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
 
 ```sh
 python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
@@ -104,4 +104,4 @@ python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
 python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
 ```
 
-[플랫폼별 설치](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md)와 [이력 보존·출처·미확정 라이선스·검증 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md)를 확인하세요. 기존 모델 시험은 역사 증거입니다. Codex 보조 프롬프트 읽기는 여전히 UNVERIFIED입니다.
+[플랫폼별 설치](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md)와 [이력 보존·출처·미확정 라이선스·검증 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md)를 확인하세요. v1.2 모델 시험은 HISTORICAL이며 수정본에는 STALE입니다. 현재 문서 계약·채점기 검사는 별도 hash로 기록합니다. 수정본 모델 행동과 Codex 보조 프롬프트 읽기는 UNVERIFIED입니다.

@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "package_version": "1.2.1",
+  "scope": "Static prompt contracts, isolated playbook format fixtures and oracle grader self-check; not model behavior",
+  "level": "L3",
+  "model_behavior": "UNVERIFIED",
+  "model_cli_executed": false,
+  "reference_sha256": {
+    "SKILL.md": "97dfe4e284008ff1fca1da5646b9ab11fcaa36f00690f42110c81ad82dc9f884",
+    "manual.ko.md": "668e65fe03371aa662f78b0171a29fdadd3f6257cc828d5f4aad6a9ad9108996",
+    "prompts/01-interview.md": "53f148fa05302ae6daf4a0275459228fe99bfcb428f7c77581933400d4171790",
+    "prompts/02-toolbox.md": "e65187f940242ec529cf1045cbc28e42f39cac3f7f42968aaa4ebace6dfaea06",
+    "prompts/03-proof.md": "6ac53959a36016b3f9f3f04e35d3c42b0110ead7348afd8d6a5b678b629e0340",
+    "prompts/04-failure-loop.md": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6"
+  },
+  "cases_sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+  "input_sha256": {
+    "templates/job-playbook/SKILL.template.md": "5159fc2ff0748042bf7a418d6d9ba895dc807b1c99f9ac1c52a2ad789a7bb150",
+    "tests/acceptance-cases.md": "50777ebeb504bd739a146331fd497a5c149ce3e60237f17513a9f398b606241f"
+  },
+  "runner_sha256": {
+    "scripts/delegation/test_prompt_contract.py": "379ca9facf0e9e411e8509ceb90a487829cb39d50b1ab32e30e6e402f2e8111f",
+    "scripts/delegation/refresh_evidence.py": "4ffce5c3c61298be0ef7cbc81966e2c8e725e37ae615225cdce036c9625d7dbd",
+    "scripts/delegation/validate_skill.py": "fe06c238d7de6fc8f092f6a55aaa39dd2c3d8bdf6e93059e4fbc0092fa6fe183",
+    "skills/ai-delegation-loop/tests/run_simulation.py": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5"
+  },
+  "checks": {
+    "A16-frontmatter-fallback": "PASS",
+    "A17-proof-before-rerun": "PASS",
+    "A18-new-action-approval": "PASS",
+    "A19-durable-protocol": "PASS",
+    "A20-multiple-and-external-causes": "PASS",
+    "oracle-grader-self-check": "PASS"
+  }
+}

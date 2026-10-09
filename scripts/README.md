@@ -36,4 +36,5 @@ python scripts/sync_kernel.py --check
 - `delegation/install.py package --output /path/to/package.zip`: reproducible ZIP, refuses existing output unless `--force`.
 - `delegation/validate_skill.py`: scoped format, links, JSON, evidence hashes, version, leak and entry-file validation. Root FEF validation remains separate.
 - `python -m unittest discover -s scripts/delegation -p "test_*.py"`: minimal package fixtures and isolated temporary HOME.
+- `delegation/refresh_evidence.py --check`: reruns static prompt contracts, isolated playbook fixtures and the oracle grader without model execution; verifies current records and preserves historical v1.2 model artifacts. Omit `--check` to regenerate only deterministic current evidence after changes.
 - `python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check`: grader only, no CLI/model usage. Full simulations and native probes need separate authority and model access.

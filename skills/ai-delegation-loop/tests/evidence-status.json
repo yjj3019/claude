@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "package_version": "1.2.1",
+  "historical": {
+    "package_version": "1.2",
+    "status": "STALE_FOR_CURRENT_PACKAGE",
+    "source_commit": "01351414e10df3c177939e4fef8393609ece6c55",
+    "reference_sha256": {
+      "SKILL.md": "3c48893888f12a3b0f15033b76773d76a53d31894d84435fb0d066456ca45510",
+      "manual.ko.md": "70c8816b7b79fb6d70d90f6b6d60b5b3633ee0eb6e8cba2605b625e7fed67c33",
+      "prompts/01-interview.md": "d42d0dc6334bd46936736b4a22a19a215f4dfb9fd18ddeb213c58f914ac719ff",
+      "prompts/02-toolbox.md": "4ac3cc67cf5dc8dbf9a45a52543a7f74028ea352426101d3bf4c633fad349177",
+      "prompts/03-proof.md": "37c318e595547f3ea2c69cb0c961922224dfec21025e154af61cfc117d0f9650",
+      "prompts/04-failure-loop.md": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6"
+    },
+    "cases_sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
+    "artifact_sha256": {
+      "tests/simulation-results.json": "828efcaf34467d35bfef1f4be81d4070f5c69c21ee649d6bf0ff662a4eab89f2",
+      "tests/native-probe-results.json": "6635c446da2b2721883080c62db50955d6c4d5a4c6543c893b7c5672c113c11b",
+      "tests/simulation-report.v1.2.ko.md": "2267b6d2db5515f9b1073ca4ca4c9c6c61ad080ad4c9af3442d0f2f55116e489"
+    }
+  },
+  "current": {
+    "model_behavior": "UNVERIFIED",
+    "model_cli_executed": false,
+    "acceptance_results": "tests/acceptance-results.json",
+    "acceptance_results_sha256": "432cde9e0d178ebaf5fc9579b46fe80be3baa26a65cd95057e3407977ce0a8b8"
+  }
+}

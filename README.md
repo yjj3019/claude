@@ -209,7 +209,7 @@ python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
 
 ## AI Delegation Loop (separate, opt-in)
 
-The canonical [v1.2 skill](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md) interviews a recurring task, builds reusable tools, and checks evidence. FEF's default installation and selective Kernel loading stay unchanged. Install it as a sibling of `fef-claude` in the same explicitly chosen skills root:
+The canonical [v1.2.1 skill](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md) interviews a recurring task, builds reusable tools, and checks evidence. It fixes standalone playbook frontmatter, proof-before-rerun order, per-execution approval, durable validation protocols and multiple/external failure causes. FEF's default installation and selective Kernel loading stay unchanged. Install it as a sibling of `fef-claude` in the same explicitly chosen skills root:
 
 ```sh
 python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
@@ -217,4 +217,4 @@ python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
 python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
 ```
 
-See [platform installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md) and [history, attribution, license and evidence limits](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md). Original licensing remains unresolved. Historical model results do not establish current real-world verification; Codex auxiliary prompt reading remains UNVERIFIED.
+See [platform installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md) and [history, attribution, license and evidence limits](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md). Original licensing remains unresolved. Original v1.2 model results are HISTORICAL/STALE for v1.2.1. Current document-contract tests and grader self-check have separate hashes; current model behavior and Codex auxiliary prompt reading remain UNVERIFIED.

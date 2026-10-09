@@ -1,5 +1,15 @@
 # Integration verification — 2026-10-09
 
+## v1.2.1 semantic corrections
+
+Current prompt fixes cover standalone interview frontmatter, proof-before-rerun order, approval for each rerun's external effects including payments/permission changes, permanent validation/stop/approval instructions in generated SKILL files, and multiple/external cause classification. Eight deterministic acceptance tests exercise those document contracts and isolated generated-playbook fixtures. They do not establish model adherence.
+
+`tests/evidence-status.json` separates unchanged original v1.2 model artifacts (HISTORICAL/STALE_FOR_CURRENT_PACKAGE) from the new current hash records and deterministic `acceptance-results.json`. The original report is preserved as `simulation-report.v1.2.ko.md`. `integration-manifest.json` explicitly identifies nine modified original package files and nine unchanged originals; the full original package remains recoverable from the unchanged Git bundle. `refresh_evidence.py --check` reproduces current records without writing and without model CLI calls. Current hash drift, historical artifact tampering and fresh model claims are regression-tested failures.
+
+Current local validation passed all 35 delegation tests (two Windows symlink privilege skips), the evidence regeneration check, offline history restoration and FEF repository/routes/golden validation. Current model behavior and Codex auxiliary reads remain UNVERIFIED. Full final-head CI results are reported on the draft PR. The older pre-publication counts below describe the initial integration; current additional acceptance/guard checks are separate.
+
+## Initial integration baseline
+
 Pre-publication local checks ran on Windows with Python 3.14. Actual user HOME installation, authenticated/paid model CLIs, credentials, source remote changes, merge and deletion were not performed.
 
 | Check | Result |

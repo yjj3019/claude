@@ -37,6 +37,9 @@ def copy_repo(dest):
     shutil.copytree(SCRIPTS, dest / "scripts" / "delegation", ignore=ignore)
     for name in ("AGENTS.md", "CLAUDE.md"):
         shutil.copy2(REPO / name, dest / name)
+    history = dest / "docs/delegation-loop/source-history"
+    history.mkdir(parents=True)
+    shutil.copy2(REPO / "docs/delegation-loop/source-history/manifest.json", history / "manifest.json")
     return Path(dest)
 
 
@@ -108,12 +111,21 @@ class ValidatorTests(unittest.TestCase):
         code, out = self.validate()
         self.assertIn("broken link", out)
 
-    def test_stale_evidence_fails_and_can_be_downgraded(self):
+    def test_current_hash_drift_cannot_be_downgraded_as_historical(self):
         edit(self.skill / "SKILL.md", lambda t: t + "\n추가 문장.\n")
-        self.assert_fails("evidence")
+        self.assert_fails("current-evidence")
         code, out = self.validate("--allow-stale-evidence")
-        self.assertEqual(code, 0, out)
-        self.assertIn("WARN evidence", out)
+        self.assertEqual(code, 1, out)
+        self.assertIn("FAIL current-evidence", out)
+
+    def test_historical_model_artifact_tampering_is_rejected(self):
+        edit(self.skill / "tests/simulation-results.json", lambda t: t + "\n")
+        self.assert_fails("evidence")
+        self.assertEqual(self.validate("--allow-stale-evidence")[0], 1)
+
+    def test_fresh_model_claim_is_rejected_for_current_package(self):
+        edit(self.skill / "tests/evidence-status.json", lambda t: t.replace('"UNVERIFIED"', '"PASS"'))
+        self.assert_fails("current-evidence")
 
     def test_crlf_checkout_does_not_trip_evidence(self):
         for path in list((self.skill / "prompts").glob("*.md")) + [self.skill / "manual.ko.md"]:
@@ -122,7 +134,7 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_version_mismatch(self):
-        edit(self.skill / "README.md", lambda t: t.replace("v1.2", "v9.9"))
+        edit(self.skill / "README.md", lambda t: t.replace("v1.2.1", "v9.9"))
         self.assert_fails("version")
 
     def test_leak_patterns(self):

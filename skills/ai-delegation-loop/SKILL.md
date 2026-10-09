@@ -2,7 +2,7 @@
 name: ai-delegation-loop
 description: Build or improve a repeat-task AI delegation manual through interviews, reusable tools, evidence checks, and failure-driven updates. 반복 업무 위임 매뉴얼을 만들거나 개선할 때 사용한다.
 metadata:
-  version: "1.2"
+  version: "1.2.1"
   language: ko
 ---
 
@@ -26,10 +26,10 @@ metadata:
 2. [인터뷰 프롬프트](prompts/01-interview.md)로 판단 순서를 꺼낸다. 한 번에 질문 하나씩, 최소 8개를 묻고 사용자가 인터뷰를 마쳤다고 할 때까지 파일을 만들지 않는다.
 3. 초안을 사람이 확인한다. 잘못 적힌 점과 빠진 점을 바로잡고 첫 버전은 개선 가능한 초안으로 취급한다.
 4. 업무를 한 번 실행한다. 결과가 기준을 통과한 뒤에만 재사용 도구를 [프롬프트 2](prompts/02-toolbox.md)로 저장한다.
-5. [프롬프트 3](prompts/03-proof.md)로 증거에서 확인할 수 있는 검증 5~10개를 만든다. 주관적 형용사는 검증으로 세지 않는다.
-6. 같은 업무를 두 번째 실행해 저장된 파일이 실제 사용됐는지 확인한다.
+5. [프롬프트 3](prompts/03-proof.md)로 증거에서 확인할 수 있는 검증 5~10개와 매 실행의 보고·중단·승인 규칙을 업무 `SKILL.md`에 저장한다. 주관적 형용사는 검증으로 세지 않는다.
+6. 검증 항목과 실행 규칙을 저장하고 사람이 확인한 뒤 같은 업무를 두 번째 실행한다. 저장된 파일이 실제 사용됐는지 확인하고, 메일·게시·삭제·결제·배포·계정·권한 변경은 이번 재실행에 대한 별도 명시 승인 없이는 반복하지 않는다.
 7. 매 실행에서 체크별 상태와 증거를 보고한다. 실패가 3개 이상이거나 안전·권한 관련 검증 하나라도 실패하면 결과물 수정을 멈추고 원인 레이어를 진단한다.
-8. 잘못된 결과는 [프롬프트 4](prompts/04-failure-loop.md)로 프로세스·툴박스·증명 중 원인을 찾아 해당 폴더에 작은 영구 수정을 남긴다.
+8. 잘못된 결과는 [프롬프트 4](prompts/04-failure-loop.md)로 프로세스·툴박스·증명·외부 조건 중 하나 또는 여러 개의 원인을 분류한다. 불명확한 원인은 `UNVERIFIED`로 남긴다. 내부 결함은 관련 폴더에 작은 영구 수정을 남기고, 입력·권한·시스템 상태 문제는 최신 근거를 확인하거나 담당자에게 넘긴다.
 
 업무별 폴더 양식은 [templates/job-playbook](templates/job-playbook/SKILL.template.md), 전체 운영과 검증 기준은 [실전 매뉴얼](manual.ko.md), 행동 점검 사례는 [수용 사례](tests/acceptance-cases.md)를 사용한다.
 
