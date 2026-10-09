@@ -40,6 +40,9 @@ def copy_repo(dest):
     history = dest / "docs/delegation-loop/source-history"
     history.mkdir(parents=True)
     shutil.copy2(REPO / "docs/delegation-loop/source-history/manifest.json", history / "manifest.json")
+    workflow = dest / ".github/workflows"
+    workflow.mkdir(parents=True)
+    shutil.copy2(REPO / ".github/workflows/delegation.yml", workflow / "delegation.yml")
     return Path(dest)
 
 
@@ -134,7 +137,7 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_version_mismatch(self):
-        edit(self.skill / "README.md", lambda t: t.replace("v1.2.1", "v9.9"))
+        edit(self.skill / "README.md", lambda t: t.replace("v1.3", "v9.9"))
         self.assert_fails("version")
 
     def test_leak_patterns(self):
@@ -165,6 +168,21 @@ class ValidatorTests(unittest.TestCase):
         (self.skill / "tests" / "simulation-cases.json").write_bytes(b"[{")
         self.assert_fails("json")
 
+    def test_command_shares_one_inventory_but_direct_helpers_discover_new_files(self):
+        spec = importlib.util.spec_from_file_location("inventory_validator", VALIDATE)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with patch.object(module, "project_files", wraps=module.project_files) as inventory:
+            self.assertEqual(module.main(["--root", str(self.root)]), 0)
+            self.assertEqual(inventory.call_count, 1)
+        new_json = self.skill / "new.json"
+        new_json.write_bytes(b"[")
+        self.assertTrue(module.check_json(self.root))
+        new_json.unlink()
+        new_doc = self.skill / "new.md"
+        new_doc.write_text("[broken](not-a-file.md)\n", encoding="utf-8")
+        self.assertTrue(module.check_links(self.root))
+
 
 class InstallTests(unittest.TestCase):
     def setUp(self):
@@ -182,7 +200,8 @@ class InstallTests(unittest.TestCase):
     def test_install_is_idempotent_and_exact(self):
         code, out = self.install("--target", "claude", "codex", "grok", "--scope", "user")
         self.assertEqual(code, 0, out)
-        expected = {k: v for k, v in tree(self.source).items() if "__pycache__" not in k}
+        expected = {k: v for k, v in tree(self.source).items() if "__pycache__" not in k
+                    and (not k.startswith("tests/") or k == "tests/acceptance-cases.md")}
         for folder in (".claude", ".agents", ".grok"):
             dest = self.home / folder / "skills" / SKILL
             self.assertEqual(tree(dest), expected, folder)
@@ -308,6 +327,78 @@ class InstallTests(unittest.TestCase):
         self.assertEqual(run(script, "--pack", SKILL, "--auto", env=self.env)[0], 2)
         self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--siblings", str(self.tmp), env=self.env)[0], 2)
 
+    def installer_module(self):
+        spec = importlib.util.spec_from_file_location("snapshot_installer", SCRIPTS / "install.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_runtime_projection_retains_local_links_and_full_evidence_is_explicit(self):
+        root = self.tmp / "runtime"
+        skills = root / "skills"
+        script = REPO / "scripts/install_pack.py"
+        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), env=self.env)[0], 0)
+        dest = skills / SKILL
+        self.assertTrue((dest / "tests/acceptance-cases.md").is_file())
+        self.assertFalse((dest / "tests/simulation-results.json").exists())
+        spec = importlib.util.spec_from_file_location("runtime_links", VALIDATE)
+        validator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(validator)
+        self.assertEqual(validator.check_links(root), [])
+        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", env=self.env)[0], 2)
+        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", "--force", env=self.env)[0], 0)
+        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", "--check", env=self.env)[0], 0)
+        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--check", env=self.env)[0], 1)
+        self.assertEqual((dest / "tests/simulation-results.json").read_bytes(), (self.source / "tests/simulation-results.json").read_bytes())
+
+    def test_source_change_during_copy_refuses_promotion_and_preserves_install(self):
+        work = copy_repo(self.tmp / "copy-race")
+        module = self.installer_module()
+        module.SOURCE = work / SKILL_DIR
+        skills = self.home / "skills"
+        self.assertTrue(module.install_to(skills))
+        dest = skills / SKILL
+        (dest / "SKILL.md").write_bytes(b"local edit\n")
+        before = tree(dest)
+        original_copy = module.shutil.copy2
+        def changing_copy(src, dst):
+            result = original_copy(src, dst)
+            if Path(src) == module.SOURCE / "SKILL.md":
+                with Path(src).open("ab") as stream:
+                    stream.write(b"\nchanged during copy\n")
+            return result
+        with patch.object(module.shutil, "copy2", side_effect=changing_copy):
+            self.assertFalse(module.install_to(skills, force=True))
+        self.assertEqual(tree(dest), before)
+        self.assertFalse((self.home / ".backups").exists())
+        self.assertFalse((self.home / ".staging").exists())
+
+    def test_source_change_after_promotion_is_not_reported_as_success(self):
+        work = copy_repo(self.tmp / "promote-race")
+        module = self.installer_module()
+        module.SOURCE = work / SKILL_DIR
+        skills = self.home / "skills"
+        original_replace = module.os.replace
+        def changing_replace(src, dst):
+            result = original_replace(src, dst)
+            if Path(dst) == skills / SKILL:
+                with (module.SOURCE / "SKILL.md").open("ab") as stream:
+                    stream.write(b"\nchanged after promotion\n")
+            return result
+        with patch.object(module.os, "replace", side_effect=changing_replace):
+            self.assertFalse(module.install_to(skills))
+
+    def test_force_reuses_source_snapshot_without_rehashing_for_diff(self):
+        module = self.installer_module()
+        skills = self.home / "skills"
+        self.assertTrue(module.install_to(skills))
+        (skills / SKILL / "SKILL.md").write_bytes(b"local edit\n")
+        original = module.file_hashes
+        with patch.object(module, "file_hashes", wraps=original) as hashes:
+            self.assertTrue(module.install_to(skills, force=True))
+        source_calls = [call for call in hashes.call_args_list if call.args[0] == module.SOURCE]
+        self.assertEqual(len(source_calls), 3)
+
     def test_package_layout_and_reproducibility(self):
         work = copy_repo(self.tmp / "repo")
         junk = work / SKILL_DIR / "tests" / "__pycache__"
@@ -331,6 +422,12 @@ class InstallTests(unittest.TestCase):
         self.assertFalse(any("\\" in n or n.endswith(".pyc") or "__pycache__" in n for n in names))
         for needed in ("SKILL.md", "agents/openai.yaml", "prompts/01-interview.md"):
             self.assertIn(SKILL + "/" + needed, names)
+        self.assertNotIn(SKILL + "/tests/simulation-results.json", names)
+        full = self.tmp / "full.zip"
+        self.assertEqual(run(script, "package", "--output", str(full), "--with-evidence")[0], 0)
+        with zipfile.ZipFile(str(full)) as archive:
+            self.assertEqual(archive.read(SKILL + "/tests/simulation-results.json"),
+                             (work / SKILL_DIR / "tests/simulation-results.json").read_bytes())
         code, out = run(script, "package", "--output", str(first))
         self.assertEqual(code, 2, out)
         self.assertEqual(run(script, "package", "--output", str(first), "--force")[0], 0)

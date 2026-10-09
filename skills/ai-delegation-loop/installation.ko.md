@@ -1,6 +1,6 @@
 # Grok · ChatGPT(Codex) · Claude 설치
 
-2026-10-09 공식 문서 기준. 같은 `ai-delegation-loop` 폴더를 사용한다. `SKILL.md`만 복사하면 프롬프트와 양식 링크가 깨지므로 폴더 전체를 복사한다. 설치는 파일 접근이나 외부 행동 권한을 추가하지 않는다.
+2026-10-09 공식 문서 기준. 같은 `ai-delegation-loop` 폴더 구조를 사용한다. `SKILL.md`만 복사하면 프롬프트와 양식 링크가 깨진다. 권장 설치·ZIP 명령은 필요한 실행 자료와 수용 기준을 함께 복사하고 과거 실험·개발 실행기는 제외한다. 설치는 파일 접근이나 외부 행동 권한을 추가하지 않는다.
 
 ## 1. 공통 준비
 
@@ -25,6 +25,10 @@ python scripts/delegation/install.py install --target codex --scope project --pr
 ```
 
 스크립트를 쓸 수 없을 때만 아래 수동 복사를 **첫 설치**에 쓴다.
+
+기본 설치·ZIP에는 SKILL, 매뉴얼, 설치 안내, 네 프롬프트, 양식, openai.yaml, 수용 점검표가 포함된다. 과거 모델 JSON·보고서와 개발 실행기는 저장소에 남는다. 전체 자료가 필요하면 설치 또는 `package` 명령에 `--with-evidence`를 붙인다. `scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --check`는 기본 실행 자료를 검사하며, 전체 설치 검사에는 같은 `--with-evidence`를 붙인다. 기존 전체 설치를 실행 자료만으로 바꾸려면 충돌 내용을 확인한 후 `--force`를 사용한다. 기존 폴더는 백업으로 보존된다.
+
+아래 수동 복사는 과거 증거까지 포함한 전체 사본이다. 가벼운 설치는 권장 스크립트 또는 기본 ZIP을 사용한다.
 
 ## 2. 로컬 에이전트: Grok Build, Codex, Claude Code
 

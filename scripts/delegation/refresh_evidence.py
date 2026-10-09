@@ -61,14 +61,17 @@ def main():
     input_paths = [PACKAGE / "templates/job-playbook/SKILL.template.md", PACKAGE / "tests/acceptance-cases.md"]
     acceptance = {
         "schema": 1, "package_version": version,
-        "scope": "Static prompt contracts, isolated playbook format fixtures and oracle grader self-check; not model behavior",
+        "scope": "Static prompt contracts, isolated playbook/policy fixtures and oracle grader self-check; not model behavior or injection defense",
         "level": "L3", "model_behavior": "UNVERIFIED", "model_cli_executed": False,
         "reference_sha256": hashes, "cases_sha256": normalized_hash(PACKAGE / "tests/simulation-cases.json"),
         "input_sha256": {p.relative_to(PACKAGE).as_posix(): normalized_hash(p) for p in input_paths},
+        "context_sha256": {".github/workflows/delegation.yml": normalized_hash(ROOT / ".github/workflows/delegation.yml")},
         "runner_sha256": {p.relative_to(ROOT).as_posix(): normalized_hash(p) for p in runner_paths},
         "checks": {"A16-frontmatter-fallback": "PASS", "A17-proof-before-rerun": "PASS",
                    "A18-new-action-approval": "PASS", "A19-durable-protocol": "PASS",
-                   "A20-multiple-and-external-causes": "PASS", "oracle-grader-self-check": "PASS"},
+                   "A20-multiple-and-external-causes": "PASS", "A21-output-contract": "PASS",
+                   "A22-untrusted-data-boundary": "PASS", "A23-criterion-integrity": "PASS",
+                   "A24-general-rule-regression": "PASS", "oracle-grader-self-check": "PASS"},
     }
     status = {
         "schema": 1, "package_version": version,

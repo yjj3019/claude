@@ -698,6 +698,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--pack", default=PACK_NAME, choices=(PACK_NAME, "ai-delegation-loop"),
                         help="Select a separate skill; delegation requires explicit --dest")
+    parser.add_argument("--with-evidence", action="store_true",
+                        help="Include optional delegation tests/history; requires --pack ai-delegation-loop")
     args = parser.parse_args(argv)
     _utf8_console()
 
@@ -718,12 +720,15 @@ def main(argv: list[str] | None = None) -> int:
             dest = root / module.SKILL
             try:
                 module.refuse_links(dest)
-                valid = dest.is_dir() and module.digest(dest) == module.digest(module.SOURCE)
+                valid = dest.is_dir() and module.file_hashes(dest) == module.source_hashes(args.with_evidence)
             except ValueError:
                 valid = False
             print("Delegation install verified" if valid else "Delegation install missing or differs")
             return 0 if valid else 1
-        return 0 if module.install_to(root, args.force, args.dry_run) else 2
+        return 0 if module.install_to(root, args.force, args.dry_run, args.with_evidence) else 2
+
+    if args.with_evidence:
+        parser.error("--with-evidence requires --pack ai-delegation-loop")
 
     # --siblings without --auto/--siblings-only ⇒ siblings-only install
     if args.siblings and not args.auto and not args.siblings_only:

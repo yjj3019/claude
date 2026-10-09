@@ -245,9 +245,9 @@ def anchors_of(path, cache):
     return cache[path]
 
 
-def check_links(root):
+def check_links(root, inventory=None):
     problems, cache = [], {}
-    docs = [p for p in project_files(root) if p.suffix == ".md"]
+    docs = [p for p in (project_files(root) if inventory is None else inventory) if p.suffix == ".md"]
     for doc in docs:
         for line in strip_code(read_text(doc)):
             for href in LINK_RE.findall(line):
@@ -264,9 +264,9 @@ def check_links(root):
     return problems
 
 
-def check_json(root):
+def check_json(root, inventory=None):
     problems = []
-    for path in project_files(root):
+    for path in (project_files(root) if inventory is None else inventory):
         if path.suffix != ".json":
             continue
         try:
@@ -368,7 +368,7 @@ def check_current_evidence(root):
         result = json.loads(read_text(results_path))
         if result.get("schema") != 1 or result["package_version"] != version or result["model_behavior"] != "UNVERIFIED" or result["model_cli_executed"] is not False:
             problems.append("acceptance result claims wrong version or model execution")
-        if result.get("level") != "L3" or result.get("scope") != "Static prompt contracts, isolated playbook format fixtures and oracle grader self-check; not model behavior":
+        if result.get("level") != "L3" or result.get("scope") != "Static prompt contracts, isolated playbook/policy fixtures and oracle grader self-check; not model behavior or injection defense":
             problems.append("acceptance result overclaims deterministic verification scope")
         expected_refs = {"SKILL.md", "manual.ko.md"} | {p.relative_to(base).as_posix() for p in (base / "prompts").glob("*.md")}
         if set(result["reference_sha256"]) != expected_refs:
@@ -382,14 +382,19 @@ def check_current_evidence(root):
         allowed_runners = {"scripts/delegation/test_prompt_contract.py", "scripts/delegation/refresh_evidence.py",
                            "scripts/delegation/validate_skill.py",
                            "skills/ai-delegation-loop/tests/run_simulation.py"}
-        for field, allowed, prefix in (("input_sha256", allowed_inputs, base), ("runner_sha256", allowed_runners, root)):
+        allowed_context = {".github/workflows/delegation.yml"}
+        for field, allowed, prefix in (("input_sha256", allowed_inputs, base),
+                                       ("runner_sha256", allowed_runners, root),
+                                       ("context_sha256", allowed_context, root)):
             if set(result[field]) != allowed:
                 problems.append(field + " inventory differs")
             for name, recorded in result[field].items():
                 if name not in allowed or normalized_sha256(prefix / name) != recorded:
                     problems.append(name + " changed since current acceptance checks")
         required_checks = {"A16-frontmatter-fallback", "A17-proof-before-rerun", "A18-new-action-approval",
-                           "A19-durable-protocol", "A20-multiple-and-external-causes", "oracle-grader-self-check"}
+                           "A19-durable-protocol", "A20-multiple-and-external-causes", "A21-output-contract",
+                           "A22-untrusted-data-boundary", "A23-criterion-integrity", "A24-general-rule-regression",
+                           "oracle-grader-self-check"}
         if set(result["checks"]) != required_checks or set(result["checks"].values()) != {"PASS"}:
             problems.append("current acceptance checks missing or failed")
     except (ValueError, KeyError, TypeError, OSError, FrontmatterError) as error:
@@ -415,9 +420,9 @@ def check_version(root):
     return problems
 
 
-def check_leaks(root):
+def check_leaks(root, inventory=None):
     problems = []
-    for path in project_files(root):
+    for path in (project_files(root) if inventory is None else inventory):
         if path.suffix not in TEXT_SUFFIXES:
             continue
         try:
@@ -483,9 +488,10 @@ def main(argv=None):
                         help="report stale simulation evidence as a warning instead of a failure")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve()
+    inventory = list(project_files(root))
     failed = False
     for name, check in CHECKS:
-        problems = check(root)
+        problems = check(root, inventory) if name in {"links", "json", "leaks"} else check(root)
         if not problems:
             print("PASS %s" % name)
             continue

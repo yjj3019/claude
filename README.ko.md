@@ -96,7 +96,7 @@ python -m unittest discover -s tests -p "test_*.py"
 
 ## AI 위임 루프 (별도 선택 설치)
 
-반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.2.1 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. 단독 인터뷰의 frontmatter, 검증 저장 후 재실행, 실행별 승인과 영구 검증 규칙을 보완했습니다. 실패는 복수 레이어와 외부 조건을 함께 분류합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
+반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.3 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. 산출물 계약을 보존하고, 독립 프롬프트의 자료·승인 경계와 검증 기준 유지·일반 규칙 재검증을 보완했습니다. 기본 설치·ZIP은 실행 자료와 수용 기준만 포함하며, 과거 실험은 저장소에 보존합니다(`--with-evidence`로 포함 가능). [측정과 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md)를 구분합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
 
 ```sh
 python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run

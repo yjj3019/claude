@@ -26,8 +26,6 @@ jobs:
         run: python -m unittest discover -s scripts/delegation -p "test_*.py"
       - name: Check current deterministic acceptance evidence without model execution
         run: python scripts/delegation/refresh_evidence.py --check
-      - name: Simulation grader self-check
-        run: python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
       - name: Restore archived Git history
         run: python scripts/delegation/verify_history.py
       - name: Build deterministic ZIP

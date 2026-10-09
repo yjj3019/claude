@@ -1,27 +1,30 @@
 {
   "schema": 1,
-  "package_version": "1.2.1",
-  "scope": "Static prompt contracts, isolated playbook format fixtures and oracle grader self-check; not model behavior",
+  "package_version": "1.3",
+  "scope": "Static prompt contracts, isolated playbook/policy fixtures and oracle grader self-check; not model behavior or injection defense",
   "level": "L3",
   "model_behavior": "UNVERIFIED",
   "model_cli_executed": false,
   "reference_sha256": {
-    "SKILL.md": "97dfe4e284008ff1fca1da5646b9ab11fcaa36f00690f42110c81ad82dc9f884",
-    "manual.ko.md": "668e65fe03371aa662f78b0171a29fdadd3f6257cc828d5f4aad6a9ad9108996",
-    "prompts/01-interview.md": "53f148fa05302ae6daf4a0275459228fe99bfcb428f7c77581933400d4171790",
-    "prompts/02-toolbox.md": "e65187f940242ec529cf1045cbc28e42f39cac3f7f42968aaa4ebace6dfaea06",
-    "prompts/03-proof.md": "6ac53959a36016b3f9f3f04e35d3c42b0110ead7348afd8d6a5b678b629e0340",
-    "prompts/04-failure-loop.md": "3337f990c7b965e42e50734fe5302a4c94db3cd2b3315dcf849c0b63da1d4ab6"
+    "SKILL.md": "95593b2055b0ef28dbb0f42799dca1bcbf525bf563d7222fbc2898173cbc6190",
+    "manual.ko.md": "db43acdf855bf050fd2019918be69ac2657931c8cdd934dcdd32fd0cbb0bf5a0",
+    "prompts/01-interview.md": "dbbcd979835cc45b43e5b485603cb9dcba85401bd45d6acdef00ae0ffe1033ce",
+    "prompts/02-toolbox.md": "95952c891de7e28f01c741372ad2ff3b195299948cd5abf16b3520a8a43d5415",
+    "prompts/03-proof.md": "e35517f608dea3d2ad84aca77a0f2181cc5dfee3dd19c9e1245dcea8b63d8ad8",
+    "prompts/04-failure-loop.md": "6afeb63b02843b8f214ef8f3fed9094164dda50547ac4b2579e4d2120b44c972"
   },
   "cases_sha256": "dd307a831745f7766daad55f4624ad62be1c787b5f810b56572484a59316e199",
   "input_sha256": {
-    "templates/job-playbook/SKILL.template.md": "5159fc2ff0748042bf7a418d6d9ba895dc807b1c99f9ac1c52a2ad789a7bb150",
-    "tests/acceptance-cases.md": "50777ebeb504bd739a146331fd497a5c149ce3e60237f17513a9f398b606241f"
+    "templates/job-playbook/SKILL.template.md": "5e74854c83481bfca1f793e5c22bb688df47b4a894b8ece343f4b867261c7729",
+    "tests/acceptance-cases.md": "37a192aad3a1fa3f9f18ef6483f5b1cb8fe65b0124611c8551c8cfe4ad92c94a"
+  },
+  "context_sha256": {
+    ".github/workflows/delegation.yml": "b8e240c69ba40efe733f95a16076fcedd7d2edf4ea47c882e653c77c2735f8e1"
   },
   "runner_sha256": {
-    "scripts/delegation/test_prompt_contract.py": "379ca9facf0e9e411e8509ceb90a487829cb39d50b1ab32e30e6e402f2e8111f",
-    "scripts/delegation/refresh_evidence.py": "4ffce5c3c61298be0ef7cbc81966e2c8e725e37ae615225cdce036c9625d7dbd",
-    "scripts/delegation/validate_skill.py": "fe06c238d7de6fc8f092f6a55aaa39dd2c3d8bdf6e93059e4fbc0092fa6fe183",
+    "scripts/delegation/test_prompt_contract.py": "7611366b6aa27fe33b794dbf8c9d1adef17b55e907834702feee220214550dd9",
+    "scripts/delegation/refresh_evidence.py": "e53eacef7246d66a1f46e43199bb9dd25512ae5311ff8f9d6dd2cacf2c01971c",
+    "scripts/delegation/validate_skill.py": "7cda5b1af2934ada1a79ba6c59666698279912f7fb97cfe5e64b73076f4812c6",
     "skills/ai-delegation-loop/tests/run_simulation.py": "87a8dae0cbb66e6feddc5e64016a5e0a286c92838e2c568b8f29c9997f9daad5"
   },
   "checks": {
@@ -30,6 +33,10 @@
     "A18-new-action-approval": "PASS",
     "A19-durable-protocol": "PASS",
     "A20-multiple-and-external-causes": "PASS",
+    "A21-output-contract": "PASS",
+    "A22-untrusted-data-boundary": "PASS",
+    "A23-criterion-integrity": "PASS",
+    "A24-general-rule-regression": "PASS",
     "oracle-grader-self-check": "PASS"
   }
 }

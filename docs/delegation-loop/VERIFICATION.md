@@ -1,5 +1,11 @@
 # Integration verification — 2026-10-09
 
+## v1.3 prompting and performance changes
+
+Local v1.3 checks passed 49 delegation tests, including 17 static/isolated-fixture prompt contracts, runtime/full-evidence projection, retained runtime links, source drift during copying and after promotion, independent stage/destination hashes, and command-local inventory reuse with fresh helper discovery. Windows has two symlink privilege skips; actual junction probes cover parent, staging and backup boundaries. Historical JSON/report and the Git archive retain their original bytes. Current evidence remains deterministic-only; model behavior and injection defense are UNVERIFIED.
+
+The unchanged FEF full 152-test suite was re-executed on the pre-change head before this follow-up (Windows 846.302s, two symlink skips). Final-head FEF/delegation CI and independent target checkout results are checked after publication and reported on the PR. [Optimization](OPTIMIZATION.md) records measurement scope and does not claim model quality/latency improvements.
+
 ## v1.2.1 semantic corrections
 
 Current prompt fixes cover standalone interview frontmatter, proof-before-rerun order, approval for each rerun's external effects including payments/permission changes, permanent validation/stop/approval instructions in generated SKILL files, and multiple/external cause classification. Eight deterministic acceptance tests exercise those document contracts and isolated generated-playbook fixtures. They do not establish model adherence.

@@ -34,6 +34,7 @@ python scripts/sync_kernel.py --check
 - `install_pack.py --pack ai-delegation-loop --dest /path/to/skills`: separate opt-in install at the same skills root as FEF; `--check`, `--force`, `--dry-run` supported.
 - `delegation/install.py install --target claude codex --scope user`: explicit tool paths; project scope requires `--project-dir`.
 - `delegation/install.py package --output /path/to/package.zip`: reproducible ZIP, refuses existing output unless `--force`.
+- Delegation installation and ZIP default to operational files plus acceptance guidance. Optional `--with-evidence` includes the preserved test runners/reports/JSON. The canonical Git package and history archive stay complete; local runtime links remain valid in both projections.
 - `delegation/validate_skill.py`: scoped format, links, JSON, evidence hashes, version, leak and entry-file validation. Root FEF validation remains separate.
 - `python -m unittest discover -s scripts/delegation -p "test_*.py"`: minimal package fixtures and isolated temporary HOME.
 - `delegation/refresh_evidence.py --check`: reruns static prompt contracts, isolated playbook fixtures and the oracle grader without model execution; verifies current records and preserves historical v1.2 model artifacts. Omit `--check` to regenerate only deterministic current evidence after changes.

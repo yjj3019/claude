@@ -1,6 +1,6 @@
 # AI Delegation Loop
 
-반복 업무 하나를 인터뷰로 매뉴얼화하고, 재사용 도구와 증거 기반 검증을 쌓는 Agent Skill 모음입니다. v1.2.1은 [설치 가능한 스킬](SKILL.md)과 한국어 실행 매뉴얼을 제공합니다. 인터뷰 단독 사용의 frontmatter, 검증 저장 후 재실행, 실행별 승인과 영구 검증 프로토콜을 보완했습니다. 실패는 복수 레이어와 외부 조건을 함께 분류합니다.
+반복 업무 하나를 인터뷰로 매뉴얼화하고, 재사용 도구와 증거 기반 검증을 쌓는 Agent Skill 모음입니다. v1.3은 [실행 절차](SKILL.md)에 산출물 계약을 보존하고, 독립 프롬프트의 자료 불신 경계와 검증 기준 유지·다른 입력 재검증을 보완했습니다. 기본 설치는 실행 자료만 포함하며 원본 이력과 실험은 저장소에 보존합니다. 재실행 전 검증 저장과 사람 확인, 실행별 승인, 복수·외부 원인 분류는 유지합니다.
 
 ## 빠른 시작
 
@@ -17,7 +17,7 @@
 - `installation.ko.md`: 세 플랫폼의 로컬·웹 설치와 권한별 대체 절차
 - `prompts/`: 인터뷰, 툴박스, 검증, 실패 수정 프롬프트 네 개
 - `templates/`: 업무별 매뉴얼과 인덱스·수정 기록 양식
-- `tests/`: 수용 점검표, 합성 A/B 시뮬레이션 입력·실행기·결과
+- `tests/acceptance-cases.md`: 실행 중 참고하는 수용 기준. 나머지 tests의 실험·실행기는 저장소에 보존하며 기본 설치·ZIP에서는 제외한다(`--with-evidence`로 포함 가능).
 - `agents/openai.yaml`: Codex·ChatGPT 앱에 보이는 이름·설명·기본 프롬프트(선택 파일)
 - 대상 저장소의 `scripts/delegation/`: 설치·ZIP 패키징(`install.py`), 패키지 검증(`validate_skill.py`)과 단위 테스트
 - 대상 저장소 루트의 `AGENTS.md`·`CLAUDE.md`: FEF의 기존 지침과 선택 로딩 규칙을 유지한다. 위임 패키지를 전부 자동 로딩하지 않는다.
@@ -26,9 +26,9 @@
 
 ## 검증
 
-Agent Skills의 공식 `SKILL.md` frontmatter 형식에 맞췄습니다. 대상 저장소 루트에서 `python scripts/delegation/validate_skill.py`는 frontmatter 허용 키·이름·길이, 문서 링크와 앵커, 증거 해시, 버전 표기, 비밀정보·개인 경로를 확인하고, `python -m unittest discover -s scripts/delegation -p "test_*.py"`가 이 검증기와 설치 스크립트를 시험합니다. 공식 [skills-ref validator](https://github.com/agentskills/agentskills/tree/main/skills-ref)도 사용할 수 있습니다. 합성 의사결정 비교는 저장소 루트의 `python skills/ai-delegation-loop/tests/run_simulation.py --output ./simulation-results`로 재실행합니다. 로그인된 CLI가 필요하고 모델 사용량이 발생합니다. 시험 조건·결과·제한은 [시뮬레이션 보고서](tests/simulation-report.ko.md)에 기록합니다.
+Agent Skills의 공식 `SKILL.md` frontmatter 형식에 맞췄습니다. 대상 저장소 루트에서 `python scripts/delegation/validate_skill.py`는 형식·링크·JSON·hash·버전·민감정보를 검사하고, `python -m unittest discover -s scripts/delegation -p "test_*.py"`가 검증기와 설치 스크립트를 시험합니다. 공식 [skills-ref validator](https://github.com/agentskills/agentskills/tree/main/skills-ref)도 사용할 수 있습니다. 전체 모델 시뮬레이션은 별도 승인과 모델 접근이 필요한 저장소 개발 작업입니다. 기본 스킬 실행에 필요하지 않습니다. 조건·결과·제한은 [시뮬레이션 보고서](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/tests/simulation-report.ko.md)에 보존합니다.
 
-v1.2 모델 결과는 HISTORICAL이며 v1.2.1에는 STALE_FOR_CURRENT_PACKAGE입니다. 현재 버전은 `python scripts/delegation/refresh_evidence.py --check`로 문서 계약·격리된 양식·채점기 self-check와 별도 hash 기록을 확인합니다. 이 명령은 모델 CLI를 실행하지 않습니다. 수정본의 모델 행동과 Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 새 변경 뒤에는 `refresh_evidence.py`로 결정적 검사를 실행하고 현재 기록만 갱신합니다. 원본 모델 결과는 덮어쓰지 않습니다.
+v1.2 모델 결과는 HISTORICAL이며 v1.3에는 STALE_FOR_CURRENT_PACKAGE입니다. 현재 버전은 `python scripts/delegation/refresh_evidence.py --check`로 문서 계약·격리된 양식·채점기 self-check와 별도 hash 기록을 확인합니다. 이 명령은 모델 CLI를 실행하지 않습니다. 수정본의 모델 행동과 Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 새 변경 뒤에는 `refresh_evidence.py`로 결정적 검사를 실행하고 현재 기록만 갱신합니다. 원본 모델 결과는 덮어쓰지 않습니다.
 
 ## 출처와 범위
 

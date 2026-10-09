@@ -62,9 +62,26 @@ def refuse_links(path):
             raise ValueError("REFUSED: symbolic link or reparse point in destination ancestry")
 
 
-def file_hashes(root):
+def source_files(with_evidence=False):
+    """Keep canonical evidence in Git; ship only operational guidance by default."""
+    return [rel for rel in files_in(SOURCE)
+            if with_evidence or rel.parts[0] != "tests" or rel.name == "acceptance-cases.md"]
+
+
+def file_hashes(root, selected=None):
+    selected = files_in(root) if selected is None else selected
+    refuse_links(root)
+    for rel in selected:
+        if is_link(root / rel):
+            raise ValueError("REFUSED: symbolic link or reparse point in package")
     return {rel.as_posix(): hashlib.sha256((root / rel).read_bytes()).hexdigest()
-            for rel in files_in(root)}
+            for rel in selected}
+
+
+def source_hashes(with_evidence=False):
+    if not (SOURCE / "SKILL.md").is_file():
+        raise ValueError("REFUSED: canonical skill source is missing")
+    return file_hashes(SOURCE, source_files(with_evidence))
 
 
 def digest(root):
@@ -74,22 +91,23 @@ def digest(root):
     return outer.hexdigest()
 
 
-def diff_summary(src, dst):
-    a, b = file_hashes(src), file_hashes(dst)
+def diff_summary(src, dst, src_hashes=None, dst_hashes=None):
+    a = file_hashes(src) if src_hashes is None else src_hashes
+    b = file_hashes(dst) if dst_hashes is None else dst_hashes
     added = sorted(set(a) - set(b))
     removed = sorted(set(b) - set(a))
     changed = sorted(name for name in a if name in b and a[name] != b[name])
     return added, removed, changed
 
 
-def install_one(target, base, force, dry_run):
+def install_one(target, base, force, dry_run, with_evidence=False):
     root = base / TARGET_DIRS[target]
     dest = root / "skills" / SKILL
     say("[%s] %s" % (target, dest))
-    return install_to(root / "skills", force, dry_run)
+    return install_to(root / "skills", force, dry_run, with_evidence)
 
 
-def install_to(skills_root, force=False, dry_run=False):
+def install_to(skills_root, force=False, dry_run=False, with_evidence=False):
     if not (SOURCE / "SKILL.md").is_file():
         say("REFUSED: canonical skill source is missing")
         return False
@@ -100,24 +118,25 @@ def install_to(skills_root, force=False, dry_run=False):
         refuse_links(dest)
         refuse_links(root / ".backups")
         refuse_links(root / ".staging")
-        files_in(SOURCE)
+        selected = source_files(with_evidence)
     except ValueError as error:
         say(str(error))
         return False
-    backup = None
+    backup, initial_source = None, None
     if dest.exists():
         if not dest.is_dir():
             say("  REFUSED: destination exists and is not a directory")
             return False
         try:
-            installed_digest = digest(dest)
+            installed_hashes = file_hashes(dest)
+            initial_source = file_hashes(SOURCE, selected)
         except ValueError as error:
             say(str(error))
             return False
-        if installed_digest == digest(SOURCE):
+        if installed_hashes == initial_source:
             say("  up to date, nothing written")
             return True
-        added, removed, changed = diff_summary(SOURCE, dest)
+        added, removed, changed = diff_summary(SOURCE, dest, initial_source, installed_hashes)
         say("  differs from source: %d added, %d removed, %d changed"
             % (len(added), len(removed), len(changed)))
         if not force:
@@ -129,7 +148,7 @@ def install_to(skills_root, force=False, dry_run=False):
         if backup.exists() or backup.is_symlink():
             say("REFUSED: backup destination already exists")
             return False
-    count = len(files_in(SOURCE))
+    count = len(selected)
     if dry_run:
         extra = " and move the old copy to %s" % backup if backup else ""
         say("  DRY RUN: would copy %d files%s" % (count, extra))
@@ -137,14 +156,32 @@ def install_to(skills_root, force=False, dry_run=False):
     staging_root = root / ".staging"
     staging_root.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=SKILL + "-", dir=staging_root))
-    for rel in files_in(SOURCE):
-        out = stage / rel
-        out.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(SOURCE / rel, out)
-    if digest(stage) != digest(SOURCE):
+    try:
+        for rel in selected:
+            if is_link(SOURCE / rel):
+                raise ValueError("REFUSED: symbolic link or reparse point in package")
+            out = stage / rel
+            out.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(SOURCE / rel, out)
+        # Re-read source after copying, then independently hash stage and destination.
+        # A snapshot is reused only within this call; source drift still blocks promotion.
+        current_source = source_hashes(with_evidence)
+        valid = file_hashes(stage) == current_source
+        valid = valid and (initial_source is None or initial_source == current_source)
+    except (OSError, ValueError) as error:
+        say(str(error))
+        valid = False
+    if not valid:
+        assert stage.parent == staging_root and not is_link(stage)
         shutil.rmtree(stage)
-        say("  FAILED: staged copy does not match the source; nothing was changed")
+        try:
+            staging_root.rmdir()
+        except OSError:
+            pass
+        say("  FAILED: source changed or staged copy differs; installation was not replaced")
         return False
+    refuse_links(dest)
+    refuse_links(root / ".backups")
     skills_root.mkdir(parents=True, exist_ok=True)
     if backup is not None:
         backup.parent.mkdir(parents=True, exist_ok=True)
@@ -155,7 +192,7 @@ def install_to(skills_root, force=False, dry_run=False):
         stage.parent.rmdir()
     except OSError:
         pass
-    if digest(dest) != digest(SOURCE):
+    if file_hashes(dest) != current_source or source_hashes(with_evidence) != current_source:
         say("  FAILED: installed copy does not match the source")
         return False
     say("  installed %d files" % count)
@@ -183,7 +220,7 @@ def install(args):
         say("error: skill source not found: %s" % SOURCE)
         return 2
     targets = list(dict.fromkeys(args.target))
-    results = [install_one(t, base, args.force, args.dry_run) for t in targets]
+    results = [install_one(t, base, args.force, args.dry_run, args.with_evidence) for t in targets]
     if args.scope == "user" and "grok" in targets and len(targets) > 1:
         say("note: Grok Build also scans ~/.agents/skills and Claude Code skills; "
             "check its '/' menu for a duplicate entry and drop the extra copy if it lists twice.")
@@ -199,7 +236,7 @@ def package(args):
         return 2
     out = Path(args.output).expanduser().absolute()
     refuse_links(out)
-    files_in(SOURCE)
+    selected = source_files(args.with_evidence)
     if out.exists() and not args.force:
         say("REFUSED: %s exists; re-run with --force to replace it" % out)
         return 2
@@ -210,7 +247,7 @@ def package(args):
     # Store bytes directly: zlib versions can emit different DEFLATE streams.
     # This small text package prioritizes cross-platform reproducibility.
     with zipfile.ZipFile(str(tmp), "w", zipfile.ZIP_STORED) as archive:
-        for rel in files_in(SOURCE):
+        for rel in selected:
             info = zipfile.ZipInfo("%s/%s" % (SKILL, rel.as_posix()), date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system = 3  # Fixed UNIX metadata even when built on Windows.
             info.compress_type = zipfile.ZIP_STORED
@@ -218,6 +255,12 @@ def package(args):
             archive.writestr(info, (SOURCE / rel).read_bytes())
     with zipfile.ZipFile(str(tmp)) as archive:
         names = archive.namelist()
+        archive_hashes = {name.removeprefix(SKILL + "/"): hashlib.sha256(archive.read(name)).hexdigest()
+                          for name in names}
+    if archive_hashes != source_hashes(args.with_evidence):
+        tmp.unlink()
+        say("FAILED: source changed or archive content differs; nothing was written")
+        return 2
     if SKILL + "/SKILL.md" not in names or any(not n.startswith(SKILL + "/") for n in names):
         tmp.unlink()
         say("FAILED: archive layout is wrong; nothing was written")
@@ -236,10 +279,12 @@ def main(argv=None):
     inst.add_argument("--project-dir", help="work project root; required with --scope project")
     inst.add_argument("--force", action="store_true", help="replace a differing install after backing it up")
     inst.add_argument("--dry-run", action="store_true", help="print the plan and write nothing")
+    inst.add_argument("--with-evidence", action="store_true", help="also copy optional test runners and historical evidence")
     inst.set_defaults(func=install)
     pack = sub.add_parser("package", help="build a ZIP for web/app skill upload")
     pack.add_argument("--output", default=str(REPO / "dist" / (SKILL + ".zip")))
     pack.add_argument("--force", action="store_true", help="replace an existing ZIP")
+    pack.add_argument("--with-evidence", action="store_true", help="include optional test runners and historical evidence")
     pack.set_defaults(func=package)
     args = parser.parse_args(argv)
     return args.func(args)
