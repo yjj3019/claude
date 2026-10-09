@@ -1,220 +1,110 @@
 # FEF Claude Framework
 
-Framework for Engineering Excellence (FEF) is a Claude-oriented engineering prompt framework.
+[English](README.en.md) · 한국어
 
-Its goal is to help Claude produce more consistent, evidence-aware, reviewable, and enterprise-grade technical outputs.
+Framework for Engineering Excellence(FEF)는 Claude 중심의 엔지니어링 프롬프트 프레임워크입니다. 작은 공통 Kernel과 작업별 지침으로 근거가 있고 검토 가능한 기술 산출물을 만드는 데 도움을 줍니다. 반복 업무를 위한 AI Delegation Loop v1.3도 독립 스킬로 제공합니다.
 
-**한국어:** [README.ko.md](README.ko.md)
+## 기능과 구성
 
-## For AI agents (repo URL only)
+- `CLAUDE.md`에 공통 Kernel을 담고, `AGENTS.md`는 이 진입점을 안내합니다.
+- `modules/`, `domains/`, `reviewers/`, `workflows/`, `policies/`에서 필요한 지침만 선택합니다. Coding·Research 절차는 해당 모듈에 통합되어 있습니다.
+- `config/routes.json`과 `scripts/detect_task.py`는 결정적 라우팅 후보를 제시하며 모델 판단을 대체하지 않습니다.
+- 구조·라우팅·골든 테스트와 설치 무결성을 검사합니다. Claude Code의 로컬 훅은 세션과 실제 파일 상태에 맞는 검증을 상기시킵니다.
+- `skills/ai-delegation-loop/`는 반복 업무 인터뷰, 산출물 계약, 재사용 도구와 증거 검증을 위한 별도 패키지입니다.
 
-```bash
+FEF의 `workflows/`는 Markdown 작업 지침입니다. 실행 가능한 Claude Code `.claude/workflows/`와는 별개이며, 이 저장소는 동적 워크플로를 배포하지 않습니다.
+
+## 시작과 설치
+
+Python 3.11 이상과 Git이 필요합니다. 스크립트는 Python 표준 라이브러리만 사용합니다. 아래 명령은 클론 루트에서 실행하며, 환경에 따라 `python` 대신 `python3`를 사용하세요.
+
+```sh
 git clone https://github.com/yjj3019/claude.git
 cd claude
-python3 scripts/install_pack.py --auto
-# then: Claude Code → open this repo as workspace (loads CLAUDE.md)
-# Claude Projects → paste CLAUDE.md into Project Instructions; attach packs as needed
+python scripts/install_pack.py --auto --dry-run
+python scripts/install_pack.py --auto
 ```
 
-- `python3 scripts/install_pack.py --auto` — detect Claude / Codex / Grok / Cursor / AGENTS hosts and copy the pack to each skills root as `fef-claude/` (**host skills only**; sibling install is opt-in)
-- `python3 scripts/install_pack.py --print-bootstrap` — host/sibling install one-liners (sibling remains opt-in)
-- `python3 scripts/install_pack.py --print-claude` — exact paste steps for Claude Project Instructions
-- `python3 scripts/install_pack.py --check` — verify files and run `validate_framework.py` when tests are present
-- `python3 scripts/install_pack.py --help` — `--dest`, `--siblings`, `--siblings-only`, `--scan-sibling-parent`, `--force`, `--with-tests`, `--dry-run`
+`--auto`는 현재 사용자 HOME의 Claude·Codex·Grok·Cursor·AGENTS 호스트 표시를 찾아 skills 루트에 `fef-claude/`를 설치합니다. 호스트가 없으면 `~/.agents/skills`를 사용합니다. 기본값은 호스트 skills 설치만 하며 형제 프로젝트 폴더를 탐색하거나 설치하지 않습니다.
 
-Preferred Claude Code path: **open this clone as the workspace** so `CLAUDE.md` loads at the root. Skill copies are for hosts that discover packs under `~/.claude/skills` (and similar).
+Claude Code에서는 이 클론을 워크스페이스로 열어 루트 `CLAUDE.md`를 읽도록 합니다. 다른 프로젝트의 호스트 skill 복사본은 그 프로젝트의 `CLAUDE.md`를 대체하지 않습니다. Claude Projects에서는 `CLAUDE.md`를 Project Instructions에 붙이고 필요한 팩만 Project Knowledge에 첨부합니다. Code의 명령·훅·네이티브 에이전트는 Projects에서 실행되지 않습니다.
 
-### Multi-repo / sibling install (opt-in)
+### 설치 대상과 기존 파일
 
-Attach **this repo + your project repo(s)** in one workspace (multi-root). Default `--auto` installs **host skills only**. Sibling install is opt-in:
-
-```bash
-# Host skills only (default --auto):
-python3 scripts/install_pack.py --auto
-
-# Opt-in sibling install (explicit paths / env):
-python3 scripts/install_pack.py --siblings /other/project
-python3 scripts/install_pack.py --auto --siblings /other/project
-# Env: FEF_SIBLING_ROOTS=/a:/b  (os.pathsep-separated)
-
-# Optional parent-dir git scan (default OFF):
-python3 scripts/install_pack.py --siblings-only --scan-sibling-parent
-
-# Preview:
-python3 scripts/install_pack.py --auto --dry-run
+```sh
+python scripts/install_pack.py --dest /path/to/skills --dry-run
+python scripts/install_pack.py --dest /path/to/skills
+python scripts/install_pack.py --check --dest /path/to/skills
+python scripts/install_pack.py --siblings /other/project --dry-run
+python scripts/install_pack.py --siblings /other/project
 ```
 
-**Non-destructive policy:** install **creates** skill directories when needed and **preserves** an existing `fef-claude/` pack unless you pass `--force` (identical shipped-file fingerprint plus intact installation is skipped). No silent `rmtree` overwrite.
+`--dest`는 skills 루트입니다. FEF는 그 아래 `fef-claude/`에 설치됩니다. 형제 설치는 `--siblings`, `FEF_SIBLING_ROOTS`, `--siblings-only` 또는 `--scan-sibling-parent`로 명시적으로 선택합니다. 부모 폴더 탐색은 기본으로 꺼져 있습니다. `FEF_SIBLING_ROOTS`의 경로 구분자는 운영체제의 `os.pathsep`을 따릅니다.
 
-Sibling targets (when opted in): `<sibling>/.claude/skills/fef-claude` and/or `<sibling>/.agents/skills/fef-claude` when `.claude/`, `.cursor/`, `AGENTS.md`, or `.git` markers warrant creating those skills dirs.
+기존 FEF 팩은 배포 파일 지문과 설치 무결성이 같으면 건너뛰고, 다르면 덮어쓰기를 거부합니다. `--force`는 기존 팩을 교체하며 FEF의 로컬 수정·추가 파일을 보존하지 않으므로 먼저 별도로 백업하세요. `--dry-run`은 파일을 쓰지 않습니다. 기본 설치는 실행 문서만 포함하고, `--with-tests`로 tests·examples를 추가할 수 있습니다.
 
-## 2026-10 optimization
+`--print-bootstrap`은 설치 명령, `--print-claude`는 Projects 설정 절차를 출력합니다. 전체 옵션은 `python scripts/install_pack.py --help`와 [설치 안내](docs/Installation.md)를 확인하세요.
 
-Compact core; integrated Coding/Research procedures; optional coding reviewer; session-scoped verification; shipped-file installation integrity. See [optimization decisions](docs/precise-analysis-2026-10-09.md) for sources, limits and structural measurements.
+## 선택 로딩과 안전 기준
 
-## What's new (pack updates)
+새 세션은 `CLAUDE.md`를 먼저 읽습니다. 단순·저위험 작업의 기본 로딩은 인라인 Kernel뿐입니다. 본격 작업은 [로딩 맵](docs/loading-map.md) 또는 라우팅 후보로 필요한 팩을 선택합니다.
 
-- **Adaptive Effort** — Sonnet default for everyday work; Haiku only for light Notion/docs (L0); escalate model before packs (`docs/adaptive-effort.md`).
-- **Round 2 routing** — KO language tiers, unmapped high-risk handling, fallback guard.
-- **Round 3** — high-risk AND action gate, hooks, cold-start `CLAUDE.md`+`AGENTS.md` budget, lean install docs, reviewer Output contracts.
-- **Round 4 install safety** — `--auto` = host skills only; sibling install opt-in; refuse overwrite without `--force`.
-- **Round 4 P2 residuals** — coding fallback no longer self-satisfies on bare `bug`/`버그`; KO/EN L2 tier parity (`write a proposal` / `여러 파일`); ASCII `architecture-review` hyphen match; domain-overflow mention-order documented (no silent trim).
-
-## Core Idea
-
-FEF does not try to change the underlying model.
-
-It provides:
-
-- a small permanent reasoning kernel
-- task-specific modules
-- domain packs
-- reviewer prompts
-- workflow packs
-- golden tests
-- Claude Code / Claude Projects usage guides
-
-Operational Integrity keeps file, tool, artifact, and completion claims evidence-backed. Coding tasks use the Coding Module (integrated workflow) and optional Reviewer; policies are selected by task trigger rather than loaded globally.
-
-## Memory Bootstrap
-
-Start every new Claude session by reading `CLAUDE.md` first. Treat `CLAUDE.md` as the persistent working-memory bootstrap, then load only the supporting files it names for the task.
-
-## Context Budget + Model-Invariant Floor
-
-**Context Budget (normal use):** inlined Kernel via `CLAUDE.md` + packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do **not** preload every module, domain, workflow, or doc.
-
-**Model-Invariant Floor** (see `docs/model-usage.md`): regardless of Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5:
-
-1. Same Kernel + Operational Integrity (evidence, completion, authorization).
-2. Same Context Budget — do not dump extra docs onto weaker or stronger models to “compensate.”
-3. Same loading map / task routing.
-4. Same output contract (`[unverified]`, smallest complete change, no fake completion).
-5. When blocked: **escalate the model** (`Haiku` → `Sonnet` → `Opus` → `Fable`); do **not** expand unrelated packs.
-
-Advisory defaults (verify availability): everyday / when unsure → Sonnet 5; everyday complex → Opus 5; hardest/longest → Fable 5.1; light Notion/doc recording → Haiku 4.5.
-
-
-## Latency & lightness
-
-**Always-on (simple/low-risk cold-start):** `CLAUDE.md` inlined Kernel only. Do not autoload `docs/model-usage.md`, README, CHANGELOG, PROGRESS, SESSION_LOG, optimization reports, or full modules/domains.
-
-**Deferred:** `docs/loading-map.md` and the packs it names, only for substantial tasks within Load Limits. Prefer latency over completeness of pack load.
-
-**Model choice ≠ more docs:** Haiku / Sonnet / Opus / Fable share the same tiny Kernel; escalate the model when blocked — do not dump packs to compensate. Load `docs/model-usage.md` only when choosing or switching models (or tuning effort/thinking).
-
-**Projects warning:** Attaching the entire repository as Project Knowledge slows models and defeats the cold-start contract. Paste `CLAUDE.md` into Project Instructions and attach only the packs the task needs.
-
-Estimate structural load with `python scripts/measure_load.py` (prints a **simple Q&A cold-start** line). This measures pack bytes/tokens, not host wall-clock latency.
-
-
-## Adaptive Effort
-
-FEF auto-tiers work by request complexity (L0 Light docs → L3 Hardest): **Sonnet is the default** for everyday coding/Q&A/edits (and when unsure); Haiku only for light Notion/doc recording; Opus for multi-step everyday work; Fable for deep/long-running tasks. Escalate the **model before packs**, and keep L0–L1 free of model-usage/README/PROGRESS preloads so cold-start stays fast. Details: `docs/adaptive-effort.md`.
-
-## Recommended Usage
-
-For Claude Code, copy this repository into your Claude working directory and use `CLAUDE.md` as the always-loaded instruction file.
-
-For Claude Projects, paste `CLAUDE.md` into Project Instructions and upload selected modules/domains as Project Knowledge.
-
-## Git-Based Setup
-
-```powershell
-git clone https://github.com/yjj3019/claude.git
-cd claude
-```
-
-Start Claude Code from this directory, or set this directory as the workspace root. Claude should use `CLAUDE.md` as the runtime bootstrap. `AGENTS.md` is included as a lightweight repository entry point for tools that look for an `AGENTS.md` file.
-
-## Directory Layout
-
-```text
-FEF_Claude_Framework/
-├── CLAUDE.md
-├── kernel/
-├── policies/
-├── modules/
-├── domains/
-├── reviewers/
-├── workflows/
-├── tests/
-├── docs/
-└── examples/
-```
-
-Naming note: FEF `workflows/` contains Markdown task procedures loaded as prompts. Claude Code `.claude/workflows/` contains executable dynamic-workflow scripts. They are unrelated, and FEF does not ship dynamic workflows.
-
-## Design Philosophy
-
-- Keep the kernel small.
-- Add capability through modules.
-- Prefer evidence over memory.
-- Reduce hallucination by requiring uncertainty markers.
-- Improve consistency through review and golden tests.
-
-## Validate
-
-GitHub Actions runs the same validator on every push and pull request. Run it locally with:
-
-```powershell
-python scripts/validate_framework.py
-python scripts/sync_kernel.py --check
-python scripts/measure_load.py
-python -m unittest discover -s tests -p "test_*.py"
-```
-
-## Task Routing Examples
-
-### RHEL incident RCA
-
-- Request: “RHEL 커널 장애 원인을 분석하고 고객 RCA를 작성해줘.”
-- Packs: RCA Module, RHEL Domain, RCA Workflow, Technical Reviewer, Evidence/Thinking/Review policies.
-- Why: incident/RCA and RHEL keywords; customer-facing work raises risk.
-- Abbreviated output: observed facts, hypotheses, root cause, corrective actions, verification gaps.
-- Verification: one Technical Reviewer pass after the draft.
-
-### OpenShift feature proposal
-
-- Request: “OpenShift 신규 기능을 조사해 고객 제안서로 정리해줘.”
-- Packs: Proposal Module, OpenShift Domain, Proposal Workflow, Proposal Reviewer, Writing/Evidence/Review policies.
-- Why: proposal intent wins over the secondary research keyword; OpenShift selects the Domain.
-- Abbreviated output: requirement mapping, scoped feature claims, value, risks, evidence gaps.
-- Verification: current claims still require Freshness verification when applicable.
-
-### Minimal code fix
-
-- Request: “이 Python 버그를 최소 변경으로 수정하고 테스트해줘.”
-- Packs: Coding Module and Workflow, optional Code Change Reviewer, FileHandling/ToolExecution policies.
-- Why: bug/minimal-change keywords map to the shared-root-cause coding route.
-- Abbreviated output: root cause, patch, caller scan, test result, remaining risk.
-- Verification: inspect the actual repository diff and run the narrowest relevant test.
-
-Preview routing without an API:
-
-```powershell
+```sh
 python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
+python scripts/measure_load.py
 ```
 
-## Install and Operate
+로드 한도는 Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3입니다. 작업에 필요한 Evidence·FileHandling·Freshness·ToolExecution 무결성 정책은 유지합니다. README·전체 저장소·이력 보고서·모델 안내를 상시 미리 로드하지 않습니다. Projects에도 전체 저장소를 첨부하지 않습니다.
 
-- [Claude Projects setup](docs/ClaudeProjects.md)
-- [Claude Code setup](docs/ClaudeCode.md)
-- [Installation](docs/Installation.md)
-- [Model usage + invariant floor](docs/model-usage.md)
-- [Harness scripts](scripts/README.md)
-- [Golden Test coverage](docs/golden-test-coverage.md)
-- [Release and versioning](docs/release-process.md)
-- [Simulation-10 report (2026-09-06)](docs/simulation-10-report-2026-09-06.md)
+모델과 관계없이 근거·검증·승인·불확실성 표기(`[unverified]`)와 같은 예산을 유지합니다. [Adaptive Effort](docs/adaptive-effort.md)의 모델 표는 날짜가 있는 참고 선호이며 자동 모델 전환이나 현재 가용성을 보장하지 않습니다. 보통은 현재 호스트 모델을 유지하고, 능력 부족이 확인될 때 지원되는 노력 수준과 모델을 검토합니다. 필요한 자료가 없으면 그 자료를 확보해야 합니다.
 
-## AI Delegation Loop (separate, opt-in)
+`measure_load.py`는 파일 바이트·추정 토큰을 측정하며 실제 비용·응답 시간·모델 품질을 증명하지 않습니다. 훅은 검증 알림이며 샌드박스나 완전한 테스트 증거가 아닙니다. 실제 환경의 Python·셸·훅 연결을 확인하세요.
 
-The canonical [v1.3 skill](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md) interviews a recurring task, saves its output contract, builds reusable tools, and checks evidence. Standalone prompts retain data/approval boundaries and prohibit weakening criteria or hardcoding fixture answers. FEF's default installation and selective Kernel loading stay unchanged. Install delegation as a sibling of `fef-claude` in the same explicitly chosen skills root:
+## AI Delegation Loop: 별도 선택 설치
+
+[독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)은 반복 업무의 독자·목적·형식·길이·필수/제외 범위·저장 경로를 계약으로 보존합니다. 참조 자료를 실행 지시나 승인으로 취급하지 않고, PASS를 위해 검증 기준을 완화하거나 시험 답을 하드코딩하지 않습니다. 재실행 전 증거 확인과 각 재실행의 외부 효과에 필요한 승인도 유지합니다.
+
+아래는 클론에서 실행합니다. `--dest`는 `fef-claude/` 폴더가 아닌 두 패키지의 공통 skills 루트입니다. delegation은 명시적인 `--dest`가 필요하며 자동 호스트·형제 탐색을 사용하지 않습니다.
 
 ```sh
 python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
 python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --check
 python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
 ```
 
-Default installation/ZIP includes operational files and acceptance guidance; `--with-evidence` explicitly adds preserved experimental files. See [platform installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md), [measured optimization](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md), and [history, attribution, license and evidence limits](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md). Original licensing remains unresolved. Original v1.2 model results are HISTORICAL/STALE for v1.3. Current static/fixture tests and self-check have separate hashes; model behavior, prompt injection defense and Codex auxiliary prompt reads remain UNVERIFIED.
+같은 루트 아래 `fef-claude/`와 `ai-delegation-loop/`가 형제 패키지로 설치됩니다. FEF의 기본 설치와 Kernel은 바뀌지 않습니다. delegation도 다른 기존 설치를 거부하지만, 명시적 `--force` 교체 시에는 skills 검색 경로 밖에 백업을 남깁니다.
+
+기본 delegation 설치·ZIP은 실행 자료와 수용 기준을 포함합니다. `--with-evidence`를 설치 또는 package 명령에 추가하면 보존된 시험 실행기·보고서·JSON도 포함합니다. 전체 canonical 패키지와 원본 Git 이력은 저장소에 계속 남습니다. `--with-evidence`는 FEF 선택에는 사용할 수 없습니다.
+
+플랫폼별 경로는 [delegation 설치 안내](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md), 변경과 측정 범위는 [최적화 기록](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md)을 확인하세요.
+
+## 검증과 한계
+
+클론 루트에서 실행합니다. 아래 검사는 모델·유료 API를 호출하지 않습니다.
+
+```sh
+python scripts/validate_repository.py
+python scripts/validate_routes.py
+python scripts/run_golden_tests.py --validate-only
+python scripts/sync_kernel.py --check
+python -m unittest discover -s tests -p "test_*.py"
+python scripts/delegation/validate_skill.py
+python -m unittest discover -s scripts/delegation -p "test_*.py"
+python scripts/delegation/refresh_evidence.py --check
+python scripts/delegation/verify_history.py
+python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
+```
+
+CI는 FEF를 Ubuntu/Python 3.11·3.12·3.14에서, delegation을 Ubuntu·Windows/Python 3.11·3.14에서 검사합니다. delegation CI는 원본 이력 복원과 플랫폼별 ZIP 체크섬 일치도 확인합니다. 로컬 운영체제의 symlink 권한 등으로 일부 검사가 건너뛰어질 수 있으므로 실행 결과를 확인하세요.
+
+v1.2의 원본 모델 결과는 HISTORICAL이며 현재 v1.3에는 STALE입니다. 현재 문서 계약·격리 fixture·채점기 self-check는 별도 hash로 기록합니다. 현재 모델 동작, prompt injection 방어, Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 정적 검사를 실제 전 플랫폼 업무 검증이나 모델 품질 향상으로 해석하지 않습니다.
+
+원본 DelegationLoop에는 LICENSE가 없고 대상 LICENSE도 불완전한 MIT placeholder입니다. 통합이 새 MIT 권한을 부여하지 않으며 원본 라이선스·재배포 권한은 미해결입니다. 원문 출처·저자·Git 이력·PR 논의 보존과 원본 삭제 전 조건은 [통합 기록](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md)에 있습니다.
+
+## 추가 안내
+
+- [Claude Code 사용과 훅 제한](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
+- [Claude Projects 설정](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
+- [스크립트 안내](scripts/README.md)
+- [FEF 최적화 근거와 한계](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)
