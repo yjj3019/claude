@@ -170,10 +170,11 @@ For substantial enterprise artifacts:
 1. Builder drafts using Kernel + loading map.
 2. Reviewer checks only the highest-risk dimensions.
 3. Builder applies accepted fixes.
-4. Final reviewer pass runs once if the artifact is external-facing.
+4. Parent checks accepted fixes and actual verification results against the task contract before delivery; this is not another reviewer pass.
 
 Do not create endless review loops.
 Reviewer runs at most once per artifact unless the user explicitly asks for another pass.
+For external-facing artifacts, include the relevant publication risks in that single review.
 
 ## Task Routing
 

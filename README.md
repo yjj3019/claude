@@ -104,7 +104,7 @@ v1.2의 원본 모델 결과는 HISTORICAL이며 현재 v1.3에는 STALE입니�
 
 ## 추가 안내
 
-- [Claude Code 사용과 훅 제한](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
+- [Claude Code 사용·에이전트 선택·훅 제한](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
 - [Claude Projects 설정](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
 - [스크립트 안내](scripts/README.md)
 - [FEF 최적화 근거와 한계](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)

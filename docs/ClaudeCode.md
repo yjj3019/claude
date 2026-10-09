@@ -26,6 +26,58 @@ Reviewer source files are in reviewers/. Run `python scripts/generate_agents.py`
 to synchronize .claude/agents/. These native Code agents do not become Projects agents.
 Use one focused review when consequential risk or the user requires it.
 
+These generated reviewers have only `Read, Grep, Glob`, `model: opus` and
+`maxTurns: 15`. The caller supplies scope, acceptance criteria, relevant diff/file
+paths and actual verification evidence (command, cwd, exit status and useful
+failure output). A regular non-fork subagent does not inherit the parent's
+conversation or already-read files. Reviewers cannot run Git or tests; missing
+evidence belongs in Validation Gaps, not an assumed PASS. The parent applies
+accepted fixes and verifies them without automatically spawning another review.
+The fixed model is retained; no cheaper-model quality or latency gain is measured.
+
+## Optional Native Execution Shapes
+
+Reviewed against the linked official pages on 2026-10-09. Load this section only
+when choosing an execution shape. Check the actual Code version, provider,
+available tools and permissions first; these are host features, not FEF runtimes
+or Claude Projects features. Native execution was not tested in a paid session.
+
+| Shape | Choose when | Boundary |
+|---|---|---|
+| Main session | Small, sequential or tightly coupled work | Avoid delegation startup and aggregation overhead |
+| [Subagent](https://code.claude.com/docs/ko/sub-agents) | One request has a self-contained subtask returning a compact result | Separate context is not a filesystem sandbox; pass required evidence explicitly |
+| [Agent view](https://code.claude.com/docs/ko/agent-view) | A user manages several independent full local sessions | Research preview; each session consumes usage |
+| [Agent team](https://code.claude.com/docs/ko/agent-teams) | Peers need direct discussion and coordination | Experimental, off by default; use only when ordinary delegation is insufficient |
+| [Dynamic workflow](https://code.claude.com/docs/ko/workflows) | Large repeated work needs script-controlled fan-out | Executable JavaScript via `Workflow` and `/workflows`, separate from FEF Markdown procedures |
+
+- Subagents can nest and use `SendMessage` when their tools/version permit;
+  FEF reviewers' allowlist includes neither `Agent` nor `SendMessage`. Do not add
+  `memory` (can enable Write/Edit) or `skills` (full preload) to make them lighter.
+- Enabling `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` can turn named `Agent`
+  calls into teammates in interactive sessions, even without an explicit team
+  request. `-p`/SDK sessions do not create teammates. A reused definition's
+  `tools` allowlist is retained, but in-process teammates gain `SendMessage` and,
+  where available, `TaskCreate`, `TaskGet`, `TaskList`, `TaskUpdate`. This changes
+  the reviewer's execution shape. Keep teams off for the normal reviewer path.
+  `/resume` and `/rewind` do not restore in-process teammates. Runtime team files
+  are host-managed; `.claude/teams/teams.json` is not supported configuration.
+- New Agent view dispatch can use its own worktree; moving an existing session
+  with `/bg` retains its working location. Confirm actual cwd, changed files and
+  permissions before action. Commit/push hints are not user authorization; preserve
+  work before deleting a session/worktree. `permissionMode` is not an independent
+  security boundary, and worktree isolation does not authorize external effects.
+- Dynamic workflows support CLI/Desktop/IDE and `-p`/SDK, subject to the account,
+  provider, configuration and invocation/permission rules; Pro needs opt-in.
+  They may reduce main-context load, not necessarily total tokens.
+  A missing/failed fan-out result can be `null`: account for it rather than filtering
+  it into apparent complete success. Restart/retry can repeat completed work while
+  retaining earlier file edits; inspect state and duplicate side effects first.
+  Separate stages needing fresh approval. FEF ships no executable workflow here.
+
+Use the smallest adequate shape and measure accepted results, retries, total
+usage and latency before increasing concurrency. No automatic team activation,
+permission bypass, global settings changes or paid benchmark is added by this guide.
+
 ## Session Verification Reminder
 
 The hooks in .claude/settings.json are deterministic local commands, with no model calls:
