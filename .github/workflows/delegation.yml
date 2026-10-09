@@ -1,0 +1,30 @@
+name: Validate Delegation Loop
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validate package
+        run: python scripts/delegation/validate_skill.py
+      - name: Script tests
+        run: python -m unittest discover -s scripts/delegation -p "test_*.py"
+      - name: Simulation grader self-check
+        run: python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
+      - name: Restore archived Git history
+        run: python scripts/delegation/verify_history.py

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -358,6 +359,9 @@ def _copy_ignore(directory: str, names: list[str]) -> set[str]:
     """Use the same runtime-only selection for copying and source hashes."""
     ignored = set(COPY_IGNORE(directory, names))
     rel = Path(directory).relative_to(REPO_ROOT)
+    if rel == Path("scripts"):
+        # Delegation is independently installed, never nested inside FEF.
+        ignored.update({"delegation"} & set(names))
     if rel == Path(".claude"):
         ignored.update({".verification", ".test-run-marker"} & set(names))
     if rel == Path("docs"):
@@ -692,8 +696,34 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Show destinations without copying files",
     )
+    parser.add_argument("--pack", default=PACK_NAME, choices=(PACK_NAME, "ai-delegation-loop"),
+                        help="Select a separate skill; delegation requires explicit --dest")
     args = parser.parse_args(argv)
     _utf8_console()
+
+    if args.pack == "ai-delegation-loop":
+        if not args.dest or any((args.auto, args.siblings, args.siblings_only,
+                                args.scan_sibling_parent, args.list_targets,
+                                args.print_claude, args.print_bootstrap, args.with_tests)):
+            parser.error("delegation requires --dest and supports only --force, --dry-run or --check")
+        # Explicit package selection never discovers hosts or sibling projects.
+        script = REPO_ROOT / "scripts" / "delegation" / "install.py"
+        if not script.is_file():
+            parser.error("delegation source is available from the full repository clone")
+        spec = importlib.util.spec_from_file_location("delegation_install", script)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        root = Path(args.dest).expanduser().absolute()
+        if args.check:
+            dest = root / module.SKILL
+            try:
+                module.refuse_links(dest)
+                valid = dest.is_dir() and module.digest(dest) == module.digest(module.SOURCE)
+            except ValueError:
+                valid = False
+            print("Delegation install verified" if valid else "Delegation install missing or differs")
+            return 0 if valid else 1
+        return 0 if module.install_to(root, args.force, args.dry_run) else 2
 
     # --siblings without --auto/--siblings-only ⇒ siblings-only install
     if args.siblings and not args.auto and not args.siblings_only:

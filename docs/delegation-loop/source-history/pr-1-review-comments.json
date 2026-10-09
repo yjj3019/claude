@@ -1,0 +1,57 @@
+[
+  {
+    "id": 4219003363,
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Generate the required skill frontmatter**\n\nWhen this copy-ready prompt is used in the documented new-chat flow, it instructs the agent to begin the generated `[job-name]/SKILL.md` with `목적` rather than YAML frontmatter. The resulting job playbook therefore lacks the required `name` and `description` fields and cannot be discovered or validated as the Agent Skill promised by this package. Have the prompt emit valid frontmatter—using a validated hyphen-case job name—before these sections, or explicitly direct it to instantiate `SKILL.template.md`.\n\nUseful? React with 👍 / 👎.",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#discussion_r4219003363",
+    "path": "skills/ai-delegation-loop/prompts/01-interview.md",
+    "commit_id": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "original_commit_id": "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "created_at": "2026-10-08T12:37:44Z",
+    "updated_at": "2026-10-08T12:37:44Z",
+    "author": "chatgpt-codex-connector[bot]"
+  },
+  {
+    "id": 4219003371,
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Defer the second execution until after proof creation**\n\nIn the documented workflow, prompt 2 runs before prompt 3 creates the evidence-based checks, but this instruction immediately reruns the entire job at the end of prompt 2. That makes the supposed second execution happen without the new checks and then causes the main workflow to run the job a third time after prompt 3; for costly jobs this duplicates work, while for stateful jobs it may repeat side effects up to the external-action boundary. Remove this rerun from prompt 2 or move it after proof creation so there is one validated second execution.\n\nUseful? React with 👍 / 👎.",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#discussion_r4219003371",
+    "path": "skills/ai-delegation-loop/prompts/02-toolbox.md",
+    "commit_id": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "original_commit_id": "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "created_at": "2026-10-08T12:37:44Z",
+    "updated_at": "2026-10-08T12:37:44Z",
+    "author": "chatgpt-codex-connector[bot]"
+  },
+  {
+    "id": 4219003382,
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Persist the per-run validation protocol in the generated skill**\n\nWhen this prompt is pasted into a chat to update a job skill, only the 5–10 check definitions are explicitly written to `SKILL.md`; the status reporting, full revalidation, stop thresholds, and approval rule below are merely instructions to the current conversation. A later invocation of the generated job skill therefore has no durable instruction to perform or report these behaviors, so the core evidence protocol disappears across sessions. Require this block, or an equivalent reusable protocol, to be added to the generated `SKILL.md` alongside the checks.\n\nUseful? React with 👍 / 👎.",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#discussion_r4219003382",
+    "path": "skills/ai-delegation-loop/prompts/03-proof.md",
+    "commit_id": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "original_commit_id": "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "created_at": "2026-10-08T12:37:44Z",
+    "updated_at": "2026-10-08T12:37:44Z",
+    "author": "chatgpt-codex-connector[bot]"
+  },
+  {
+    "id": 4219003390,
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Require fresh approval for every state-changing rerun**\n\nFor a recurring job that performs a payment or changes account permissions, this instruction orders a second execution but only withholds authorization for sending, posting, deletion, and deployment. Those omitted actions are explicitly treated as approval-gated elsewhere in the package, and approval for the original run does not authorize this additional run, so using this copy-ready prompt by itself can repeat a financial or access-control side effect. Include payments and permission changes in the prohibition and require explicit approval for this specific rerun.\n\nUseful? React with 👍 / 👎.",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#discussion_r4219003390",
+    "path": "skills/ai-delegation-loop/prompts/02-toolbox.md",
+    "commit_id": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "original_commit_id": "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "created_at": "2026-10-08T12:37:44Z",
+    "updated_at": "2026-10-08T12:37:44Z",
+    "author": "chatgpt-codex-connector[bot]"
+  },
+  {
+    "id": 4219003398,
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Align the failure taxonomy with the diagnostic prompt**\n\nWhen a failure has multiple causes or comes from changed input, permissions, or system state, this manual requires assigning exactly one internal layer, while `prompts/04-failure-loop.md` explicitly allows multiple layers and adds `외부 조건`. Following the manual can therefore misclassify an external failure as a process, toolbox, or proof defect and persist an unnecessary change. Use the same multi-layer taxonomy, including external conditions, throughout the manual and top-level workflow.\n\nUseful? React with 👍 / 👎.",
+    "html_url": "https://github.com/yjj3019/DelegationLoop/pull/1#discussion_r4219003398",
+    "path": "skills/ai-delegation-loop/manual.ko.md",
+    "commit_id": "b12d240893699a88a49ccb7ce4235ffa051b3293",
+    "original_commit_id": "8af2bab3e78288b57b6d3f5bbd4caee2a9f05cc5",
+    "created_at": "2026-10-08T12:37:44Z",
+    "updated_at": "2026-10-08T12:37:44Z",
+    "author": "chatgpt-codex-connector[bot]"
+  }
+]

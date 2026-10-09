@@ -93,3 +93,15 @@ python -m unittest discover -s tests -p "test_*.py"
 ```
 
 구조/라우팅 시뮬레이션: [docs/simulation-10-report-2026-09-06.md](docs/simulation-10-report-2026-09-06.md)
+
+## AI 위임 루프 (별도 선택 설치)
+
+반복 업무 인터뷰·툴박스·증거 검증을 위한 [v1.2 독립 스킬](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md)을 포함합니다. FEF 기본 설치와 Kernel 선택 로딩은 유지합니다. 같은 skills root에 `fef-claude/`와 `ai-delegation-loop/`를 형제로 설치합니다.
+
+```sh
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
+python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
+python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
+```
+
+[플랫폼별 설치](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md)와 [이력 보존·출처·미확정 라이선스·검증 한계](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md)를 확인하세요. 기존 모델 시험은 역사 증거입니다. Codex 보조 프롬프트 읽기는 여전히 UNVERIFIED입니다.

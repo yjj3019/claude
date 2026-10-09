@@ -1,0 +1,5 @@
+# Preserve reproducible package bytes and historical evidence on all platforms.
+skills/ai-delegation-loop/** text eol=lf
+scripts/delegation/** text eol=lf
+docs/delegation-loop/** text eol=lf
+docs/delegation-loop/source-history/*.bundle binary
