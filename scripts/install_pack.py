@@ -277,9 +277,10 @@ def pack_source_paths(with_tests: bool) -> list[tuple[str, Path]]:
         if not path.is_file():
             raise SystemExit(f"Missing required pack file: {name}")
         items.append((name, path))
-    readme_ko = REPO_ROOT / "README.ko.md"
-    if readme_ko.is_file():
-        items.append(("README.ko.md", readme_ko))
+    for name in ("README.en.md", "README.ko.md"):
+        path = REPO_ROOT / name
+        if path.is_file():
+            items.append((name, path))
     for name in REQUIRED_DIRS:
         path = REPO_ROOT / name
         if not path.is_dir():

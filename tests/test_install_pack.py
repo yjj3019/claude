@@ -142,6 +142,28 @@ class InstallPackTests(unittest.TestCase):
         pack = self.home / ".agents/skills/fef-claude"
         self.assertTrue((pack / "CLAUDE.md").is_file())
 
+    def test_installed_readme_language_links_and_integrity(self):
+        dest = self.home / "skills"
+        proc = self._run("--dest", str(dest))
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        pack = dest / "fef-claude"
+        for name in ("README.md", "README.en.md", "README.ko.md"):
+            self.assertEqual((pack / name).read_bytes(), (ROOT / name).read_bytes())
+        self.assertIn("[English](README.en.md)", (pack / "README.md").read_text(encoding="utf-8"))
+        self.assertIn("[한국어](README.md)", (pack / "README.en.md").read_text(encoding="utf-8"))
+        self.assertIn("[README.md](README.md)", (pack / "README.ko.md").read_text(encoding="utf-8"))
+        self.assertEqual(install_pack.verify_install(pack), [])
+        for missing in (False, True):
+            with self.subTest(missing=missing):
+                english = pack / "README.en.md"
+                if missing:
+                    english.unlink()
+                else:
+                    english.write_bytes(english.read_bytes() + b"\nlocal edit\n")
+                problems = install_pack.verify_install(pack)
+                self.assertTrue(any("README.en.md" in item for item in problems), problems)
+                self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+
     def test_with_tests_copies_tests_dir(self):
         dest = self.home / "skills"
         proc = self._run("--dest", str(dest), "--with-tests")
