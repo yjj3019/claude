@@ -104,7 +104,7 @@ The original DelegationLoop has no LICENSE, and the target LICENSE is an incompl
 
 ## Further guidance
 
-- [Claude Code usage and hook limits](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
+- [Claude Code usage, agent selection and hook limits](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
 - [Claude Projects setup](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
 - [Script guide](scripts/README.md)
 - [FEF optimization evidence and limits](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)
