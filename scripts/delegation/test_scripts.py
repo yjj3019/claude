@@ -310,7 +310,9 @@ class InstallTests(unittest.TestCase):
         with zipfile.ZipFile(str(first)) as archive:
             names = archive.namelist()
             stamps = {info.date_time for info in archive.infolist()}
+            systems = {info.create_system for info in archive.infolist()}
         self.assertEqual(stamps, {(1980, 1, 1, 0, 0, 0)})
+        self.assertEqual(systems, {3})
         self.assertTrue(all(n.startswith(SKILL + "/") for n in names))
         self.assertFalse(any("\\" in n or n.endswith(".pyc") or "__pycache__" in n for n in names))
         for needed in ("SKILL.md", "agents/openai.yaml", "prompts/01-interview.md"):

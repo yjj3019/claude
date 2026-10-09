@@ -11,7 +11,7 @@ Pre-publication local checks ran on Windows with Python 3.14. Actual user HOME i
 | Delegation validator | PASS: frontmatter/size/links/JSON/evidence hashes/version/leak patterns/openai.yaml/root entry existence |
 | Delegation unittest discover | PASS: 25 tests; 2 Windows symlink privilege skips; real Windows junction refusal and mocked ancestry guard pass |
 | Installer | PASS: isolated HOME, exact/idempotent copy, conflict refusal, force backup, no-write dry-run, project argument guards, explicit sibling pack preservation |
-| Reproducible ZIP | PASS: equal bytes, fixed timestamps, correct top-level directory, cache exclusion, overwrite refusal |
+| Reproducible ZIP | PASS: equal bytes, fixed timestamps and creator-platform metadata, correct top-level directory, cache exclusion, overwrite refusal |
 | Simulation grader self-check | PASS; no model execution, historical results untouched |
 | History | PASS: SHA-256, mirror restore, fsck, refs, 5 commits/26 trees/42 blobs, all source main/optimized file bytes; no pattern hits in reachable blobs |
 | Protected root files | AGENTS.md, CLAUDE.md, LICENSE and original FEF workflow unchanged |

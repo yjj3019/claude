@@ -28,3 +28,7 @@ jobs:
         run: python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
       - name: Restore archived Git history
         run: python scripts/delegation/verify_history.py
+      - name: Build deterministic ZIP
+        run: python scripts/delegation/install.py package --output ./dist/ai-delegation-loop.zip
+      - name: ZIP SHA-256
+        run: python -c "import hashlib, pathlib; print('ZIP_SHA256=' + hashlib.sha256(pathlib.Path('dist/ai-delegation-loop.zip').read_bytes()).hexdigest())"
