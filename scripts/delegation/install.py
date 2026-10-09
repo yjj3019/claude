@@ -207,11 +207,13 @@ def package(args):
     fd, tmp_name = tempfile.mkstemp(prefix=out.name + ".", suffix=".tmp", dir=out.parent)
     os.close(fd)
     tmp = Path(tmp_name)
-    with zipfile.ZipFile(str(tmp), "w", zipfile.ZIP_DEFLATED) as archive:
+    # Store bytes directly: zlib versions can emit different DEFLATE streams.
+    # This small text package prioritizes cross-platform reproducibility.
+    with zipfile.ZipFile(str(tmp), "w", zipfile.ZIP_STORED) as archive:
         for rel in files_in(SOURCE):
             info = zipfile.ZipInfo("%s/%s" % (SKILL, rel.as_posix()), date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system = 3  # Fixed UNIX metadata even when built on Windows.
-            info.compress_type = zipfile.ZIP_DEFLATED
+            info.compress_type = zipfile.ZIP_STORED
             info.external_attr = 0o644 << 16
             archive.writestr(info, (SOURCE / rel).read_bytes())
     with zipfile.ZipFile(str(tmp)) as archive:

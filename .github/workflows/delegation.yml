@@ -31,4 +31,20 @@ jobs:
       - name: Build deterministic ZIP
         run: python scripts/delegation/install.py package --output ./dist/ai-delegation-loop.zip
       - name: ZIP SHA-256
-        run: python -c "import hashlib, pathlib; print('ZIP_SHA256=' + hashlib.sha256(pathlib.Path('dist/ai-delegation-loop.zip').read_bytes()).hexdigest())"
+        run: python -c "import hashlib, pathlib; value = hashlib.sha256(pathlib.Path('dist/ai-delegation-loop.zip').read_bytes()).hexdigest(); pathlib.Path('dist/package.sha256').write_text(value, encoding='ascii'); print('ZIP_SHA256=' + value)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: delegation-zip-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/package.sha256
+          retention-days: 1
+
+  compare-zips:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: delegation-zip-*
+          path: zip-hashes
+      - name: Require identical ZIPs across platforms and Python versions
+        run: python -c "import pathlib; values = [p.read_text(encoding='ascii') for p in pathlib.Path('zip-hashes').rglob('package.sha256')]; assert len(values) == 4 and len(set(values)) == 1, values; print('ZIP_SHA256=' + values[0])"

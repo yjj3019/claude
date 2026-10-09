@@ -102,7 +102,7 @@ Grok은 대화·파일 업로드로 커스텀 스킬을 만들 수 있다. `SKIL
 
 ### ZIP 만들기
 
-권장: `python scripts/delegation/install.py package`는 `dist/ai-delegation-loop.zip`을 만든다. 최상위가 `ai-delegation-loop/` 폴더이고 `__pycache__`와 `.pyc`를 제외하며, 같은 입력이면 같은 바이트가 나온다. 기존 ZIP이 있으면 `--force` 없이는 쓰지 않는다. 스크립트를 쓸 수 없을 때만 아래 명령을 쓴다.
+권장: `python scripts/delegation/install.py package`는 `dist/ai-delegation-loop.zip`을 만든다. 최상위가 `ai-delegation-loop/` 폴더이고 `__pycache__`와 `.pyc`를 제외한다. 운영체제 메타데이터와 시각을 고정하고 무압축으로 저장하여 압축 라이브러리 버전에 따른 바이트 차이를 없앤다. 같은 파일 입력이면 같은 바이트가 나온다. 기존 ZIP이 있으면 `--force` 없이는 쓰지 않는다. 스크립트를 쓸 수 없을 때만 아래 명령을 쓴다.
 
 저장소 루트에서:
 
