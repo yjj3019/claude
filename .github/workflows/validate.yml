@@ -55,3 +55,4 @@ jobs:
         with:
           python-version: "${{ matrix.python-version }}"
       - run: python -m unittest discover -s tests -p "test_install_pack.py"
+      - run: python -m unittest discover -s tests -p "test_hooks.py"

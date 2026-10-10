@@ -32,7 +32,15 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 
 1. Clone or copy this repository and open it as the Claude Code workspace root (loads `CLAUDE.md`).
 2. Or run `python3 scripts/install_pack.py --auto` and point the host at the installed `fef-claude/` pack.
-3. Hooks under `.claude/settings.json` enforce test-before-stop when using this repo as workspace. They invoke `python`; on Linux/macOS change both commands to `python3`, otherwise the hooks fail open and enforcement is silently off (see `docs/ClaudeCode.md`).
+3. Hooks under `.claude/settings.json` remind you to test before stopping when using this repo as workspace. Their exec-form `command` is `python`; if that executable is unavailable, set all four interpreter fields to the available Python executable (often `python3` on Linux/macOS). Missing interpreters leave verification unavailable; see `docs/ClaudeCode.md`.
+
+The installed `SKILL.md` declares `name: fef-claude` and a narrow description for
+explicit FEF requests. Claude Code's `disable-model-invocation: true` makes this
+skill a manual `/fef-claude` entry; other hosts must use their own invocation
+controls. The body keeps the existing selective loading map and budget. These
+metadata contracts do not establish live discovery or activation on every host.
+See [Claude Code frontmatter](https://code.claude.com/docs/en/skills#frontmatter-reference)
+and the [Agent Skills specification](https://agentskills.io/specification#frontmatter).
 
 ## Claude Projects
 

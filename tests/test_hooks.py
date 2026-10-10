@@ -70,8 +70,8 @@ class SessionVerificationTest(unittest.TestCase):
     def change(self, text="x = 2\n"):
         (self.root / "app.py").write_text(text, encoding="utf-8")
 
-    def record(self, code=0, session="session-A", command="python -m unittest discover", response=None):
-        return run_hook(RECORD, {"session_id": session, "tool_name": "Bash",
+    def record(self, code=0, session="session-A", command="python -m unittest discover", response=None, tool="Bash"):
+        return run_hook(RECORD, {"session_id": session, "tool_name": tool,
                                 "tool_input": {"command": command},
                                 "tool_response": {"returncode": code} if response is None else response}, self.root)
 
@@ -103,6 +103,45 @@ class SessionVerificationTest(unittest.TestCase):
     def test_failed_test_cannot_verify(self):
         self.change()
         self.record(code=1)
+        self.assert_blocked()
+
+    def test_powershell_exit_metadata_and_unsafe_syntax(self):
+        self.change()
+        self.record(tool="PowerShell")
+        self.assertEqual(self.stop().stdout, "")
+        for response in ({"returncode": 1}, {"returncode": False}, {},
+                         {"returncode": 0, "interrupted": True}):
+            self.record(tool="PowerShell", response=response)
+            self.assert_blocked()
+        for command in ("pytest; Write-Output ok", "pytest | Select-Object -First 1",
+                        "pytest && Write-Output ok", "pytest $args", "pytest `n",
+                        "pytest # comment", "pytest (Get-Item .)", "pytest --% hidden",
+                        "pytest 'a''b'", 'pytest "a""b"'):
+            self.record(tool="PowerShell")
+            self.record(tool="PowerShell", command=command)
+            self.assert_blocked()
+
+    def test_powershell_wrapper_literal_paths_and_footer_guards(self):
+        self.change()
+        current = digest(snapshot(self.root))
+        record = {"argv_digest": digest(["pytest"]), "returncode": 0,
+                  "snapshot_before": current, "snapshot": current}
+        for quote in ('"', "'"):
+            command = 'python ' + quote + str(WRAPPER) + quote + ' -- pytest'
+            self.record(tool="PowerShell", command=command,
+                        response={"stdout": RESULT_PREFIX + json.dumps(record)})
+            self.assertEqual(self.stop().stdout, "")
+            for footer in ("invalid JSON", "[]", json.dumps({**record, "argv_digest": "wrong"}),
+                           json.dumps({**record, "snapshot": "stale"}),
+                           json.dumps({**record, "snapshot_before": "changed"}),
+                           json.dumps({**record, "returncode": False})):
+                self.record(tool="PowerShell", command=command, response={"stdout": RESULT_PREFIX + footer})
+                self.assert_blocked()
+
+    def test_powershell_later_edit_invalidates_success(self):
+        self.change()
+        self.record(tool="PowerShell")
+        self.change("x = 3\n")
         self.assert_blocked()
 
     def test_unknown_native_exit_invalidates_earlier_success(self):
@@ -233,9 +272,10 @@ class SessionVerificationTest(unittest.TestCase):
         self.assertIn(RESULT_PREFIX, result.stdout)
         self.assertIn("OK", result.stderr)
         command = 'python "' + WRAPPER.as_posix() + '" -- python -m unittest discover -s .'
-        self.record(command=command, response={"stdout": result.stdout, "stderr": result.stderr,
-                                              "interrupted": False, "isImage": False})
-        self.assertEqual(self.stop().stdout, "")
+        for tool in ("Bash", "PowerShell"):
+            self.record(tool=tool, command=command, response={"stdout": result.stdout, "stderr": result.stderr,
+                                                            "interrupted": False, "isImage": False})
+            self.assertEqual(self.stop().stdout, "")
 
     def test_real_wrapper_failure_preserves_exit_and_stderr(self):
         (self.root / "test_failure.py").write_text(
@@ -247,8 +287,9 @@ class SessionVerificationTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("expected failure", result.stderr)
         command = 'python "' + WRAPPER.as_posix() + '" -- python -m unittest discover -s .'
-        self.record(command=command, response={"stdout": result.stdout, "interrupted": False})
-        self.assert_blocked()
+        for tool in ("Bash", "PowerShell"):
+            self.record(tool=tool, command=command, response={"stdout": result.stdout, "interrupted": False})
+            self.assert_blocked()
 
     def test_stale_or_wrong_wrapper_footer_cannot_verify(self):
         self.change()
@@ -288,6 +329,19 @@ class SessionVerificationTest(unittest.TestCase):
 
 
 class ExtractExitCodeTest(unittest.TestCase):
+    def test_hook_exec_arguments_and_shell_matchers(self):
+        config = json.loads((ROOT / ".claude/settings.json").read_text(encoding="utf-8"))
+        for event, groups in config["hooks"].items():
+            for group in groups:
+                if event in ("PostToolUse", "PostToolUseFailure"):
+                    self.assertEqual(group["matcher"], "Bash|PowerShell")
+                for hook in group["hooks"]:
+                    self.assertEqual(hook["command"], "python")
+                    self.assertEqual(len(hook["args"]), 1)
+                    self.assertTrue(hook["args"][0].startswith("${CLAUDE_PROJECT_DIR}/scripts/hooks/"))
+                    self.assertTrue((ROOT / hook["args"][0].replace("${CLAUDE_PROJECT_DIR}/", "")).is_file())
+                    self.assertNotIn("shell", hook)
+
     def test_ordinary_bash_skips_git_and_session_state(self):
         with tempfile.TemporaryDirectory() as directory:
             script = RECORD

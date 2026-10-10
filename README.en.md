@@ -96,7 +96,7 @@ python scripts/delegation/verify_history.py
 python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI also restores original history and requires matching ZIP checksums across platforms. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
+CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI also restores original history and requires matching ZIP checksums across platforms. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
 
 Original v1.2 model results are HISTORICAL and STALE for the current v1.3 package. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
 
@@ -108,5 +108,3 @@ The original DelegationLoop has no LICENSE, and the target LICENSE is an incompl
 - [Claude Projects setup](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
 - [Script guide](scripts/README.md)
 - [FEF optimization evidence and limits](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)
-
-- [Synthetic examples and verification criteria](https://github.com/yjj3019/claude/blob/main/docs/Examples.md)

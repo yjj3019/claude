@@ -154,6 +154,27 @@ class InstallPackTests(unittest.TestCase):
         pack = self.home / ".agents/skills/fef-claude"
         self.assertTrue((pack / "CLAUDE.md").is_file())
 
+    def test_skill_metadata_and_selective_loading_contract(self):
+        # Minimal fixture: validate the generated host entry without copying a pack.
+        pack = self.home / "fef-claude"
+        pack.mkdir()
+        install_pack.write_skill_hint(pack)
+        text = (pack / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("---\n"))
+        metadata, body = text[4:].split("\n---\n", 1)
+        fields = dict(line.split(": ", 1) for line in metadata.splitlines())
+        self.assertEqual(fields["name"], pack.name)
+        self.assertRegex(fields["name"], r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+        self.assertGreater(len(fields["description"]), 0)
+        self.assertLessEqual(len(fields["description"]), 1024)
+        self.assertIn("explicitly requests FEF", fields["description"])
+        self.assertEqual(fields["disable-model-invocation"], "true")
+        self.assertNotIn("allowed-tools", fields)
+        self.assertNotIn("context", fields)
+        self.assertNotIn("model", fields)
+        self.assertIn("Do not preload every", body)
+        self.assertIn("Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3", body)
+
     def test_installed_readme_language_links_and_integrity(self):
         dest = self.home / "skills"
         proc = self._run("--dest", str(dest))

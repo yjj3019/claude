@@ -7,20 +7,11 @@ Generated conceptually from `config/golden-tests.json`; IDs show existing covera
 | Analysis | GT009, GT018, GT022 | — | GT004 | — | — | GT006, GT009, GT018 | — |
 | Writing | GT002, GT006, GT010, GT016, GT020, GT021 | GT001 | — | GT001 | — | GT006, GT010 | — |
 | Review | GT005, GT007, GT008, GT015, GT019 | — | — | GT011 | — | — | — |
-| Troubleshooting | GT017 | GT003 | — | — | GT003 | — | — |
+| Troubleshooting | GT017 | — | — | — | GT003 | — | — |
 | Coding change | — | — | — | — | — | — | GT012, GT013, GT014, GT026, GT027, GT028, GT029, GT030, GT031 |
 
-RHEL evidence beyond proposals now includes one synthetic memcg RCA (GT003), still a manual NOT_RUN comparison. Remaining gaps include other RHEL incidents and primary-source/version-sensitive fact verification, OpenShift writing/review, and existing-failure repository handling. Add tests only after a repeated failure is documented and a measurable rubric exists.
+Largest gaps: domain-specific RHEL fact verification beyond proposals, OpenShift writing/review, and existing-failure repository handling. Add tests only after a repeated failure is documented and a measurable rubric exists.
 
 ## Mechanical Runner for Fixture-Mode Coding Tests
 
 `scripts/run_golden_test_coding.py` mechanically scores the nine fixture-mode coding tests (012-014, 026-031): unit-test pass/fail, expected-fix-file coverage vs sibling-only workarounds, test-file tampering, and new-dependency candidates. GT031 is the one fixture specifically designed to tempt a new third-party dependency (an email-validation package) rather than the shared-root-cause axis the other eight already exercise. Executable answer files live in each fixture's `answers/` directory; CI runs the answer overlays as a positive gate (must exit 0) and the pristine buggy file as a negative control (must exit 1). Rubric dimensions beyond these mechanical checks still require a human or LLM reviewer, and a single mechanical pass is not the GoldenTest PASS rule.
-
-## Domain evidence exercises
-
-GT003 now supplies a synthetic RHEL memcg incident and GT004 supplies a synthetic
-OpenShift readiness snapshot, paired baseline/FEF task inputs and evaluator-only
-fact/failure/rubric keys. Both retain `manual` mode and NOT_RUN model status.
-Registration checks missing fixture paths; it does not automate semantic grading
-or add a model-quality claim. See [examples](Examples.md) and the
-[evidence index](evidence-index.md).

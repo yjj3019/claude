@@ -44,9 +44,7 @@ python scripts/sync_kernel.py --check
 
 `validate_repository.py` already invokes route and Golden metadata validation;
 CI runs those checks once through that entry. Their individual CLIs remain useful
-for targeted diagnostics. The nine explicit coding answer-overlay gates and the
-GT012 negative control remain separate: batching their IDs alone would change
-neither fixture isolation nor the grading work, so no new runner was added.
+for targeted diagnostics.
 
 FEF `--force` uses a verified stage, retained original, replacement verification
 and rollback. See [recovery procedure](../docs/Installation.md). Installer tests

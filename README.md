@@ -96,7 +96,7 @@ python scripts/delegation/verify_history.py
 python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI는 FEF를 Ubuntu/Python 3.11·3.12·3.14에서, FEF installer를 Windows/Python 3.11·3.14에서, delegation을 Ubuntu·Windows/Python 3.11·3.14에서 검사합니다. delegation CI는 원본 이력 복원과 플랫폼별 ZIP 체크섬 일치도 확인합니다. 로컬 운영체제의 symlink 권한 등으로 일부 검사가 건너뛰어질 수 있으므로 실행 결과를 확인하세요.
+CI는 FEF를 Ubuntu/Python 3.11·3.12·3.14에서, FEF installer·hook을 Windows/Python 3.11·3.14에서, delegation을 Ubuntu·Windows/Python 3.11·3.14에서 검사합니다. delegation CI는 원본 이력 복원과 플랫폼별 ZIP 체크섬 일치도 확인합니다. 로컬 운영체제의 symlink 권한 등으로 일부 검사가 건너뛰어질 수 있으므로 실행 결과를 확인하세요.
 
 v1.2의 원본 모델 결과는 HISTORICAL이며 현재 v1.3에는 STALE입니다. 현재 문서 계약·격리 fixture·채점기 self-check는 별도 hash로 기록합니다. 현재 모델 동작, prompt injection 방어, Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 정적 검사를 실제 전 플랫폼 업무 검증이나 모델 품질 향상으로 해석하지 않습니다.
 
@@ -108,5 +108,3 @@ v1.2의 원본 모델 결과는 HISTORICAL이며 현재 v1.3에는 STALE입니�
 - [Claude Projects 설정](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
 - [스크립트 안내](scripts/README.md)
 - [FEF 최적화 근거와 한계](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)
-
-- [합성 사용 예시와 검증 기준](https://github.com/yjj3019/claude/blob/main/docs/Examples.md)

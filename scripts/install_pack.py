@@ -317,13 +317,18 @@ def pack_source_paths(with_tests: bool) -> list[tuple[str, Path]]:
 
 def write_skill_hint(dest_pack: Path) -> None:
     """Write a minimal SKILL.md so skill-style hosts can discover the pack."""
-    content = """# FEF Claude Framework Pack
+    content = """---
+name: fef-claude
+description: Apply the FEF framework when the user explicitly requests FEF guidance or invokes /fef-claude. Load only the task packs selected by the FEF loading map.
+disable-model-invocation: true
+---
+# FEF Claude Framework Pack
 
 Claude-oriented engineering guidance: Kernel, task packs, routing, and integrity rules.
 
 ## When to use
 
-- Engineering, RCA, proposals, coding, reviews, and evidence-backed completion
+- Explicit FEF requests or `/fef-claude`; do not activate for every engineering task
 - Prefer opening a clone of this repository as a Claude Code workspace (`CLAUDE.md`)
 - For Claude Projects (web): paste `CLAUDE.md` into Project Instructions (`python scripts/install_pack.py --print-claude`)
 
