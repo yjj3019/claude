@@ -41,7 +41,7 @@ python scripts/install_pack.py --siblings /other/project
 
 `--dest`는 skills 루트입니다. FEF는 그 아래 `fef-claude/`에 설치됩니다. 형제 설치는 `--siblings`, `FEF_SIBLING_ROOTS`, `--siblings-only` 또는 `--scan-sibling-parent`로 명시적으로 선택합니다. 부모 폴더 탐색은 기본으로 꺼져 있습니다. `FEF_SIBLING_ROOTS`의 경로 구분자는 운영체제의 `os.pathsep`을 따릅니다.
 
-기존 FEF 팩은 배포 파일 지문과 설치 무결성이 같으면 건너뛰고, 다르면 덮어쓰기를 거부합니다. `--force`는 기존 팩을 교체하며 FEF의 로컬 수정·추가 파일을 보존하지 않으므로 먼저 별도로 백업하세요. `--dry-run`은 파일을 쓰지 않습니다. 기본 설치는 실행 문서만 포함하고, `--with-tests`로 tests·examples를 추가할 수 있습니다.
+기존 FEF 팩은 배포 파일 지문과 설치 무결성이 같으면 건너뛰고, 다르면 덮어쓰기를 거부합니다. `--force`는 준비본을 검증한 뒤 활성 팩을 교체하고, 로컬 수정·추가 파일을 포함한 기존 전체를 출력된 복구 경로에 보존합니다. 로컬 수정은 새 팩에 자동 병합되지 않습니다. 복사·준비 검증 실패 시 기존본은 유지되고, 게시·게시 후 검증 실패 시 복원을 시도합니다. 복원도 실패하면 보존된 기존본의 경로를 보고하며 수동 복구가 필요합니다. `--dry-run`은 파일을 쓰지 않습니다. 기본 설치는 실행 문서만 포함하고, `--with-tests`로 tests·examples를 추가할 수 있습니다.
 
 `--print-bootstrap`은 설치 명령, `--print-claude`는 Projects 설정 절차를 출력합니다. 전체 옵션은 `python scripts/install_pack.py --help`와 [설치 안내](docs/Installation.md)를 확인하세요.
 

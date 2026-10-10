@@ -41,7 +41,7 @@ python scripts/install_pack.py --siblings /other/project
 
 `--dest` is the skills root. FEF is installed beneath it as `fef-claude/`. Sibling installation requires explicit opt-in through `--siblings`, `FEF_SIBLING_ROOTS`, `--siblings-only` or `--scan-sibling-parent`. Parent-folder scanning is off by default. `FEF_SIBLING_ROOTS` uses the operating system's `os.pathsep` between paths.
 
-An existing FEF pack is skipped when its shipped-file fingerprint and installation integrity match; otherwise replacement is refused. `--force` replaces the existing pack and does not preserve FEF's local edits or additional files, so back them up separately first. `--dry-run` writes no files. The default install includes runtime documents only; `--with-tests` adds tests and examples.
+An existing FEF pack is skipped when its shipped-file fingerprint and installation integrity match; otherwise replacement is refused. `--force` verifies a stage before replacing the active pack and retains the entire original, including local edits and extra files, at the printed recovery path. Local edits are not automatically merged into the new pack. Copy/stage verification failure leaves the original intact; publish/post-publish verification failure attempts restoration. If restoration also fails, the retained original path is reported and manual recovery is required. `--dry-run` writes no files. The default install includes runtime documents only; `--with-tests` adds tests and examples.
 
 `--print-bootstrap` prints installation commands; `--print-claude` prints Projects setup steps. See `python scripts/install_pack.py --help` and the [installation guide](docs/Installation.md) for all options.
 
