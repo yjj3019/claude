@@ -32,7 +32,17 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 
 1. Clone or copy this repository and open it as the Claude Code workspace root (loads `CLAUDE.md`).
 2. Or run `python3 scripts/install_pack.py --auto` and point the host at the installed `fef-claude/` pack.
-3. Hooks under `.claude/settings.json` enforce test-before-stop when using this repo as workspace. They invoke `python`; on Linux/macOS change both commands to `python3`, otherwise the hooks fail open and enforcement is silently off (see `docs/ClaudeCode.md`).
+3. Hooks under `.claude/settings.json` remind you to test before stopping when using this repo as workspace. Their exec-form `command` is `python`; if that executable is unavailable, set all four interpreter fields to the available Python executable (often `python3` on Linux/macOS). Missing interpreters leave verification unavailable; see `docs/ClaudeCode.md`.
+
+The installed `SKILL.md` declares only the common `name: fef-claude` and a narrow
+description for explicit FEF requests. It emits no Claude Code extension fields;
+manual-only invocation controls belong to the active host's configuration. A
+description is not an enforced invocation restriction. The body keeps the
+existing selective loading map and budget. These metadata checks do not prove
+upload acceptance, live discovery or activation on any host.
+See [Claude Code frontmatter](https://code.claude.com/docs/en/skills#frontmatter-reference)
+and the [Agent Skills specification](https://agentskills.io/specification#frontmatter).
+See also [frontmatter outside Claude Code](https://code.claude.com/docs/en/skills#using-skill-frontmatter-outside-claude-code): Code-specific fields are not portable to strict upload contracts.
 
 ## Claude Projects
 
@@ -49,3 +59,28 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 From this clone, `python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills` installs only delegation beside `fef-claude/`. `--dest` is the skills root, not an installed FEF directory. This explicit selection requires `--dest`; host/sibling discovery is not used. `--dry-run` writes nothing, differing installs are refused, and `--force` preserves a backup outside skill discovery. `--check` compares all installed bytes with the current canonical package.
 
 For tool-specific user/project paths and reproducible ZIPs see [delegation installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md). The root FEF instructions are not replaced. See [provenance and licensing](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md).
+
+## FEF replacement and recovery
+
+The FEF branch of this installer stages inside the selected skills root, hashes
+the copied payload against its source snapshot and verifies the manifest before
+changing an existing pack. Source/destination overlap, symlinks and Windows
+junctions/reparse points are refused, including ancestors and shipped files.
+Default refusal and no-write identical skip remain; `--dry-run` creates nothing.
+
+An explicit `--force` replacement preserves **all** old contents, including user
+files, at `<skills-root>/.fef-install-<unique>/old/`. The path is printed on stderr.
+That nested backup is outside the direct `fef-claude/` skill entry; do not point a
+host's discovery root inside it. Backups consume space and are not auto-deleted.
+If copy/stage verification fails, the original stays in place. If publishing or
+its verification fails, the installer tries to restore the old pack. If rollback
+also fails, both available versions remain and the recovery path is reported.
+
+Stop host use and concurrent installers before manual recovery. Inspect the
+reported directory and its user files; `--check --dest <skills-root>` verifies an
+active installation's manifest, not permission to discard edits. Preserve any
+failed new `fef-claude/` separately before moving the reported `old/` back to that
+name. Verify again and retain the backup until accepted. No automatic global
+configuration changes or live host activation are performed. Renames handle
+ordinary failures; this is not a transactional lock against hostile concurrent
+filesystem modification or a guarantee against power-loss interruption.

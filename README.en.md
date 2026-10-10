@@ -41,7 +41,7 @@ python scripts/install_pack.py --siblings /other/project
 
 `--dest` is the skills root. FEF is installed beneath it as `fef-claude/`. Sibling installation requires explicit opt-in through `--siblings`, `FEF_SIBLING_ROOTS`, `--siblings-only` or `--scan-sibling-parent`. Parent-folder scanning is off by default. `FEF_SIBLING_ROOTS` uses the operating system's `os.pathsep` between paths.
 
-An existing FEF pack is skipped when its shipped-file fingerprint and installation integrity match; otherwise replacement is refused. `--force` replaces the existing pack and does not preserve FEF's local edits or additional files, so back them up separately first. `--dry-run` writes no files. The default install includes runtime documents only; `--with-tests` adds tests and examples.
+An existing FEF pack is skipped when its shipped-file fingerprint and installation integrity match; otherwise replacement is refused. `--force` verifies a stage before replacing the active pack and retains the entire original, including local edits and extra files, at the printed recovery path. Local edits are not automatically merged into the new pack. Copy/stage verification failure leaves the original intact; publish/post-publish verification failure attempts restoration. If restoration also fails, the retained original path is reported and manual recovery is required. `--dry-run` writes no files. The default install includes runtime documents only; `--with-tests` adds tests and examples.
 
 `--print-bootstrap` prints installation commands; `--print-claude` prints Projects setup steps. See `python scripts/install_pack.py --help` and the [installation guide](docs/Installation.md) for all options.
 
@@ -96,7 +96,7 @@ python scripts/delegation/verify_history.py
 python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI also restores original history and requires matching ZIP checksums across platforms. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
+CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI also restores original history and requires matching ZIP checksums across platforms. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
 
 Original v1.2 model results are HISTORICAL and STALE for the current v1.3 package. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
 

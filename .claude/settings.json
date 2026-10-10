@@ -2,11 +2,14 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/record_test_run.py\""
+            "command": "python",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/hooks/record_test_run.py"
+            ]
           }
         ]
       }
@@ -16,7 +19,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/verify_before_stop.py\""
+            "command": "python",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/hooks/verify_before_stop.py"
+            ]
           }
         ]
       }
@@ -26,18 +32,24 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/session_start.py\""
+            "command": "python",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/hooks/session_start.py"
+            ]
           }
         ]
       }
     ],
     "PostToolUseFailure": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/record_test_run.py\""
+            "command": "python",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/scripts/hooks/record_test_run.py"
+            ]
           }
         ]
       }

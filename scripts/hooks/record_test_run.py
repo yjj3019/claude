@@ -16,6 +16,18 @@ from lib.verification_state import (RESULT_PREFIX, digest, hook_error, load_stat
 WRAPPER = Path(__file__).resolve().parents[1] / "run_verification.py"
 
 
+def command_arguments(command: str, tool_name: str) -> list[str] | None:
+    if tool_name != "PowerShell":
+        return shlex.split(command)
+    # A conservative literal subset, not a PowerShell parser. Backslashes are
+    # literal here; never use POSIX shlex to reinterpret a Windows path.
+    token = r'''(?:"[^"\r\n]*"|'[^'\r\n]*'|[a-zA-Z0-9_./:\\=+-]+)'''
+    if not re.fullmatch(r"\s*" + token + r"(?:\s+" + token + r")*\s*", command):
+        return None
+    return [part[1:-1] if part[0] in ("'", '"') else part
+            for part in re.findall(token, command)]
+
+
 def verification_result(command: str, data: dict, cwd: Path, current: dict) -> int | None:
     # An aggregate shell exit does not prove the verification runner succeeded.
     if any(char in command for char in (";", "&", "|", "\n", "<", ">", "`", "$")):
@@ -23,7 +35,9 @@ def verification_result(command: str, data: dict, cwd: Path, current: dict) -> i
     response = data.get("tool_response", {})
     if isinstance(response, dict) and response.get("interrupted"):
         return None
-    args = shlex.split(command)
+    args = command_arguments(command, data.get("tool_name", "Bash"))
+    if not args:
+        return None
     if len(args) >= 4 and re.fullmatch(r"(python(?:3(?:\.\d+)?)?|py)(?:\.exe)?", Path(args[0]).name):
         candidate = (cwd / args[1]).resolve()
         if candidate == WRAPPER and args[2] == "--":
@@ -53,13 +67,13 @@ def verification_result(command: str, data: dict, cwd: Path, current: dict) -> i
 def main() -> int:
     try:
         data = json.load(sys.stdin)
-        if data.get("tool_name") != "Bash":
+        if data.get("tool_name") not in ("Bash", "PowerShell"):
             return 0
         command = data.get("tool_input", {}).get("command", "")
         if not isinstance(command, str):
             raise ValueError("invalid command")
         if not is_verification_command(command) and "run_verification.py" not in command:
-            return 0  # Ordinary Bash calls need no Git subprocess or content hashing.
+            return 0  # Ordinary shell calls need no Git subprocess or content hashing.
         cwd = Path(data.get("cwd", "."))
         root = repository(cwd)
         session = data["session_id"]

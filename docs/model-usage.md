@@ -93,7 +93,7 @@ Model availability and names vary by platform and release; treat these as operat
 
 | Work | Model class | Effort |
 |---|---|---|
-| Light Notion/doc recording only | Haiku 4.5 (narrow gate) | low |
+| Light Notion/doc recording only | Haiku 4.5 (narrow gate) | API effort unsupported; thinking off for routine capture; check host support |
 | General writing or implementation | Sonnet-class model | medium |
 | Technical judgment or independent review | Opus-class model | high |
 | Hardest long-horizon autonomous work | Fable 5.1, when available | high; xhigh only when capability justifies latency and cost |
@@ -104,18 +104,20 @@ For an API runtime explicitly targeting `claude-haiku-4-5`:
 
 - **Adaptive narrow gate (authoritative):** use Haiku **only** for light Notion / document recording — notes, rows, short docs, trivial filings, simple checklist ticks (KO: 노션/메모/체크리스트). See `docs/adaptive-effort.md`.
 - Do **not** route general Q&A, coding, extraction, classification, routing, brief summaries, or everyday implementation to Haiku; those default to **Sonnet (L1)** when unsure.
-- Haiku 4.5 supports manual extended thinking, not adaptive thinking. Keep thinking off for routine Notion/doc capture; escalate rather than widening the Haiku gate.
+- Haiku 4.5 supports manual extended thinking, not adaptive thinking, and does not support the API effort parameter. Keep thinking off for routine Notion/doc capture; escalate rather than widening the Haiku gate.
 - Escalate material ambiguity—conflicting source values, missing required fields, unsupported inference, or a decision that changes downstream action—to Sonnet for one focused interpretation pass. Escalate high-impact legal, financial, security, architecture, or customer-facing judgment to Opus or the designated high-risk reviewer.
 - Do not escalate cosmetic wording, obvious formatting, or reversible schema mapping inside an already-approved Notion/doc edit. A stronger model may review meaning but cannot grant authority: destructive, public, permission-changing, or otherwise user-controlled actions still require user approval.
 - Respect the 200k context and 64k output limits; chunk and aggregate high-volume Notion/doc capture rather than silently truncating it.
 
 Verified 2026-07-26 against Anthropic's [Haiku 4.5 announcement](https://www.anthropic.com/news/claude-haiku-4-5), [Haiku model page](https://www.anthropic.com/claude/haiku), and [current model overview](https://platform.claude.com/docs/en/about-claude/models/overview). Re-check when the model or API behavior changes. Haiku scope narrowed 2026-09-06 to match Adaptive Effort.
 
+Effort compatibility rechecked 2026-10-10 against the [API compatibility list](https://platform.claude.com/docs/en/build-with-claude/effort#compatibility): Haiku 5.5 is listed; Haiku 4.5 is not. This corrects the dated example without changing the selected model. API parameters are not automatically Claude Code, Projects or Codex settings; verify the active host's exposed controls before use.
+
 ### Notion Record Integrity
 
 Choose the lowest-cost model that preserves the edit contract:
 
-- Use Haiku at low effort for new Notion pages, fixed-schema transcription, simple append operations, and short in-page Notion notes (not general Q&A summaries).
+- For the dated Haiku 4.5 example, keep thinking off for routine new Notion pages, fixed-schema transcription, simple append operations and short in-page notes (not general Q&A summaries). Do not send an API effort parameter; verify the active host's support.
 - Use Sonnet at medium effort for exact `old_str`/`new_str` replacement, code-fence or table preservation, and multi-section merges.
 - Escalate deletion, structural changes, multiple matches, or child-page/database impact to the designated stronger reviewer or user approval boundary.
 - Fetch before editing, update the smallest matching region, and fetch again before claiming completion. Do not pass raw conversations or raw tool responses when a compact record schema is sufficient.

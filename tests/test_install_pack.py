@@ -29,7 +29,7 @@ install_pack = load_install_pack()
 class DetectTargetsTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name)
+        self.home = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
     def test_detects_each_host(self):
@@ -51,6 +51,18 @@ class DetectTargetsTests(unittest.TestCase):
     def test_detects_nothing_on_bare_home(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(install_pack.detect_targets(self.home), [])
+
+    @unittest.skipUnless(os.name == "nt", "Windows short-path regression")
+    def test_short_path_alias_normalized_after_link_check(self):
+        import ctypes
+        (self.home / ".agents").mkdir()
+        buffer = ctypes.create_unicode_buffer(32768)
+        size = ctypes.windll.kernel32.GetShortPathNameW(str(self.home), buffer, len(buffer))
+        if not size or buffer.value.lower() == str(self.home).lower():
+            self.skipTest("8.3 alias unavailable on this filesystem")
+        with patch.dict(os.environ, {}, clear=True):
+            targets = install_pack.detect_targets(Path(buffer.value))
+        self.assertEqual([path for _, path in targets], [(self.home / ".agents/skills").resolve()])
 
     def test_env_ai_pack_dir(self):
         pack = self.home / "custom-packs"
@@ -78,7 +90,7 @@ class DetectTargetsTests(unittest.TestCase):
 class InstallPackTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name)
+        self.home = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
     def _run(self, *args: str, home: Path | None = None, env_extra: dict | None = None):
@@ -141,6 +153,27 @@ class InstallPackTests(unittest.TestCase):
         self.assertIn("No AI host detected", proc.stdout)
         pack = self.home / ".agents/skills/fef-claude"
         self.assertTrue((pack / "CLAUDE.md").is_file())
+
+    def test_skill_metadata_and_selective_loading_contract(self):
+        # Minimal fixture: validate the generated host entry without copying a pack.
+        pack = self.home / "fef-claude"
+        pack.mkdir()
+        install_pack.write_skill_hint(pack)
+        text = (pack / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("---\n"))
+        metadata, body = text[4:].split("\n---\n", 1)
+        fields = dict(line.split(": ", 1) for line in metadata.splitlines())
+        self.assertEqual(fields["name"], pack.name)
+        self.assertRegex(fields["name"], r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+        self.assertGreater(len(fields["description"]), 0)
+        self.assertLessEqual(len(fields["description"]), 1024)
+        self.assertIn("explicitly requests FEF", fields["description"])
+        self.assertEqual(set(fields), {"name", "description"})
+        self.assertNotIn("allowed-tools", fields)
+        self.assertNotIn("context", fields)
+        self.assertNotIn("model", fields)
+        self.assertIn("Do not preload every", body)
+        self.assertIn("Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3", body)
 
     def test_installed_readme_language_links_and_integrity(self):
         dest = self.home / "skills"
@@ -321,7 +354,7 @@ class InstallPackTests(unittest.TestCase):
 class PackIntegrityTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         self.source = self.root / "source"
         self.source.mkdir()
@@ -413,7 +446,7 @@ class PackIntegrityTests(unittest.TestCase):
         self.assertIn("modified file: SKILL.md", install_pack.verify_install(pack))
         self.assertIsNone(install_pack.pack_content_fingerprint(pack))
 
-    def test_directory_symlink_contents_match_copy_policy(self):
+    def test_source_directory_symlink_is_refused(self):
         linked = self.root / "linked"
         linked.mkdir()
         (linked / "policy.md").write_bytes(b"linked content\n")
@@ -421,12 +454,9 @@ class PackIntegrityTests(unittest.TestCase):
             (self.source / "policies" / "linked").symlink_to(linked, target_is_directory=True)
         except OSError as exc:
             self.skipTest(f"directory symlinks unavailable: {exc}")
-        pack = install_pack.install_pack(self.skills)
-        self.assertEqual(install_pack.pack_content_fingerprint(pack),
-                         install_pack.source_pack_fingerprint())
-        self.assertFalse((pack / "policies" / "linked").is_symlink())
-        (pack / "policies" / "linked" / "policy.md").write_bytes(b"modified\n")
-        self.assertIn("modified file: policies/linked/policy.md", install_pack.verify_install(pack))
+        with self.assertRaisesRegex(SystemExit, "Symlink or junction"):
+            install_pack.install_pack(self.skills)
+        self.assertFalse(self.skills.exists())
 
     def test_installed_symlink_cannot_reference_external_file(self):
         pack = install_pack.install_pack(self.skills)
@@ -438,29 +468,202 @@ class PackIntegrityTests(unittest.TestCase):
             policy.symlink_to(outside)
         except OSError as exc:
             self.skipTest(f"file symlinks unavailable: {exc}")
-        self.assertIn("file escapes pack directory: policies/Evidence.md",
-                      install_pack.verify_install(pack))
+        self.assertIn("Symlink or junction", "; ".join(install_pack.verify_install(pack)))
         self.assertIsNone(install_pack.pack_content_fingerprint(pack))
+
+    def snapshot(self, root):
+        return {p.relative_to(root).as_posix(): (p.read_bytes(), p.stat().st_mtime_ns)
+                for p in root.rglob("*") if p.is_file()}
+
+    def changed_pack(self):
+        pack = install_pack.install_pack(self.skills)
+        (pack / "USER.txt").write_bytes(b"user file")
+        (self.source / "policies/Evidence.md").write_bytes(b"new version")
+        return pack
+
+    def test_force_preserves_complete_old_pack_backup(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        with patch("sys.stderr"):
+            install_pack.install_pack(self.skills, force=True)
+        backups = list(self.skills.glob(".fef-install-*/old"))
+        self.assertEqual(len(backups), 1)
+        self.assertEqual(self.snapshot(backups[0]), before)
+        self.assertFalse((pack / "USER.txt").exists())
+        self.assertEqual(install_pack.verify_install(pack), [])
+
+    def test_identical_install_performs_no_writes(self):
+        pack = install_pack.install_pack(self.skills)
+        (pack / "USER.txt").write_bytes(b"preserved extra")
+        before = self.snapshot(self.skills)
+        with patch.object(install_pack.tempfile, "mkdtemp", side_effect=AssertionError("write")), \
+             patch.object(install_pack.shutil, "copy2", side_effect=AssertionError("copy")):
+            self.assertEqual(install_pack.install_pack(self.skills), pack)
+        self.assertEqual(self.snapshot(self.skills), before)
+
+    def test_dry_run_force_preserves_every_byte_and_mtime(self):
+        self.changed_pack()
+        before = self.snapshot(self.skills)
+        with patch.object(install_pack.tempfile, "mkdtemp", side_effect=AssertionError("write")):
+            install_pack.install_pack(self.skills, force=True, dry_run=True)
+        self.assertEqual(self.snapshot(self.skills), before)
+        new_root = self.root / "missing"
+        install_pack.install_pack(new_root, dry_run=True)
+        self.assertFalse(new_root.exists())
+
+    def test_failed_copy_preserves_old_and_cleans_stage(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        with patch.object(install_pack.shutil, "copy2", side_effect=OSError("copy failure")), \
+             self.assertRaisesRegex(SystemExit, "copy failure"):
+            install_pack.install_pack(self.skills, force=True)
+        self.assertEqual(self.snapshot(pack), before)
+        self.assertEqual(list(self.skills.iterdir()), [pack])
+
+    def test_new_install_failed_copy_leaves_no_pack(self):
+        with patch.object(install_pack.shutil, "copy2", side_effect=OSError("copy failure")), \
+             self.assertRaisesRegex(SystemExit, "copy failure"):
+            install_pack.install_pack(self.skills)
+        self.assertEqual(list(self.skills.iterdir()), [])
+
+    def test_stage_mutation_and_source_mutation_are_refused(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        original = install_pack.write_skill_hint
+        for where in ("stage", "source"):
+            with self.subTest(where=where):
+                def mutate(stage):
+                    original(stage)
+                    root = stage if where == "stage" else self.source
+                    (root / "policies/Evidence.md").write_bytes(b"unexpected mutation")
+                with patch.object(install_pack, "write_skill_hint", side_effect=mutate), \
+                     self.assertRaisesRegex(SystemExit, "source snapshot"):
+                    install_pack.install_pack(self.skills, force=True)
+                self.assertEqual(self.snapshot(pack), before)
+                (self.source / "policies/Evidence.md").write_bytes(b"new version")
+
+    def test_stage_validation_failure_preserves_old(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        with patch.object(install_pack, "verify_install", return_value=["invalid manifest"]), \
+             self.assertRaisesRegex(SystemExit, "Staged verification failed"):
+            install_pack.install_pack(self.skills, force=True)
+        self.assertEqual(self.snapshot(pack), before)
+
+    def test_publish_and_backup_rename_failures_preserve_old(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        rename = Path.rename
+        for fail_name in ("fef-claude", "new"):
+            with self.subTest(fail_name=fail_name):
+                def failing(path, target):
+                    if path.name == fail_name:
+                        raise OSError("rename failure")
+                    return rename(path, target)
+                with patch.object(Path, "rename", failing), self.assertRaisesRegex(SystemExit, "rename failure"):
+                    install_pack.install_pack(self.skills, force=True)
+                self.assertEqual(self.snapshot(pack), before)
+                self.assertEqual(list(self.skills.iterdir()), [pack])
+
+    def test_post_publish_verification_failure_rolls_back(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        verify = install_pack.verify_install
+        def fail_published(path):
+            return ["post publish failure"] if path == pack else verify(path)
+        with patch.object(install_pack, "verify_install", side_effect=fail_published), \
+             self.assertRaisesRegex(SystemExit, "Published verification failed"):
+            install_pack.install_pack(self.skills, force=True)
+        self.assertEqual(self.snapshot(pack), before)
+        self.assertEqual(list(self.skills.iterdir()), [pack])
+
+    def test_rollback_failure_retains_original_and_reports_recovery(self):
+        pack = self.changed_pack()
+        before = self.snapshot(pack)
+        rename = Path.rename
+        def failing(path, target):
+            if path.name in {"new", "old"}:
+                raise OSError("publish or restore failure")
+            return rename(path, target)
+        with patch.object(Path, "rename", failing), patch("sys.stderr") as stderr, \
+             self.assertRaisesRegex(SystemExit, "restore failure"):
+            install_pack.install_pack(self.skills, force=True)
+        backups = list(self.skills.glob(".fef-install-*/old"))
+        self.assertEqual(len(backups), 1)
+        self.assertEqual(self.snapshot(backups[0]), before)
+        self.assertIn(str(backups[0]), "".join(call.args[0] for call in stderr.write.call_args_list))
+        self.assertFalse(pack.exists())
+
+    def test_file_destination_and_source_overlap_are_refused(self):
+        self.skills.mkdir()
+        (self.skills / "fef-claude").write_bytes(b"user file")
+        with self.assertRaisesRegex(SystemExit, "not a directory"):
+            install_pack.install_pack(self.skills, force=True)
+        self.assertEqual((self.skills / "fef-claude").read_bytes(), b"user file")
+        for root in (self.source / "skills", self.source.parent):
+            # Put source under the destination to exercise the reverse overlap.
+            candidate = root if root != self.source.parent else self.root / "parent"
+            if root == self.source.parent:
+                nested = candidate / "fef-claude" / "source"
+                nested.mkdir(parents=True)
+                with patch.object(install_pack, "REPO_ROOT", nested), \
+                     self.assertRaisesRegex(SystemExit, "overlap"):
+                    install_pack.install_pack(candidate)
+            else:
+                with self.assertRaisesRegex(SystemExit, "overlap"):
+                    install_pack.install_pack(candidate)
+
+    def test_reparse_points_refused_before_reads_or_writes(self):
+        import stat
+        from types import SimpleNamespace
+        original = Path.lstat
+        for marked in (self.source, self.source / "policies", self.source / "policies/Evidence.md", self.skills,
+                       self.skills / "fef-claude", self.skills / "fef-claude" / install_pack.MANIFEST_FILE):
+            with self.subTest(path=marked):
+                # A synthetic reparse attribute exercises Windows rejection on every OS.
+                def lstat(path, *args, **kwargs):
+                    if path == marked:
+                        return SimpleNamespace(st_mode=stat.S_IFDIR, st_file_attributes=0x400)
+                    return original(path, *args, **kwargs)
+                with patch.object(Path, "lstat", lstat), self.assertRaisesRegex(SystemExit, "junction"):
+                    install_pack.install_pack(self.skills, force=True)
+
+    @unittest.skipUnless(os.name == "nt", "Windows junction regression")
+    def test_real_windows_junction_source_and_destination_refused(self):
+        outside = self.root / "outside"
+        outside.mkdir()
+        marker = outside / "KEEP.txt"
+        marker.write_bytes(b"keep")
+        for link in (self.source / "policies/linked", self.skills):
+            subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(outside)],
+                           check=True, capture_output=True)
+            try:
+                with self.assertRaisesRegex(SystemExit, "junction"):
+                    install_pack.install_pack(self.skills, force=True)
+                self.assertEqual(marker.read_bytes(), b"keep")
+            finally:
+                link.rmdir()  # Remove only the junction, never its target.
 
     def test_invalid_manifest_paths_and_versions_are_rejected(self):
         pack = install_pack.install_pack(self.skills)
         path = pack / install_pack.MANIFEST_FILE
         original = json.loads(path.read_text(encoding="utf-8"))
         for name in ("../outside", "/absolute", "C:/absolute", "bad\\path", "foo//bar",
-                     "foo/./bar", "foo/../../bar"):
+                     "foo/./bar", "foo/../../bar", "NUL.md", "trailing.", "space ", "control\n"):
             with self.subTest(name=name):
                 manifest = {**original, "files": {**original["files"], name: "0" * 64}}
                 path.write_text(json.dumps(manifest), encoding="utf-8")
                 self.assertIn("invalid integrity manifest", "; ".join(install_pack.verify_install(pack)))
                 self.assertIsNone(install_pack.pack_content_fingerprint(pack))
-        path.write_text(json.dumps({**original, "version": 2}), encoding="utf-8")
-        self.assertIn("invalid integrity manifest", "; ".join(install_pack.verify_install(pack)))
+        for version in (2, True):
+            path.write_text(json.dumps({**original, "version": version}), encoding="utf-8")
+            self.assertIn("invalid integrity manifest", "; ".join(install_pack.verify_install(pack)))
 
 
 class SiblingDiscoveryTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         # Fake this-clone + siblings under a shared parent
         self.parent = self.root / "workspace"
@@ -523,6 +726,14 @@ class SiblingDiscoveryTests(unittest.TestCase):
                 repo_root=only, parent=empty
             )
         self.assertEqual(found, [elsewhere.resolve()])
+
+    def test_explicit_sibling_link_is_not_resolved_away(self):
+        with patch.object(install_pack, "_safe_path", side_effect=ValueError("junction rejected")), \
+             self.assertRaisesRegex(SystemExit, "junction"):
+            install_pack.discover_sibling_repos(repo_root=self.claude, extra_roots=[self.proj_a])
+        with patch.object(install_pack, "_safe_path", side_effect=ValueError("junction rejected")), \
+             self.assertRaisesRegex(SystemExit, "junction"):
+            install_pack.sibling_skill_roots(self.proj_a)
 
     def test_extra_roots_argument(self):
         extra = self.root / "extra-proj"
@@ -587,9 +798,9 @@ class SiblingDiscoveryTests(unittest.TestCase):
 class SiblingInstallCliTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name) / "home"
+        self.home = Path(self.temp.name).resolve() / "home"
         self.home.mkdir()
-        self.parent = Path(self.temp.name) / "ws"
+        self.parent = Path(self.temp.name).resolve() / "ws"
         self.parent.mkdir()
         self.addCleanup(self.temp.cleanup)
         # Place a fake clone layout: we invoke the REAL script (REPO_ROOT=actual),
@@ -680,7 +891,7 @@ class Round4InstallSafetyTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         self.home = self.root / "home"
         self.home.mkdir()

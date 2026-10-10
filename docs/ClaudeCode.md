@@ -83,7 +83,7 @@ permission bypass, global settings changes or paid benchmark is added by this gu
 The hooks in .claude/settings.json are deterministic local commands, with no model calls:
 
 1. SessionStart captures Git HEAD and dirty-file content hashes as the baseline for this session. Resume/compact preserve it; clear establishes a new baseline.
-2. PostToolUse/PostToolUseFailure on Bash record a recognized verification result for that session and exact worktree snapshot. They never infer success from unknown exit metadata.
+2. PostToolUse/PostToolUseFailure on Bash or PowerShell record a recognized verification result for that session and exact worktree snapshot. They never infer success from unknown exit metadata.
 3. Stop asks once for verification when the worktree changed and no successful result matches its current snapshot. stop_hook_active prevents loops.
 
 An already-dirty read-only session is allowed. New nested files, all Git-visible file types,
@@ -91,7 +91,7 @@ deletions, renames and commits are tracked. Ignored files are outside the remind
 Git changes made by another process during the session are also observed; ownership is not inferred.
 The old shared .test-run-marker is not trusted. Session records live in ignored .claude/.verification/.
 
-For native Bash results that omit exit metadata, run the repository wrapper:
+For native shell results that omit exit metadata, run the repository wrapper:
 
 ```bash
 python scripts/run_verification.py -- python -m unittest discover -s tests
@@ -104,13 +104,25 @@ the footer rather than inventing exit_code=0. Direct simple test commands are su
 the host supplies an explicit integer exit code. Compound commands and pipelines cannot earn
 success credit: their aggregate exit can hide failure.
 
+PowerShell accepts only simple literal arguments (including quoted paths with
+spaces and literal Windows backslashes). Interpolation, escapes, expressions,
+comments, compound commands and other syntax remain unverified; no POSIX shell
+interpretation is used for PowerShell arguments. Wrapper footer, argv and both
+snapshot hashes must still match. A later edit invalidates the record.
+
 These are reminders, not a sandbox or coverage proof. Unknown metadata, failure or an interrupted
 run cannot verify a changed tree. Missing baseline/interpreter/Git, malformed state or hook errors
 fail open with a diagnostic; disclose unavailable verification rather than claim a pass.
 No automatic permissions, production changes or tool-output replacement is added.
 
-Hook paths use CLAUDE_PROJECT_DIR and `python`. Check interpreter and native shell support in
-your actual installation; use the environment-appropriate Python command when necessary.
+The four hooks use exec-form `command: python` and `args` with the documented
+`${CLAUDE_PROJECT_DIR}` placeholder, avoiding shell-dependent variable expansion
+and path quoting. Check that your Claude Code version supports this current
+[exec-form contract](https://code.claude.com/docs/en/hooks#exec-form-and-shell-form)
+and the [PowerShell tool](https://code.claude.com/docs/en/hooks#windows-powershell-tool).
+The reference does not specify an introduction version for exec form; older host
+compatibility is unverified. Use an available Python executable for all four
+command fields when necessary; no interpreter or host settings are installed.
 Session-state writes are atomic, but concurrent external edits and native wiring require
 live validation. Tests cover supplied JSON contracts and real subprocesses, not a paid Claude session.
 See [hook input contracts](https://code.claude.com/docs/en/hooks).
