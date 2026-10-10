@@ -25,8 +25,7 @@ jobs:
         with:
           python-version: "${{ matrix.python-version }}"
       - run: python scripts/validate_repository.py
-      - run: python scripts/validate_routes.py
-      - run: python scripts/run_golden_tests.py --validate-only
+      # Repository validation already runs route and Golden metadata checks.
       - run: python -m unittest discover -s tests -p "test_*.py"
       # detect_task and the install/verify path are documented entry points
       # that CI never exercised.
@@ -43,3 +42,16 @@ jobs:
       - run: python scripts/run_golden_test_coding.py --test 030 --patch-dir tests/fixtures/GT030-code/answers
       - run: python scripts/run_golden_test_coding.py --test 031 --patch-dir tests/fixtures/GT031-code/answers
       - run: "! python scripts/run_golden_test_coding.py --test 012 --patch-from tests/fixtures/GT012-code/money.py"
+
+  installer-windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - run: python -m unittest discover -s tests -p "test_install_pack.py"

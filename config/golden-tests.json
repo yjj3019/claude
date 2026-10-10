@@ -31,11 +31,15 @@
       "task": "rca",
       "workflow": "troubleshooting",
       "domains": [
-        "Linux"
+        "RHEL"
       ],
       "mode": "manual",
       "required_files": [
-        "tests/GoldenTest-003.md"
+        "tests/GoldenTest-003.md",
+        "tests/fixtures/GT003-evidence.md",
+        "tests/fixtures/GT003-answer-key.md",
+        "tests/prompts/GT003-baseline.md",
+        "tests/prompts/GT003-fef.md"
       ]
     },
     {
@@ -47,7 +51,11 @@
       ],
       "mode": "manual",
       "required_files": [
-        "tests/GoldenTest-004.md"
+        "tests/GoldenTest-004.md",
+        "tests/fixtures/GT004-evidence.md",
+        "tests/fixtures/GT004-answer-key.md",
+        "tests/prompts/GT004-baseline.md",
+        "tests/prompts/GT004-fef.md"
       ]
     },
     {

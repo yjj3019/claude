@@ -39,3 +39,17 @@ python scripts/sync_kernel.py --check
 - `python -m unittest discover -s scripts/delegation -p "test_*.py"`: minimal package fixtures and isolated temporary HOME.
 - `delegation/refresh_evidence.py --check`: reruns static prompt contracts, isolated playbook fixtures and the oracle grader without model execution; verifies current records and preserves historical v1.2 model artifacts. Omit `--check` to regenerate only deterministic current evidence after changes.
 - `python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check`: grader only, no CLI/model usage. Full simulations and native probes need separate authority and model access.
+
+## Validation coverage and safe FEF replacement
+
+`validate_repository.py` already invokes route and Golden metadata validation;
+CI runs those checks once through that entry. Their individual CLIs remain useful
+for targeted diagnostics. The nine explicit coding answer-overlay gates and the
+GT012 negative control remain separate: batching their IDs alone would change
+neither fixture isolation nor the grading work, so no new runner was added.
+
+FEF `--force` uses a verified stage, retained original, replacement verification
+and rollback. See [recovery procedure](../docs/Installation.md). Installer tests
+cover temporary HOME, source/destination links and overlap, manifests, mutation,
+copy/rename/verification failures, rollback recovery and no-write identical/dry
+runs. Windows CI separately exercises real junctions; OS/Python coverage remains.

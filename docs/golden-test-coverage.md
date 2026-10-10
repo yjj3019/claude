@@ -15,3 +15,12 @@ Largest gaps: domain-specific RHEL fact verification beyond proposals, OpenShift
 ## Mechanical Runner for Fixture-Mode Coding Tests
 
 `scripts/run_golden_test_coding.py` mechanically scores the nine fixture-mode coding tests (012-014, 026-031): unit-test pass/fail, expected-fix-file coverage vs sibling-only workarounds, test-file tampering, and new-dependency candidates. GT031 is the one fixture specifically designed to tempt a new third-party dependency (an email-validation package) rather than the shared-root-cause axis the other eight already exercise. Executable answer files live in each fixture's `answers/` directory; CI runs the answer overlays as a positive gate (must exit 0) and the pristine buggy file as a negative control (must exit 1). Rubric dimensions beyond these mechanical checks still require a human or LLM reviewer, and a single mechanical pass is not the GoldenTest PASS rule.
+
+## Domain evidence exercises
+
+GT003 now supplies a synthetic RHEL memcg incident and GT004 supplies a synthetic
+OpenShift readiness snapshot, paired baseline/FEF task inputs and evaluator-only
+fact/failure/rubric keys. Both retain `manual` mode and NOT_RUN model status.
+Registration checks missing fixture paths; it does not automate semantic grading
+or add a model-quality claim. See [examples](Examples.md) and the
+[evidence index](evidence-index.md).
