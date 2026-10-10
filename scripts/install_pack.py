@@ -320,7 +320,6 @@ def write_skill_hint(dest_pack: Path) -> None:
     content = """---
 name: fef-claude
 description: Apply the FEF framework when the user explicitly requests FEF guidance or invokes /fef-claude. Load only the task packs selected by the FEF loading map.
-disable-model-invocation: true
 ---
 # FEF Claude Framework Pack
 

@@ -34,13 +34,15 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 2. Or run `python3 scripts/install_pack.py --auto` and point the host at the installed `fef-claude/` pack.
 3. Hooks under `.claude/settings.json` remind you to test before stopping when using this repo as workspace. Their exec-form `command` is `python`; if that executable is unavailable, set all four interpreter fields to the available Python executable (often `python3` on Linux/macOS). Missing interpreters leave verification unavailable; see `docs/ClaudeCode.md`.
 
-The installed `SKILL.md` declares `name: fef-claude` and a narrow description for
-explicit FEF requests. Claude Code's `disable-model-invocation: true` makes this
-skill a manual `/fef-claude` entry; other hosts must use their own invocation
-controls. The body keeps the existing selective loading map and budget. These
-metadata contracts do not establish live discovery or activation on every host.
+The installed `SKILL.md` declares only the common `name: fef-claude` and a narrow
+description for explicit FEF requests. It emits no Claude Code extension fields;
+manual-only invocation controls belong to the active host's configuration. A
+description is not an enforced invocation restriction. The body keeps the
+existing selective loading map and budget. These metadata checks do not prove
+upload acceptance, live discovery or activation on any host.
 See [Claude Code frontmatter](https://code.claude.com/docs/en/skills#frontmatter-reference)
 and the [Agent Skills specification](https://agentskills.io/specification#frontmatter).
+See also [frontmatter outside Claude Code](https://code.claude.com/docs/en/skills#using-skill-frontmatter-outside-claude-code): Code-specific fields are not portable to strict upload contracts.
 
 ## Claude Projects
 
