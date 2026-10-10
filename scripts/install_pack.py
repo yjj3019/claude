@@ -23,11 +23,14 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import ntpath
 import os
 import shutil
+import stat
 import subprocess
 import sys
-from pathlib import Path, PurePosixPath
+import tempfile
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACK_NAME = "fef-claude"
@@ -108,7 +111,7 @@ def detect_targets(home: Path | None = None) -> list[tuple[str, Path]]:
     for label, marker, skills_dir in HOSTS:
         if not (home / marker).is_dir():
             continue
-        target = (home / skills_dir).resolve()
+        target = (home / skills_dir).absolute()
         if target not in seen:
             seen.add(target)
             found.append((label, target))
@@ -117,14 +120,14 @@ def detect_targets(home: Path | None = None) -> list[tuple[str, Path]]:
         raw = os.environ.get(env_name)
         if not raw:
             continue
-        target = Path(raw).expanduser().resolve()
+        target = Path(raw).expanduser().absolute()
         if target not in seen:
             seen.add(target)
             found.append((f"${env_name}", target))
 
     codex_home = os.environ.get("CODEX_HOME")
     if codex_home:
-        target = (Path(codex_home).expanduser() / "skills").resolve()
+        target = (Path(codex_home).expanduser() / "skills").absolute()
         if target not in seen:
             seen.add(target)
             found.append(("$CODEX_HOME/skills", target))
@@ -161,9 +164,12 @@ def discover_sibling_repos(
 
     def _add(candidate: Path) -> None:
         try:
+            _safe_path(candidate.expanduser().absolute())
             resolved = candidate.expanduser().resolve()
         except OSError:
             return
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
         if resolved == repo_root or resolved in seen:
             return
         if not resolved.is_dir():
@@ -214,6 +220,10 @@ def sibling_skill_roots(sibling: Path) -> list[tuple[str, Path]]:
     AGENTS.md, .git). Claude/Cursor projects get .claude/skills; AGENTS.md or
     .agents/ also get .agents/skills. Bare git siblings default to .claude/skills.
     """
+    try:
+        _safe_path(sibling)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
     sibling = sibling.resolve()
     roots: list[tuple[str, Path]] = []
     seen: set[Path] = set()
@@ -350,7 +360,28 @@ project knowledge. Run `python scripts/install_pack.py --print-claude` from a cl
     (dest_pack / "INSTALL_NOTE.md").write_text(note, encoding="utf-8")
 
 
+def _safe_path(path: Path) -> None:
+    """Check lexical ancestors before resolving or reading link targets."""
+    for part in (path, *path.parents):
+        try:
+            info = part.lstat()
+        except FileNotFoundError:
+            continue
+        if stat.S_ISLNK(info.st_mode) or getattr(info, "st_file_attributes", 0) & 0x400:
+            raise ValueError(f"Symlink or junction is not supported: {part}")
+
+
+def _safe_tree(path: Path) -> None:
+    _safe_path(path)
+    for directory, dirs, names in os.walk(path, followlinks=False):
+        for name in dirs + names:
+            _safe_path(Path(directory) / name)
+
+
 def _hash_file(path: Path) -> bytes:
+    _safe_path(path)
+    if not path.is_file():
+        raise ValueError(f"Not a regular file: {path}")
     digest = hashlib.sha256()
     digest.update(path.read_bytes())
     return digest.digest()
@@ -377,13 +408,17 @@ def _copy_ignore(directory: str, names: list[str]) -> set[str]:
 
 def _source_file_hashes(with_tests: bool) -> dict[str, str]:
     files: dict[str, str] = {}
+    _safe_path(REPO_ROOT)
     for relative, source in pack_source_paths(with_tests):
+        _safe_path(source)
         if source.is_file():
             files[relative] = _hash_file(source).hex()
             continue
-        for directory, dirs, names in os.walk(source, followlinks=True):
+        for directory, dirs, names in os.walk(source, followlinks=False):
             ignored = _copy_ignore(directory, dirs + names)
             dirs[:] = [name for name in dirs if name not in ignored]
+            for name in dirs:
+                _safe_path(Path(directory) / name)
             for name in names:
                 if name not in ignored:
                     path = Path(directory) / name
@@ -400,10 +435,11 @@ def _fingerprint(files: dict[str, str], with_tests: bool) -> str:
 
 def _read_manifest(pack_dir: Path) -> dict:
     """Validate metadata before using any stored path to read a file."""
+    _safe_path(pack_dir / MANIFEST_FILE)
     manifest = json.loads((pack_dir / MANIFEST_FILE).read_text(encoding="utf-8"))
     if (
         not isinstance(manifest, dict)
-        or manifest.get("version") != 1
+        or type(manifest.get("version")) is not int or manifest["version"] != 1
         or type(manifest.get("with_tests")) is not bool
         or not isinstance(manifest.get("files"), dict)
         or not manifest["files"]
@@ -417,7 +453,10 @@ def _read_manifest(pack_dir: Path) -> dict:
             or ":" in name
             or "\x00" in name
             or PurePosixPath(name).is_absolute()
-            or any(part in {"", ".", ".."} for part in name.split("/"))
+            or any(part in {"", ".", ".."} or part.endswith((".", " "))
+                   or (ntpath.isreserved(part) if hasattr(ntpath, "isreserved")
+                       else PureWindowsPath(part).is_reserved()) for part in name.split("/"))
+            or any(ord(char) < 32 for char in name)
             or name == MANIFEST_FILE
             or not isinstance(checksum, str)
             or len(checksum) != 64
@@ -440,7 +479,7 @@ def _manifest_problems(pack_dir: Path, manifest: dict) -> list[str]:
                 problems.append(f"missing file: {name}")
             elif _hash_file(path).hex() != checksum:
                 problems.append(f"modified file: {name}")
-        except (OSError, RuntimeError) as exc:
+        except (OSError, RuntimeError, ValueError) as exc:
             problems.append(f"cannot read {name}: {exc}")
     return problems
 
@@ -450,6 +489,7 @@ def pack_content_fingerprint(pack_dir: Path) -> str | None:
     if not pack_dir.is_dir():
         return None
     try:
+        _safe_tree(pack_dir)
         manifest = _read_manifest(pack_dir)
     except (OSError, ValueError):
         return None
@@ -472,60 +512,105 @@ def install_pack(
     dry_run: bool = False,
     force: bool = False,
 ) -> Path:
-    """Copy the pack into skills_root/fef-claude/.
+    """Stage and verify before replacement; keep the original for recovery.
 
-    S4-09: existing dest is preserved unless --force. Identical content hash
-    of the shipped payload is skipped without --force. No silent rmtree.
+    Default conflicts refuse; identical verified payloads skip without writes.
+    This handles ordinary failures, not hostile concurrent filesystem changes.
     """
-    skills_root = skills_root.expanduser()
-    if skills_root.exists() and not skills_root.is_dir():
-        raise SystemExit(f"Destination is not a directory: {skills_root}")
+    skills_root = skills_root.expanduser().absolute()
     dest = skills_root / PACK_NAME
-    items = pack_source_paths(with_tests=with_tests)
-
-    if dry_run:
-        return dest
-
-    if dest.exists():
-        dest_fp = pack_content_fingerprint(dest)
-        src_fp = source_pack_fingerprint(with_tests=with_tests)
-        if not force and dest_fp is not None and dest_fp == src_fp:
-            # Identical verified payload — skip (non-destructive) unless --force.
+    try:
+        _safe_path(dest)
+        _safe_path(REPO_ROOT)
+        source_root, target = REPO_ROOT.resolve(), dest.resolve()
+        if target.is_relative_to(source_root) or source_root.is_relative_to(target):
+            raise ValueError("Source and destination overlap")
+        if skills_root.exists() and not skills_root.is_dir():
+            raise ValueError(f"Destination is not a directory: {skills_root}")
+        if dest.exists() and not dest.is_dir():
+            raise ValueError(f"Pack destination is not a directory: {dest}")
+        items = pack_source_paths(with_tests=with_tests)
+        source_files = _source_file_hashes(with_tests)
+        if dest.exists():
+            _safe_tree(dest)
+            dest_fp = pack_content_fingerprint(dest)
+            if not force and dest_fp == _fingerprint(source_files, with_tests):
+                return dest
+            if not force:
+                raise ValueError(f"Refusing to overwrite existing pack at {dest}. "
+                                 "Pass --force to replace with a retained backup.")
+        if dry_run:
             return dest
-        if not force:
-            raise SystemExit(
-                f"Refusing to overwrite existing pack at {dest}. "
-                "Pass --force to replace, or remove the directory first."
+
+        skills_root.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix=".fef-install-", dir=skills_root))
+        stage, backup = work / "new", work / "old"
+        published = False
+        try:
+            stage.mkdir()
+            for relative, source in items:
+                target = stage / relative
+                if source.is_dir():
+                    shutil.copytree(source, target, ignore=_copy_ignore)
+                else:
+                    shutil.copy2(source, target)
+            write_skill_hint(stage)
+            write_bootstrap_note(stage)
+            files = dict(source_files)
+            files.update({name: _hash_file(stage / name).hex() for name in GENERATED_FILES})
+            copied = {}
+            for path in stage.rglob("*"):
+                _safe_path(path)
+                if path.is_file():
+                    copied[path.relative_to(stage).as_posix()] = _hash_file(path).hex()
+            if copied != files or _source_file_hashes(with_tests) != source_files:
+                raise ValueError("Staged content differs from source snapshot; retry installation")
+            (stage / MANIFEST_FILE).write_text(
+                json.dumps({"version": 1, "with_tests": with_tests, "files": files},
+                           sort_keys=True, indent=2) + "\n", encoding="utf-8"
             )
-        shutil.rmtree(dest)
-    dest.mkdir(parents=True, exist_ok=True)
-
-    for relative, source in items:
-        target = dest / relative
-        if source.is_dir():
-            shutil.copytree(source, target, ignore=_copy_ignore)
-        else:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, target)
-
-    write_skill_hint(dest)
-    write_bootstrap_note(dest)
-    files = _source_file_hashes(with_tests)
-    files.update({name: _hash_file(dest / name).hex() for name in GENERATED_FILES})
-    (dest / MANIFEST_FILE).write_text(
-        json.dumps({"version": 1, "with_tests": with_tests, "files": files},
-                   sort_keys=True, indent=2) + "\n", encoding="utf-8"
-    )
-
-    if not (dest / MARKER_FILE).is_file():
-        shutil.rmtree(dest, ignore_errors=True)
-        raise SystemExit(f"Installation verification failed: missing {MARKER_FILE} in {dest}")
-    return dest
+            problems = verify_install(stage)
+            if problems:
+                raise ValueError("Staged verification failed: " + "; ".join(problems))
+            _safe_tree(dest)
+            if dest.exists():
+                dest.rename(backup)
+            try:
+                stage.rename(dest)
+                problems = verify_install(dest)
+                if problems:
+                    raise ValueError("Published verification failed: " + "; ".join(problems))
+                published = True
+            except BaseException:
+                # Preserve both versions if moving the failed new pack or restoring
+                # the old one fails. Never delete the original in the cleanup path.
+                if dest.exists():
+                    dest.rename(stage)
+                if backup.exists():
+                    backup.rename(dest)
+                raise
+        finally:
+            if backup.exists():
+                status = "Backup preserved" if published else "Recovery required; original preserved"
+                print(f"{status}: {backup}", file=sys.stderr)
+            else:
+                try:
+                    _safe_tree(work)
+                    shutil.rmtree(work)
+                except (OSError, ValueError) as exc:
+                    print(f"Temporary installation retained at {work}: {exc}", file=sys.stderr)
+        return dest
+    except (OSError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
 
 
 def verify_install(dest_pack: Path) -> list[str]:
     """Return problems found in an installed pack (empty = OK)."""
     problems: list[str] = []
+    try:
+        _safe_tree(dest_pack)
+    except (OSError, ValueError) as exc:
+        return [str(exc)]
     if not dest_pack.is_dir():
         return [f"missing pack directory: {dest_pack}"]
     try:
@@ -664,7 +749,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Allow overwriting an existing fef-claude/ pack (default: refuse; "
+        help="Replace an existing fef-claude/ pack with a retained backup (default: refuse; "
         "identical verified payload hash is skipped without --force)",
     )
     parser.add_argument(
