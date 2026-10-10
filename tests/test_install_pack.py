@@ -29,7 +29,7 @@ install_pack = load_install_pack()
 class DetectTargetsTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name)
+        self.home = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
     def test_detects_each_host(self):
@@ -51,6 +51,18 @@ class DetectTargetsTests(unittest.TestCase):
     def test_detects_nothing_on_bare_home(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(install_pack.detect_targets(self.home), [])
+
+    @unittest.skipUnless(os.name == "nt", "Windows short-path regression")
+    def test_short_path_alias_normalized_after_link_check(self):
+        import ctypes
+        (self.home / ".agents").mkdir()
+        buffer = ctypes.create_unicode_buffer(32768)
+        size = ctypes.windll.kernel32.GetShortPathNameW(str(self.home), buffer, len(buffer))
+        if not size or buffer.value.lower() == str(self.home).lower():
+            self.skipTest("8.3 alias unavailable on this filesystem")
+        with patch.dict(os.environ, {}, clear=True):
+            targets = install_pack.detect_targets(Path(buffer.value))
+        self.assertEqual([path for _, path in targets], [(self.home / ".agents/skills").resolve()])
 
     def test_env_ai_pack_dir(self):
         pack = self.home / "custom-packs"
@@ -78,7 +90,7 @@ class DetectTargetsTests(unittest.TestCase):
 class InstallPackTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name)
+        self.home = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
     def _run(self, *args: str, home: Path | None = None, env_extra: dict | None = None):
@@ -321,7 +333,7 @@ class InstallPackTests(unittest.TestCase):
 class PackIntegrityTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         self.source = self.root / "source"
         self.source.mkdir()
@@ -630,7 +642,7 @@ class PackIntegrityTests(unittest.TestCase):
 class SiblingDiscoveryTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         # Fake this-clone + siblings under a shared parent
         self.parent = self.root / "workspace"
@@ -765,9 +777,9 @@ class SiblingDiscoveryTests(unittest.TestCase):
 class SiblingInstallCliTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.home = Path(self.temp.name) / "home"
+        self.home = Path(self.temp.name).resolve() / "home"
         self.home.mkdir()
-        self.parent = Path(self.temp.name) / "ws"
+        self.parent = Path(self.temp.name).resolve() / "ws"
         self.parent.mkdir()
         self.addCleanup(self.temp.cleanup)
         # Place a fake clone layout: we invoke the REAL script (REPO_ROOT=actual),
@@ -858,7 +870,7 @@ class Round4InstallSafetyTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
         self.home = self.root / "home"
         self.home.mkdir()

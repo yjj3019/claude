@@ -9,8 +9,8 @@ conditions within the dated Fable diagnostic experiment.
 These are preserved remnants of the removed Fable diagnostic runner, not active
 FEF task packs, different model prompts or executable tests. The surviving
 [PILOT example](../PILOT-RUN.example.json) is a template, not a current result.
-See the [evidence index](../../../docs/evidence-index.md) and dated
-[diagnostic findings](../../../docs/opus5-diagnostic-findings.md). Do not infer a
+See the [evidence index](https://github.com/yjj3019/claude/blob/main/docs/evidence-index.md) and dated
+[diagnostic findings](https://github.com/yjj3019/claude/blob/main/docs/opus5-diagnostic-findings.md). Do not infer a
 current cross-model ranking or quality improvement from these two files.
 
 Original registration: commit `4cf0cc2`, `config/fable-benchmark.json` used

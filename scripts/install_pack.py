@@ -108,29 +108,35 @@ def detect_targets(home: Path | None = None) -> list[tuple[str, Path]]:
     found: list[tuple[str, Path]] = []
     seen: set[Path] = set()
 
+    def add(label: str, target: Path) -> None:
+        # Check before canonicalization: do not hide a symlink/junction,
+        # but keep existing Windows short-path normalization and deduplication.
+        try:
+            _safe_path(target)
+        except (OSError, ValueError) as exc:
+            raise SystemExit(str(exc)) from exc
+        target = target.resolve()
+        if target not in seen:
+            seen.add(target)
+            found.append((label, target))
+
     for label, marker, skills_dir in HOSTS:
         if not (home / marker).is_dir():
             continue
         target = (home / skills_dir).absolute()
-        if target not in seen:
-            seen.add(target)
-            found.append((label, target))
+        add(label, target)
 
     for env_name in ("AI_PACK_DIR", "AI_SKILLS_DIR", "CURSOR_PACK_DIR", "CURSOR_SKILLS_DIR"):
         raw = os.environ.get(env_name)
         if not raw:
             continue
         target = Path(raw).expanduser().absolute()
-        if target not in seen:
-            seen.add(target)
-            found.append((f"${env_name}", target))
+        add(f"${env_name}", target)
 
     codex_home = os.environ.get("CODEX_HOME")
     if codex_home:
         target = (Path(codex_home).expanduser() / "skills").absolute()
-        if target not in seen:
-            seen.add(target)
-            found.append(("$CODEX_HOME/skills", target))
+        add("$CODEX_HOME/skills", target)
 
     return found
 
