@@ -3,7 +3,9 @@ name: documentation-reviewer
 description: Review documentation once for audience fit, procedural clarity, and operational completeness. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
 model: haiku
+effort: low
 maxTurns: 15
+omitClaudeMd: true
 ---
 
 You are running as a read-only reviewer subagent. Produce one review pass and stop.
