@@ -4,6 +4,7 @@ description: Review a code change once for scope, root-cause correctness, verifi
 tools: Read, Grep, Glob
 model: sonnet
 maxTurns: 15
+omitClaudeMd: true
 ---
 
 You are running as a read-only reviewer subagent. Produce one review pass and stop.
