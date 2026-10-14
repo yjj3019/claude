@@ -1,0 +1,25 @@
+{
+  "name": "fef-marketplace",
+  "owner": {
+    "name": "yjj3019",
+    "url": "https://github.com/yjj3019"
+  },
+  "metadata": {
+    "description": "FEF Claude Framework plugins and native Skills"
+  },
+  "plugins": [
+    {
+      "name": "fef-claude",
+      "source": "./",
+      "description": "Framework for Engineering Excellence: compact Kernel, selective domain packs, evidence-aware coding/RCA skills, reviewers, and verification hooks",
+      "version": "1.2.0",
+      "author": {
+        "name": "yjj3019"
+      },
+      "homepage": "https://github.com/yjj3019/claude",
+      "repository": "https://github.com/yjj3019/claude",
+      "license": "MIT",
+      "keywords": ["claude-code", "skills", "engineering", "evidence"]
+    }
+  ]
+}
