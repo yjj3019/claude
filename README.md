@@ -11,13 +11,26 @@ Framework for Engineering Excellence(FEF)는 Claude 중심의 엔지니어링 �
 - `config/routes.json`과 `scripts/detect_task.py`는 결정적 라우팅 후보를 제시하며 모델 판단을 대체하지 않습니다.
 - 구조·라우팅·골든 테스트와 설치 무결성을 검사합니다. Claude Code의 로컬 훅은 세션과 실제 파일 상태에 맞는 검증을 상기시킵니다.
 - `skills/ai-delegation-loop/`는 반복 업무 인터뷰, 산출물 계약, 재사용 도구와 증거 검증을 위한 별도 패키지입니다.
-- 네이티브 Skills (`skills/fef-coding/`, `skills/fef-rca/` 등) 와 플러그인 매니페스트(`.claude-plugin/plugin.json`)를 지원합니다. Claude Code에서 `/plugin marketplace add yjj3019/claude` 후 설치 가능.
+- 네이티브 Skills (`skills/fef-coding/`, `skills/fef-rca/` 등) 와 플러그인 매니페스트(`.claude-plugin/plugin.json`) 및 마켓플레이스(`.claude-plugin/marketplace.json`)를 지원합니다.
 
 FEF의 `workflows/`는 Markdown 작업 지침입니다. 실행 가능한 Claude Code `.claude/workflows/`와는 별개이며, 이 저장소는 동적 워크플로를 배포하지 않습니다.
 
 ## 시작과 설치
 
-Python 3.11 이상과 Git이 필요합니다. 스크립트는 Python 표준 라이브러리만 사용합니다. 아래 명령은 클론 루트에서 실행하며, 환경에 따라 `python` 대신 `python3`를 사용하세요.
+Python 3.11 이상과 Git이 필요합니다. 스크립트는 Python 표준 라이브러리만 사용합니다.
+
+### 1. Claude Code 플러그인 설치 (권장)
+
+Claude Code 터미널에서:
+
+```bash
+/plugin marketplace add yjj3019/claude
+/plugin install fef-claude@claude
+```
+
+설치 후 세션을 재시작하면 네이티브 Skills(`fef-coding`, `fef-rca` 등)와 훅·에이전트가 사용 가능합니다. 로컬 플러그인 디렉토리로 로드하려면 `--plugin-dir` 옵션을 사용하세요.
+
+### 2. 클론 + 스킬 팩 설치 (기존 방식)
 
 ```sh
 git clone https://github.com/yjj3019/claude.git
@@ -29,8 +42,6 @@ python scripts/install_pack.py --auto
 `--auto`는 현재 사용자 HOME의 Claude·Codex·Grok·Cursor·AGENTS 호스트 표시를 찾아 skills 루트에 `fef-claude/`를 설치합니다. 호스트가 없으면 `~/.agents/skills`를 사용합니다. 기본값은 호스트 skills 설치만 하며 형제 프로젝트 폴더를 탐색하거나 설치하지 않습니다.
 
 Claude Code에서는 이 클론을 워크스페이스로 열어 루트 `CLAUDE.md`를 읽도록 합니다. 다른 프로젝트의 호스트 skill 복사본은 그 프로젝트의 `CLAUDE.md`를 대체하지 않습니다. Claude Projects에서는 `CLAUDE.md`를 Project Instructions에 붙이고 필요한 팩만 Project Knowledge에 첨부합니다. Code의 명령·훅·네이티브 에이전트는 Projects에서 실행되지 않습니다.
-
-플러그인 설치: `/plugin marketplace add yjj3019/claude` 후 `/plugin install fef-claude@claude`.
 
 ### 설치 대상과 기존 파일
 
