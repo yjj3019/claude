@@ -2,7 +2,7 @@
 name: code-change-reviewer
 description: Review a code change once for scope, root-cause correctness, verification, and safety. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
-model: opus
+model: sonnet
 maxTurns: 15
 ---
 
