@@ -19,5 +19,8 @@ Prefer existing FEF reviewers and built-in Explore for context isolation.
 - Architecture and security reviews → `architecture-reviewer` / `security-reviewer` (opus).
 - Code-change and technical reviews → `code-change-reviewer` / `technical-reviewer` (sonnet).
 - Documentation, prompt, and consistency checks → corresponding reviewers (haiku/sonnet).
+- After a coding-route change that touches more than a trivial single-line fix, call `code-change-reviewer` once before finalizing.
 - Pass only conclusions and evidence back to the main context.
 - Main agent retains final judgment and implementation responsibility.
+
+All project reviewers set `omitClaudeMd: true` so they do not reload the full Kernel or AGENTS.md.
