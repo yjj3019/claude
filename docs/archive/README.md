@@ -1,11 +1,16 @@
 # Archive
 
-Historical development artifacts, simulation reports, review notes, ablation protocols, and source-history bundles have been moved here to keep the main tree focused.
+Historical development artifacts have been cleaned from the main tree.
 
-## Contents
+## What was removed (2026-10-15)
 
-- `PROGRESS-full.md` — complete project progress log prior to 2026-10-15 trim
-- `SESSION_LOG-full.md` — complete session history prior to 2026-10-15 trim
-- Simulation rounds, precise analyses (pre-2026-10-09), reviews, ablation protocols, and delegation source-history are retained here for reference.
+- Stub docs: `docs/BestPractices.md`, `docs/Examples.md`
+- Historical simulation reports and plans (`docs/simulation-*`)
+- Older precise analysis (`docs/precise-analysis-2026-09-06.md`)
+- Confounded ablation protocols (`docs/ablation-runbook.md`, `docs/pack-ablation-protocol.md`, `docs/kernel-vs-fef-experiment.md`)
+- Historical reviews (`docs/reviews/`)
+- Full prior `PROGRESS.md` and `SESSION_LOG.md` content (trimmed versions remain at root)
 
-These files are not part of the runtime load path or default install.
+Full content of deleted files remains available in the Git history of `main` (commits prior to the cleanup).
+
+These files were never part of the default runtime load path or install package.
