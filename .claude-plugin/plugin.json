@@ -1,0 +1,13 @@
+{
+  "name": "fef-claude",
+  "version": "1.2.0",
+  "description": "Framework for Engineering Excellence (FEF): compact Kernel, domain packs, evidence-aware workflows, reviewers, and verification hooks for Claude Code and Projects. Supports selective loading and native Skills.",
+  "author": {
+    "name": "yjj3019",
+    "url": "https://github.com/yjj3019"
+  },
+  "homepage": "https://github.com/yjj3019/claude",
+  "repository": "https://github.com/yjj3019/claude",
+  "license": "MIT",
+  "keywords": ["claude-code", "skills", "engineering", "evidence", "review", "hooks", "kernel"]
+}
