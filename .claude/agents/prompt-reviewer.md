@@ -2,7 +2,7 @@
 name: prompt-reviewer
 description: Review a prompt once for clarity, bounded behavior, and measurable output requirements. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
-model: opus
+model: sonnet
 maxTurns: 15
 ---
 
