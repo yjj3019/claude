@@ -11,6 +11,7 @@ Framework for Engineering Excellence(FEF)는 Claude 중심의 엔지니어링 �
 - `config/routes.json`과 `scripts/detect_task.py`는 결정적 라우팅 후보를 제시하며 모델 판단을 대체하지 않습니다.
 - 구조·라우팅·골든 테스트와 설치 무결성을 검사합니다. Claude Code의 로컬 훅은 세션과 실제 파일 상태에 맞는 검증을 상기시킵니다.
 - `skills/ai-delegation-loop/`는 반복 업무 인터뷰, 산출물 계약, 재사용 도구와 증거 검증을 위한 별도 패키지입니다.
+- 네이티브 Skills (`skills/fef-coding/`, `skills/fef-rca/` 등) 와 플러그인 매니페스트(`.claude-plugin/plugin.json`)를 지원합니다. Claude Code에서 `/plugin marketplace add yjj3019/claude` 후 설치 가능.
 
 FEF의 `workflows/`는 Markdown 작업 지침입니다. 실행 가능한 Claude Code `.claude/workflows/`와는 별개이며, 이 저장소는 동적 워크플로를 배포하지 않습니다.
 
@@ -28,6 +29,8 @@ python scripts/install_pack.py --auto
 `--auto`는 현재 사용자 HOME의 Claude·Codex·Grok·Cursor·AGENTS 호스트 표시를 찾아 skills 루트에 `fef-claude/`를 설치합니다. 호스트가 없으면 `~/.agents/skills`를 사용합니다. 기본값은 호스트 skills 설치만 하며 형제 프로젝트 폴더를 탐색하거나 설치하지 않습니다.
 
 Claude Code에서는 이 클론을 워크스페이스로 열어 루트 `CLAUDE.md`를 읽도록 합니다. 다른 프로젝트의 호스트 skill 복사본은 그 프로젝트의 `CLAUDE.md`를 대체하지 않습니다. Claude Projects에서는 `CLAUDE.md`를 Project Instructions에 붙이고 필요한 팩만 Project Knowledge에 첨부합니다. Code의 명령·훅·네이티브 에이전트는 Projects에서 실행되지 않습니다.
+
+플러그인 설치: `/plugin marketplace add yjj3019/claude` 후 `/plugin install fef-claude@claude`.
 
 ### 설치 대상과 기존 파일
 
@@ -47,7 +50,7 @@ python scripts/install_pack.py --siblings /other/project
 
 ## 선택 로딩과 안전 기준
 
-새 세션은 `CLAUDE.md`를 먼저 읽습니다. 단순·저위험 작업의 기본 로딩은 인라인 Kernel뿐입니다. 본격 작업은 [로딩 맵](docs/loading-map.md) 또는 라우팅 후보로 필요한 팩을 선택합니다.
+새 세션은 `CLAUDE.md`를 먼저 읽습니다. 단순·저위험 작업의 기본 로딩은 인라인 Kernel뿐입니다. 본격 작업은 [로딩 맵](docs/loading-map.md) 또는 라우팅 후보로 필요한 팩을 선택합니다. 네이티브 Skills가 있으면 우선 사용합니다.
 
 ```sh
 python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
@@ -96,7 +99,7 @@ python scripts/delegation/verify_history.py
 python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI는 FEF를 Ubuntu/Python 3.11·3.12·3.14에서, FEF installer·hook을 Windows/Python 3.11·3.14에서, delegation을 Ubuntu·Windows/Python 3.11·3.14에서 검사합니다. delegation CI는 원본 이력 복원과 플랫폼별 ZIP 체크섬 일치도 확인합니다. 로컬 운영체제의 symlink 권한 등으로 일부 검사가 건너뛰어질 수 있으므로 실행 결과를 확인하세요.
+CI는 FEF를 Ubuntu/Python 3.11·3.12·3.14에서, FEF installer·hook을 Windows/Python 3.11·3.14에서, delegation을 Ubuntu·Windows/Python 3.11·3.14에서 검사합니다. delegation CI는 원본 이력 복원과 플랫폼별 ZIP 체크섬 일치도 확인합니다. 로컬 운영체제의 symlink 권한 등으로 일부 검사가 건너뛰얼 수 있으므로 실행 결과를 확인하세요.
 
 v1.2의 원본 모델 결과는 HISTORICAL이며 현재 v1.3에는 STALE입니다. 현재 문서 계약·격리 fixture·채점기 self-check는 별도 hash로 기록합니다. 현재 모델 동작, prompt injection 방어, Codex 보조 프롬프트 읽기는 UNVERIFIED입니다. 정적 검사를 실제 전 플랫폼 업무 검증이나 모델 품질 향상으로 해석하지 않습니다.
 
