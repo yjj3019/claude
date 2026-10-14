@@ -4,6 +4,7 @@ description: Review a design or change once for security exposure, unsafe defaul
 tools: Read, Grep, Glob
 model: opus
 maxTurns: 15
+omitClaudeMd: true
 ---
 
 You are running as a read-only reviewer subagent. Produce one review pass and stop.
