@@ -4,6 +4,23 @@ Start Code in the target repository. Its native discovery loads project instruct
 a host skill copy does not replace the target project's CLAUDE.md.
 FEF workflows are Markdown procedures, not executable .claude/workflows.
 
+## Native Skills and Plugin
+
+This repository now includes a Claude Code plugin manifest (`.claude-plugin/plugin.json`) and example native Skills under `skills/`:
+
+- `skills/fef-coding/SKILL.md` — ordinary code changes (smallest verified change).
+- `skills/fef-rca/SKILL.md` — evidence-based root-cause analysis.
+- `skills/ai-delegation-loop/` — existing independent skill.
+
+To install as a plugin (recommended for reuse across projects):
+
+```bash
+/plugin marketplace add yjj3019/claude
+/plugin install fef-claude@claude
+```
+
+Or load locally with `--plugin-dir`. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
+
 ## Context and Execution
 
 - Keep the inlined core in CLAUDE.md. Preview routes with `python scripts/detect_task.py --task "..."`; read the loading map only for manual selection or clarification.
