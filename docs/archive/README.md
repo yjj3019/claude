@@ -2,15 +2,13 @@
 
 Historical development artifacts have been cleaned from the main tree.
 
-## What was removed (2026-10-15)
+## Removed (2026-10-15)
 
-- Stub docs: `docs/BestPractices.md`, `docs/Examples.md`
-- Historical simulation reports and plans (`docs/simulation-*`)
-- Older precise analysis (`docs/precise-analysis-2026-09-06.md`)
-- Confounded ablation protocols (`docs/ablation-runbook.md`, `docs/pack-ablation-protocol.md`, `docs/kernel-vs-fef-experiment.md`)
-- Historical reviews (`docs/reviews/`)
-- Full prior `PROGRESS.md` and `SESSION_LOG.md` content (trimmed versions remain at root)
+- Leftover experimental agents: `haiku-explorer`, `haiku-runner`, `opus-reviewer`
+- Simulation reports: `docs/simulation-round3*`, `docs/simulation-round4*`
+- Diagnostic notes: `docs/opus5-diagnostic-findings.md`, `docs/coding-transfer-findings.md`
+- Source-history bundle under `docs/delegation-loop/source-history/`
 
-Full content of deleted files remains available in the Git history of `main` (commits prior to the cleanup).
+Full content remains available in Git history of `main`.
 
 These files were never part of the default runtime load path or install package.
