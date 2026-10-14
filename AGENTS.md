@@ -12,17 +12,12 @@ Read `CLAUDE.md` first; do not load a second copy of the inlined Kernel.
 
 ## Subagent Delegation Policy
 
-Prefer native Claude Code subagents to keep the main context lean and control cost.
+Prefer existing FEF reviewers and built-in Explore for context isolation.
 
-- File, symbol, call-site, and documentation exploration → delegate to **haiku-explorer** (read-only).
-- Tests, builds, lint, typecheck, and other verification commands → delegate to **haiku-runner**. Do not let it modify source.
-- Important architecture or implementation direction decisions → call **opus-reviewer** (read-only) immediately before locking the decision.
-- Same error unfixed after two attempts → call **opus-reviewer**.
-- Design, implementation, complex debugging, integration, and final review remain with the main agent.
-- Pass only the conclusion + evidence (paths, line numbers, key findings) back to the main context. Do not flood it with raw search results or full logs.
-- For critical facts, the main agent re-reads the original files.
-- Parallelize only independent work; avoid concurrent edits to the same files.
-- For exhaustive searches, state scope and residual omission risk.
-
-opus-reviewer is advisory only; the main agent retains final authority.
-Do not assume an external Advisor feature; use the official Agent tool / subagent mechanism.
+- Broad file/symbol exploration → built-in Explore or direct Read/Grep when volume is low.
+- Verification commands (tests, lint, build) → run directly or via a short-lived Bash call; keep logs summarized.
+- Architecture and security reviews → `architecture-reviewer` / `security-reviewer` (opus).
+- Code-change and technical reviews → `code-change-reviewer` / `technical-reviewer` (sonnet).
+- Documentation, prompt, and consistency checks → corresponding reviewers (haiku/sonnet).
+- Pass only conclusions and evidence back to the main context.
+- Main agent retains final judgment and implementation responsibility.
