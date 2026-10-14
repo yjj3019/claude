@@ -11,6 +11,7 @@
   "repository": "https://github.com/yjj3019/claude",
   "license": "MIT",
   "keywords": ["claude-code", "skills", "engineering", "evidence", "review", "hooks", "kernel"],
+  "skills": ["./skills/"],
   "agents": [
     "./.claude/agents/architecture-reviewer.md",
     "./.claude/agents/security-reviewer.md",
