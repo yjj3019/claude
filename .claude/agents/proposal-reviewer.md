@@ -2,7 +2,7 @@
 name: proposal-reviewer
 description: Review a proposal once for buyer clarity, evidence-backed claims, and delivery feasibility. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
-model: opus
+model: sonnet
 maxTurns: 15
 ---
 
