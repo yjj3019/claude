@@ -4,6 +4,7 @@ description: Review an architecture once for fitness, operational risk, and sust
 tools: Read, Grep, Glob
 model: opus
 maxTurns: 15
+omitClaudeMd: true
 ---
 
 You are running as a read-only reviewer subagent. Produce one review pass and stop.
