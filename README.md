@@ -25,8 +25,9 @@ Claude Code 터미널에서:
 
 ### 업데이트
 
-마켓플레이스에 등록된 플러그인은 Claude Code가 업데이트를 검사합니다.  
-새 버전이 나오면 `/plugin update fef-claude` 또는 플러그인 관리 메뉴에서 업데이트하면 됩니다.
+버전을 올리고 push하면 마켓플레이스에 반영됩니다.  
+사용자는 `/plugin update fef-claude` 또는 플러그인 관리 메뉴에서 업데이트합니다.  
+`plugin.json`의 `version`을 바꾸기 전까지는 해당 버전이 고정됩니다.
 
 ## 기존 방식 (클론 + 스킬 팩)
 
@@ -54,6 +55,14 @@ python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
 로드 한도: Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3.
 
 ## 검증
+
+플러그인 매니페스트:
+
+```sh
+claude plugin validate .
+```
+
+저장소 정적 검사:
 
 ```sh
 python scripts/validate_repository.py
