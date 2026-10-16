@@ -67,11 +67,9 @@ class LatencyLightnessTests(unittest.TestCase):
 
     def test_validator_flags_oversize_claude(self):
         errors: list[str] = []
-        with patch.object(validator, "CLAUDE", ROOT / "CHANGELOG.md"):
-            # CHANGELOG is larger than budget; reuse as stand-in file object path
-            oversized = ROOT / "PROGRESS.md"
-            with patch.object(validator, "CLAUDE", oversized):
-                validator.validate_claude_entry_budget(errors)
+        oversized = ROOT / "CHANGELOG.md"
+        with patch.object(validator, "CLAUDE", oversized):
+            validator.validate_claude_entry_budget(errors)
         self.assertTrue(any("exceeds budget" in e for e in errors))
 
     def test_measure_load_fail_over_cold_start(self):

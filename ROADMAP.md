@@ -24,17 +24,19 @@
 - Golden Tests for execution integrity and proportionality
 - Framework structure validation and CI
 
-## In Progress
+## Completed (v1.3)
 
-### Proposed v1.3
 - Deterministic task routing and route validation
 - Repository and Golden Test validate-only harness
 - Coverage metadata, Scorecard anchors, and JSON result schema
 - Expanded onboarding, CI, and release process
 - Proportional execution routing and checkpoint-verifier separation
+- Reviewer agent generation preserves per-reviewer model and omitClaudeMd
+- Cold-start budget enforcement and latency test stabilization
 
-## Planned
+## In Progress
 
+### Proposed v1.4
 - Optional automatic evaluation adapter
 - Regression dashboards
 - Module maturity levels

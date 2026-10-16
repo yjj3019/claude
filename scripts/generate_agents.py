@@ -23,19 +23,33 @@ def purpose(text: str, source: Path) -> str:
     return sentence.group(1)
 
 
+# Per-reviewer model preference (matches AGENTS.md delegation policy).
+# Unlisted reviewers default to opus.
+MODEL_MAP = {
+    "code-change-reviewer": "sonnet",
+    "technical-reviewer": "sonnet",
+    "documentation-reviewer": "sonnet",
+    "prompt-reviewer": "sonnet",
+    "proposal-consistency-reviewer": "sonnet",
+    "proposal-reviewer": "sonnet",
+}
+
+
 def expected_agents() -> dict[str, str]:
     generated = {}
     for source in sorted(REVIEWERS.glob("*.md")):
         body = source.read_text(encoding="utf-8-sig").rstrip()
         name = kebab_name(source.stem)
         description = f"{purpose(body, source)} Use for one review pass after a draft exists."
+        model = MODEL_MAP.get(name, "opus")
         generated[f"{name}.md"] = (
             "---\n"
             f"name: {name}\n"
             f"description: {description}\n"
             "tools: Read, Grep, Glob\n"
-            "model: opus\n"
+            f"model: {model}\n"
             "maxTurns: 15\n"
+            "omitClaudeMd: true\n"
             "---\n\n"
             f"{PREFIX}\n\n"
             f"{body}\n"
