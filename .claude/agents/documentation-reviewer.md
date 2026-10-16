@@ -2,8 +2,7 @@
 name: documentation-reviewer
 description: Review documentation once for audience fit, procedural clarity, and operational completeness. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
-model: haiku
-effort: low
+model: sonnet
 maxTurns: 15
 omitClaudeMd: true
 ---

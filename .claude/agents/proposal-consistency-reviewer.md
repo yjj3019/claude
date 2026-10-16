@@ -2,8 +2,7 @@
 name: proposal-consistency-reviewer
 description: Review a proposal once for requirement alignment, internal consistency, claim integrity, and delivery risk. Use for one review pass after a draft exists.
 tools: Read, Grep, Glob
-model: haiku
-effort: low
+model: sonnet
 maxTurns: 15
 omitClaudeMd: true
 ---
