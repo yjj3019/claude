@@ -8,7 +8,7 @@ Read `CLAUDE.md` first; do not load a second copy of the inlined Kernel.
 - `config/routes.json` / `scripts/detect_task.py` preview routes; `docs/loading-map.md` supports manual selection.
 - Adaptive Effort preferences: `docs/adaptive-effort.md`, only when choosing models.
 - Validate: `python scripts/validate_repository.py`; tests: `python -m unittest discover -s tests`.
-- Install: `python scripts/install_pack.py --auto` copies host skills only; sibling install is opt-in and existing packs require `--force` to replace.
+- Install: `python scripts/install_pack.py --auto` copies host skills only; sibling install is opt-in; existing packs need `--force`.
 
 ## Subagent Delegation Policy
 
@@ -19,7 +19,7 @@ Prefer existing FEF reviewers and built-in Explore for context isolation.
 - Architecture and security reviews → `architecture-reviewer` / `security-reviewer` (opus).
 - Code-change and technical reviews → `code-change-reviewer` / `technical-reviewer` (sonnet).
 - Documentation, prompt, and consistency checks → corresponding reviewers (haiku/sonnet).
-- After a coding-route change that touches more than a trivial single-line fix, call `code-change-reviewer` once before finalizing.
+- After non-trivial coding-route changes, call `code-change-reviewer` once before finalizing.
 - Pass only conclusions and evidence back to the main context.
 - Main agent retains final judgment and implementation responsibility.
 

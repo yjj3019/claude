@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — 2026-10-16
+
+- Sync generated reviewer agents under `.claude/agents/` with current reviewer sources.
+- Compact AGENTS.md guidance lines so CLAUDE.md + AGENTS.md cold-start stays under 5500-byte budget.
+- Stabilize latency oversize test to use CHANGELOG.md as stand-in.
+- Expand domains/Tesla.md and domains/AI.md with version-sensitive and evaluation rules.
+
 ## Unreleased — 2026-10-09
 
 - Compact generated core and pointer entry; merge Coding/Research default procedures with compatible old paths; make coding review conditional.
