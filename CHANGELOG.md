@@ -21,3 +21,96 @@
 - Session baseline/content-hash verification and real-exit argv wrapper replace the shared marker; retain visible fail-open diagnostics and Stop loop protection.
 - Fingerprint all shipped files, verify installed manifests and omit local session state; preserve overwrite protection.
 - Update Code/Projects, effort/Advisor and context/harness guidance without adding model calls or dependencies.
+
+## Unreleased
+
+- Fixed a Round 4 routing regression: the trivia/definition short-circuit in `high_risk_hits` ran before the action-verb check, so a high-risk request phrased as a question ("production DB 마이그레이션 순서 알려줘", "what does the production rollout plan look like? apply it today") was scored `risk=low`, `kernel_only_safe=true` even with a deploy/migration/rollout verb present — quietly reopening the Round 2 P0 gap that gate was meant to close. `scripts/lib/routing.py` now checks action verbs first and only falls through to trivia/definition suppression when none matched; bare single-word `알려줘`/`뭐야` triggers were dropped (compound phrasing like "뜻이 뭐야" still suppresses). Added a 4-sentence regression fixture to `tests/test_harness.py`. (S4-04)
+- Fixed multi-repo `--auto` install: by default it scanned every git sibling under the repo's parent directory and force-overwrote (`shutil.rmtree`, no confirmation, no backup) any existing `fef-claude/` target. `--auto` now installs host skills only; sibling installs are opt-in via `--siblings PATH` / `FEF_SIBLING_ROOTS` / `--siblings-only` / `--scan-sibling-parent`, and an existing pack target is left alone unless `--force` is passed (or skipped outright when its content hash already matches). Reworded `AGENTS.md`'s multi-repo section from an execution instruction to an opt-in description, and clarified in `README.md`/`README.ko.md`/`docs/Installation.md` that "non-destructive" describes directory creation, not preservation of an existing pack's contents. (S4-09)
+- Replaced the coding route's fallback keyword blocklist with a code-context allowlist (`fallback_requires_any`/`fallback_requires_pattern` in `config/routes.json`): weak coding keywords now only route to `coding` alongside a code-context signal (a path-like token such as `*.py`, or a code-shaped phrase such as `def `/`stack trace`). (S4-03)
+- Tightened L2/L3 effort-tier keyword signals: dropped bare single-word triggers (lone `장애`/`제안서`/`incident`) in favor of compound phrases (`장애 원인`, `제안서 작성`, `incident response`), moved `원인 분석` from L3 to L2, and made ASCII signal matching word-boundary-aware so `incident` no longer matches inside `incidental`. (S4-05)
+- Moved the high-risk action-verb/trivia gate, the coding fallback allowlist, and the L0-L3 effort-tier signal lists out of hardcoded Python tuples into `config/routes.json`; `scripts/validate_routes.py` now checks that each list actually fires and doesn't fire on its intended sample phrases. (S4-06)
+- Closed the Round 4 P2 backlog: fixed a self-satisfying regression check, brought Korean/English effort-tier signal coverage to parity, compacted ASCII-hyphen keyword matching, and documented domain-pack load-order sensitivity in `docs/loading-map.md` (mention order is preserved; no silent trimming). (S4-01, S4-07)
+- Defensively widened the Claude Code hook exit-code extractor (`scripts/lib/verification_commands.py`) to also check `tool_result`/`toolResult` and top-level `exit_code`-style keys — the real hook payload shape is still unconfirmed against a live host, so this is a defensive addition, not a verified fix. (S4-08, open — see `docs/simulation-round4-improvement-plan-2026-09-07.md`)
+- Deleted the Fable benchmark subsystem (16 scripts plus `scripts/lib/fable_common.py`, 18 test files, 11 fable config schema/example files, five fable protocol docs under `docs/`, and `tests/results/fable/`): closed as diagnostic-only with no further work planned (see prior Unreleased entries below), and flagged in two independent reviews as dead weight still carried in CI and the script/test surface. Removed the `fable-diagnostics` CI job, the `validate_fable_benchmark` import from `scripts/validate_repository.py`, and dangling references in `CLAUDE.md`/`README.md`/`docs/model-usage.md`/`scripts/README.md`. Excluded `docs/releases/` from `validate_framework.py`'s reference-integrity scan so frozen historical release notes aren't required to reference currently-existing files. 43 unittest tests remain (down from 158; the removed 115 were all Fable-specific) and pass; `validate_repository.py`/`validate_routes.py` pass.
+- Expanded fixture-mode coding Golden Tests from three to eight (GT026-GT030: mutable default argument, internal-state aliasing, BOM header parsing, numeric-string sorting, float money arithmetic), each with a buggy fixture that fails its tests, an executable answer that passes, an answer key, prompts, registry entries, runner `TEST_CONFIG` coverage, and a CI positive gate.
+- Removed the UTF-8 BOM from the first line of `.gitignore`; the leading `\ufeffwork/` pattern did not reliably match `work/`.
+
+- Added mechanical enforcement of Kernel rules 13-14 via Claude Code hooks: a PostToolUse(Bash) test-run recorder and a fail-open, non-looping Stop gate that blocks completion once when Python files changed without a subsequent test run (`.claude/settings.json`, `scripts/hooks/`, `tests/test_hooks.py`).
+- Added executable answer files for the three fixture-mode coding Golden Tests (`tests/fixtures/GT01N-code/answers/`) and wired them into CI as a positive gate plus a pristine negative control; the previously documented "answer-key dry run" invocation could never succeed because it patched with the buggy pristine file.
+- Fixed GT013 runner scoring semantics: the answer-key-correct patch (deduplicating the two callers onto `amounts.parse_amount`) was capped at 55 as a "caller-only fix" because `amounts.py` was misconfigured as the root-cause file; `TEST_CONFIG` now expresses `fix_files`/`sibling_files` per test, `--patch-dir` supports multi-file dry runs, and `tests/test_golden_test_coding_runner.py` (7 tests) guards the runner.
+
+- Rewrote `scripts/sync_kernel.py` as a real CLI: previously it ignored all arguments (including `--help`) and unconditionally rewrote `CLAUDE.md`; now supports a read-only `--check` mode (exit 1 on drift), skips writes when already synchronized, and reports structured errors (exit 2). Added `tests/test_sync_kernel.py`.
+- Corrected `PROGRESS.md`: the 2026-07-27 "deleted 6 orphaned packs" entry described work reverted the same day (`5a98084`); refreshed the stale remote-state checkpoint to `a1c0242`.
+- Added the missing copyright holder to `LICENSE`.
+- Closed the Fable work as diagnostic-only using DIAGNOSTIC-D as the final evidence basis; excluded DIAGNOSTIC-E's single app response and CLI smoke response from formal comparison, recommended Kernel-only for simple evidence judgment, and recorded formal promotion as NO-GO pending provenance and semantic evidence.
+- Added a single-operator diagnostic verdict path, a minimal private holdout diagnostic plan (`DIAGNOSTIC-A`), and copy/paste diagnostic prompt export with hash-verified, leakage-checked Fable evaluation artifacts.
+- Simplified diagnostic-only gate execution and reduced lexical scoring false positives in negation/assertion handling.
+- Reconciled `docs/loading-map.md` with `config/routes.json`: added `domains/EnterpriseArchitecture.md` domain coverage, documented `domains/Ansible.md`/`domains/Satellite.md` as cross-route keyword domains, and corrected reviewer/workflow conditionality wording for three Task Map rows.
+- Routed the seven orphaned packs (`domains/AI.md`, `domains/Tesla.md`, `modules/ExecutiveSummary.md`, `modules/Meeting.md`, `modules/Presentation.md`, `policies/Decision.md`, `reviewers/SecurityReviewer.md`) through `docs/loading-map.md` so `scripts/validate_repository.py` no longer reports them as unreachable.
+- Made checked-in Fable pilot artifact comparison insensitive to Git line-ending conversion while preserving JSON drift detection.
+- Added knowledge ownership, deployment-truth, runtime-modifier, portability, and stale-instruction governance with Golden Test 025.
+- Prevented generic fix/error wording from overriding more specific task routes, added SQL-query coverage, and documented invalid load-limit handling.
+- Reclassified private Notion-derived guidance as internal FEF operating rules rather than externally verified claims.
+- Added risk-based Notion recording and explicit knowledge-lifecycle guidance.
+- Fixed task-route substring false positives, coding-request coverage, and parent-domain over-selection.
+- Refined proportional execution, assessment/mutation boundaries, outcome-first delivery, and minimal-change Kernel behavior.
+- Distinguished checkpoint verification from one-time artifact review and documented single-session, subagent, team, and external-automation selection.
+- Added model/effort operating examples and Golden Test 024 for proportional runtime governance.
+- Added Opus 5 effort, thinking, over-verification, output-scope, and delegation guidance with a removable Golden Test check.
+- Added Sonnet 5 effort, adaptive-thinking, sampling, tokenizer-budget, scope, tool-use, and progress-update guidance with a removable Golden Test check.
+- Added model-guide loading and reusable effort-calibration budgets to prevent optional guidance and effort sweeps from slowing ordinary tasks.
+- Added Haiku 4.5 routing for fast record-oriented work, material-ambiguity escalation, user-approval boundaries, context limits, and a removable Golden Test check.
+- Added deterministic Korean/English task routing with JSON output, safe unmapped fallback, Pack-path checks, and load-limit validation.
+- Added repository and Golden Test validate-only harnesses, coverage metadata, Scorecard anchors, a critical-error gate, and JSON result schema.
+- Clarified Reviewer selection/execution, Integrity versus Preference Policy precedence, and external-facing wording for unverified claims.
+- Expanded Claude Projects, Claude Code, scripts, CI, Semantic Versioning, and release onboarding.
+
+## v1.2.0 - 2026-07-16
+
+- Fixed the loading-map reviewer-count conflict by introducing a single combined Proposal Consistency Reviewer.
+- Clarified instruction precedence and separated instruction authority from evidence priority.
+- Added graded missing-pack behavior for critical, required, and optional runtime files.
+- Added Freshness, File Handling, and Tool Execution policies.
+- Added Coding Module, Coding Workflow, and Code Change Reviewer.
+- Expanded Prompt Engineering Module and Prompt Workflow with runtime contracts, action boundaries, injection resistance, portability, and evaluation criteria.
+- Added a project-specific `CLAUDE.md` template without replacing the FEF runtime entry.
+- Added automated framework structure and loading-map validation with GitHub Actions.
+- Added operational-integrity Kernel rules for evidence-backed completion.
+- Added trigger-based policy selection, context checkpoints, and a model-independent distillation gate.
+- Added Golden Tests 015-022 for file truthfulness, artifact completion, tool failures, freshness, instruction conflicts, proportionality, output contracts, and long-context retention.
+- Expanded validation for required runtime packs, Golden Test IDs, and prohibited model-specific Runtime modes.
+- Updated README, AGENTS, Roadmap, task routing, reviewer contracts, and CI coverage for the integrated v1.2 runtime.
+
+## v1.1.1 - 2026-07-10
+
+- Added S-Core OSSLab style guidance to the Blog module.
+- Added technical blog post routing to the loading map.
+- Added Fable transfer protocol for using Fable5 feedback to improve Opus/Sonnet workflows without impersonation.
+- Added Fable pattern bank and distillation prompts for extracting reusable Fable5 judgment patterns.
+- Promoted core Fable patterns into Evidence policy and Proposal reviewer guidance.
+- Added coding-focused golden tests GT012, GT013, and GT014.
+- Recorded GT012, GT013, and GT014 coding evaluation results comparing Fable5, Opus+FEF, and Sonnet+FEF.
+- Added coding transfer findings summary for observed Opus/Sonnet behavior against Fable5 reference runs.
+- Tightened GT014 runner protocol to verify patches land in the assigned work directory.
+- Added `.gitignore` entries for temporary work directories and Python cache files.
+## v1.1.0 - 2026-07-09
+
+- Converted `CLAUDE.md` into a runtime entry point that points to Kernel and task-specific packs instead of duplicating rules.
+- Added `docs/loading-map.md` with load limits, task routing, simple-task bypass, and reviewer execution bounds.
+- Expanded `domains/RHEL.md` with version-sensitive, public-sector, disconnected operations, security, operations, competitive, and proposal fact discipline guidance.
+- Reworked `tests/GoldenTest-001.md` into an operational RHEL proposal A/B evaluation asset.
+- Added context and model usage guides for builder/reviewer/architect workflows.
+- Added proposal consistency review mode to Proposal module, workflow, reviewer, and loading map.
+- Added Golden Test 011 for proposal consistency check evaluation.
+- Added GT011 fixture, answer key, and runner protocol for GT001/GT011.
+- Added fixed prompt files for GT001 and GT011 baseline/FEF runs.
+- Added GT001 result worksheet for 5x baseline/FEF evaluation runs.
+- Added GT011 result worksheet for proposal consistency evaluation runs.
+- Added GT001/GT011 follow-up guidance for evidence-sensitive claims and hidden dependency review.
+- Removed orphan EngineeringPrinciples and Communication policy files.
+- Simplified model usage guide to avoid pack-routing duplication with loading-map.
+
+## v1.0.0
+
+- Initial complete framework package.
+- Added kernel, policies, modules, domains, reviewers, workflows, tests, docs, and examples.
