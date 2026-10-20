@@ -141,8 +141,8 @@ class PluginBuildTest(unittest.TestCase):
         self.assertEqual(hook.stderr, "")
         context = json.loads(hook.stdout)["hookSpecificOutput"]["additionalContext"]
         self.assertIn("# Core Kernel", context)
-        self.assertIn((installed / "docs/loading-map.md").as_posix(), context)
-        self.assertNotIn(self.source.as_posix(), context)
+        self.assertIn((installed / "docs/loading-map.md").resolve().as_posix(), context)
+        self.assertNotIn(self.source.resolve().as_posix(), context)
         self.assertEqual(len(list((consumer / ".claude/.verification").glob("*.json"))), 1)
 
 

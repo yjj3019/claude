@@ -1,5 +1,12 @@
 # SESSION_LOG.md — recent sessions only
 
+## 2026-10-20 - Initial push and Windows CI path-alias correction
+
+- Committed the 134-file cumulative change as f8440d51efd703fa02839c7ff21a91557a8c5ee9 and pushed main normally. Confirmed remote main matched that exact commit and the working tree was clean; no separate branch existed to merge, no force push or release tag was used.
+- Exact-head GitHub Actions: Validate Delegation Loop succeeded; Validate FEF Harness run 39386304118 passed all three Linux matrix jobs (Python 3.11/3.12/3.14) but failed both Windows builder jobs. Authenticated logs showed only test_payload_alone_routes_and_supplies_kernel_and_baseline failed: raw C:/Users/RUNNER~1 TEMP alias in the expected string versus the hook actual resolved C:/Users/runneradmin path. The hook behavior was correct; this was an assertion-normalization issue.
+- Reproduced the same failure locally by setting child TEMP/TMP to a real GetShortPathNameW alias: 1 test failed in 8.148s. Updated only two test assertions to compare resolved POSIX installed/source paths, preserving required installed-root inclusion and source-root exclusion. No runtime/payload code was changed. Full builder suite under the forced short alias: 8 passed in 24.024s; Python 3.11 affected case under that alias: 1 passed in 8.839s. Independent read-only review found no P0-P2 issues.
+- Prepared a normal follow-up commit/push and exact-head CI verification; this record does not claim its remote outcome before execution. GitHub emitted a separate Node.js 20 action-deprecation advisory (checkout@v4/setup-python@v5 forced onto Node.js 24); it did not cause the assertion failure and no unrelated action upgrade was made. Prior licensing/live-model and intentional compatibility limitations remain documented.
+
 ## 2026-10-20 - Final precommit checkout and test-restoration fixes
 
 - Staging exposed Windows autocrlf warnings. Added a real Git-index/checkout regression: it failed before the fix with 15 payload byte differences (generated README and the ai-delegation-loop subtree). Added matching LF rules to .gitattributes for those generated paths. The source package already requires LF; no runtime/API behavior or source-history bytes were changed. Windows full builder regression: 8 passed in 26.880s; Python 3.11 new checkout case: 1 passed in 8.079s.
