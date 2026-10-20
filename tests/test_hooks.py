@@ -86,6 +86,58 @@ class SessionVerificationTest(unittest.TestCase):
     def test_clean_session_needs_no_verification(self):
         self.assertEqual(self.stop().stdout, "")
 
+    def test_plugin_start_delivers_kernel_and_preserves_baseline(self):
+        from sync_kernel import rendered_kernel
+        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT)}):
+            result = run_hook(START, {"session_id": "plugin", "source": "startup"}, self.root)
+        self.assertEqual(result.stderr, "")
+        output = json.loads(result.stdout)["hookSpecificOutput"]
+        self.assertEqual(output["hookEventName"], "SessionStart")
+        self.assertIn(rendered_kernel(), output["additionalContext"])
+        self.assertIn((ROOT / "docs/loading-map.md").as_posix(), output["additionalContext"])
+        self.assertIsNotNone(load_state(self.root, "plugin"))
+
+    def test_plugin_start_delivers_kernel_outside_git(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT)}):
+                result = run_hook(START, {}, Path(folder), native=True)
+        self.assertIn("# Core Kernel", json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"])
+        self.assertIn("reminder unavailable", result.stderr)
+
+    def test_missing_plugin_kernel_does_not_skip_baseline(self):
+        module = HOOK_MODULES[START]
+        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT)}), \
+                patch.object(module, "rendered_kernel", side_effect=FileNotFoundError):
+            result = run_hook(START, {"session_id": "missing-kernel"}, self.root)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("reminder unavailable", result.stderr)
+        self.assertIsNotNone(load_state(self.root, "missing-kernel"))
+
+    def test_plugin_rename_resume_preserves_verification_and_custom_data(self):
+        from lib.verification_state import state_path
+        old_data = self.root / "old-plugin-data"
+        new_data = self.root / "new-plugin-data"
+        for directory in (old_data, new_data):
+            directory.mkdir()
+            (directory / "keep.txt").write_text(directory.name, encoding="utf-8")
+        session = "rename-resume"
+        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT / "fef-claude"),
+                                     "CLAUDE_PLUGIN_DATA": str(old_data)}):
+            self.start(session)
+            self.change()
+            self.record(session=session)
+        path = state_path(self.root, session)
+        before = path.read_bytes()
+        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT / "fef-engineering"),
+                                     "CLAUDE_PLUGIN_DATA": str(new_data)}):
+            self.start(session, source="resume")
+            self.assertEqual(path.read_bytes(), before)
+            self.assertEqual(self.stop(session).stdout, "")
+            self.change("x = 3\n")
+            self.assert_blocked(session)
+        for directory in (old_data, new_data):
+            self.assertEqual((directory / "keep.txt").read_text(encoding="utf-8"), directory.name)
+
     def test_preexisting_dirty_read_only_session_does_not_block(self):
         self.change()
         self.start("read-only")
@@ -93,6 +145,43 @@ class SessionVerificationTest(unittest.TestCase):
 
     def test_changed_file_requires_verification(self):
         self.change()
+        self.assert_blocked()
+
+    def test_submodule_edits_invalidate_verification_even_when_status_ignored(self):
+        child = self.root / "dep"
+        child.mkdir()
+        git(child, "init", "-q")
+        target = child / "library.py"
+        target.write_text("value = 1\n", encoding="utf-8")
+        git(child, "add", "library.py")
+        git(child, "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
+            "commit", "-qm", "child baseline")
+        oid = git(child, "rev-parse", "HEAD").stdout.decode().strip()
+        (self.root / ".gitmodules").write_text(
+            '[submodule "dep"]\n\tpath = dep\n\turl = ./unused-local-source\n', encoding="utf-8")
+        git(self.root, "add", ".gitmodules")
+        git(self.root, "update-index", "--add", "--cacheinfo", "160000", oid, "dep")
+        git(self.root, "commit", "-qm", "register test gitlink")
+        self.start()
+        target.write_text("value = 2\n", encoding="utf-8")
+        recorded = self.record()
+        self.assertEqual(recorded.stderr, "")
+        stopped = self.stop()
+        self.assertEqual(stopped.stderr, "")
+        self.assertEqual(stopped.stdout, "")
+        previous = digest(snapshot(self.root))
+        target.write_text("value = 3\n", encoding="utf-8")
+        self.assertNotEqual(previous, digest(snapshot(self.root)))
+        self.assert_blocked()
+
+        git(self.root, "config", "submodule.dep.ignore", "all")
+        self.assertEqual(git(self.root, "status", "--porcelain").stdout, b"")
+        recorded = self.record()
+        self.assertEqual(recorded.stderr, "")
+        stopped = self.stop()
+        self.assertEqual(stopped.stderr, "")
+        self.assertEqual(stopped.stdout, "")
+        (child / "new.py").write_text("new = True\n", encoding="utf-8")
         self.assert_blocked()
 
     def test_successful_explicit_exit_verifies_current_snapshot(self):

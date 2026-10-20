@@ -17,4 +17,4 @@ Deliver the smallest complete, verified change in the assigned worktree.
 
 Use Plan Mode for nontrivial work. Completion requires verified state, not merely a plan, edit or command invocation.
 
-For full domain packs, policies, or reviewers, consult the loading map or run `python scripts/detect_task.py --task "..."` when needed. Prefer this skill for ordinary coding tasks.
+For full domain packs, policies, or reviewers, consult `${CLAUDE_PLUGIN_ROOT}/docs/loading-map.md` or run `python "${CLAUDE_PLUGIN_ROOT}/scripts/detect_task.py" --task "..."` when needed. Resolve returned pack paths against `${CLAUDE_PLUGIN_ROOT}`, not the working project. Prefer this skill for ordinary coding tasks.

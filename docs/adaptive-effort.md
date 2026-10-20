@@ -7,6 +7,9 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 ## Host and Effort Guardrail
 
 These dated tiers are repository preferences, not current API model IDs or automatic routing.
+The tier labels and escalation ladder are FEF policy, not an official Claude Code
+three-tier architecture. Route previews do not change the host model or filter all
+tool output through Haiku. See [official features versus custom design](mods-and-tiered-agents.md).
 Keep the active host model for ordinary work; verify available models and supported effort before switching.
 Compare accepted-task quality, retries, total usage and latency at supported effort levels before adding Advisor or a second model.
 Escalate model before expanding packs only for a capability gap; gather missing task evidence instead of buying a stronger model to guess.

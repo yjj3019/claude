@@ -3,6 +3,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import run_golden_test_coding as runner
@@ -89,6 +90,29 @@ class CodingRunnerScoreTest(unittest.TestCase):
         pristine = runner.copy_fixture("012")
         self._dirs.append(pristine)
         self.assertFalse((pristine / "answers").exists())
+
+    def test_local_unittest_module_cannot_hide_buggy_patch(self):
+        pristine, edited = self.fresh_pair("012")
+        target = edited / "money.py"
+        target.write_bytes(target.read_bytes() + b"\n")
+        (edited / "unittest.py").write_text('print("Ran 0 tests")\n', encoding="utf-8")
+        result = runner.score("012", pristine, edited)
+        self.assertFalse(result["mechanical_checks"]["unit_tests_pass"])
+        self.assertTrue(result["mechanical_checks"]["fix_files_touched"])
+        self.assertFalse(result["mechanical_checks"]["test_file_modified"])
+        self.assertLessEqual(result["mechanical_score_cap"], 60)
+
+    def test_empty_discovery_is_not_a_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = runner.run_unittest(Path(directory))
+        self.assertIn("Ran 0 tests", result["output"])
+        self.assertFalse(result["passed"])
+
+    def test_zero_tests_with_success_exit_is_not_a_pass(self):
+        # Python versions differ in the exit code for empty discovery.
+        completed = type("Result", (), {"returncode": 0, "stderr": "Ran 0 tests in 0.000s\n\nOK\n"})()
+        with patch.object(runner.subprocess, "run", return_value=completed):
+            self.assertFalse(runner.run_unittest(Path.cwd())["passed"])
 
 
 if __name__ == "__main__":

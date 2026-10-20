@@ -18,17 +18,22 @@ Claude Code 터미널에서:
 
 ```bash
 /plugin marketplace add yjj3019/claude
-/plugin install fef-claude@claude
+/plugin install fef-engineering@fef-marketplace
 ```
 
 설치 후 세션을 재시작하면 Skills, 훅, 리뷰어 에이전트가 사용 가능합니다.
 
+플러그인의 SessionStart 훅이 공통 Kernel을 컨텍스트로 전달합니다. 작업별 팩과 보조 스크립트는 사용자 프로젝트가 아닌 플러그인 설치 경로에서 읽습니다.
+
 훅은 사용자 권한으로 실행됩니다. 설치 전 `hooks/hooks.json`을 확인하세요.
+
+마켓플레이스는 원본에서 생성한 `plugins/fef-engineering/` 배포본을 설치합니다. 원본 `CLAUDE.md`와 기존 `--plugin-dir .`는 유지합니다. 런타임 원본을 수정한 뒤에는 `python scripts/build_plugin.py`로 배포본을 갱신하세요. 생성물 검사와 검증 대상은 [플러그인 배포 안내](docs/ClaudeCode.md#generated-native-distribution)에 정리했습니다.
 
 ### 업데이트
 
 버전을 올리고 push하면 마켓플레이스에 반영됩니다.  
-사용자는 `/plugin update fef-claude` 또는 플러그인 관리 메뉴에서 업데이트합니다.  
+사용자는 `/plugin update fef-engineering@fef-marketplace` 또는 플러그인 관리 메뉴에서 업데이트합니다.
+이전 `fef-claude` 설치는 [이관 안내](docs/ClaudeCode.md#plugin-validation-and-compatibility)를 따릅니다. 네이티브 스킬 호출 이름은 `/fef-engineering:fef-coding` 등으로 바뀌며, 별도 설치 팩 `fef-claude/`는 유지합니다.
 `plugin.json`의 `version`을 바꾸기 전까지는 해당 버전이 고정됩니다.
 
 ## 기존 방식 (클론 + 스킬 팩)
@@ -77,5 +82,6 @@ python -m unittest discover -s tests -p "test_*.py"
 ## 추가 안내
 
 - [Claude Code 사용](docs/ClaudeCode.md)
+- [Mods 공식 기능과 3계층 위임 설계](docs/mods-and-tiered-agents.md)
 - [설치 상세](docs/Installation.md)
 - [스크립트 안내](scripts/README.md)

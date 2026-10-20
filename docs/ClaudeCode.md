@@ -16,12 +16,132 @@ To install as a plugin (recommended for reuse across projects):
 
 ```bash
 /plugin marketplace add yjj3019/claude
-/plugin install fef-claude@claude
+/plugin install fef-engineering@fef-marketplace
 ```
 
 Or load locally with `--plugin-dir`. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
 
+### Plugin validation and compatibility
+
+Licensing and redistribution permission remain unresolved. The source `LICENSE`
+is incomplete, and the integrated DelegationLoop source has no license grant.
+Plugin and marketplace metadata therefore omit a license identifier; this does
+not grant new rights or resolve those permissions. See the source repository's
+[attribution and license record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md#attribution-and-license).
+
+The root plugin manifest is the single version source; the generated manifest is
+an exact copy and the marketplace omits its redundant version. Version `1.3.1`
+marks the separate native payload so cached `1.3.0` installs can receive the change
+after release. See [manifest precedence](https://code.claude.com/docs/en/plugins-reference#metadata-precedence).
+
+The native plugin is now `fef-engineering`, in both manifests. The marketplace
+keeps `"renames": {"fef-claude": "fef-engineering"}` as append-only migration
+history. The standalone installer still ships `fef-claude/` and `/fef-claude`.
+
+After this change is released, existing native-plugin users should update the
+marketplace, install the new ID once, and restart their session:
+
+```text
+/plugin marketplace update fef-marketplace
+/plugin install fef-engineering@fef-marketplace
+```
+
+For testing uncommitted changes, add this clone's absolute local path as the
+marketplace in an isolated Claude configuration; GitHub still serves the published
+revision. Do not install both names as separate plugins to emulate an alias.
+The [official migration procedure](https://code.claude.com/docs/en/plugins/host-marketplace#migrate-users-with-a-renames-map)
+describes host migration of `enabledPlugins` and `pluginConfigs` in user, project
+and local settings; managed settings require an administrator update. Git/URL
+marketplaces require the explicit install above to populate the new cache.
+
+Native skill names change as follows; update saved prompts and automation calls.
+The rename map migrates plugin identity, not documented slash-command aliases:
+
+| Former call | Current call |
+|---|---|
+| `/fef-claude:fef-coding` | `/fef-engineering:fef-coding` |
+| `/fef-claude:fef-rca` | `/fef-engineering:fef-rca` |
+| `/fef-claude:ai-delegation-loop` | `/fef-engineering:ai-delegation-loop` |
+
+Plugin reviewer identifiers likewise use the `fef-engineering:` prefix. Skill
+frontmatter names, reviewer file names and the separate standalone pack stay
+unchanged. Old fully qualified plugin calls are not promised to resolve.
+
+FEF verification state stays in the consuming repository's `.claude/.verification/`,
+keyed by session ID. The hooks do not use `CLAUDE_PLUGIN_DATA` or plugin-specific
+user options. A rename/resume regression test checks existing verification records
+and confirms that a subsequent edit still requires new verification.
+Host-managed cache and `${CLAUDE_PLUGIN_DATA}` paths depend on plugin identity;
+FEF does not migrate custom data placed there by users. Preserve any such data
+before migration and check it separately. Do not uninstall the old plugin as a
+cleanup step: uninstall can delete its saved data. See
+[plugin storage](https://code.claude.com/docs/en/plugins/manifest-reference#environment-variables).
+No real user settings, credentials or saved data are changed by this repository edit.
+
+On 2026-10-18, a local-marketplace fixture under an isolated `CLAUDE_CONFIG_DIR`
+was tested with Claude Code 2.1.302, without model calls. Installing the old ID,
+updating the renamed catalog and installing the new ID left only the new installed
+ID and migrated both settings keys. A marker in the old data directory survived;
+no new data directory was created by those commands. This checks that CLI path,
+not arbitrary data migration, older clients or old slash-command alias resolution.
+
+### Generated native distribution
+
+The marketplace installs `plugins/fef-engineering/`, generated from canonical
+runtime files. The self-contained payload includes Skills, reviewer agents,
+hooks, scripts, Kernel, packs and runtime docs; it excludes root `CLAUDE.md`,
+marketplace metadata, local verification state and historical model evidence.
+Delegation acceptance guidance remains included. Keep this generated directory in
+the distributed repository; Git-based installation does not build it for users.
+
+From the source clone, regenerate after changing runtime inputs:
+
+```sh
+python scripts/build_plugin.py
+python scripts/build_plugin.py --check
+claude plugin validate .claude-plugin/marketplace.json
+claude plugin validate plugins/fef-engineering
+```
+
+The check compares the exact managed file set and bytes without writing. It also
+checks local Markdown file links; it does not fetch external links or validate all
+anchor spellings. Extra output files cause a rebuild to stop for manual review,
+including stale files from a removed input; they are never silently deleted.
+Source and output links/junctions are refused using the existing installer guards.
+This is not a security boundary against concurrent malicious filesystem changes.
+Changed files are replaced individually; an interrupted build must pass `--check`
+before release. Source-maintenance scripts are not part of the runtime payload.
+
+Repository validation and CI check generated-file drift. Test the payload alone,
+outside the clone, to ensure routing and hooks cannot fall back to source files.
+For local plugin development, use `claude --plugin-dir ./plugins/fef-engineering`.
+The existing `claude --plugin-dir .`, root manifest, clone `CLAUDE.md` and standalone
+`fef-claude/` remain available. The plugin ID, skill namespaces and plugin data ID
+do not change when the marketplace source moves. Installation paths do change;
+runtime scripts derive them from their own location.
+
+Consequently, `claude plugin validate .` still reports the intentional clone-root
+`CLAUDE.md` advisory. The explicit marketplace/payload commands above validate the
+distribution without that advisory, rather than suppressing messages. Root framework
+validation remains in place. The plugin's SessionStart hook supplies the Kernel
+and paths; live paid-session wiring remains unverified. See
+[SessionStart context](https://code.claude.com/docs/en/hooks#sessionstart).
+Do not treat plugin validation as security certification.
+
+If repository validation reports a missing release tag in a shallow clone, first
+check `git ls-remote --tags origin refs/tags/v1.2.0`. Fetch the existing tag with
+`git fetch --no-tags origin refs/tags/v1.2.0:refs/tags/v1.2.0`; do not create a tag
+on the current commit just to satisfy the check. CI already requests tags through
+`actions/checkout`'s `fetch-tags: true`. The unreleased plugin version is separate
+from the last tagged changelog release.
+
 ## Context and Execution
+
+For official Mods capabilities versus custom masking, routing and escalation designs,
+see [Mods and tiered agents](mods-and-tiered-agents.md). FEF's settings hooks are not
+Mods; this repository does not install a three-tier tool-output filter or automatic
+model escalation runtime. Mod evaluation scores are local decision aids, not official
+benchmarks or measured savings.
 
 - Keep the inlined core in CLAUDE.md. Preview routes with `python scripts/detect_task.py --task "..."`; read the loading map only for manual selection or clarification.
 - Coding and Research modules contain their procedure. Do not load the compatibility workflow as a second copy. Select product domains and consequential reviewers only when needed.

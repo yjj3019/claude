@@ -99,6 +99,11 @@ def main() -> int:
         failed = True
     if run_measure_load_budget():
         failed = True
+    # Standalone packs have no native marketplace or generated plugin payload.
+    if (ROOT / ".claude-plugin/marketplace.json").is_file():
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/build_plugin.py"), "--check"], cwd=ROOT)
+        if result.returncode:
+            failed = True
     golden = validate_golden_tests()
     if not golden["valid"]:
         failed = True

@@ -10,7 +10,12 @@ Use model capability deliberately:
 - Haiku only for light Notion/doc recording (Adaptive narrow gate); Sonnet for routine drafting, coding, Q&A, and summaries
 - stronger models (Opus/Fable) for ambiguity resolution, contradiction detection, technical review, and final decision support
 
-FEF should improve consistency, calibration, and reviewability across both roles.
+FEF aims to support consistency, calibration, and reviewability across both roles;
+these are design goals, not measured model-quality improvements.
+
+Role assignments and escalation thresholds below are repository preferences, not
+official automatic routing or calibrated confidence rules. The dated roster does
+not rank every task's best model. See [Mods and custom tiered-agent design](mods-and-tiered-agents.md).
 
 
 ## When to Load This Doc
@@ -23,8 +28,8 @@ The roster below preserves dated repository preferences, not current API identif
 
 | Model | Product label | Role |
 |---|---|---|
-| Opus | Opus 5 (1M context) | Best for everyday complex tasks |
-| Fable | Fable 5.1 | Most capable for hardest and longest-running tasks |
+| Opus | Opus 5 (1M context) | Repository preference for everyday complex tasks |
+| Fable | Fable 5.1 | Repository preference for hardest and longest-running tasks |
 | Sonnet | Sonnet 5 | Efficient for routine tasks |
 | Haiku | Haiku 4.5 | Light Notion/doc recording |
 

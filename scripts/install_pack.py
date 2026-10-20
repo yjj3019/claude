@@ -62,9 +62,13 @@ RUNTIME_DOCS = frozenset(
         "loading-map.md",
         "adaptive-effort.md",
         "model-usage.md",
+        "mods-and-tiered-agents.md",
+        "mod-evaluation-metrics.md",
+        "mod-evaluation-scorecard.md",
         "context-protocol.md",
         "knowledge-governance.md",
         "Installation.md",
+        "ClaudeCode.md",
         "FAQ.md",
     }
 )
@@ -902,6 +906,9 @@ def main(argv: list[str] | None = None) -> int:
             except SystemExit:
                 roots.append(REPO_ROOT)
 
+        if not roots:
+            print("No installed packs selected for verification (no sibling git repos found).")
+            return 1
         failed = False
         for pack in roots:
             print(f"Checking: {pack}")

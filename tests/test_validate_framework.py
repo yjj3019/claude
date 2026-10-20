@@ -33,7 +33,7 @@ class PackContentFloorTests(unittest.TestCase):
     def test_gutted_pack_is_rejected(self):
         for folder in validator.PACK_CONTENT_FLOORS:
             target = sorted((validator.ROOT / folder).glob("*.md"))[0]
-            original = target.read_text(encoding="utf-8")
+            original = target.read_bytes()
             try:
                 target.write_text(f"# {target.stem}\n", encoding="utf-8")
                 errors: list[str] = []
@@ -44,7 +44,7 @@ class PackContentFloorTests(unittest.TestCase):
                     f"gutting {rel} produced no error: {errors}",
                 )
             finally:
-                target.write_text(original, encoding="utf-8")
+                target.write_bytes(original)
 
 
 if __name__ == "__main__":

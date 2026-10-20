@@ -19,6 +19,23 @@ git -C restored-work checkout 01351414e10df3c177939e4fef8393609ece6c55
 
 `pr-1.json`, `pr-1-conversation.json`, `pr-1-review-comments.json` and `pr-1-reviews.json` preserve the PR body and all retrieved discussion, including frontmatter, rerun approval, proof order and completion-evidence review concerns. Their URLs are historical and may stop resolving after deletion. GitHub API reports Wiki enabled, but a Wiki Git endpoint check returned Repository not found: no Wiki content was retrievable; enabled setting alone does not establish an actual Wiki. Recheck before deletion if Wiki content is subsequently created.
 
+## Archive recovery (2026-10-18)
+
+The bundle was missing from the current checkout. The original
+`yjj3019/DelegationLoop` endpoint returned Repository not found with the available
+access; that response does not distinguish a private repository from a deleted one.
+The exact binary was recovered from this repository's
+[original integration commit](https://github.com/yjj3019/claude/commit/17dd9fcdd9011b16f3fcd7ade51a972e040829aa),
+before the later
+[bundle removal](https://github.com/yjj3019/claude/commit/47fa160346a6d0eae777dba99d9cadfa80b428cc).
+It is 68,724 bytes with SHA-256
+`bba18c87965baa407d1fcf9f51d3f0b0f8a60fcbc010dd4cb449d5d50a1437d4`,
+matching the existing `source-history/manifest.json` without changes to the
+manifest or verification criteria. `python scripts/delegation/verify_history.py`
+passed checksum checks, isolated mirror restoration, refs, commit and object
+inventories, archived file bytes and `git fsck`. This establishes recovery of the
+recorded archive, not completeness of any subsequent source-repository activity.
+
 ## Attribution and license
 
 Original procedure: [AI 위임 루프: 에이전트 대신 매뉴얼으로 일 넘기기](https://sdk-kim-builds.com/guides/ai-delegation-loop-playbook/), 낭만빌더 김스듴, 2026-09-18. Source commit attribution is retained in the bundle. The source has no LICENSE. Target LICENSE contains an incomplete MIT placeholder. This integration does not grant MIT rights or invent an owner; licensing/redistribution permission remains unresolved.

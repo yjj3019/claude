@@ -16,6 +16,16 @@ FEF's `workflows/` contains Markdown task procedures. These are separate from ex
 
 ## Getting started and installation
 
+For the native Claude Code plugin, run `/plugin marketplace add yjj3019/claude`
+then `/plugin install fef-engineering@fef-marketplace`. Existing `fef-claude`
+plugin users should follow the [migration guide](docs/ClaudeCode.md#plugin-validation-and-compatibility).
+Native skill calls now use `/fef-engineering:fef-coding` and
+`/fef-engineering:fef-rca`; the standalone `fef-claude/` pack below keeps its name.
+The marketplace installs the generated `plugins/fef-engineering/` payload. Keep
+that directory in distributions and regenerate it after runtime source edits with
+`python scripts/build_plugin.py`. Root `CLAUDE.md` and `--plugin-dir .` remain
+compatible; see [distribution checks](docs/ClaudeCode.md#generated-native-distribution).
+
 Git and Python 3.11+ are required. Scripts use only the Python standard library. Run these commands from the clone root; use `python3` instead of `python` where your environment requires it.
 
 ```sh
@@ -104,6 +114,7 @@ The original DelegationLoop has no LICENSE, and the target LICENSE is an incompl
 
 ## Further guidance
 
+- [Mods capabilities and custom tiered-agent design (Korean)](docs/mods-and-tiered-agents.md)
 - [Claude Code usage, agent selection and hook limits](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
 - [Claude Projects setup](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
 - [Script guide](scripts/README.md)

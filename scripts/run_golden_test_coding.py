@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 import filecmp
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -94,11 +95,14 @@ def file_changed(pristine_dir: Path, edited_dir: Path, relpath: str) -> bool:
 def run_unittest(work_dir: Path) -> dict:
     work_dir = work_dir.resolve()
     proc = subprocess.run(
-        [sys.executable, "-m", "unittest", "discover", "-s", ".", "-p", "test_*.py", "-v"],
+        # Import the trusted stdlib runner before discovery adds the submitted
+        # directory to sys.path. A local unittest.py must not replace it.
+        [sys.executable, "-I", "-m", "unittest", "discover", "-s", str(work_dir), "-p", "test_*.py", "-v"],
         capture_output=True, text=True, cwd=work_dir,
     )
     stderr = proc.stderr
-    passed = proc.returncode == 0
+    count = re.search(r"^Ran (\d+) tests? in ", stderr, re.MULTILINE)
+    passed = proc.returncode == 0 and count is not None and int(count.group(1)) > 0
     return {"passed": passed, "returncode": proc.returncode, "output": stderr[-4000:]}
 
 

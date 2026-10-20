@@ -296,9 +296,13 @@ class InstallPackTests(unittest.TestCase):
             "loading-map.md",
             "adaptive-effort.md",
             "model-usage.md",
+            "mods-and-tiered-agents.md",
+            "mod-evaluation-metrics.md",
+            "mod-evaluation-scorecard.md",
             "context-protocol.md",
             "knowledge-governance.md",
             "Installation.md",
+            "ClaudeCode.md",
             "FAQ.md",
         }
         self.assertEqual(names, expected)
@@ -846,6 +850,11 @@ class SiblingInstallCliTests(unittest.TestCase):
         self.assertIn("Siblings installed:", proc.stdout)
         self.assertIn("Hosts installed: 0", proc.stdout)
         self.assertFalse((self.sib / ".claude" / "skills" / "fef-claude").exists())
+
+    def test_siblings_only_check_without_targets_fails(self):
+        proc = self._run("--siblings-only", "--check")
+        self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+        self.assertIn("No installed packs selected for verification", proc.stdout)
 
     def test_siblings_only_installs_pack(self):
         proc = self._run("--siblings-only", "--siblings", str(self.sib))

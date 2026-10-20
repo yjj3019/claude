@@ -1,0 +1,1 @@
+{"runners": ["python\\S*\\s+-m\\s+unittest\\b", "pytest\\b", "npm\\s+test\\b", "go\\s+test\\b", "cargo\\s+test\\b", "python\\S*\\s+[^\\n]*validate_repository\\.py\\b", "python\\S*\\s+[^\\n]*validate_framework\\.py\\b"]}

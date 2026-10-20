@@ -24,6 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
+      # Includes a read-only check of the generated native plugin payload.
       - run: python scripts/validate_repository.py
       # Repository validation already runs route and Golden metadata checks.
       - run: python -m unittest discover -s tests -p "test_*.py"
@@ -56,3 +57,4 @@ jobs:
           python-version: "${{ matrix.python-version }}"
       - run: python -m unittest discover -s tests -p "test_install_pack.py"
       - run: python -m unittest discover -s tests -p "test_hooks.py"
+      - run: python -m unittest discover -s tests -p "test_build_plugin.py"

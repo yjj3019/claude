@@ -33,7 +33,7 @@ Required Integrity Policies follow triggers; never trim them to make a route loo
 
 ## Selection Rules
 
-- Start from the requested outcome. Coding and Research modules include their workflow; compatibility entries need no second load.
+- Start from the requested outcome. Coding and Research modules include their workflow; `workflows/CodingWorkflow.md` is a compatibility pointer to `modules/Coding.md`, not an additional coding-route load.
 - Select relevant product domains only. RHEL subsumes Linux; OpenShift subsumes Kubernetes.
 - Ansible/Satellite keywords apply across routes. Domain overflow keeps two by keyword hits then mention order and warns about every dropped domain; if a dropped domain is required, narrow/re-detect.
 - Review is optional unless requested or consequential risk requires it; use one reviewer after a draft, never review loops.

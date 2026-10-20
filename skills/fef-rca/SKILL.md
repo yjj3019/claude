@@ -13,4 +13,4 @@ Conduct evidence-based root cause analysis.
 4. Recommend the smallest durable fix and verification steps.
 5. Document residual risk and unverified items as [unverified].
 
-Load domain packs (e.g., RHEL, Linux) and Integrity Policies only when the task requires them. Do not claim completion without observable evidence.
+Load domain packs (e.g., RHEL, Linux) and Integrity Policies only when the task requires them. Find them through `${CLAUDE_PLUGIN_ROOT}/docs/loading-map.md` and resolve pack paths against `${CLAUDE_PLUGIN_ROOT}`, not the working project. Do not claim completion without observable evidence.

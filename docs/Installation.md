@@ -1,5 +1,10 @@
 # Installation
 
+For the native Claude Code plugin, use `fef-engineering@fef-marketplace` and the
+[plugin migration guide](ClaudeCode.md#plugin-validation-and-compatibility).
+The script-based `fef-claude/` installation below is a separate entry and retains
+its existing directory and invocation name.
+
 ## URL-only (AI hosts)
 
 From a fresh clone:

@@ -55,8 +55,31 @@ def snapshot(root: Path) -> dict:
         paths[name] = [status, content]
     head = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=root,
                           capture_output=True, timeout=15)
-    return {"head": head.stdout.decode("ascii", errors="replace").strip() if head.returncode == 0 else None,
-            "files": paths}
+    result = {"head": head.stdout.decode("ascii", errors="replace").strip() if head.returncode == 0 else None,
+              "files": paths}
+    submodules = {}
+    # Enumerate gitlinks even when submodule.*.ignore hides their dirty status.
+    for entry in git(root, "ls-files", "--stage", "-z").split(b"\0"):
+        if not entry:
+            continue
+        metadata, name_bytes = entry.split(b"\t", 1)
+        mode, oid, stage = metadata.split()
+        if mode != b"160000":
+            continue
+        name = os.fsdecode(name_bytes)
+        child = root / name
+        resolved = child.resolve()
+        if child.is_symlink() or resolved == root.resolve() or not resolved.is_relative_to(root.resolve()):
+            raise ValueError("submodule path escapes the worktree")
+        worktree = "uninitialized"
+        if child.is_dir() and repository(child) == resolved:
+            worktree = snapshot(child)
+        submodules[f"{name}:{stage.decode('ascii')}"] = {
+            "index": oid.decode("ascii"), "worktree": worktree,
+        }
+    if submodules:
+        result["submodules"] = submodules
+    return result
 
 
 def state_path(root: Path, session_id: str) -> Path:
