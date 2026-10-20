@@ -1,0 +1,105 @@
+{
+  "head": "9cd2f8b03678b4d036795f5f533a16dbc933f6d9",
+  "python": "3.12.3",
+  "archive_entries": 559,
+  "archive_sha256": "696a19f77aa873f50fbfaaea0725308b6ad7a02774880d7e4e3c89c8f5a874c2",
+  "project_file_count": 451,
+  "project_before_sha256": "6e90f7784c780ac76af0b99b949fa41b80a53f257052dcdfc2f4c7da0bf82b6c",
+  "project_after_sha256": "6e90f7784c780ac76af0b99b949fa41b80a53f257052dcdfc2f4c7da0bf82b6c",
+  "project_bytes_and_file_set_unchanged": true,
+  "mutable_git_metadata_excluded_after_tests": true,
+  "bytecode_cache_excluded": true,
+  "native_fixture_retained_name": "fef-final-proof-vkiedb23",
+  "results": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "test_summary_and_skips": [
+        "test_short_path_alias_normalized_after_link_check (test_install_pack.DetectTargetsTests.test_short_path_alias_normalized_after_link_check) ... skipped 'Windows short-path regression'",
+        "test_real_windows_junction_source_and_destination_refused (test_install_pack.PackIntegrityTests.test_real_windows_junction_source_and_destination_refused) ... skipped 'Windows junction regression'",
+        "Ran 196 tests in 7.555s",
+        "OK (skipped=2)"
+      ],
+      "output_tail": [
+        "test_plain_backtick_path_is_mandatory (test_validate_routes.MandatoryPathsInRowTest.test_plain_backtick_path_is_mandatory) ... ok",
+        "test_negative (test_vc_match.T.test_negative) ... ok",
+        "test_positive_runners (test_vc_match.T.test_positive_runners) ... ok",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 196 tests in 7.555s",
+        "",
+        "OK (skipped=2)"
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/delegation",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "test_summary_and_skips": [
+        "test_windows_junction_parent_refused (test_scripts.InstallTests.test_windows_junction_parent_refused) ... skipped 'Windows junction test'",
+        "Ran 49 tests in 2.659s",
+        "OK (skipped=1)"
+      ],
+      "output_tail": [
+        "test_unquoted_colon_breaks_yaml (test_scripts.ValidatorTests.test_unquoted_colon_breaks_yaml) ... ok",
+        "test_unsupported_frontmatter_key (test_scripts.ValidatorTests.test_unsupported_frontmatter_key) ... ok",
+        "test_version_mismatch (test_scripts.ValidatorTests.test_version_mismatch) ... ok",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 49 tests in 2.659s",
+        "",
+        "OK (skipped=1)"
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "scripts/validate_repository.py"
+      ],
+      "exit_code": 0,
+      "test_summary_and_skips": [],
+      "output_tail": [
+        "Plugin payload is in sync (101 files).",
+        "FEF validation passed.",
+        "Route validation passed: 10 routes.",
+        "CLAUDE.md inlined Kernel is in sync.",
+        "SIMPLE Q&A COLD-START  5467 bytes  ~1367 tokens  (CLAUDE.md + AGENTS.md)",
+        "Repository validation passed: 31 Golden Tests indexed; model runs not executed.",
+        ""
+      ]
+    },
+    {
+      "command": [
+        "python",
+        "scripts/build_plugin.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "test_summary_and_skips": [],
+      "output_tail": [
+        "Plugin payload is in sync (101 files).",
+        ""
+      ]
+    }
+  ],
+  "host_exit_code": 0,
+  "source_project_bytes_unchanged": true,
+  "stderr_present": false
+}

@@ -1,5 +1,12 @@
 # SESSION_LOG.md — recent sessions only
 
+## 2026-10-21 - Redistribution evidence and actual native-model sessions
+
+- On user request, checked current licensing/provenance and invoked actual first-party Claude model sessions with the unchanged generated payload. Recorded source head, CLI/model/plugin versions, session identifiers, native Skill/hook observations, protected-file and snapshot checks in docs/verification-2026-10-21.md. No credentials or model internal reasoning were retained in that report.
+- Context delivery passed; initial coding command/path-denied attempt remained unverified. Coding retest reproduced the bug, changed only the intended fixture source and passed three tests plus independent replay. A real PostToolUse TimeoutExpired occurred once: Stop emitted block, model reran verification, final state matched current snapshot and Stop accepted. This is recovered behavior, not an error-free/stability guarantee or proof of the historical intermittent failure cause. RCA and ai-delegation-loop interview startup ran with native Skills; their limited synthetic/read-only scope is explicit.
+- Root/payload LICENSE are incomplete; archived source has no located license grant; current source endpoint 404 does not identify deletion/private status. The public guide encourages copying prompts for use but no explicit public redistribution scope was located. Ownership/permission evidence was requested from the user; none received by recording time. No external permission-request message or license grant was issued.
+- Payload 101 files and user settings.json remained byte-identical; no runtime, permissions, global plugin installation or product source changes were made. Only the verification report, redacted native-session JSON evidence and existing logs were added/updated locally; no commit or push for this request.
+
 ## 2026-10-20 - Initial push and Windows CI path-alias correction
 
 - Committed the 134-file cumulative change as f8440d51efd703fa02839c7ff21a91557a8c5ee9 and pushed main normally. Confirmed remote main matched that exact commit and the working tree was clean; no separate branch existed to merge, no force push or release tag was used.
@@ -116,3 +123,27 @@ Full historical session logs are preserved in `docs/archive/SESSION_LOG-full.md`
 - Trimmed this file and PROGRESS.md; full prior content retained in archive.
 
 Verification: static checks and existing CI remain valid. No model execution performed in this cleanup.
+
+## 2026-10-21 추가 검증 마감
+
+- 보관 번들 모든 advertised refs/고유 5커밋과 FEF LICENSE 가시 이력·공개 원문을 확인했으나 재배포 허가는 미확정이다. 권리 자료는 사용자 답변 대기. 원격 전체 이력 조회는 DNS thread 오류로 미완료.
+- Git snapshot 20회 중 19회 완료, repository lookup의 git rev-parse --show-toplevel에서 15.460초 TimeoutExpired 1회 재현. 시스템 지연 원인은 미확정.
+- 추가 실제 모델 4세션: 자동 스킬 선택 확인; restricted 접근 거부와 최초 초안 frontmatter 누락 발견; 임시 plugin --add-dir 재시도에서 원문 읽기·교정 초안 형식 확인. 두 새 세션의 매뉴얼 읽기는 확인했지만 미승인 초안으로 업무 실행은 미완료.
+- 구조 검증/생성 배포본 101파일 동기화 통과. 샌드박스 hook suite 40 tests/75 errors, 격리 해제 후 10개 통과 뒤 지연 중단: 전체 회귀 통과로 기록하지 않음.
+- docs/verification-2026-10-21.md와 verification-followup-2026-10-21.json에 상세 증거·실패·제한 기록. 코드/라이선스 변경, 커밋·푸시 없음.
+- 임시 감사용 복제본 삭제는 자동 승인 검토가 명시적 삭제 승인 부재로 거절해 보존. 우회 삭제 없음.
+
+## 2026-10-21 후속 검증 완료 — Linux 회귀와 합성 업무 재사용
+
+- 최신 Linux native snapshot: HEAD 9cd2f8b, Python 3.12.3. main196실행/194통과/2skip + scripts/delegation49실행/48통과/1skip = 총245실행/242통과/3 Windows전용skip, 실패·오류0. 구조검사와payload101동기화도exit0.
+- 마지막 단일-process 검사에서 전송559파일manifest검증, 프로젝트451파일의 전후집합·바이트동일 확인(.git mutablemetadata/bytecode제외). 최초완주복사본은 사후조회에서없어 무변경판정을보류했고, 최종별도검사로해소함. 잘못된경로0test와중단Windows실행은통과집계제외.
+- 실제모델 새2세션에서 검토기록을갖춘 합성매뉴얼로 W3/W4 결과생성; 각각done/pending2/1과1/3, 항목·상태·줄수·주차독립대조통과. 원본초안/입력/완료기준 보존. 실제사람인터뷰·업무승인으로확대하지않음.
+- GitHub GET으로 remote main/기준HEAD일치와 LICENSE변경2건확인. 두버전모두불완전한허가본문, 원본DelegationLoop GET404. 재배포권리는여전히미확정이며권리자료대기.
+- docs/verification-2026-10-21.md 및 approved-fixture/linux-final JSON에증거저장. 이마감이후변경은검증문서·이력뿐. Windows전체재실행·간헐지연원인·실제운영·marketplace/타모델세션은미검증. 임시파일보존, 제품코드/라이선스변경및커밋·푸시없음.
+
+## 2026-10-21 검증 기록 전달 승인
+
+- 사용자가 커밋·병합·푸시를 명시적으로 요청했다. 이전 단계의 미커밋·미푸시 표시는 각 검증 시점의 기록으로 보존한다.
+- 전달 범위는 검증 보고서·비식별 JSON 증거 5개와 기존 이력 파일 2개다. 제품 코드·생성 배포본·라이선스 변경은 포함하지 않는다.
+- main과 origin/main이 같은 상태이며 이 작업의 별도 병합 대상 브랜치·PR은 없다. 검증 기록을 main에 커밋하고 정상 푸시하는 범위다. force push나 새 라이선스 부여는 승인 범위에 넣지 않는다.
+- 검증 근거: Linux 245개 실행/242개 통과/Windows 전용 3개 건너뜀, 실패·오류0; 실제 모델의 합성 업무 두 차례 실행·독립 대조; 프로젝트 451파일 전후 동일. 재배포 권리는 여전히 미확정이며 실제 업무 전체·간헐 지연 원인도 보장하지 않는다.
