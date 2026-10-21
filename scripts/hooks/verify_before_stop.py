@@ -9,7 +9,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.verification_state import digest, hook_error, load_state, repository, snapshot
+from lib.verification_state import (digest, hook_error, load_state, repository,
+                                    snapshot, state_failure_path)
 
 
 def main() -> int:
@@ -18,6 +19,15 @@ def main() -> int:
         if data.get("stop_hook_active"):
             return 0
         root = repository(data.get("cwd", "."))
+        if state_failure_path(root, data["session_id"]).exists():
+            print(json.dumps({
+                "decision": "block",
+                "reason": "Verification state could not be saved for this session. "
+                          "Run relevant checks again after resolving the storage error; "
+                          "an earlier successful record cannot verify this attempt. "
+                          "Disclose unavailable verification. This reminder will not loop."
+            }))
+            return 0
         state = load_state(root, data["session_id"])
         if state is None:
             raise ValueError("SessionStart baseline missing")

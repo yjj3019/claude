@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -98,20 +99,54 @@ def load_state(root: Path, session_id: str) -> dict | None:
     return data
 
 
+def state_failure_path(root: Path, session_id: str) -> Path:
+    return state_path(root, session_id).with_suffix(".failed")
+
+
 def save_state(root: Path, session_id: str, data: dict) -> None:
     path = state_path(root, session_id)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                     delete=False) as stream:
-        temporary = Path(stream.name)
-        json.dump(data, stream, sort_keys=True)
+    marker = state_failure_path(root, session_id)
+    temporary = None
     try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(data, stream, sort_keys=True)
         os.replace(temporary, path)
-    finally:
         temporary.unlink(missing_ok=True)
+        marker.unlink(missing_ok=True)
+    except Exception:
+        try:
+            marker.touch()
+        except OSError as error:
+            hook_error(error)
+            # shortcut: marker write failure is stderr-only; use host storage for durable reporting.
+            print("FEF verification storage failure could not be persisted; verify explicitly.", file=sys.stderr)
+        if temporary is not None:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError as error:
+                hook_error(error)
+        raise  # Preserve the original failure if diagnostics or cleanup also fail.
+
+
+def error_description(error: Exception) -> str:
+    description = type(error).__name__
+    if isinstance(error, subprocess.TimeoutExpired):
+        args = error.cmd
+        if isinstance(args, (list, tuple)) and all(isinstance(arg, str) for arg in args):
+            operation = {
+                ("git", "rev-parse", "--show-toplevel"): "repository",
+                ("git", "status", "--porcelain=v1", "-z", "--untracked-files=all"): "status",
+                ("git", "rev-parse", "--verify", "HEAD"): "head",
+                ("git", "ls-files", "--stage", "-z"): "index",
+            }.get(tuple(args))
+            if operation:
+                description += f"; git_operation={operation}"
+    return description
 
 
 def hook_error(error: Exception) -> None:
     # No payload, command arguments or secret-bearing exception text.
-    import sys
-    print(f"FEF verification reminder unavailable ({type(error).__name__}); verify explicitly.", file=sys.stderr)
+    print(f"FEF verification reminder unavailable ({error_description(error)}); verify explicitly.", file=sys.stderr)

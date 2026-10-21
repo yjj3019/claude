@@ -27,15 +27,15 @@
 - **Archive recovery and plugin diagnostics (2026-10-18)**: Restored the exact original `DelegationLoop.bundle` from integration commit `17dd9fc`, matching the existing manifest size/SHA-256. Offline history restoration and integrity checks passed. Removed the redundant marketplace version; retained plugin identity and root `CLAUDE.md` pending any separately approved compatibility migration. See `docs/delegation-loop/INTEGRATION.md` and `docs/ClaudeCode.md`.
 - **Context and harness optimization (2026-10-09)**: Compacted CLAUDE.md core to ~69 lines / 3.9kB. Integrated Coding/Research procedures into modules. Session-scoped verification hooks. Full details: `docs/precise-analysis-2026-10-09.md`.
 - **Native Skills + Plugin packaging (2026-10-15)**: Added `.claude-plugin/` manifest and marketplace, plus `skills/fef-coding/` and `skills/fef-rca/` for on-demand native Skills. Plugin install path documented in README.
-- **Repository cleanup (2026-10-15)**: Historical simulation, review, ablation, and source-history files moved to `docs/archive/`. Stub docs removed. Full prior progress log preserved in `docs/archive/PROGRESS-full.md`.
+- **Repository cleanup (2026-10-15)**: Historical simulation, review, ablation, and source-history files were archived or removed. See `docs/archive/README.md`; full prior content is available in Git history.
 
 ## Current Status
 
-The latest observed full regression passed. The earlier intermittent submodule failure remains unexplained; a passing rerun is not a root-cause fix. Prefer native Skills for ordinary coding/RCA tasks. Use `scripts/detect_task.py` or loading map for complex multi-pack routes. Verification hooks and golden tests remain active.
+Validated changes: failed state saves persist a per-session marker that Stop checks before accepting an earlier pass or baseline. JSON v1 and one-shot behavior remain compatible. Windows full regression (Python 3.14.4): 256 run, 252 passed, 4 symlink-privilege skips, no failures/errors; native Linux full regression: 256 run, 252 passed, 4 Windows-only skips. Repository/101-file payload checks passed. Final cumulative independent review found no Critical/Major issues; no further product-code fix was needed. Root CLAUDE.md context and catalog ICON_MISSING advisories remain nonblocking. Git proxy startup overhead was measured, but the earlier 15-second timeout remains unexplained. Total storage failure, failed repository lookup and concurrent-writer atomicity remain unguaranteed. Prefer native Skills for ordinary coding/RCA tasks; use `scripts/detect_task.py` or loading map for complex multi-pack routes.
 
-Open items from earlier rounds (S4-08 hook payload verification, valid pack-ablation re-run outside this repo) are recorded in the archived progress log.
+Earlier S4-08 hook-payload concerns now have actual Kernel delivery, wrapper/Stop feedback and regression evidence; the original acceptance criteria are unavailable in this checkout, so this does not close every historical criterion. Marketplace-cache model sessions and a valid isolated pack-ablation re-run remain unverified. Existing ablation results record instruction contamination and cannot support effectiveness or savings claims. See `docs/verification-2026-10-21.md` and `tests/results/pack-ablation/`.
 
-Full historical entries (August–September 2026 rounds, ablation experiments, Fable deletion, routing priority changes, etc.) are in `docs/archive/PROGRESS-full.md`.
+For removed historical progress entries, consult Git history as described in `docs/archive/README.md`; `docs/archive/PROGRESS-full.md` is absent from this checkout.
 
 ## 2026-10-21 추가 검증 마감
 
@@ -66,3 +66,37 @@ Full historical entries (August–September 2026 rounds, ablation experiments, F
 - 검증 기록 7개를 f1ba322로 main에 커밋·정상 푸시했다. 기존 코드 수정은 이미 main에 있어 별도 병합 대상이 없었다. FEF CI 39506459166과 Delegation CI 39506459335는 모두 통과했다.
 - 사용자는 추가 허락 자료 없이 기존 라이선스 정책을 따르도록 지시했다. 답변 대기를 종료하고 기존 LICENSE·권리 고지를 유지한다. 이를 권리 보유나 새 재배포 허가로 해석하지 않으며, 제3자 부분의 MIT 재선언도 하지 않는다.
 - 이 확인은 문서·이력에만 반영한다. 제품 코드·생성 배포본·라이선스 본문 변경은 없다. 실제 업무 전체와 로컬 Windows 지연 원인은 여전히 미검증이다.
+
+## 2026-10-21 미해결 훅 오류 후속 수정
+
+- 이전 성공 뒤 snapshot/result/final-write 오류가 나면 성공이 남는 결함을 회귀 테스트로 재현(관련 4개 중 새 3개 실패)하고, 상태를 읽은 직후 이전 성공을 먼저 무효화하도록 수정했다. 새 회귀 5개와 Git timeout 고정 작업명 진단을 추가하고 생성본 4파일을 동기화했다.
+- Ubuntu native/Python 3.12.3: 훅45개 통과; 전체 main201실행/199통과/2skip + delegation49실행/48통과/1skip =250실행/247통과/3 Windows전용skip. 프로젝트452파일 전후 동일, 저장소·payload101 검사 통과. Windows 진단 회귀2개도 통과했고 최종 구조·동기화 검사를 재실행했다.
+- 로컬 diff 검토 완료. 필수 외부 code-change-reviewer는 코드·문서 diff의 Claude 전송에 대한 명시적 승인 부재로 자동 승인 검토가 차단해 미실행이다. 우회 전송 없음. 상세 근거는 docs/verification-2026-10-21.md에 기록했다.
+- 사라진 과거 이력 파일의 링크를 Git history 보관 안내로 교정했다. Git 조회/최초 상태 쓰기의 fail-open, Windows 지연 원인, marketplace 세션·유효 ablation 및 추가 재배포 허가는 미해결이다. 기존 권리 고지 보존, 커밋·푸시 없음.
+
+## 2026-10-21 승인 후 독립 리뷰 완료
+
+- 사용자가 이번 diff의 외부 Claude 전송을 명시적으로 승인했다. 기존 역할이 자동 로드되지 않아 결과 없이 종료된 초기 시도 후, 같은 프로젝트 code-change-reviewer 정의를 CLI에 명시해 claude-sonnet-5/Read·Grep·Glob으로 성공한 리뷰 1회를 수행했다. 설정·권한 변경과 임의 모델 대체는 없다.
+- 판정 Approve, Critical/Major 없음. 추가 상태 저장의 I/O는 오류 시 이전 성공을 남기지 않기 위한 비용으로 유지했다. 경계 테스트와 공유 상수 제안은 차단 결함이 아니므로 이번 범위에서 추가하지 않았다.
+- 제품 코드 추가 수정 없이 훅45개를 재실행해 모두 통과했고 프로젝트452파일 전후 동일을 확인했다. 직전 전체250실행/247통과/3 Windows전용skip 결과는 별도 기존 검증으로 구분한다. 리뷰 완료 기록만 갱신했으며 커밋·푸시 없음.
+
+## 2026-10-21 Windows 지연·최초 상태 저장 실패 후속
+
+- 최초 baseline 저장 실패와 기존 성공의 최초 무효화 저장 실패 뒤 Stop 허용을 재현했다. Linux 새2개는 block 출력 부재로2error, 실제 Windows 공유삭제 불허 잠금도1error였다. PermissionError와 이전 JSON 보존을 먼저 확인했다.
+- 기존 JSONv1 옆 세션별 `.failed` 표식을 shared save_state에서 저장 실패 시 남기고 Stop이 우선 확인하도록 수정했다. 성공 저장 이후만 해제하며 최초 오류 보존·민감 정보 비출력·세션 분리·one-shot을 유지했다. 새 회귀6개 추가, 사용 안내와 생성본 반영.
+- Linux 전체256실행/252통과/Windows전용4skip/실패·오류0; Windows 저장6개·진단2개 통과. 구조검사/payload101 동기화 통과, native 프로젝트452파일 전후 동일. 독립 방향 검토와 claude-sonnet-5 code-change-reviewer 1회 수행, Critical/Major 없음. 리뷰 뒤 주석 표현만 명확히 했다.
+- Windows 일반16표본과 프록시 비교16표본에서 timeout0. 실제 Git 조회는 평균0.656초, 기본프록시 경유1.267초로 실행 전후 비용의 일부를 확인했다. 동일버전2.54.0.windows.1이며 PATH/설정/보안/timeout은 유지했다. 과거15.460초 원인은 입증하지 못했다.
+- 전체 저장 불가·루트 조회 실패·동시 writer 원자성은 보장하지 않는다. baseline 복구/clear는 현재 시점의 새 baseline이다. 상세 근거는 docs/verification-2026-10-21.md에 기록했다. 커밋·푸시 없음.
+
+## 2026-10-21 Windows 전체 회귀·누적 최종 리뷰
+
+- 기본 Windows PATH/Git과 Python3.14.4에서 main207실행/205통과/2skip(1584.776초), delegation49실행/47통과/2skip(47.649초). 합계256실행/252통과/4symlink권한skip/실패·오류0. 실제 파일 잠금·서브모듈 ignore-all·junction·짧은경로 회귀도 전체 실행에서 통과했다.
+- 구조검사/payload101 동기화/git diff --check 모두exit0. 프로젝트452파일의 전후 집합·바이트 동일, 변경경로0. 테스트 실행 중 소스·문서를 수정하지 않았다.
+- 사용자가 누적14파일 전체 diff의 외부 Claude 전송을 명시 승인했다. code-change-reviewer 1회와 독립 문서 검토 완료, Critical/Major 없음. 생성 wrapper diff누락 후보는 같은SHA원본에서2개hunk를 확인해 오탐으로 판단했다. 누적 생성 변경은5파일, 회귀 추가는11개다. 추가 제품 코드 수정 없이 검증 기록·이력만 갱신했다.
+- Claude CLI 루트/생성본 검증도 통과. 루트 CLAUDE.md context 호환 경고와 catalog ICON_MISSING 권고는 별도이며 유지했다. Windows symlink4개·다른 Python 버전/현작업트리 원격CI·과거15초 timeout 원인·전체 저장 불가/루트조회/동시writer·marketplace/업무 전체·추가 재배포 허가는 여전히 한계다. 커밋·푸시 없음.
+
+## 2026-10-22 검증된 누적 변경 전달 승인
+
+- 사용자가 검증 완료된 누적 코드·문서·생성본의 커밋·정상 푸시와 해당 커밋의 원격 CI 확인을 명시적으로 요청했다. 앞의 미커밋·미푸시 표시는 각 시점의 이력이다.
+- fetch 후 main과 origin/main은 edd862cd09821a6c636197a15ca1db9d6f64ce6b로 동일했고 별도 미전달 커밋은 없었다. 범위는 검토한14파일과 회귀11개이며 추가 제품 코드 변경은 없다. 구조/payload101/공백 검사를 다시 통과했다.
+- Linux·Windows 각256실행/252통과/4플랫폼·권한skip과 누적 독립 리뷰를 근거로 전달한다. 기존 LICENSE·고지와 제한을 유지하며 새 릴리스·태그·권한·보안 설정은 변경하지 않는다. 실제 전달 해시와 CI 결과는 Git 이력·해당 원격 실행을 기준으로 확인한다.

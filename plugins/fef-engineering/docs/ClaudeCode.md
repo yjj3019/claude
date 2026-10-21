@@ -248,8 +248,22 @@ interpretation is used for PowerShell arguments. Wrapper footer, argv and both
 snapshot hashes must still match. A later edit invalidates the record.
 
 These are reminders, not a sandbox or coverage proof. Unknown metadata, failure or an interrupted
-run cannot verify a changed tree. Missing baseline/interpreter/Git, malformed state or hook errors
-fail open with a diagnostic; disclose unavailable verification rather than claim a pass.
+run cannot verify a changed tree. Once a recognized attempt loads its session state, the recorder
+persists invalidation of any previous pass before collecting its snapshot or processing the result.
+A later snapshot, result-processing or final-write error therefore leaves that attempt unverified.
+State-write failures also leave a session-specific `.failed` marker beside the version-1 JSON.
+Stop checks that marker before loading the baseline or accepting an earlier pass, and blocks once
+with a storage-error reason even if the first baseline or invalidation write failed. A successful
+state save clears the marker; resume with an existing baseline preserves it. Other sessions and
+the JSON schema are unchanged. Clearing or recreating a missing baseline still establishes a new
+baseline at that time; this does not prove verification of changes before that baseline.
+Missing baseline/interpreter/Git, malformed state without a failure marker, or unrelated hook
+errors still fail open with a diagnostic. Repository lookup failure or an unwritable marker can
+prevent durable error reporting; the recorder cannot guarantee persistence when storage itself
+is unavailable. State/marker recovery assumes sequential hooks, not concurrent atomic writers.
+Git timeout diagnostics include only a fixed operation label (repository, status, head or index)
+for exact known commands, never arguments, paths or exception text. These labels do not establish
+the cause of an operating-system delay. Disclose unavailable verification rather than claim a pass.
 No automatic permissions, production changes or tool-output replacement is added.
 
 The four hooks use exec-form `command: python` and `args` with the documented

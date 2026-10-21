@@ -229,3 +229,113 @@ WSL의 기본 샌드박스 조회는 접근 거부였지만, 허용된 격리 �
 - 사용자의 별도 명시 요청에 따라 검증 문서·비식별 증거·이력 7개 파일을 `f1ba32252ec5e3f75a617b713b26a5cfff1a9817`로 커밋해 origin/main에 정상 푸시했다. 기존 코드 수정은 이미 main에 포함돼 별도 병합 대상이 없었다. 앞 절들의 미커밋·미푸시 표시는 각 검증 시점의 이력이다.
 - 해당 커밋의 [Validate FEF Harness](https://github.com/yjj3019/claude/actions/runs/39506459166)와 [Validate Delegation Loop](https://github.com/yjj3019/claude/actions/runs/39506459335)는 모두 success였다. Linux Python 3.11/3.12/3.14, Windows installer/hooks/build-plugin Python 3.11/3.14와 위임 패키지의 Linux·Windows 행렬이 포함된다. CI 통과는 실제 업무·모델 품질·권리 허가 또는 로컬 Windows 지연 원인의 증명이 아니다.
 - 이 사용자 확인도 문서·이력에만 반영한다. 코드·생성 배포본·라이선스 본문은 변경하지 않는다.
+
+### 미해결 훅 오류 후속 수정 — 로컬 미커밋 변경
+
+기준 HEAD `edd862cd09821a6c636197a15ca1db9d6f64ce6b`에서 이전 성공 뒤 새 검증의 스냅샷 수집, 결과 처리 또는 최종 상태 저장이 실패하면 기존 성공 기록이 남는 결함을 재현했다. 수정 전 관련 4개 테스트는 1개 통과·새 회귀 3개 실패였다. 이제 인식된 검증 시도가 세션 상태를 읽은 직후 기존 성공을 먼저 무효화해 저장하고, 실제 결과가 준비됐을 때만 다시 기록한다. 기존 상태 스키마·일반 셸 호출·wrapper footer·권한 설정은 유지한다.
+
+Git 시간 초과는 정확히 알려진 argv에 한해 `repository`, `status`, `head`, `index` 중 고정 작업명을 출력한다. 명령 인자·경로·stdout/stderr·예외 메시지는 출력하지 않는다. 알 수 없는 명령은 예외 유형만 표시하며, 테스트에 민감 문자열 canary를 넣어 누출 여부를 검사했다. 이것은 Windows 지연 원인 해결을 뜻하지 않는다.
+
+| 검증 | 실제 결과 |
+|---|---|
+| 훅 대상 테스트 | 45개 실행·45 통과, 2.699초, exit 0 |
+| 전체 `tests` | 201개 실행·199 통과·2 Windows 전용 건너뜀, 11.776초, exit 0 |
+| `scripts/delegation` | 49개 실행·48 통과·1 Windows 전용 건너뜀, 3.772초, exit 0 |
+| 저장소 검증 / 생성 배포본 검사 | 각각 exit 0, 101파일 동기화; Golden 31개는 인덱스 확인이며 모델 실행 아님 |
+
+Ubuntu native 임시 복사본 / Python 3.12.3에서 실행했다. 합계 250개 실행·247 통과·3 건너뜀, 실패·오류 0이다. 건너뛴 테스트는 앞 Linux 검증과 같은 Windows short-path 및 junction 3개다. 전송 576파일 archive SHA-256은 `8d0b03b4c63c72bcca21681175f44fd62c5447bfa7603566de2c0d9163f018ce`, 프로젝트 452파일의 실행 전후 manifest는 양쪽 모두 `6a3b7274dc1fcbcbc48f9ae8c97b8a1be2cd7b60b781cd1f72a7b0fac71b4303`였다. `.git` mutable metadata와 bytecode는 비교에서 제외했고 원본 프로젝트 바이트도 불변이었다. 임시 원본 결과는 `fef-hook-red.json`, `fef-hook-targeted.json`, `fef-hook-full.json`에 보존했다. 위 해시는 이후 이 검증 기록·진행 이력 갱신 전의 코드·문서 스냅샷에 해당한다.
+
+로컬 최종 diff 검토에서 상태·호출자·실패 경로·생성본 동기화와 새 회귀 5건을 확인했다. 최초 필수 `code-change-reviewer` 실행은 외부 Claude CLI 모델에 diff를 전송하는 명시적 승인 부재로 자동 승인 검토가 차단했다. 당시 외부 전송을 우회하지 않았으며, 이후 아래의 사용자 승인과 성공한 독립 리뷰로 대기 상태를 해소했다.
+
+저장소 조회 또는 최초 무효화 저장부터 실패하면 이전 성공을 지우지 못할 수 있는 fail-open 한계는 유지한다. Windows 전체 재실행·시스템 지연 원인·marketplace 캐시 모델 세션·유효한 ablation 비교는 이번 범위에서 검증하지 않았다. 추가 재배포 허가는 여전히 미확정이며 기존 LICENSE·고지를 유지한다. 현재 변경은 커밋·푸시하지 않았다.
+
+### 명시 승인 후 독립 리뷰와 관련 회귀 재실행
+
+사용자는 이번 변경 diff의 외부 Claude 전송과 독립 리뷰, 필요한 수정·관련 검증을 명시적으로 승인했고 커밋·푸시는 금지했다. 전송 범위는 위 코드 3파일·테스트·사용 안내의 diff이며 SHA-256은 `45e5453c20247aea8eae3111ccd9968c01d54e0cf769bc071fb7ced06de92c57`이다.
+
+`--setting-sources ""` 실행에서 프로젝트 역할을 찾지 못해 초기 시도는 리뷰 결과 없이 종료됐다. CLI `--agents`에 기존 `.claude/agents/code-change-reviewer.md`의 같은 정의를 명시하고 `--agent code-change-reviewer`로 실행했다. 실제 init에서 역할 등록, 모델 `claude-sonnet-5`, 허용 도구 Read/Grep/Glob을 확인했다. 설정·권한 변경, 셸/쓰기 도구, MCP 연결, 임의 역할·모델 대체는 없었다. 성공한 리뷰는 1회이며 12턴·190.389초·모델 exit0으로 완료했다. 저장 후 콘솔 인코딩 오류는 UTF-8 결과 JSON 조회로 해소했고 추가 모델 리뷰를 실행하지 않았다.
+
+- 판정: **Approve, Critical/Major 없음**. 선 무효화의 순서, 세 가지 실패 경로 회귀, 정확한 Git argv의 고정 라벨과 민감 정보 비출력, 문서의 fail-open 한계가 일치한다고 확인했다.
+- Minor: 인식된 시도마다 상태 쓰기가 1회에서 2회로 증가한다. 최종 저장 이전 오류에서도 이전 성공을 제거하기 위한 추가 저장이므로 유지했다. 큰 snapshot 수집을 추가한 변경은 아니다.
+- 제안: 저장소 조회/최초 쓰기 실패 경계의 테스트와 Git argv 공유 상수. 현재 결함이나 차단 항목이 아니므로 추가 테스트·리팩터링은 이번 범위에서 하지 않았다. 기존 fail-open 한계도 유지한다.
+- 리뷰는 정적 분석이며 테스트 실행은 별도다. 승인 후 훅 대상 테스트를 native Linux 복사본에서 다시 실행해 **45개 실행·45 통과·skip/실패/오류 0**을 확인했고, 프로젝트452파일의 전후 집합·바이트도 같았다. 직전 전체 **250실행·247통과·3 Windows전용skip**은 제품 코드가 같은 별도 선행 검증 결과다.
+
+제품 코드의 추가 수정은 필요하지 않았고 리뷰·이력 기록만 갱신했다. 리뷰 결과는 임시 `fef-hook-review.json`에 보존했다. Windows 전체·시스템 지연 원인·marketplace 모델 세션·유효 ablation과 추가 재배포 권리는 기존 제한 그대로이며 커밋·푸시는 하지 않았다.
+
+### Windows 지연 및 최초 상태 저장 실패 후속 재현·수정
+
+사용자가 남은 두 문제의 재현·분석과 호환 수정·회귀 검증을 요청했다. 아래는 앞 절 이후의 추가 변경이며, 기존 미해결 표시를 범위별로 보완한다.
+
+#### Windows 지연 측정
+
+전역 PATH·Git 설정·자격증명·보안 제품 설정을 바꾸지 않고, 동일 Python 프로세스에서 Popen 생성 시간·전체 wall 시간·GetProcessTimes CPU 시간과 Git TRACE2의 고정 이벤트 시간만 수집했다. 원시 TRACE2는 임시 폴더에 보존하고 경로·환경 내용은 보고서에 복사하지 않았다.
+
+첫 진단은 Python noop, Git version, 임시 저장소 조회, 작업 저장소 조회 각 4회로 총16표본이었다. timeout은 0이며 최대 wall은1.663초였다. 평균 wall은 각각0.687/1.488/1.338/1.179초, Git TRACE2 start→exit는 평균0.0737초(0.0585–0.0870초)였다. 이 표본에서는 Git 내부 조회보다 실행 전후 비용이 컸다. 이는 Windows의 특정 드라이버·보안 제품·OS 결함을 식별한 증거는 아니다.
+
+이어서 같은 설치의 `cmd/git.exe`(46,480bytes)와 `mingw64/bin/git.exe`(4,422,544bytes)를 비교했다. 두 실행 파일은 `git version 2.54.0.windows.1`을 동일하게 출력했다. 4회씩 총16표본, timeout0:
+
+| 작업 | 기본 프록시 평균 wall | 실제 바이너리 평균 wall |
+|---|---:|---:|
+| `--version` | 1.409초 | 0.729초 |
+| 작업 저장소 `rev-parse --show-toplevel` | 1.267초 | 0.656초 |
+
+정상 실행의 시작 비용 중 프록시 경유 비용이 기여한다는 근거다. [Git for Windows 공식 wrapper 안내](https://gitforwindows.org/git-wrapper.html)는 `cmd/git.exe`가 환경을 준비하고 실제 프로그램을 실행하며, 반복 호출 시 시작 비용이 발생할 수 있다고 설명한다. 이 측정만으로 과거15.460초 timeout의 원인을 입증하거나 보안 제품 탓으로 단정하지 않는다. [Python subprocess 문서](https://docs.python.org/3/library/subprocess.html#subprocess.run)도 최초 프로세스 생성 시간이 timeout에 의해 즉시 중단되지 않을 수 있음을 명시한다.
+
+사용자가 선택한 PATH의 Git을 존중하고 설치 내부 경로를 추정해 우회하지 않았다. timeout을 늘리거나 전역 Git·권한·보안 설정을 변경하지 않았다. 원본 측정 JSON은 임시 `fef-windows-latency.json`과 `fef-windows-proxy.json`에 보존했다.
+
+#### 저장 실패 결함과 호환 수정
+
+최초 SessionStart baseline 저장 실패와 기존 성공 뒤 첫 무효화 저장 실패를 `os.replace` PermissionError로 재현했다. 수정 전 두 회귀는 Stop의 빈 stdout을 JSON으로 읽는 오류로 종료됐다(2실행/2error). 이는 앞선 PermissionError·이전 파일 보존 검사는 통과했지만 필요한 block 결정이 없었기 때문이다. Windows에서는 실제 CreateFileW 핸들에 FILE_SHARE_DELETE를 허용하지 않아 기존 JSON의 교체를 실패시켰다. 이 실제 잠금 회귀도 수정 전1실행/1error로 같은 Stop 허용을 확인했다. [Microsoft CreateFile 설명](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilea)의 파일 공유·삭제/rename 계약과 일치한다.
+
+- `save_state`는 생성·직렬화·교체·정리 실패를 같은 세션 해시의 `.failed` 표식으로 남긴 뒤 원래 예외를 다시 전달한다. 추가 표식/정리 실패가 최초 예외를 덮거나 민감한 예외 문자열을 출력하지 않는다. 표식도 쓸 수 없으면 고정 경고를 출력한다.
+- Stop은 baseline/이전 성공을 읽기 전에 표식을 확인해 상태 저장 오류라는 정확한 이유로 한 번 차단한다. `stop_hook_active` 반복 방지는 그대로다. 정상 저장에 성공해야 표식을 해제한다. 실패한 검증 결과 저장은 정상 저장이어도 결과 코드에 따라 계속 차단한다.
+- JSON version1·경로·기존 baseline/custom fields와 다른 세션을 보존한다. 표식 없는 missing/corrupt 상태의 기존 fail-open도 유지한다. 자동 timeout 재시도나 새 의존성·잠금 구조는 추가하지 않았다.
+- 독립 방향 검토 후 이 최소안을 적용했다. 전체 파일시스템 쓰기 불가·루트 조회 실패·병렬 writer의 원자성은 보장하지 않는다. missing baseline 복구나 clear는 그 시점의 새 baseline이므로 이전 변경 검증을 보장하지 않는다.
+
+#### 회귀 결과
+
+| 검증 | 실제 결과 |
+|---|---|
+| Linux hook suite | 51실행/50통과/Windows 잠금1skip, 2.417초 |
+| Linux main suite | 207실행/204통과/Windows 전용3skip, 8.813초 |
+| Linux delegation suite | 49실행/48통과/Windows 전용1skip, 2.690초 |
+| Windows 최초 저장 실패 | 2실행/2통과, 88.480초 |
+| Windows 실제 잠금 경계 | 1실행/1통과, 29.666초 |
+| Windows 저장·표식·정리 단위 테스트 | 3실행/3통과, 0.017초 |
+
+Linux 전체 합계는 **256실행/252통과/4 Windows전용skip/실패·오류0**이다. 새 Windows 잠금 테스트는 Linux에서 건너뛰었지만 위 Windows 실행에서 실제 통과했다. 나머지 Windows-only3개는 이번에 다시 실행하지 않았다. 저장소 검증 및 payload101 동기화는 exit0이었다. Golden31개는 인덱스 확인이며 모델 실행은 아니다.
+
+Linux native snapshot/Python3.12.3, 기준 HEAD `edd862cd09821a6c636197a15ca1db9d6f64ce6b`. 전송576파일 archive SHA-256 `630568ed07b39c46bfe197e894bb773d763a8b724d8f8eac5853b35e2ca27d03`, 프로젝트452파일 전후 manifest `58fc73d0e68088dec4aec2724c376ae610ff4852cef3df83d93d5b075f34fc2a`로 동일했다. mutable Git metadata/bytecode는 제외했고 원본 프로젝트 바이트도 불변이었다. 임시 `fef-storage-red.json`, `fef-storage-targeted.json`, `fef-storage-full.json`에 근거를 보존했다. 이 해시는 이후 보고서·이력 갱신 전 스냅샷에 해당한다. 커밋·푸시는 하지 않았다.
+
+후속 code-change-reviewer는 같은 프로젝트 정의·claude-sonnet-5·Read/Grep/Glob으로 성공한 단일 리뷰를 완료했다(exit0/9턴/323.989초). 검토 diff SHA-256은 `d1e4a6038159f7c14112d8633d845df020d1b65b2d2644177ea36ad206ded95d`이며 결과는 임시 `fef-storage-review.json`에 보존했다. Critical/Major 없음; minor 주석 표현은 이후 명확히 했고 생성본에도 반영했다. 저장 성공 후 정리만 실패해도 표식이 남아 차단하는 동작은 안전한 보수적 처리로 유지했다. 별도 cleanup 진단 태그 추가는 선택 제안이며 이번에 도입하지 않았다. 부모 디렉터리 자체 생성 불가·루트 조회 실패·동시 writer 한계는 미해결로 명시했다.
+
+Windows의 기존 민감 정보 비노출 진단2개도 다시 실행해 통과했다. 마지막 전체 회귀 이후 동작 변경은 없고 주석·검증 기록·이력만 갱신했다. Windows 전체 suite 재실행이나 현재 변경의 원격 CI 실행을 수행했다고 표현하지 않는다.
+
+### Windows 전체 회귀 및 누적 코드·문서·생성본 최종 리뷰
+
+사용자 요청에 따라 앞 절의 Windows 전체 미검증을 보완했다. 실행 중 프로젝트 파일을 수정하지 않았고 기본 PATH/Git·권한·보안 설정을 유지했다. 아래 결과는 Python3.14.4의 Windows 실제 실행이며, 앞 절 Linux/Windows 대상 실행의 대체·합산 결과가 아니다.
+
+| 명령 | 실제 결과 |
+|---|---|
+| `python -X utf8 -m unittest discover -s tests -v` | 207실행/205통과/2권한skip, 1584.776초, exit0 |
+| `python -X utf8 -m unittest discover -s scripts/delegation -p test_*.py -v` | 49실행/47통과/2권한skip, 47.649초, exit0 |
+| `python scripts/validate_repository.py` | exit0, routes10/Kernel/Golden31 인덱스 확인; 모델 실행 아님 |
+| `python scripts/build_plugin.py --check` | exit0, 생성 배포본101파일 동기화 |
+| `git diff --check` | exit0, 공백 오류 없음 |
+
+합계는 **256실행/252통과/4skip/실패·오류0**이다. 실제 Windows 파일 잠금, 최초 저장 실패와 복구, 서브모듈 ignore-all, Windows junction 및 short-path 사례가 전체 실행에서 통과했다. 건너뛴 사례는 다음과 같으며, symlink 생성 권한 부재(WinError1314 또는 symlinks unavailable)가 이유다. 권한·Developer Mode·보안 설정을 바꿔 통과를 만들지 않았다.
+
+- `test_installed_symlink_cannot_reference_external_file`
+- `test_source_directory_symlink_is_refused`
+- `test_parent_and_nested_symlinks_refused`
+- `test_symlink_destination_refused`
+
+기준 HEAD는 `edd862cd09821a6c636197a15ca1db9d6f64ce6b`다. 프로젝트452파일의 전후 집합·바이트는 같고 변경경로는 없었다. manifest SHA-256은 `faa1387f21f7852122be259165207c37ba8a427e4a1f286b7dbc6ac3ec5a34ef`이다. Git-visible 프로젝트 파일 기준이며 mutable Git metadata/bytecode는 제외한다. 원본 결과와 개별 로그는 임시 `fef-windows-full-cvpehfqn/report.json` 및 `0.log`–`4.log`에 보존했다. 이 무변경 판정은 이후 보고서·이력 갱신 전까지의 검증이다.
+
+최종 리뷰 범위는 미커밋14파일: canonical 코드4파일, 회귀테스트1파일(누적11개 추가), 사용안내1파일, 진행/세션/검증기록3파일, 생성본5파일이다. 전체 diff의 외부 전송은 최초 자동 승인 거절 후 사용자가 명시적으로 승인했다. 같은 프로젝트 code-change-reviewer 정의·claude-sonnet-5·Read/Grep/Glob으로 성공한 최종 단일 리뷰를 수행했다(exit0/22턴/352.219초). 별도 읽기 전용 문서 검토도 완료했다. 판정은 **Approve, Critical/Major 없음**이며 추가 제품 코드 수정은 필요하지 않았다.
+
+리뷰 diff SHA-256은 `6df73b13d344c85ce97f518a513787fb5d50981aa1329e5b50b773c5e291c865`이며 임시 `fef-cumulative-review.json`에 결과를 보존했다. 리뷰어의 생성 wrapper hunk 누락 가능성은 동일 SHA의 실제 diff에서 해당 파일의2개hunk와 `2 additions/2 deletions`를 확인해 오탐으로 판단했다. 생성본 전체5파일도 목록에 있었으며 과거의 특정 generator 실행에서4파일 업데이트됐다는 이력은 그 시점의 기록이다. `shortcut` 주석 표현과 CreateFileW 오류 진단 보완은 차단 결함이 아닌 선택 제안으로 두었다.
+
+Claude CLI의 `plugin validate .`와 `plugin validate ./plugins/fef-engineering`도 각각exit0이었다. 루트는 clone 설치 호환을 위한 CLAUDE.md가 plugin context로 자동 로드되지 않는다는 기존 경고를 유지한다. Kernel 전달은 별도 SessionStart 훅의 역할이다. 두 경로 모두 catalog용 `ICON_MISSING` 권고가 추가로 표시됐으며, CLI 출력은 이 directory 권고가 validation 결과를 바꾸지 않는다고 명시한다. 카탈로그 제출용 아이콘은 이번 기능 수정 범위에서 만들지 않았다. 이 CLI 검사는 카탈로그의 전체 안전 스캔·정책 심사를 대신하지 않는다.
+
+남은 제한: 현재 Windows 권한에서 위 symlink4개 미실행, 다른 Python 버전/현재 미커밋 트리의 원격CI 미실행, 과거15초 timeout 원인 미확정, 전체 쓰기 불가·루트조회 실패·동시 writer 원자성 미보장. marketplace 캐시 모델 세션·실제 업무 전체·유효 ablation·추가 재배포 허가도 기존 범위를 넘겨 주장하지 않는다. 기존 LICENSE·고지를 보존했고 커밋·푸시는 하지 않았다. 전체 실행 이후의 갱신은 이 검증 기록과 두 이력 파일뿐이다.

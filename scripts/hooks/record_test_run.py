@@ -80,6 +80,9 @@ def main() -> int:
         state = load_state(root, session)
         if state is None:
             raise ValueError("SessionStart baseline missing")
+        # A new attempt must not retain a previous pass if later processing fails.
+        state["verification"] = None
+        save_state(root, session, state)
         current = snapshot(root)
         try:
             code = verification_result(command, data, cwd, current)

@@ -81,6 +81,7 @@ class SessionVerificationTest(unittest.TestCase):
     def assert_blocked(self, session="session-A"):
         result = self.stop(session)
         self.assertEqual(result.returncode, 0)
+        self.assertTrue(result.stdout, result.stderr or "Stop returned no blocking decision")
         self.assertEqual(json.loads(result.stdout)["decision"], "block")
 
     def test_clean_session_needs_no_verification(self):
@@ -397,6 +398,113 @@ class SessionVerificationTest(unittest.TestCase):
             self.record(command=command, response={"stdout": RESULT_PREFIX + footer})
             self.assert_blocked()
 
+    def test_snapshot_error_invalidates_previous_pass(self):
+        self.change()
+        self.record()
+        self.assertEqual(self.stop().stdout, "")
+        error = subprocess.TimeoutExpired(
+            ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"], 15,
+            output="CANARY_PRIVATE_OUTPUT", stderr="CANARY_PRIVATE_ERROR")
+        with patch.object(HOOK_MODULES[RECORD], "snapshot", side_effect=error):
+            result = self.record()
+        self.assertIn("TimeoutExpired", result.stderr)
+        self.assertNotIn("CANARY_PRIVATE", result.stderr)
+        self.assertIsNone(load_state(self.root, "session-A")["verification"])
+        self.assert_blocked()
+
+    def test_result_error_invalidates_previous_pass(self):
+        self.change()
+        self.record()
+        with patch.object(HOOK_MODULES[RECORD], "verification_result",
+                          side_effect=TypeError("CANARY_PRIVATE_ERROR")):
+            result = self.record()
+        self.assertIn("TypeError", result.stderr)
+        self.assertNotIn("CANARY_PRIVATE", result.stderr)
+        self.assertIsNone(load_state(self.root, "session-A")["verification"])
+        self.assert_blocked()
+
+    def test_final_state_write_error_invalidates_previous_pass(self):
+        self.change()
+        self.record()
+        module = HOOK_MODULES[RECORD]
+        real_save = module.save_state
+
+        def save_without_verification(root, session, state):
+            if state.get("verification") is not None:
+                raise OSError("CANARY_PRIVATE_ERROR")
+            return real_save(root, session, state)
+
+        with patch.object(module, "save_state", side_effect=save_without_verification):
+            result = self.record()
+        self.assertIn("OSError", result.stderr)
+        self.assertNotIn("CANARY_PRIVATE", result.stderr)
+        self.assertIsNone(load_state(self.root, "session-A")["verification"])
+        self.assert_blocked()
+
+    def test_initial_state_write_error_blocks_previous_pass(self):
+        from lib.verification_state import state_path
+        self.change()
+        self.record()
+        self.start("session-B")
+        path = state_path(self.root, "session-A")
+        before = path.read_bytes()
+        with patch("lib.verification_state.os.replace", side_effect=PermissionError("CANARY_PRIVATE")):
+            result = self.record(code=1)
+        self.assertIn("PermissionError", result.stderr)
+        self.assertNotIn("CANARY_PRIVATE", result.stderr)
+        self.assertEqual(path.read_bytes(), before)
+        self.assert_blocked()
+        self.assertEqual(self.stop(stop_hook_active=True).stdout, "")
+        self.assertEqual(self.stop("session-B").stdout, "")
+        self.start(source="resume")
+        self.assert_blocked()
+        self.record(code=1)
+        self.assertFalse(path.with_suffix(".failed").exists())
+        self.assert_blocked()
+        self.record()
+        self.assertFalse(path.with_suffix(".failed").exists())
+        self.assertEqual(self.stop().stdout, "")
+
+    def test_initial_baseline_write_error_is_visible_at_stop(self):
+        from lib.verification_state import state_path
+        with patch("lib.verification_state.os.replace", side_effect=PermissionError("CANARY_PRIVATE")):
+            result = run_hook(START, {"session_id": "new-session"}, self.root)
+        self.assertIn("PermissionError", result.stderr)
+        self.assertNotIn("CANARY_PRIVATE", result.stderr)
+        self.assertIsNone(load_state(self.root, "new-session"))
+        self.assert_blocked("new-session")
+        self.start("new-session", source="clear")
+        self.assertFalse(state_path(self.root, "new-session").with_suffix(".failed").exists())
+        self.assertEqual(self.stop("new-session").stdout, "")
+
+    @unittest.skipUnless(os.name == "nt", "Windows file sharing regression")
+    def test_windows_locked_state_does_not_credit_previous_pass(self):
+        import ctypes
+        from ctypes import wintypes
+        from lib.verification_state import state_path
+        self.change()
+        self.record()
+        path = state_path(self.root, "session-A")
+        before = path.read_bytes()
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
+                                      wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+        kernel.CreateFileW.restype = wintypes.HANDLE
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel.CloseHandle.restype = wintypes.BOOL
+        # Allow reads/writes, but deny replacement while this handle is open.
+        handle = kernel.CreateFileW(str(path), 0x80000000, 0x1 | 0x2, None, 3, 0x80, None)
+        self.assertNotEqual(handle, wintypes.HANDLE(-1).value)
+        try:
+            result = self.record(code=1)
+        finally:
+            self.assertTrue(kernel.CloseHandle(handle))
+        self.assertIn("PermissionError", result.stderr)
+        self.assertEqual(path.read_bytes(), before)
+        self.assert_blocked()
+        self.record()
+        self.assertEqual(self.stop().stdout, "")
+
     def test_wrapper_changed_during_run_cannot_verify(self):
         self.change()
         current = digest(snapshot(self.root))
@@ -417,7 +525,98 @@ class SessionVerificationTest(unittest.TestCase):
         self.assertIn("unavailable", result.stderr)
 
 
+class StateStorageFailureTest(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        self.state = {"version": 1, "baseline": {}, "verification": None}
+
+    def test_serialization_error_survives_cleanup_error(self):
+        from lib.verification_state import save_state, state_path
+        error = TypeError("CANARY_PRIVATE")
+        stderr = io.StringIO()
+        with patch("lib.verification_state.json.dump", side_effect=error), \
+                patch.object(Path, "unlink", side_effect=PermissionError("CANARY_PRIVATE")), \
+                redirect_stderr(stderr), self.assertRaises(TypeError) as raised:
+            save_state(self.root, "session", self.state)
+        self.assertIs(raised.exception, error)
+        self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+        self.assertTrue(state_path(self.root, "session").with_suffix(".failed").exists())
+
+    def test_marker_write_failure_preserves_original_error(self):
+        from lib.verification_state import save_state
+        error = OSError("CANARY_PRIVATE")
+        stderr = io.StringIO()
+        with patch("lib.verification_state.os.replace", side_effect=error), \
+                patch.object(Path, "touch", side_effect=PermissionError("CANARY_PRIVATE")), \
+                redirect_stderr(stderr), self.assertRaises(OSError) as raised:
+            save_state(self.root, "session", self.state)
+        self.assertIs(raised.exception, error)
+        self.assertIn("could not be persisted", stderr.getvalue())
+        self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+
+    def test_marker_clear_failure_keeps_unverified(self):
+        from lib.verification_state import save_state, state_path
+        marker = state_path(self.root, "session").with_suffix(".failed")
+        marker.parent.mkdir(parents=True)
+        marker.touch()
+        real_unlink = Path.unlink
+
+        def unlink(path, *args, **kwargs):
+            if path == marker:
+                raise PermissionError("CANARY_PRIVATE")
+            return real_unlink(path, *args, **kwargs)
+
+        with patch.object(Path, "unlink", unlink), self.assertRaises(PermissionError):
+            save_state(self.root, "session", self.state)
+        self.assertTrue(marker.exists())
+        self.assertEqual(load_state(self.root, "session"), self.state)
+
+
 class ExtractExitCodeTest(unittest.TestCase):
+    def test_sanitized_git_timeout_diagnostics(self):
+        from lib.verification_state import hook_error
+        operations = [
+            (["git", "rev-parse", "--show-toplevel"], "repository"),
+            (["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"], "status"),
+            (["git", "rev-parse", "--verify", "HEAD"], "head"),
+            (["git", "ls-files", "--stage", "-z"], "index"),
+        ]
+        for args, operation in operations:
+            with self.subTest(operation=operation):
+                error = subprocess.TimeoutExpired(args, 15, output="CANARY_PRIVATE_OUTPUT",
+                                                stderr="CANARY_PRIVATE_ERROR")
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    hook_error(error)
+                self.assertIn("git_operation=" + operation, stderr.getvalue())
+                self.assertIn("TimeoutExpired", stderr.getvalue())
+                self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+                self.assertNotIn("--", stderr.getvalue())
+        for args in (["git", "-c", "CANARY_PRIVATE_ARGUMENT", "status"],
+                     "CANARY_PRIVATE_COMMAND", ["git", ["CANARY_PRIVATE_ARGUMENT"]]):
+            stderr = io.StringIO()
+            with redirect_stderr(stderr):
+                hook_error(subprocess.TimeoutExpired(args, 15))
+            self.assertIn("TimeoutExpired", stderr.getvalue())
+            self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+            self.assertNotIn("git_operation=", stderr.getvalue())
+
+    def test_wrapper_reports_sanitized_git_timeout(self):
+        spec = importlib.util.spec_from_file_location("fef_wrapper_timeout", WRAPPER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        stderr = io.StringIO()
+        error = subprocess.TimeoutExpired(["git", "rev-parse", "--show-toplevel"], 15,
+                                         stderr="CANARY_PRIVATE_ERROR")
+        with patch.object(module, "repository", side_effect=error), redirect_stderr(stderr):
+            code = module.main(["--", "python", "-m", "unittest"])
+        self.assertEqual(code, 2)
+        self.assertIn("Verification could not complete", stderr.getvalue())
+        self.assertIn("git_operation=repository", stderr.getvalue())
+        self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+
     def test_hook_exec_arguments_and_shell_matchers(self):
         config = json.loads((ROOT / ".claude/settings.json").read_text(encoding="utf-8"))
         for event, groups in config["hooks"].items():

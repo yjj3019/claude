@@ -82,7 +82,7 @@
 - Targeted tests: plugin runtime 6/6 and generator 7/7 passed. Repository/routes/Kernel/31 Golden metadata and exact payload synchronization passed. Independent follow-up review found no P0-P2 issues; source and generated LICENSE bytes remain identical. The earlier full regression is historical, not a full-suite rerun for this metadata-only change.
 - The four actual symlink tests remain unexecuted locally; mock/reparse and junction coverage do not replace them. Existing Ubuntu CI covers those suites but was not run for this working tree. WSL enumeration failed with Wsl/E_ACCESSDENIED. Live paid model-session wiring, other OS/Python runs and redistribution rights remain unresolved. No staging, commit or push.
 
-Full historical session logs are preserved in `docs/archive/SESSION_LOG-full.md`.
+Removed historical session logs are available in Git history; see `docs/archive/README.md`. `docs/archive/SESSION_LOG-full.md` is absent from this checkout.
 
 ## 2026-10-18 — Self-contained native payload and existing-tag recovery
 
@@ -153,3 +153,38 @@ Verification: static checks and existing CI remain valid. No model execution per
 - 검증 기록 7개를 f1ba322로 main에 커밋·정상 푸시했다. 기존 코드 수정은 이미 main에 있어 별도 병합 대상이 없었다. FEF CI 39506459166과 Delegation CI 39506459335는 모두 통과했다.
 - 사용자는 추가 허락 자료 없이 기존 라이선스 정책을 따르도록 지시했다. 답변 대기를 종료하고 기존 LICENSE·권리 고지를 유지한다. 이를 권리 보유나 새 재배포 허가로 해석하지 않으며, 제3자 부분의 MIT 재선언도 하지 않는다.
 - 이 확인은 문서·이력에만 반영한다. 제품 코드·생성 배포본·라이선스 본문 변경은 없다. 실제 업무 전체와 로컬 Windows 지연 원인은 여전히 미검증이다.
+
+## 2026-10-21 — 미해결 훅 오류 후속 수정
+
+- snapshot/result/final-write 오류 뒤 이전 성공이 남는 결함을 새 회귀3개 실패로 재현했다. 상태를 읽은 직후 기존 성공을 무효화하도록 수정하고, 민감한 인자 없이 Git timeout 작업명만 표시했다. 새 회귀5개·사용 안내·생성 배포본4파일에 반영했다.
+- Ubuntu native/Python3.12.3: 훅45통과, 전체250실행/247통과/Windows전용3skip/실패·오류0. 프로젝트452파일 전후 동일, 구조·payload101 검사 통과. Windows 진단2개 통과 및 최종 구조·동기화 검사 완료. 기존 증거 JSON은 보존했다.
+- 로컬 최종 리뷰는 완료했으나 필수 code-change-reviewer는 diff를 외부 Claude에 보내는 명시적 승인 부재로 자동 승인 검토가 거절해 실행하지 않았다. 외부 전송 우회 없음.
+- 사라진 archive 파일 참조를 Git history 안내로 교정하고 현재 미해결 범위를 갱신했다. Git 조회/최초 상태 쓰기 fail-open과 Windows 지연 원인은 남아 있다. marketplace 모델 세션·유효 ablation·추가 권리 허가도 미확정이다. 커밋·푸시 없음.
+
+## 2026-10-21 — 승인 후 독립 리뷰 완료
+
+- 사용자가 이번 diff의 외부 Claude 전송을 명시적으로 승인했다. 자동 역할 발견 실패의 초기 종료 후 기존 code-change-reviewer 정의를 임시 CLI 인자로 동일하게 등록해, claude-sonnet-5와 Read/Grep/Glob만으로 리뷰 1회를 완료했다. 설정 파일·권한·모델 역할 변경은 없다.
+- 결과 Approve, Critical/Major 없음. 성공한 모델 실행은 exit0/12턴/190.389초였다. 결과 저장 후 콘솔 인코딩 오류는 저장된 UTF-8 JSON을 읽어 해소했으며 모델 리뷰를 중복 실행하지 않았다.
+- 필수 추가 수정은 없었다. 선 무효화 저장의 I/O 비용은 유지하고 경계 테스트·공유 상수 제안은 후속 개선 후보로 구분했다. 훅45개 재실행 모두 통과, 프로젝트452파일 전후 동일. 기존 전체250개 검증을 새 전체 재실행으로 표현하지 않는다.
+- 리뷰·검증 기록만 추가 갱신했다. Git 조회/최초 상태 쓰기 fail-open과 Windows 지연 원인은 유지된다. 커밋·푸시 없음.
+
+## 2026-10-21 — Windows 지연·최초 상태 저장 실패 수정
+
+- 최초 baseline/무효화 저장 실패 뒤 Stop의 block 출력 부재를 Linux2error와 실제 Windows CreateFileW 잠금1error로 재현했다. shared save_state의 오류 전달용 `.failed` 표식과 Stop 우선 검사로 수정하고 JSONv1·기존 경로·세션·one-shot을 유지했다.
+- 새 회귀6개: 최초 무효화/기준선, 실제 Windows잠금, 원래 오류·표식쓰기/정리 실패. Linux 훅51실행/50통과/1skip, 전체256실행/252통과/4 Windows전용skip/실패·오류0. Windows 저장6개·진단2개 통과. 구조/payload101 및 native452파일 전후 동일 확인.
+- Windows 일반16표본과 proxy 비교16표본의 timeout은0. 기본proxy 저장소조회 평균1.267초 vs 같은설치 실제binary0.656초. 공식wrapper 구조와 일치하는 시작비용이지만 과거15.460초 timeout의 원인으로 단정하지 않았다. 전역설정/경로/권한/보안제품/timeout 변경 없음.
+- 독립 방향 검토 후 구현, code-change-reviewer 1회 완료(claude-sonnet-5/Read·Grep·Glob/exit0/9턴/323.989초). Critical/Major 없음. minor 주석 표현만 교정했고, 정리 실패 후 보수적인 차단은 의도대로 유지했다.
+- 근거는 docs/verification-2026-10-21.md와 임시 fef-storage-*.json, fef-windows-*.json에 기록했다. 전체 저장 불가·루트 조회 실패·동시 writer 원자성과 과거 Windows timeout 원인은 남아 있다. 커밋·푸시 없음.
+
+## 2026-10-21 — Windows 전체 회귀와 누적 최종 리뷰
+
+- Windows Python3.14.4/기본PATH의 Git으로 main207실행/205통과/2symlink권한skip(1584.776초), delegation49실행/47통과/2symlink권한skip(47.649초). 합계256실행/252통과/4skip/실패·오류0. 서브모듈 ignore-all·실제Windows파일잠금·junction·short-path 회귀 통과.
+- 저장소/payload101/diff공백 검사 모두exit0, 프로젝트452파일 전후동일·변경경로없음. 전체 실행 중 코드·문서 동결, 완료 후 기록만 갱신했다. 원본근거는 Temp/fef-windows-full-cvpehfqn/report.json 및 로그에 보존했다.
+- 확대된 누적diff 전송은 최초 자동 승인 거절 후 사용자 명시 승인으로 진행했다. 최종 code-change-reviewer 단일패스(claude-sonnet-5/Read·Grep·Glob/exit0/22턴/352.219초)와 별도 문서 검토에서 Critical/Major 없음. wrapper diff누락 후보는 전송SHA동일원본의2hunk로 오탐임을 확인했다. 추가 제품 코드 수정은 없었다.
+- 루트/생성본 Claude CLI validate 통과. root CLAUDE.md context 경고와 catalog용 ICON_MISSING 권고는 유지했다. 기존 저장소 장애·동시쓰기·Windows timeout 원인·실제운영/추가 재배포 권리 한계도 유지한다. 커밋·푸시 없음.
+
+## 2026-10-22 — 누적 변경 전달 승인 및 최종 사전 확인
+
+- 사용자가 누적14파일의 커밋·정상 푸시·해당 커밋 원격 CI 확인을 명시 승인했다. 기존 미커밋·미푸시 기록은 당시의 상태로 보존한다.
+- origin fetch 후 main/origin-main은 edd862cd09821a6c636197a15ca1db9d6f64ce6b로 동일했다. 검토한 제품 코드/문서/생성본/회귀 외 변경은 없으며 구조/payload101/diff공백 검사를 다시 통과했다.
+- Windows 전체256실행/252통과/4symlink권한skip, Linux 전체256실행/252통과/4Windows전용skip, Critical/Major 없는 최종 독립 리뷰를 근거로 전달한다. 기존 권리 고지·저장소 장애·동시쓰기·Windows timeout 등의 한계는 그대로다. 새 릴리스/태그/설정 변경과 force push는 범위에 넣지 않는다.

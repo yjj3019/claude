@@ -11,7 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from lib.verification_state import RESULT_PREFIX, digest, repository, snapshot
+from lib.verification_state import RESULT_PREFIX, digest, error_description, repository, snapshot
 
 
 def main(argv=None) -> int:
@@ -30,7 +30,7 @@ def main(argv=None) -> int:
         print("\n" + RESULT_PREFIX + json.dumps(record, sort_keys=True), flush=True)
         return result.returncode if result.returncode >= 0 else 128 - result.returncode
     except (OSError, subprocess.SubprocessError) as error:
-        print(f"Verification could not complete ({type(error).__name__}).", file=sys.stderr)
+        print(f"Verification could not complete ({error_description(error)}).", file=sys.stderr)
         return 2
 
 
