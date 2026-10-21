@@ -188,3 +188,12 @@ Verification: static checks and existing CI remain valid. No model execution per
 - 사용자가 누적14파일의 커밋·정상 푸시·해당 커밋 원격 CI 확인을 명시 승인했다. 기존 미커밋·미푸시 기록은 당시의 상태로 보존한다.
 - origin fetch 후 main/origin-main은 edd862cd09821a6c636197a15ca1db9d6f64ce6b로 동일했다. 검토한 제품 코드/문서/생성본/회귀 외 변경은 없으며 구조/payload101/diff공백 검사를 다시 통과했다.
 - Windows 전체256실행/252통과/4symlink권한skip, Linux 전체256실행/252통과/4Windows전용skip, Critical/Major 없는 최종 독립 리뷰를 근거로 전달한다. 기존 권리 고지·저장소 장애·동시쓰기·Windows timeout 등의 한계는 그대로다. 새 릴리스/태그/설정 변경과 force push는 범위에 넣지 않는다.
+
+## 2026-10-22 06:33 KST — 최종 커밋·원격 CI 확인 및 세션 마감
+
+- 최종 전달 커밋 [d0467e6f8af20d17f40d0246bc2d2c4e84010725](https://github.com/yjj3019/claude/commit/d0467e6f8af20d17f40d0246bc2d2c4e84010725)을 origin/main에 정상 푸시 완료. 마감 시 원격 main과 동일 해시를 다시 확인했다.
+- 해당 커밋의 [FEF CI](https://github.com/yjj3019/claude/actions/runs/39630976186) 5개 작업과 [Delegation CI](https://github.com/yjj3019/claude/actions/runs/39630976006) 5개 작업 모두 success였다. Linux Python3.11/3.12/3.14, Windows installer/hooks/build Python3.11/3.14, 위임 패키지 Linux/Windows Python3.11/3.14 및 deterministic ZIP 비교가 포함된다.
+- 로컬 전체 검증은 Windows256실행/252통과/4symlink권한skip, Linux256실행/252통과/4Windows전용skip, 실패·오류0. 구조/payload101/diff검사 통과 및452파일 전후 동일. 누적 리뷰 Critical/Major 없음.
+- 남은 제한은 Windows symlink4개, root context·catalog icon 권고, 과거15초 timeout 원인, 전체 저장 불가·루트조회·동시writer, marketplace/실제 업무 전체/유효 ablation/추가 재배포 허가다. CI 성공을 이 범위의 운영·모델·권리 보증으로 확대하지 않는다.
+- [기존 FEF Notion 개발 이력](https://app.notion.com/p/398b44a2dd2e81729cb9dab78c31a5e7)에 동일 결과와 제한을 누적했다. 오늘 작업 종료. 제품 코드·생성본 변경 및 추가 커밋·푸시·릴리스·운영 배포 없음. 이 마감 기록2파일은 로컬 미커밋 상태로 남긴다.
+- 후속 사용자 요청으로 위 마감 기록2파일의 커밋·정상 푸시와 해당 커밋의 원격 CI 확인이 승인됐다. 앞의 미커밋 표시는 06:33 당시 상태다. 제품 코드·생성본·기존 검증 증거는 변경하지 않는다.
