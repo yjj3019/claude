@@ -39,4 +39,4 @@ v1.2 모델 결과는 HISTORICAL이며 v1.3에는 STALE_FOR_CURRENT_PACKAGE입�
 
 ## 통합 출처와 라이선스
 
-이 패키지는 yjj3019/DelegationLoop의 main 및 optimize/three-platforms 이력에서 가져왔다. 원본 저자·커밋·원문 출처는 대상 저장소의 `docs/delegation-loop/source-history/`에 보존했다. 원본에 LICENSE가 없었고 대상 LICENSE도 불완전한 MIT placeholder다. 라이선스는 미확정이며, 이 통합은 MIT 부여나 저작권 소유자 지정이 아니다. 재배포 권한을 별도로 확인한다.
+이 패키지는 yjj3019/DelegationLoop의 main 및 optimize/three-platforms 이력에서 가져왔다. 원본 저자·커밋·원문 출처는 대상 저장소의 `docs/delegation-loop/source-history/`에 보존했다. 원본에 LICENSE가 없었다. 대상 LICENSE는 FEF 자체 저작분에만 MIT를 부여하며 이 패키지와 기타 DelegationLoop 자료 및 생성 복제본은 제외한다. 이 패키지의 라이선스는 미확정이며, 이 통합은 해당 자료의 MIT 부여나 저작권 소유자 지정이 아니다. 재배포 권한을 별도로 확인한다.

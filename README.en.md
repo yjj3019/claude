@@ -110,7 +110,7 @@ CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on W
 
 Original v1.2 model results are HISTORICAL and STALE for the current v1.3 package. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
 
-The original DelegationLoop has no LICENSE, and the target LICENSE is an incomplete MIT placeholder. Integration grants no new MIT rights; original licensing and redistribution permission remain unresolved. The [integration record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md) preserves original attribution, authors, Git history and PR discussion, and lists conditions before source deletion.
+Original FEF contributions are MIT-licensed under the scope of [LICENSE](LICENSE). DelegationLoop, external source material and historical records are excluded, including corresponding generated copies. The original DelegationLoop has no LICENSE; its licensing and redistribution permission remain unresolved. This mixed repository and plugin are not wholly MIT-licensed. The [integration record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md) preserves original attribution, authors, Git history and PR discussion, and lists conditions before source deletion.
 
 ## Further guidance
 

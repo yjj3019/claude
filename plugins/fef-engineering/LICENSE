@@ -1,5 +1,47 @@
+License scope
+=============
+
+The MIT license below applies only to original FEF contributions for which
+yjj3019 holds licensing rights. Only those contributions are the "Software"
+covered by the grant below.
+
+The following materials are excluded from this grant:
+- skills/ai-delegation-loop/;
+- scripts/delegation/;
+- docs/delegation-loop/, including its Git bundle and PR snapshots;
+- third-party quotations, source material and historical records elsewhere.
+
+Paths are relative to the directory containing this LICENSE. In the source
+repository the same exclusions also apply to corresponding copies under
+plugins/fef-engineering/. In a generated plugin, paths are relative to the
+plugin root containing its copy of this LICENSE. Generated copies retain
+their source materials' licensing status.
+
+This license does not grant rights to the excluded materials. DelegationLoop
+and its source guide have unresolved licensing and redistribution permissions;
+see skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md when included. The presence
+of this LICENSE does not license the mixed distribution as a whole under MIT.
+Existing third-party notices and rights are preserved.
+
 MIT License
+===========
 
 Copyright (c) 2026 yjj3019
 
-Permission is hereby granted...
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

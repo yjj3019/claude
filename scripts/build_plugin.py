@@ -36,10 +36,12 @@ hooks and the Kernel. SessionStart supplies context; no root CLAUDE.md is needed
 See [usage and compatibility](docs/ClaudeCode.md) and [pack selection](docs/loading-map.md).
 Source-maintenance commands in the guides require the original repository clone.
 
-Licensing and redistribution permission remain unresolved: the source LICENSE is
-incomplete and the integrated DelegationLoop source has no license grant. Plugin
-metadata intentionally omits a license identifier; this payload does not resolve
-those permissions.
+Original FEF contributions are MIT-licensed within the scope of [LICENSE](LICENSE).
+DelegationLoop and third-party materials are excluded; see the local
+[third-party notice](skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md).
+Their licensing and redistribution permissions remain unresolved. Plugin metadata
+therefore omits a package-wide license identifier; the mixed payload is not wholly
+MIT-licensed.
 """
 
 

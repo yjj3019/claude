@@ -79,6 +79,16 @@ python -m unittest discover -s tests -p "test_*.py"
 
 정적 검사이며 모델 API를 호출하지 않습니다.
 
+## 라이선스
+
+FEF 자체 저작분에는 [MIT 라이선스](LICENSE)를 적용합니다. DelegationLoop 관련 경로,
+외부 가이드·인용·보관 기록과 그 생성 복제본은 제외합니다. 저장소와 플러그인 전체가
+MIT인 것은 아니며, 제외 자료의 재배포 권한은 미확정입니다.
+[제3자 고지](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md)를 확인하세요.
+
+스킬 팩의 새 설치와 명시적 `--force` 갱신에는 `LICENSE`가 포함됩니다. 기존 설치는
+자동 수정하지 않으며, 갱신 시 기존 백업·덮어쓰기 정책을 유지합니다.
+
 ## 추가 안내
 
 - [Claude Code 사용](docs/ClaudeCode.md)

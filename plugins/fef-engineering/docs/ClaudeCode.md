@@ -23,10 +23,10 @@ Or load locally with `--plugin-dir`. Native Skills are discovered by name + desc
 
 ### Plugin validation and compatibility
 
-Licensing and redistribution permission remain unresolved. The source `LICENSE`
-is incomplete, and the integrated DelegationLoop source has no license grant.
-Plugin and marketplace metadata therefore omit a license identifier; this does
-not grant new rights or resolve those permissions. See the source repository's
+Original FEF contributions are MIT-licensed within the scope of the root `LICENSE`.
+DelegationLoop, external source material and archived records are excluded.
+Their licensing and redistribution permissions remain unresolved. Plugin and
+marketplace metadata therefore omit a package-wide license identifier. See the source repository's
 [attribution and license record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md#attribution-and-license).
 
 The root plugin manifest is the single version source; the generated manifest is

@@ -34,7 +34,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACK_NAME = "fef-claude"
-REQUIRED_FILES = ("CLAUDE.md", "AGENTS.md", "README.md")
+REQUIRED_FILES = ("CLAUDE.md", "AGENTS.md", "README.md", "LICENSE")
 REQUIRED_VERIFY_FILES = (
     "CLAUDE.md",
     "AGENTS.md",

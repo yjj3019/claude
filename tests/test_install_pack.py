@@ -180,7 +180,7 @@ class InstallPackTests(unittest.TestCase):
         proc = self._run("--dest", str(dest))
         self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
         pack = dest / "fef-claude"
-        for name in ("README.md", "README.en.md", "README.ko.md"):
+        for name in ("README.md", "README.en.md", "README.ko.md", "LICENSE"):
             self.assertEqual((pack / name).read_bytes(), (ROOT / name).read_bytes())
         self.assertIn("[English](README.en.md)", (pack / "README.md").read_text(encoding="utf-8"))
         self.assertIn("[한국어](README.md)", (pack / "README.en.md").read_text(encoding="utf-8"))
@@ -378,6 +378,30 @@ class PackIntegrityTests(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
         self.skills = self.root / "skills"
+
+    def test_license_is_copied_and_integrity_checked(self):
+        license_file = self.source / "LICENSE"
+        license_file.write_bytes(b"MIT fixture notice\n")
+        pack = install_pack.install_pack(self.skills)
+        self.assertEqual((pack / "LICENSE").read_bytes(), license_file.read_bytes())
+        self.assertEqual(install_pack.verify_install(pack), [])
+        (pack / "LICENSE").write_bytes(b"changed notice\n")
+        self.assertIn("modified file: LICENSE", install_pack.verify_install(pack))
+
+    def test_existing_v1_manifest_without_license_requires_explicit_update(self):
+        pack = install_pack.install_pack(self.skills)
+        manifest_file = pack / install_pack.MANIFEST_FILE
+        manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+        del manifest["files"]["LICENSE"]
+        manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
+        (pack / "LICENSE").unlink()
+        self.assertEqual(install_pack.verify_install(pack), [])
+        with self.assertRaisesRegex(SystemExit, "Refusing to overwrite"):
+            install_pack.install_pack(self.skills)
+        self.assertFalse((pack / "LICENSE").exists())
+        install_pack.install_pack(self.skills, force=True)
+        self.assertEqual((pack / "LICENSE").read_bytes(), (self.source / "LICENSE").read_bytes())
+        self.assertEqual(install_pack.verify_install(pack), [])
 
     def test_policy_only_change_refuses_without_force_then_updates(self):
         pack = install_pack.install_pack(self.skills)

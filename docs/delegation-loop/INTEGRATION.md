@@ -38,7 +38,7 @@ recorded archive, not completeness of any subsequent source-repository activity.
 
 ## Attribution and license
 
-Original procedure: [AI 위임 루프: 에이전트 대신 매뉴얼으로 일 넘기기](https://sdk-kim-builds.com/guides/ai-delegation-loop-playbook/), 낭만빌더 김스듴, 2026-09-18. Source commit attribution is retained in the bundle. The source has no LICENSE. Target LICENSE contains an incomplete MIT placeholder. This integration does not grant MIT rights or invent an owner; licensing/redistribution permission remains unresolved.
+Original procedure: [AI 위임 루프: 에이전트 대신 매뉴얼으로 일 넘기기](https://sdk-kim-builds.com/guides/ai-delegation-loop-playbook/), 낭만빌더 김스듴, 2026-09-18. Source commit attribution is retained in the bundle. The source has no LICENSE. The target LICENSE grants MIT rights only to original FEF contributions and excludes DelegationLoop materials and external sources, including generated copies. This integration does not grant MIT rights to those excluded materials or invent an owner; their licensing/redistribution permission remains unresolved.
 
 ## Evidence limits and deletion conditions
 

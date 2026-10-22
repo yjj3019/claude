@@ -4,6 +4,6 @@ Imported from yjj3019/DelegationLoop, main 1e35bf0a6d16bac0c6e1dccda1014a1e78b7b
 
 Procedure source: [AI 위임 루프: 에이전트 대신 매뉴얼으로 일 넘기기](https://sdk-kim-builds.com/guides/ai-delegation-loop-playbook/), 낭만빌더 김스듴, 2026-09-18. Original outcome claims are not independently verified.
 
-No LICENSE was present in the source repository. The target LICENSE is an incomplete MIT placeholder. License and redistribution rights remain unresolved; inclusion does not assign MIT or invent a copyright holder. Obtain permission or a clarified license before broader redistribution.
+No LICENSE was present in the source repository. The target LICENSE grants MIT rights only to original FEF contributions and explicitly excludes this package and other DelegationLoop materials, including generated copies. This package's license and redistribution rights remain unresolved; inclusion does not assign MIT or invent a copyright holder. Obtain permission or a clarified license before broader redistribution.
 
 Source GitHub URLs in the history archive are historical provenance; runtime, clone and installation instructions use yjj3019/claude.
