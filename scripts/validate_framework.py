@@ -249,7 +249,6 @@ def validate_context_and_model_floor(errors: list[str]) -> None:
         for phrase in (
             "## Model-Invariant Floor",
             "Opus",
-            "Fable",
             "Sonnet",
             "Haiku",
             "escalate the model",

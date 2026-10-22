@@ -197,3 +197,16 @@ Verification: static checks and existing CI remain valid. No model execution per
 - 남은 제한은 Windows symlink4개, root context·catalog icon 권고, 과거15초 timeout 원인, 전체 저장 불가·루트조회·동시writer, marketplace/실제 업무 전체/유효 ablation/추가 재배포 허가다. CI 성공을 이 범위의 운영·모델·권리 보증으로 확대하지 않는다.
 - [기존 FEF Notion 개발 이력](https://app.notion.com/p/398b44a2dd2e81729cb9dab78c31a5e7)에 동일 결과와 제한을 누적했다. 오늘 작업 종료. 제품 코드·생성본 변경 및 추가 커밋·푸시·릴리스·운영 배포 없음. 이 마감 기록2파일은 로컬 미커밋 상태로 남긴다.
 - 후속 사용자 요청으로 위 마감 기록2파일의 커밋·정상 푸시와 해당 커밋의 원격 CI 확인이 승인됐다. 앞의 미커밋 표시는 06:33 당시 상태다. 제품 코드·생성본·기존 검증 증거는 변경하지 않는다.
+
+## 2026-10-22 — Fable 의존 제거 및 Windows 최종 회귀
+
+- Fable 모사/전이 벤치마크 실행 하위 시스템은 이미 삭제된 상태였다. 남은 현행 모델 권고, 전용 지침, 설치 안내, validator의 모델명 필수 조건과 GT012/빈 템플릿의 Fable 전이 비교를 제거했다. 일반 엔지니어링·Integrity 규칙, 모사 문구 재유입을 막는 부정 검사, 날짜가 있는 과거 평가·릴리스·권리 고지는 보존했다.
+- 공개 CLI 값 영향 설명 후 사용자가 Fable 의존·비교 문구 전체 제거를 승인했다. L3 `model`은 `Opus 5 (1M)`으로 변경하고 네 tier ID·JSON 키·라우트·로드 한도·저장 상태 형식은 유지했다. L2→L3는 복잡도 등급 전환이며 모델 변경이 아님을 설명했다. 외부의 이전 모델명 매핑은 소비자가 갱신해야 한다.
+- 중복 모델별 tier 표를 adaptive 가이드 하나로 통합했다. 모델 가이드는 UTF-8 17,320→15,582바이트로 줄었으나 실제 토큰·비용·지연·품질 효과는 측정하지 않았다. 정책/CLI 계약 회귀4개와 생성본3파일을 반영했고 payload101파일 동기화가 유지된다.
+- 사용자 승인 범위인14파일 diff만 외부 Claude에 전송해 code-change-reviewer 단일 패스를 완료했다(claude-sonnet-5, 도구0개, exit0, 1턴,193.8초). 전송 당시 diff SHA256은 `5f37ff037445e5b1fba6aa96ae5b758ac35f42b7ad05e2d91690a8ab0c87f16b`였다. 판정은 차단급 결함 없는 조건부 승인으로, 모델별 결과 구분 및 답안 키 정합성 후속 확인을 요구했다.
+- 후속으로 GT012와 GT012/013/014의 YYYYMMDD 빈 결과 템플릿에 Model 열을 넣고 모델별 baseline/FEF 결과를 분리해 기록하도록 했다. 모델 간 점수·실패 횟수 합산도 금지했다. 답안 키는 모델명/표 컬럼에 의존하지 않아 수정하지 않았으며 fixture·채점 가중치·실패 상한은 유지했다. CLI의 tier 모델 참조·필요 import·canonical 규칙도 직접 확인했다. 외부 리뷰를 중복 호출하지 않고 표 구조와 최종 전체 회귀로 후속 수정을 검증했다.
+- 최종 Linux/Python3.12.3: main211실행/208통과/Windows전용3skip(11.889초), delegation49/48통과/Windows전용1skip(5.242초). 저장소·배포본101 검사 통과, source 및 격리 프로젝트452파일 전후 동일. 근거는 Temp/fef-fable-full.json이다.
+- 최종 Windows/Python3.14.4·기본PATH: main211실행/209통과/2skip(2862.891초), delegation49/47통과/2skip(66.765초). 합계260실행/256통과/4skip/실패·오류0. Skip은 symlink 생성 권한 제한이며 main의2건은 WinError1314를 확인했다. 실제 Windows 파일잠금·junction·짧은경로·서브모듈 변경·최초 저장 실패 차단 회귀도 전체 실행에서 통과했다. 권한·보안·Git 설정과 timeout은 변경하지 않았다.
+- Windows 저장소 validator, build_plugin --check, git diff --check 모두exit0. 테스트 동안452파일의 목록·바이트 동일, 변경경로없음을 확인하고 완료 뒤 이력만 갱신했다. 원본 report와0.log~4.log는 Temp/fef-windows-full-ssa25lvn/에 보존했다. 구조 검증의31 Golden Tests는 색인 확인이며 모델31회 실행을 뜻하지 않는다.
+- 느린 훅 테스트2개는 setup 포함 Git subprocess13회·17회이며 hook main은 동일 Python 프로세스에서 호출한다. PowerShell 회귀는 하나의 unittest 안에서 여러 metadata/구문/footer 조합을 반복해 중간 로그가 없다. 정확성을 위한 서로 다른 시점의 snapshot은 유지했다. 현 회귀의 개별 프로세스 지연과 과거15초 timeout 근본 원인은 별도 미확정이다.
+- 검증 기준 HEAD는06b8c510abfe30fff4772eec9d8d6a73c58f3166이다. 이력 갱신 전 최종 제품/문서/생성본14파일 diff SHA256은 `2bf875535e6c999524705af8d44b0119eace74d61aaf477295fcbf0dceb3cf55`로 외부 리뷰 뒤4개 문서 보완을 포함한다. 이 SHA와 앞선 전송 SHA를 혼동하지 않는다. 이번 변경은 미커밋·미푸시이며 원격CI·marketplace 실제 세션·유효 모델 ablation·새 재배포 권리 검증을 주장하지 않는다. 기존 전체 쓰기 불가·루트 조회 실패·동시 writer 한계도 유지한다.

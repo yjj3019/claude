@@ -9,6 +9,27 @@ import scripts.validate_framework as validator
 
 
 class FrameworkReferenceScopeTest(unittest.TestCase):
+    def test_model_floor_does_not_require_removed_model(self):
+        self.assertEqual(self._validate_model_floor("## Model-Invariant Floor\nOpus Sonnet Haiku\nescalate the model"), [])
+
+    def test_model_floor_still_requires_integrity_guidance(self):
+        errors = self._validate_model_floor("Opus Sonnet Haiku\nescalate the model")
+        self.assertTrue(any("## Model-Invariant Floor" in error for error in errors))
+
+    def _validate_model_floor(self, guide):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "docs").mkdir()
+            (root / "scripts").mkdir()
+            (root / "docs" / "model-usage.md").write_text(guide, encoding="utf-8")
+            (root / "CLAUDE.md").write_text("## Context Budget\nModel-Invariant Floor loading-map", encoding="utf-8")
+            (root / "AGENTS.md").write_text("CLAUDE.md Guidance Layout", encoding="utf-8")
+            (root / "scripts" / "install_pack.py").touch()
+            errors = []
+            with patch.object(validator, "ROOT", root):
+                validator.validate_context_and_model_floor(errors)
+            return errors
+
     def test_ignores_scratch_markdown_but_checks_docs(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

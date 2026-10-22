@@ -102,7 +102,7 @@ TIERS: dict[str, EffortTier] = {
     ),
     "L3": EffortTier(
         id="L3",
-        model="Fable 5.1",
+        model="Opus 5 (1M)",
         max_modules=LOAD_LIMITS["modules"],
         max_domains=LOAD_LIMITS["domains"],
         max_workflows=LOAD_LIMITS["workflows"],
@@ -507,6 +507,7 @@ def validate_pack_load(
 
 
 def escalate_model(tier_id: str) -> str | None:
+    """Return the next effort tier; L2 and L3 may recommend the same model."""
     order = ["L0", "L1", "L2", "L3"]
     idx = order.index(tier_id)
     if idx >= len(order) - 1:

@@ -1,10 +1,13 @@
 """Unit tests for Adaptive Effort / Complexity Router."""
 from __future__ import annotations
 
+import io
 import json
 import sys
 import unittest
 from pathlib import Path
+from contextlib import redirect_stdout
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -17,14 +20,39 @@ from lib.adaptive_effort import (  # noqa: E402
     classify_tier,
     counts_from_selection,
     effective_tier,
+    escalate_model,
     missing_integrity_policies,
     validate_pack_load,
 )
 from lib.routing import detect, load_config  # noqa: E402
 import validate_framework as validator  # noqa: E402
+import detect_task  # noqa: E402
 
 
 class AdaptiveEffortTests(unittest.TestCase):
+    def test_three_models_preserve_four_tiers_and_escalation(self):
+        self.assertEqual(
+            {key: tier.model for key, tier in TIERS.items()},
+            {"L0": "Haiku 4.5", "L1": "Sonnet 5", "L2": "Opus 5 (1M)", "L3": "Opus 5 (1M)"},
+        )
+        self.assertEqual(escalate_model("L2"), "L3")
+        self.assertIsNone(escalate_model("L3"))
+
+    def test_l3_cli_recommends_opus_without_changing_route_contract(self):
+        output = io.StringIO()
+        with patch.object(sys, "argv", ["detect_task.py", "--task", "deep RCA of a multi-hour production outage", "--compact"]):
+            with redirect_stdout(output):
+                status = detect_task.main()
+        result = json.loads(output.getvalue())
+        self.assertEqual(status, 0)
+        self.assertEqual(result["effort_tier"], "L3")
+        self.assertEqual(result["model"], "Opus 5 (1M)")
+        self.assertEqual(result["task_type"], "rca")
+        self.assertEqual(result["risk_level"], "high")
+        self.assertTrue(result["valid"])
+        self.assertEqual(result["errors"], [])
+        self.assertIn("policies/Evidence.md", result["policies"])
+
     def test_doc_and_entry_pointers(self):
         adaptive = (ROOT / "docs" / "adaptive-effort.md").read_text(encoding="utf-8-sig")
         claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8-sig")

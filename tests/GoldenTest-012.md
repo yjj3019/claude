@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Measure whether Opus/Sonnet+FEF reproduce observable Fable5 coding behaviors on a small, fact-checkable bug fix task:
+Evaluate root-cause debugging on a small, fact-checkable bug fix task:
 
 - reproduce the failure
 - fix the shared root cause
@@ -11,7 +11,7 @@ Measure whether Opus/Sonnet+FEF reproduce observable Fable5 coding behaviors on 
 - scan sibling callers for the same bug pattern
 - avoid hallucinated APIs or new dependencies
 
-This test evaluates behavior, not personality imitation.
+Compare baseline and FEF variants on the same model and settings. This test evaluates the submitted fix and verification evidence.
 
 ## Scenario
 
@@ -128,36 +128,37 @@ Each result file should include:
 - Fixture: `tests/fixtures/GT012-code/`
 - Baseline runs: N
 - FEF runs: N
-- Fable5 reference runs: N, if available
 - Model/environment:
+- Requested and served model, effort, and any fallback:
 - Evaluator:
 
 ## Score Summary
 
-| Variant | Average | Std Dev | Min | Max | Transfer vs Fable5 Avg |
-|---|---:|---:|---:|---:|---:|
-| Fable5 | | | | | 100% |
-| Opus+FEF | | | | | |
-| Sonnet+FEF | | | | | |
-| Baseline | | | | | |
+Record separate rows for each served model, with matched baseline/FEF settings. Replace MODEL with the served model name in every table. Never pool scores or failure counts across models.
+
+| Model | Variant | Average | Std Dev | Min | Max |
+|---|---|---:|---:|---:|---:|
+| MODEL | FEF | | | | |
+| MODEL | Baseline | | | | |
 
 ## Per-Run Scores
 
-| Run ID | Variant | Repro /15 | Root Cause /20 | Tests /20 | Sibling /15 | Minimal /10 | Reuse /5 | Error Handling /10 | No Dependency /5 | Total /100 | Notes |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| Run ID | Model | Variant | Repro /15 | Root Cause /20 | Tests /20 | Sibling /15 | Minimal /10 | Reuse /5 | Error Handling /10 | No Dependency /5 | Total /100 | Notes |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 
 ## Failure Mode Counts
 
-| Failure Mode | Fable5 | Opus+FEF | Sonnet+FEF | Baseline |
-|---|---:|---:|---:|---:|
-| No reproduction check | | | | |
-| Caller-only fix | | | | |
-| Sibling caller missed | | | | |
-| Tests still fail | | | | |
-| Test changed to match bug | | | | |
-| Silent invalid-value fallback | | | | |
-| New dependency/API hallucination | | | | |
-| Unrelated rewrite/bloat | | | | |
+| Model | Failure Mode | FEF | Baseline |
+|---|---|---:|---:|
+| MODEL | No reproduction check | | |
+| MODEL | Caller-only fix | | |
+| MODEL | Sibling caller missed | | |
+| MODEL | Tests still fail | | |
+| MODEL | Test changed to match bug | | |
+| MODEL | Silent invalid-value fallback | | |
+| MODEL | New dependency/API hallucination | | |
+| MODEL | Unrelated rewrite/bloat | | |
+
 
 ## Decision
 

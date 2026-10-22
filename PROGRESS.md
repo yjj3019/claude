@@ -116,3 +116,13 @@ For removed historical progress entries, consult Git history as described in `do
 [FEF Claude Framework - 2026-07-09](https://app.notion.com/p/398b44a2dd2e81729cb9dab78c31a5e7) 기존 개발 이력에 동일한 마감 결과를 추가했다.
 
 후속 사용자 요청으로 로컬 마감 기록2파일의 커밋·정상 푸시와 그 커밋의 CI 확인을 진행한다. 위의 미커밋 표시는 06:33 당시 상태이며 제품 코드·생성본의 추가 변경은 없다.
+
+## 2026-10-22 Fable 의존 제거·후속 전체 회귀
+
+- 현행 소스에는 Fable 모사 실행기가 없음을 확인했다. 남은 전용 모델 권고·실행 지침·설치 문구·문서 검증 조건과 전이율 비교 형식을 제거했다. 일반 근거·안전·상태 검증과 과거 릴리스/실측 결과는 보존했다.
+- 사용자 승인으로 L3 권고 `model` 값을 기존 L2와 같은 `Opus 5 (1M)`으로 변경했다. L0–L3 ID, JSON 키, 라우트, 상태 형식, Load Limits는 유지한다. 모델명 문자열을 사용하는 외부 소비자는 매핑 갱신이 필요하며, CLI는 호스트 모델을 자동 전환하지 않는다.
+- 중복 tier 표를 canonical adaptive 가이드 참조로 정리했다. 모델 가이드는 UTF-8 17,320→15,582바이트(약10% 감소)이며 토큰·비용·품질·지연 개선 측정으로 해석하지 않는다. 회귀4개를 추가하고 생성 배포본3파일을 동기화했다.
+- 승인된14파일 diff로 외부 Claude code-change-reviewer 1회를 완료했다. 모델별 결과 구분이 모호하다는 지적을 반영해 GT012 및 빈 결과 템플릿3개의 점수·실패 표에 Model 열과 모델 간 합산 금지 규칙을 추가했다. 답안 키와 기존 채점 가중치·실패 상한의 정합성을 확인했다.
+- 최종 Linux/Python3.12.3: main211/208통과/3skip + delegation49/48통과/1skip. 최종 Windows/Python3.14.4: main211/209통과/2skip + delegation49/47통과/2skip. 각260실행/256통과/4skip/실패·오류0이며 Linux는 Windows전용, Windows는 symlink권한 제한이다. 저장소·배포본101파일·diff검사 모두 통과, 각 검증 중 프로젝트452파일 전후 동일을 확인했다.
+- Windows main은2862.891초, delegation은66.765초였다. 느린 훅 테스트2개의 정적 Git 호출은 setup 포함13회·17회이며 상태 관측을 생략하지 않았다. 현 실행의 개별 Git 지연이나 과거 timeout 근본 원인을 새로 입증한 것은 아니다.
+- 증거는 Temp의 `fef-fable-full.json`, `fef-fable-review.json`, `fef-windows-full-ssa25lvn/report.json`과 로그에 있다. 기준 HEAD는06b8c510abfe30fff4772eec9d8d6a73c58f3166이며 미커밋 변경을 포함한 작업트리를 검증했다. 검증 완료 뒤 이력2파일만 추가 갱신했다. 이번 변경의 커밋·푸시·원격CI·실제 모델 효능 평가는 진행하지 않았다. 기존 저장소/쓰기 실패·동시 writer 및 marketplace/권리 관련 한계를 이번 결과의 보증 범위로 확대하지 않는다.

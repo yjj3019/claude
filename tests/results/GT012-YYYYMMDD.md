@@ -7,37 +7,38 @@
 - Answer key: `tests/fixtures/GT012-answer-key.md`
 - Baseline runs: 0
 - FEF runs: 0
-- Fable5 reference runs: 0
-- Model/environment:
+- Model/environment (same model and settings for both variants):
+- Requested and served model, effort, and any fallback:
 - Evaluator:
 - Status: NOT RUN
 
 ## Score Summary
 
-| Variant | Average | Std Dev | Min | Max | Transfer vs Fable5 Avg |
-|---|---:|---:|---:|---:|---:|
-| Fable5 | | | | | 100% |
-| Opus+FEF | | | | | |
-| Sonnet+FEF | | | | | |
-| Baseline | | | | | |
+Record separate rows for each served model, with matched baseline/FEF settings. Replace MODEL with the served model name in every table. Never pool scores or failure counts across models.
+
+| Model | Variant | Average | Std Dev | Min | Max |
+|---|---|---:|---:|---:|---:|
+| MODEL | FEF | | | | |
+| MODEL | Baseline | | | | |
 
 ## Per-Run Scores
 
-| Run ID | Variant | Repro /15 | Root Cause /20 | Tests /20 | Sibling /15 | Minimal /10 | Reuse /5 | Error Handling /10 | No Dependency /5 | Total /100 | Notes |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| Run ID | Model | Variant | Repro /15 | Root Cause /20 | Tests /20 | Sibling /15 | Minimal /10 | Reuse /5 | Error Handling /10 | No Dependency /5 | Total /100 | Notes |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 
 ## Failure Mode Counts
 
-| Failure Mode | Fable5 | Opus+FEF | Sonnet+FEF | Baseline |
-|---|---:|---:|---:|---:|
-| No reproduction check | | | | |
-| Caller-only fix | | | | |
-| Sibling caller missed | | | | |
-| Tests still fail | | | | |
-| Test changed to match bug | | | | |
-| Silent invalid-value fallback | | | | |
-| New dependency/API hallucination | | | | |
-| Unrelated rewrite/bloat | | | | |
+| Model | Failure Mode | FEF | Baseline |
+|---|---|---:|---:|
+| MODEL | No reproduction check | | |
+| MODEL | Caller-only fix | | |
+| MODEL | Sibling caller missed | | |
+| MODEL | Tests still fail | | |
+| MODEL | Test changed to match bug | | |
+| MODEL | Silent invalid-value fallback | | |
+| MODEL | New dependency/API hallucination | | |
+| MODEL | Unrelated rewrite/bloat | | |
+
 
 ## Decision
 

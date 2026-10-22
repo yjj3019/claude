@@ -6,14 +6,14 @@ Compact tiering so everyday work defaults to **Sonnet** while Haiku is reserved 
 
 ## Host and Effort Guardrail
 
-These dated tiers are repository preferences, not current API model IDs or automatic routing.
+These tiers are repository preferences, not current API model IDs or automatic routing.
 The tier labels and escalation ladder are FEF policy, not an official Claude Code
 three-tier architecture. Route previews do not change the host model or filter all
 tool output through Haiku. See [official features versus custom design](mods-and-tiered-agents.md).
 Keep the active host model for ordinary work; verify available models and supported effort before switching.
 Compare accepted-task quality, retries, total usage and latency at supported effort levels before adding Advisor or a second model.
 Escalate model before expanding packs only for a capability gap; gather missing task evidence instead of buying a stronger model to guess.
-The 2026-09-06 roster is retained for compatibility; it does not promise current availability or fixed price ratios.
+The roster does not promise current availability or fixed price ratios.
 
 ## Tier Table
 
@@ -22,7 +22,9 @@ The 2026-09-06 roster is retained for compatibility; it does not promise current
 | L0 Light docs | Notion notes/rows, short doc capture, trivial filing, simple checklist ticks | Haiku 4.5 | Kernel only (or Kernel + 1 allowlisted Notion/doc section) |
 | L1 Default / routine | coding, summaries, Q&A, edits, most everyday asks — **default when unsure** | Sonnet 5 | **Model tier**; packs follow loading-map when mapped (`kernel_only_safe=false`); Kernel-light when unmapped |
 | L2 Complex everyday | multi-step, multi-file, architecture review/lite, careful review | Opus 5 (1M) | Kernel + loading-map caps (existing Load Limits) |
-| L3 Hardest / long-running | deep RCA / root cause / 근본 원인·원인 분석, large refactor / 대규모 리팩터, security audit / 보안 감사, multi-hour / 장기 작업, high-stakes | Fable 5.1 | Kernel + map caps; may use 1 workflow/reviewer only if risk needs it |
+| L3 Hardest / long-running | deep RCA / root cause / 근본 원인·원인 분석, large refactor / 대규모 리팩터, security audit / 보안 감사, multi-hour / 장기 작업, high-stakes | Opus 5 (1M) | Kernel + map caps; may use 1 workflow/reviewer only if risk needs it |
+
+L2 and L3 share a model recommendation. L3 preserves the hardest-task classification, not an additional model or larger load budget.
 
 ## Rules
 
@@ -36,12 +38,14 @@ The 2026-09-06 roster is retained for compatibility; it does not promise current
 ## Model-Invariant Floor vs Adaptive
 
 - **Floor (invariant):** same Kernel, Integrity intent, Context Budget, and loading-map routing on every model. Model choice does not rewrite which Integrity Policies triggers require.
-- **Adaptive (model + optional trim):** L0–L3 choose capacity (Haiku→Fable). Optional trim applies only to Preference packs / non-required extras — **never** to trigger Integrity Policies on mapped coding or similar.
+- **Adaptive (model + optional trim):** L0–L3 classify complexity and recommend a model (Haiku→Sonnet→Opus). Optional trim applies only to Preference packs / non-required extras — **never** to trigger Integrity Policies on mapped coding or similar.
 - Taxonomy map: MetaRules Low≈L0 light docs; Low/Medium routine≈L1; Medium complex≈L2; High≈L3. Autoload simple≈kernel_only_safe; substantial≈mapped loading-map.
 
 ## Escalation Ladder
 
-`Haiku (L0)` → `Sonnet (L1)` → `Opus (L2)` → `Fable (L3)`.
+`Haiku (L0)` → `Sonnet (L1)` → `Opus (L2 / L3)`.
+
+`escalate_model()` still returns the next tier ID for compatibility, including L2→L3; that step does not change the recommended model. Choose supported effort from task evidence and evaluation, not the tier number alone.
 
 De-escalate when remaining work is routine. Model capacity goes to deeper reasoning within the same loaded set — not extra file dumps.
 
@@ -54,6 +58,8 @@ Meta-review (sim round-2) — intentional deviation from a blanket high-risk→L
 2. **Do not** raise every high-risk ask to L2/Opus solely because `risk_level=high`.
 3. Raise to **L2+ only when L2/L3 text signals** (multi-step / multi-file / architecture review / deep RCA / root cause / 근본 원인 / 대규모 리팩터 / 보안 감사 / …) are also present — `classify_tier` / `effective_tier` encode this.
 4. `detect_task.py` emits `effort_tier`, `model`, and optional `effort_reason` when the risk floor or L0-leak guard changes the tier.
+
+The L3 `model` label is now `Opus 5 (1M)`; L0–L3 IDs, JSON keys, routes, and load limits are unchanged. Consumers matching the previous model label must update their mapping. These labels remain advisory, not API identifiers.
 
 ## Bilingual + spacing-tolerant signals
 

@@ -364,7 +364,7 @@ repository as the workspace so `CLAUDE.md` loads at the workspace root.
 
 **This copy:** use `CLAUDE.md` here as the runtime entry when the host loads skills from
 this folder. Keep Operational Integrity and Context Budget unchanged across models
-(Opus / Fable / Sonnet / Haiku). See `docs/model-usage.md`.
+(Opus / Sonnet / Haiku). See `docs/model-usage.md`.
 
 **Claude Projects:** paste `CLAUDE.md` into Project Instructions; attach needed packs as
 project knowledge. Run `python scripts/install_pack.py --print-claude` from a clone.
@@ -687,7 +687,7 @@ def print_claude_steps() -> None:
     print("   Do not attach every file under docs/ unless the task requires it.")
     print("5. Keep Context Budget: Kernel + loading-map packs within Load Limits.")
     print("6. Model choice (advisory): see docs/model-usage.md")
-    print("   (Opus 5 / Fable 5.1 / Sonnet 5 / Haiku 4.5). Same floor on every model.")
+    print("   (Opus 5 / Sonnet 5 / Haiku 4.5). Same floor on every model.")
     print()
     print("Exact file to paste:")
     print(f"  {entry}")

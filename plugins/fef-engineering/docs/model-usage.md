@@ -8,28 +8,27 @@ It does not claim that prompts increase model intelligence.
 Use model capability deliberately:
 
 - Haiku only for light Notion/doc recording (Adaptive narrow gate); Sonnet for routine drafting, coding, Q&A, and summaries
-- stronger models (Opus/Fable) for ambiguity resolution, contradiction detection, technical review, and final decision support
+- stronger models (Opus) for ambiguity resolution, contradiction detection, technical review, and final decision support
 
 FEF aims to support consistency, calibration, and reviewability across both roles;
 these are design goals, not measured model-quality improvements.
 
 Role assignments and escalation thresholds below are repository preferences, not
-official automatic routing or calibrated confidence rules. The dated roster does
+official automatic routing or calibrated confidence rules. The roster does
 not rank every task's best model. See [Mods and custom tiered-agent design](mods-and-tiered-agents.md).
 
 
 ## When to Load This Doc
 
-Load `docs/model-usage.md` **only** when choosing or switching among Opus / Fable / Sonnet / Haiku, or when tuning effort/thinking for the active model. Do **not** load it every turn, and do not load it for ordinary single-model tasks that already follow the Model-Invariant Floor. Model choice does not justify loading extra packs; escalate the model instead of dumping docs.
+Load `docs/model-usage.md` **only** when choosing or switching among Opus / Sonnet / Haiku, or when tuning effort/thinking for the active model. Do **not** load it every turn, and do not load it for ordinary single-model tasks that already follow the Model-Invariant Floor. Model choice does not justify loading extra packs; escalate the model instead of dumping docs.
 
-The roster below preserves dated repository preferences, not current API identifiers or automatic host settings. Keep the active model for ordinary work; verify availability, supported effort and current pricing before switching. A tool preview is advisory and cannot switch a model or grant permissions.
+The roster below records repository preferences, not current API identifiers or automatic host settings. Keep the active model for ordinary work; verify availability, supported effort and current pricing before switching. A tool preview is advisory and cannot switch a model or grant permissions.
 
-## Model Roster (user-authoritative, 2026-09-06)
+## Model Roster (repository preference)
 
 | Model | Product label | Role |
 |---|---|---|
-| Opus | Opus 5 (1M context) | Repository preference for everyday complex tasks |
-| Fable | Fable 5.1 | Repository preference for hardest and longest-running tasks |
+| Opus | Opus 5 (1M context) | Repository preference for complex and hardest tasks |
 | Sonnet | Sonnet 5 | Efficient for routine tasks |
 | Haiku | Haiku 4.5 | Light Notion/doc recording |
 
@@ -37,29 +36,22 @@ Names and availability vary by platform; treat this roster as the repository pre
 
 ## Model-Invariant Floor
 
-Regardless of which model is selected (Opus / Fable / Sonnet / Haiku):
+Regardless of which model is selected (Opus / Sonnet / Haiku):
 
 1. **Same Required Kernel + Operational Integrity** — never skip evidence, completion, file/tool, or freshness gates on Haiku (or any model).
-2. **Same Context Budget** — `CLAUDE.md` Kernel plus packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not dump extra docs onto weaker models to “compensate,” and do not dump more onto Fable/Opus either.
+2. **Same Context Budget** — `CLAUDE.md` Kernel plus packs named by `docs/loading-map.md` within Load Limits (Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3). Do not dump extra docs onto weaker models to “compensate,” and do not dump more onto stronger models either.
 3. **Same loading map / task routing** — model choice does not change which packs load. Adaptive L0–L3 primarily select **model**; packs still follow `docs/loading-map.md` / `kernel_only_safe`. Never strip Integrity Policies required by triggers on mapped L1 coding to satisfy a lighter Adaptive look.
 4. **Same output contract** — facts vs assumptions, `[unverified]`, smallest complete change, no fake completion claims.
-5. **When blocked:** escalate the model (`Haiku` → `Sonnet` → `Opus` → `Fable`) when blocked twice or risk rises — do **not** expand unrelated instructions as a substitute; gather necessary task evidence.
+5. **When blocked:** escalate the model (`Haiku` → `Sonnet` → `Opus`) when blocked twice or risk rises — do **not** expand unrelated instructions as a substitute; gather necessary task evidence. L2 and L3 share a model recommendation; increasing the tier alone does not switch models.
 6. **Stronger models:** still obey budget; extra capacity goes to deeper reasoning within the same loaded set, not extra file loads.
 
 Kernel and Integrity Policies remain model-independent. Model choice does not relax Autoload Protocol or Instruction Precedence.
 
 ## Adaptive Effort / Complexity Router
 
-Route by **request complexity**, not by available files. Full table and rules: `docs/adaptive-effort.md`.
+Route by **request complexity**, not by available files. Use the tier table, classification rules, and escalation constraints in `docs/adaptive-effort.md` as the single reference.
 
-| Tier | Default model | Load |
-|---|---|---|
-| L0 Light docs | Haiku 4.5 | Kernel only (or Kernel + 1 allowlisted Notion/doc section) |
-| L1 Default / routine | Sonnet 5 | **Model tier**; packs follow loading-map when mapped; Kernel-light when unmapped |
-| L2 Complex everyday | Opus 5 (1M) | Kernel + loading-map Load Limits |
-| L3 Hardest / long-running | Fable 5.1 | Kernel + map caps; ≤1 workflow/reviewer if risk needs it |
-
-Rules: L0–L3 primarily select **model**; classify from the ask (object + risk); **when unsure → Sonnet (L1), not Haiku**; Haiku only for clear light Notion/doc recording; escalate **model before packs**; never preload model-usage/README/PROGRESS on L0–L1; never strip Integrity Policies required by triggers on mapped L1 coding; L2–L3 still respect Load Limits. Full table: `docs/adaptive-effort.md`.
+Model choice does not expand Load Limits or remove required Integrity Policies. Keep these model guides out of L0–L1 preload.
 
 ## Role Split
 
@@ -86,7 +78,7 @@ Raise the automation level one shape at a time: single session, then subagent, t
 
 ### Optional Advisor and Effort Calibration
 
-Keep the dated user-authoritative roster and routing constraints above. Before adding a second model, compare supported effort levels on the chosen model in separate sessions, measuring accepted-task quality, total usage/cost, and latency. This complements model-before-packs: if effort cannot close the gap, compare a stronger model or advisor without loading unrelated packs. See [cost and intelligence optimization](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence).
+Keep the repository roster and routing constraints above. Before adding a second model, compare supported effort levels on the chosen model in separate sessions, measuring accepted-task quality, total usage/cost, and latency. This complements model-before-packs: if effort cannot close the gap, compare a stronger model or advisor without loading unrelated packs. See [cost and intelligence optimization](https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence).
 
 - **Claude Code:** selectively use the native experimental `/advisor` feature for consequential decisions or recurring ambiguous failures, after checking account/model support. `claude --advisor opus` selects an advisor for one session; `/advisor opus` saves a default. Code has no setting to cap or force advisor calls, and each advisor call reads the full transcript without advisor-side caching. Prompt timing requests are not an execution guarantee. See [Code Advisor](https://code.claude.com/docs/en/advisor).
 - **API only:** `max_uses` caps advisor calls per request, not per task or conversation; a conversation-wide cap needs client-side counting. Advisor `caching` is optional and off by default. These API controls are not Code settings. See [API Advisor](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool).
@@ -101,7 +93,7 @@ Model availability and names vary by platform and release; treat these as operat
 | Light Notion/doc recording only | Haiku 4.5 (narrow gate) | API effort unsupported; thinking off for routine capture; check host support |
 | General writing or implementation | Sonnet-class model | medium |
 | Technical judgment or independent review | Opus-class model | high |
-| Hardest long-horizon autonomous work | Fable 5.1, when available | high; xhigh only when capability justifies latency and cost |
+| Hardest long-horizon autonomous work | Opus-class model (same as L2) | Start with supported effort; increase only when evaluation justifies latency and cost |
 
 ### Claude Haiku 4.5 Runtime Notes
 
@@ -154,18 +146,6 @@ For an API runtime explicitly targeting `claude-opus-5`:
 Verified 2026-07-26 against Anthropic's [Opus 5 model guide](https://platform.claude.com/docs/en/about-claude/models/whats-new-opus-5) and [Opus 5 prompting guide](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5). Re-check when the model or API behavior changes.
 
 
-### Claude Fable 5.1 Runtime Notes
-
-For a runtime explicitly targeting Fable 5.1 (hardest / longest-running work):
-
-- Prefer Fable for multi-hour autonomous agent runs, deep multi-file investigations, conflicting-evidence synthesis, and high-stakes architecture or security judgments when host access is available.
-- Keep the same Context Budget and loading map as Opus/Sonnet/Haiku; do not preload every module or doc because the model is stronger.
-- Use high effort by default for long-horizon work; raise further only when evaluation shows a material gain worth latency and cost.
-- Cap parallel subagents to independent, sizeable work; aggregate once. Prefer checkpoint verification during long runs and at most one reviewer pass after a draft.
-- Escalate *to* Fable when Sonnet/Opus are blocked twice on the same obstacle or when task risk clearly requires maximum capability; de-escalate when remaining work is routine.
-
-Recorded 2026-09-06 as repository operating preference (user-authoritative roster). Re-check when the host renames or gates the model.
-
 ### Effort Calibration Guardrail
 
 Run an effort sweep during model or prompt evaluation, not on every request. Record the chosen effort per stable workload class and re-run the sweep only after a model or prompt change, an acceptance regression, or a material cost or latency shift.
@@ -216,4 +196,4 @@ Use the stronger reviewer/architect role when the task includes:
 - Finalization should optimize for concise, decision-ready output.
 
 Do not imitate another model's personality or hidden reasoning style.
-Replicate only observable engineering behaviors: context framing, evidence discipline, calibrated claims, and targeted review.
+Use task context, evidence discipline, calibrated claims, and targeted review to meet the task's acceptance criteria.
