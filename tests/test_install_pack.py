@@ -168,6 +168,8 @@ class InstallPackTests(unittest.TestCase):
         self.assertGreater(len(fields["description"]), 0)
         self.assertLessEqual(len(fields["description"]), 1024)
         self.assertIn("explicitly requests FEF", fields["description"])
+        self.assertIn("TaskForge for Claude", fields["description"])
+        self.assertIn("# TaskForge for Claude Pack", body)
         self.assertEqual(set(fields), {"name", "description"})
         self.assertNotIn("allowed-tools", fields)
         self.assertNotIn("context", fields)

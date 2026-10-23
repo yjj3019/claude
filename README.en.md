@@ -1,8 +1,12 @@
-# FEF Claude Framework
+# TaskForge for Claude
 
 English · [한국어](README.md)
 
-Framework for Engineering Excellence (FEF) is a Claude-oriented engineering prompt framework. A small shared Kernel and task-specific guidance help produce technical outputs backed by evidence and ready for review. AI Delegation Loop v1.3 is also provided as an independent skill for recurring tasks.
+**by yjj3019 · Formerly FEF (Framework for Engineering Excellence)**
+
+TaskForge for Claude is a task execution and verification framework for Claude Code. A small shared Kernel and task-specific guidance help produce technical outputs backed by evidence and ready for review. It is an independent project, not an official product created, sponsored or endorsed by Anthropic. AI Delegation Loop v1.3 is also provided as an independent skill for recurring tasks.
+
+This is a display-name change. Keep installing `fef-engineering@fef-marketplace`; existing skill calls and saved data remain unchanged. Do not reinstall under a new ID. See [naming and compatibility](docs/ClaudeCode.md#product-name-and-retained-identifiers).
 
 ## Features and layout
 
@@ -12,14 +16,14 @@ Framework for Engineering Excellence (FEF) is a Claude-oriented engineering prom
 - Checks cover structure, routing, Golden Tests and installation integrity. Local Claude Code hooks remind you to verify the current session and actual file state.
 - `skills/ai-delegation-loop/` is a separate package for recurring-task interviews, output contracts, reusable tools and evidence verification.
 
-FEF's `workflows/` contains Markdown task procedures. These are separate from executable Claude Code `.claude/workflows/`; this repository does not ship dynamic workflows.
+TaskForge for Claude's `workflows/` contains Markdown task procedures. These are separate from executable Claude Code `.claude/workflows/`; this repository does not ship dynamic workflows.
 
 ## Getting started and installation
 
 For the native Claude Code plugin, run `/plugin marketplace add yjj3019/claude`
 then `/plugin install fef-engineering@fef-marketplace`. Existing `fef-claude`
-plugin users should follow the [migration guide](docs/ClaudeCode.md#plugin-validation-and-compatibility).
-Native skill calls now use `/fef-engineering:fef-coding` and
+plugin users should follow the [earlier ID migration guide](docs/ClaudeCode.md#plugin-validation-and-compatibility).
+Native skill calls use `/fef-engineering:fef-coding` and
 `/fef-engineering:fef-rca`; the standalone `fef-claude/` pack below keeps its name.
 The marketplace installs the generated `plugins/fef-engineering/` payload. Keep
 that directory in distributions and regenerate it after runtime source edits with

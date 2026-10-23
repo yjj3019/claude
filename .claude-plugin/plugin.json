@@ -1,8 +1,8 @@
 {
   "name": "fef-engineering",
-  "displayName": "FEF Engineering Framework",
+  "displayName": "TaskForge for Claude",
   "version": "1.3.1",
-  "description": "Framework for Engineering Excellence (FEF): compact Kernel, domain packs, evidence-aware workflows, reviewers, and verification hooks for Claude Code and Projects. Supports selective loading and native Skills.",
+  "description": "TaskForge for Claude by yjj3019 (formerly FEF): a compact Kernel, selective task packs, native Skills, reviewers and verification reminders for Claude Code. Independent project, not endorsed by Anthropic.",
   "author": {
     "name": "yjj3019",
     "url": "https://github.com/yjj3019"

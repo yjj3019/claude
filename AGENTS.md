@@ -12,7 +12,7 @@ Read `CLAUDE.md` first; do not load a second copy of the inlined Kernel.
 
 ## Subagent Delegation Policy
 
-Prefer existing FEF reviewers and built-in Explore for context isolation.
+Prefer existing project reviewers and built-in Explore for context isolation.
 
 - Broad file/symbol exploration → built-in Explore or direct Read/Grep when volume is low.
 - Verification commands (tests, lint, build) → run directly or via a short-lived Bash call; keep logs summarized.

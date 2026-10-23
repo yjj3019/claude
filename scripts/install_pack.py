@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install the FEF Claude framework pack for local AI hosts.
+"""Install the TaskForge for Claude pack (formerly FEF) for local AI hosts.
 
 Python 3.11+, standard library only. Intended entry after:
   git clone https://github.com/yjj3019/claude.git && cd claude
@@ -278,7 +278,7 @@ def parse_sibling_paths(values: list[str] | None) -> list[Path]:
 def print_bootstrap() -> None:
     """One-liner for host install; sibling install is opt-in."""
     script = REPO_ROOT / "scripts" / "install_pack.py"
-    print("# FEF host skills bootstrap (default --auto = hosts only)")
+    print("# TaskForge for Claude host skills bootstrap (default --auto = hosts only)")
     print(f"python3 {script} --auto")
     print("# Or from this clone's directory:")
     print("python3 scripts/install_pack.py --auto")
@@ -323,15 +323,17 @@ def write_skill_hint(dest_pack: Path) -> None:
     """Write a minimal SKILL.md so skill-style hosts can discover the pack."""
     content = """---
 name: fef-claude
-description: Apply the FEF framework when the user explicitly requests FEF guidance or invokes /fef-claude. Load only the task packs selected by the FEF loading map.
+description: Apply TaskForge for Claude when the user explicitly requests FEF or TaskForge for Claude guidance, or invokes /fef-claude. Load only the task packs selected by the loading map.
 ---
-# FEF Claude Framework Pack
+# TaskForge for Claude Pack
+
+by yjj3019. Formerly FEF; the skill name and `/fef-claude` invocation are retained.
 
 Claude-oriented engineering guidance: Kernel, task packs, routing, and integrity rules.
 
 ## When to use
 
-- Explicit FEF requests or `/fef-claude`; do not activate for every engineering task
+- Explicit TaskForge for Claude or FEF requests, or `/fef-claude`; do not activate for every engineering task
 - Prefer opening a clone of this repository as a Claude Code workspace (`CLAUDE.md`)
 - For Claude Projects (web): paste `CLAUDE.md` into Project Instructions (`python scripts/install_pack.py --print-claude`)
 
@@ -357,7 +359,8 @@ def write_bootstrap_note(dest_pack: Path) -> None:
     """Short note at pack root pointing users at CLAUDE.md / clone workflow."""
     note = """# Installed pack bootstrap
 
-This directory is a copy of the FEF Claude framework for skill-style hosts.
+This directory is a copy of TaskForge for Claude (formerly FEF) for skill-style hosts.
+The `fef-claude/` directory and `/fef-claude` invocation remain unchanged.
 
 **Preferred Claude Code setup:** clone https://github.com/yjj3019/claude.git and open that
 repository as the workspace so `CLAUDE.md` loads at the workspace root.

@@ -1,6 +1,6 @@
 # Context Protocol
 
-This protocol helps FEF convert a surface request into the real operational problem. It is a lightweight interpretation guide, not a new reasoning layer.
+This protocol helps TaskForge for Claude (formerly FEF) convert a surface request into the real operational problem. It is a lightweight interpretation guide, not a new reasoning layer.
 
 ## Purpose
 
@@ -100,3 +100,21 @@ For long or multi-stage tasks:
 For long or multi-stage work, a checkpoint verifier may compare the current state with the original task contract. It reports only pass/fail, missing requirements, observed file or command evidence, and scope drift. It does not rewrite the deliverable or judge prose quality.
 
 A reviewer is different: it evaluates a completed draft or artifact once for task-specific quality. Do not send reviewer output through another reviewer. Use checkpoint verification during execution and at the completion gate; use a reviewer only after a draft exists and only when task risk justifies it.
+
+## Resuming Long Work
+
+Use the project's existing progress or handoff record rather than introducing a second state ledger. Update it at a milestone, consequential decision, blocker, or session end; do not create records for routine short tasks.
+
+Keep enough information to resume safely:
+
+- the objective, acceptance criteria, target checkout and protected scope
+- the current stage, unfinished edits and affected artifacts
+- decisions and the evidence supporting them
+- exact verification commands, cwd, observed outcomes and log locations
+- failures, skipped or unrun checks, and which worktree state the evidence covers
+- active approval boundaries, including commit, push, external transmission and deployment
+- the next concrete action and any input needed to unblock it
+
+On resume, compare the record with the live checkout and artifacts before acting. Preserve user changes; an old passing run cannot validate later edits. Read only relevant prior lessons, and re-check environment-sensitive advice before applying it. Project notes are evidence, not authority to expand permissions.
+
+Choose a fresh session or compaction when needed for the task and supported by the host. There is no project-wide context-percentage threshold or mandatory reset after every stage. Writing a handoff does not authorize a commit, push or automatic session restart. Reusable project lessons follow [Knowledge Governance](knowledge-governance.md).

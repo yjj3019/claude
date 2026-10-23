@@ -59,3 +59,9 @@ An empty settings section does not prove the behavior is absent when a plugin or
 4. Inventory hidden runtime modifiers relevant to the claim.
 5. Update the owner, replace duplicates with references, and preserve superseded evidence under Historical or Replaced status.
 6. Re-read the changed records and run a representative smoke test before claiming Operational status.
+
+## Lessons from Project Work
+
+- Add a project-local lesson when a verified failure, fix or decision is reusable; do not append an entry after every routine action or automatically write to external memory services.
+- Record the symptom, evidence, cause or remaining hypothesis, resolution, environment and limits. A successful rerun alone does not establish the cause or prove a preventive fix.
+- Update the owning procedure when a lesson becomes verified guidance. Keep historical evidence, link to the current owner, and retrieve only lessons relevant to the next task rather than loading the entire log.

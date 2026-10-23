@@ -1,4 +1,4 @@
-# FEF Runtime Entry
+# TaskForge for Claude Runtime Entry
 
 Edit `kernel/`, then run `python scripts/sync_kernel.py`; the block below is generated.
 

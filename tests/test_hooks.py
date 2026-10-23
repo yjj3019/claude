@@ -574,6 +574,107 @@ class StateStorageFailureTest(unittest.TestCase):
         self.assertEqual(load_state(self.root, "session"), self.state)
 
 
+class GitExecutableTest(unittest.TestCase):
+    def test_unset_and_empty_keep_path_lookup(self):
+        from lib.verification_state import git_executable, run_git
+        for value in (None, ""):
+            with patch.dict(os.environ):
+                os.environ.pop("FEF_GIT_EXECUTABLE", None)
+                if value is not None:
+                    os.environ["FEF_GIT_EXECUTABLE"] = value
+                self.assertEqual(git_executable(), "git")
+                with patch("lib.verification_state.subprocess.run") as run:
+                    run_git(ROOT, "status")
+                self.assertEqual(run.call_args.args[0], ["git", "status"])
+
+    def test_explicit_path_with_spaces_is_a_single_argument(self):
+        from lib.verification_state import git_executable, run_git
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "custom Git ü.exe"
+            path.write_bytes(b"fixture")
+            with patch.dict(os.environ, {"FEF_GIT_EXECUTABLE": str(path)}):
+                self.assertEqual(git_executable(), str(path))
+                with patch("lib.verification_state.subprocess.run") as run:
+                    run_git(ROOT, "status")
+                run.assert_called_once_with([str(path), "status"], cwd=ROOT,
+                                            check=True, capture_output=True, timeout=15)
+
+    def test_invalid_explicit_path_never_falls_back(self):
+        from lib.verification_state import run_git
+        with tempfile.TemporaryDirectory() as folder:
+            for value in ("relative/git.exe", str(Path(folder) / "missing.exe"), folder):
+                with self.subTest(value=value), patch.dict(os.environ, {"FEF_GIT_EXECUTABLE": value}), \
+                        patch("lib.verification_state.subprocess.run") as run:
+                    with self.assertRaises(OSError):
+                        run_git(ROOT, "status")
+                    run.assert_not_called()
+
+    def test_head_nonzero_remains_unborn_without_retry(self):
+        from lib.verification_state import snapshot
+        with patch("lib.verification_state.git_executable", return_value="CANARY_PRIVATE.exe"), \
+                patch("lib.verification_state.subprocess.run", side_effect=[
+                    subprocess.CompletedProcess([], 0, stdout=b""),
+                    subprocess.CompletedProcess([], 128, stdout=b""),
+                    subprocess.CompletedProcess([], 0, stdout=b"")]) as run:
+            self.assertEqual(snapshot(ROOT), {"head": None, "files": {}})
+        self.assertEqual(run.call_count, 3)
+        self.assertTrue(all(call.args[0][0] == "CANARY_PRIVATE.exe" for call in run.call_args_list))
+        self.assertEqual([call.kwargs["check"] for call in run.call_args_list], [True, False, True])
+
+    def test_windows_batch_path_is_rejected(self):
+        from lib.verification_state import git_executable
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "git.cmd"
+            path.write_bytes(b"fixture")
+            with patch.dict(os.environ, {"FEF_GIT_EXECUTABLE": str(path)}), \
+                    patch("lib.verification_state.sys.platform", "win32"):
+                with self.assertRaises(OSError):
+                    git_executable()
+
+    def test_invalid_selection_prevents_wrapper_child_and_footer(self):
+        spec = importlib.util.spec_from_file_location("fef_wrapper_invalid_git", WRAPPER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with patch.dict(os.environ, {"FEF_GIT_EXECUTABLE": "relative/git.exe"}), \
+                patch.object(module.subprocess, "run") as run, \
+                redirect_stdout(stdout), redirect_stderr(stderr):
+            code = module.main(["--", "python", "-m", "unittest"])
+        self.assertEqual(code, 2)
+        self.assertNotIn(RESULT_PREFIX, stdout.getvalue())
+        self.assertIn("Verification could not complete", stderr.getvalue())
+        run.assert_not_called()
+
+    def test_command_failure_is_not_retried(self):
+        from lib.verification_state import git
+        error = subprocess.CalledProcessError(1, ["CANARY_PRIVATE.exe", "status"])
+        with patch("lib.verification_state.git_executable", return_value="CANARY_PRIVATE.exe"), \
+                patch("lib.verification_state.subprocess.run", side_effect=error) as run:
+            with self.assertRaises(subprocess.CalledProcessError) as caught:
+                git(ROOT, "status")
+        self.assertIs(caught.exception, error)
+        self.assertEqual(run.call_count, 1)
+
+    def test_explicit_git_timeout_retains_sanitized_operations(self):
+        from lib.verification_state import hook_error, run_git
+        for args, operation in ((["rev-parse", "--show-toplevel"], "repository"),
+                                (["status", "--porcelain=v1", "-z", "--untracked-files=all"], "status"),
+                                (["rev-parse", "--verify", "HEAD"], "head"),
+                                (["ls-files", "--stage", "-z"], "index")):
+            error = subprocess.TimeoutExpired(["CANARY_PRIVATE.exe", *args], 15,
+                                             stderr="CANARY_PRIVATE_STDERR")
+            with patch("lib.verification_state.git_executable", return_value="CANARY_PRIVATE.exe"), \
+                    patch("lib.verification_state.subprocess.run", side_effect=error) as run:
+                with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                    run_git(ROOT, *args)
+            stderr = io.StringIO()
+            with redirect_stderr(stderr):
+                hook_error(caught.exception)
+            self.assertIn("git_operation=" + operation, stderr.getvalue())
+            self.assertNotIn("CANARY_PRIVATE", stderr.getvalue())
+            self.assertEqual(run.call_count, 1)
+
+
 class ExtractExitCodeTest(unittest.TestCase):
     def test_sanitized_git_timeout_diagnostics(self):
         from lib.verification_state import hook_error

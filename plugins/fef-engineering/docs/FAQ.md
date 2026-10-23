@@ -1,10 +1,15 @@
-# FAQ
+# TaskForge for Claude — FAQ
 
-## Does FEF make Claude smarter?
+<a id="does-fef-make-claude-smarter"></a>
 
-No. It improves consistency, calibration, and output discipline.
+## Does TaskForge for Claude make Claude smarter?
 
-## Does FEF replace web research?
+No. It supplies task guidance and verification reminders. Effects on consistency,
+calibration, quality and cost depend on the workload and must be measured.
+
+<a id="does-fef-replace-web-research"></a>
+
+## Does TaskForge for Claude replace web research?
 
 No. It encourages evidence-based work but does not create evidence.
 
@@ -16,7 +21,9 @@ No. Load only relevant modules.
 
 Rarely. Most improvements belong in policies or modules.
 
-## What happens when I replace an installed FEF pack?
+<a id="what-happens-when-i-replace-an-installed-fef-pack"></a>
+
+## What happens when I replace an installed pack?
 
 Default conflicts refuse and identical verified payloads skip without writes.
 `--force` validates a stage before renaming the original into a hidden recovery

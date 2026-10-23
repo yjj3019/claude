@@ -2,7 +2,46 @@
 
 Start Code in the target repository. Its native discovery loads project instructions;
 a host skill copy does not replace the target project's CLAUDE.md.
-FEF workflows are Markdown procedures, not executable .claude/workflows.
+TaskForge for Claude (formerly FEF) is maintained by yjj3019. It is independent
+of Anthropic and is not an official, sponsored or endorsed Anthropic product.
+Its workflows are Markdown procedures, not executable .claude/workflows.
+
+## Product name and retained identifiers
+
+The product display name is **TaskForge for Claude**. The former name is
+**FEF (Framework for Engineering Excellence)**. This is a branding change, not
+a new plugin ID, an alias command or a stored-data migration.
+
+| Surface | Retained compatibility contract |
+|---|---|
+| Native installation | `fef-engineering@fef-marketplace` |
+| Old native ID migration | `fef-claude` → `fef-engineering` in the existing marketplace renames map |
+| Native skills | `/fef-engineering:fef-coding`, `/fef-engineering:fef-rca`; other skill IDs unchanged |
+| Standalone pack | `fef-claude/`, skill `name: fef-claude`, invocation `/fef-claude` |
+| Installer configuration | Existing options, `FEF_SIBLING_ROOTS`, `FEF_SIBLING_PARENT`, `.fef-manifest.json` |
+| Verification | `.claude/.verification/`, state v1, `FEF_VERIFY_RESULT=` footer and existing failure markers |
+
+Do not install a new `taskforge` plugin or invoke `/taskforge` for this project:
+neither is an alias supplied here. Old FEF requests still match the standalone
+entry; explicit TaskForge for Claude requests are also described there. Legacy
+FEF skill labels, diagnostics, evaluation-arm names and dated results remain
+for compatibility and provenance. The name does not imply shared package IDs,
+versions or runtime behavior with other TaskForge distributions.
+
+Existing cached installations do not change merely because this working tree
+was edited. This change does not bump the version or publish a release; use
+the retained install ID when a new release becomes available. Standalone copies
+still require explicit `--force` for a differing update, retaining the old copy
+under the installer's existing recovery contract.
+
+Naming review, 2026-10-23: public search surfaced a separate
+[`taskforge` listing](https://claudecodemods.dev/mods/taskforge), so name
+uniqueness is not established. The
+[Anthropic trademark guidelines](https://www.anthropic.com/legal/trademark-guidelines)
+also restrict permitted use and implied affiliation. Publisher attribution and
+the independence statement do not establish trademark permission. Registration,
+permission and public-release clearance have not been confirmed. No Anthropic
+logo was added. The existing LICENSE scope and third-party exclusions are unchanged.
 
 ## Native Skills and Plugin
 
@@ -34,12 +73,13 @@ an exact copy and the marketplace omits its redundant version. Version `1.3.1`
 marks the separate native payload so cached `1.3.0` installs can receive the change
 after release. See [manifest precedence](https://code.claude.com/docs/en/plugins-reference#metadata-precedence).
 
-The native plugin is now `fef-engineering`, in both manifests. The marketplace
+The earlier native-ID migration changed `fef-claude` to `fef-engineering`,
+separately from the display-name change above. The marketplace
 keeps `"renames": {"fef-claude": "fef-engineering"}` as append-only migration
 history. The standalone installer still ships `fef-claude/` and `/fef-claude`.
 
-After this change is released, existing native-plugin users should update the
-marketplace, install the new ID once, and restart their session:
+Only users of the old native `fef-claude` ID need this ID migration: update the
+marketplace, install `fef-engineering` once, and restart the session:
 
 ```text
 /plugin marketplace update fef-marketplace

@@ -1,0 +1,291 @@
+{
+  "date": "2026-10-24",
+  "timezone": "Asia/Seoul",
+  "status": "verification_completed_with_regression_failures",
+  "source_head": "45de11e2dbe8548f2542fb677b023286592bda85",
+  "source_file_count_during_verification": 461,
+  "source_unchanged_during_verification": true,
+  "observed_user_settings_and_claude_md_unchanged": true,
+  "source_snapshot_sha256": "02ec2762648d06e9376fdb6573151b22509d9a364ec59502f50075412fb4b041",
+  "regression": {
+    "configuration": "FEF_GIT_EXECUTABLE unset in child environment; default PATH Git and 15-second product timeout unchanged",
+    "suites": [
+      {
+        "label": "01_unittest_tests",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit": 1,
+        "wall_seconds": 3687.042,
+        "tests": 222,
+        "passed": 218,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 2,
+        "unittest_seconds": 3684.72,
+        "summary": "FAILED (failures=2, skipped=2)"
+      },
+      {
+        "label": "02_unittest_delegation",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts/delegation",
+          "-p",
+          "test_*.py",
+          "-v"
+        ],
+        "exit": 0,
+        "wall_seconds": 80.719,
+        "tests": 49,
+        "passed": 47,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 2,
+        "unittest_seconds": 79.236,
+        "summary": "OK (skipped=2)"
+      }
+    ],
+    "totals": {
+      "tests": 271,
+      "passed": 265,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 4
+    },
+    "checks": [
+      {
+        "label": "03_validate_repository",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "scripts/validate_repository.py"
+        ],
+        "exit": 0
+      },
+      {
+        "label": "04_build_plugin_check",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "scripts/build_plugin.py",
+          "--check"
+        ],
+        "exit": 0
+      },
+      {
+        "label": "05_validate_skill",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "scripts/delegation/validate_skill.py"
+        ],
+        "exit": 0
+      },
+      {
+        "label": "06_refresh_evidence_check",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "scripts/delegation/refresh_evidence.py",
+          "--check"
+        ],
+        "exit": 0
+      },
+      {
+        "label": "07_verify_history",
+        "argv": [
+          "python",
+          "-X",
+          "utf8",
+          "scripts/delegation/verify_history.py"
+        ],
+        "exit": 0
+      },
+      {
+        "label": "08_git_diff_check",
+        "argv": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "exit": 0
+      }
+    ],
+    "failures": [
+      {
+        "test": "test_payload_alone_routes_and_supplies_kernel_and_baseline",
+        "operation": "head",
+        "cause": "Git TimeoutExpired at the existing 15-second limit; unexpected hook stderr"
+      },
+      {
+        "test": "test_bool_exit_code_is_not_integer_success",
+        "operation": "repository",
+        "cause": "Git TimeoutExpired during setup at the existing 15-second limit; unexpected hook stderr"
+      }
+    ],
+    "skips": "Four Windows symlink privilege limitations; privilege settings unchanged",
+    "observer_correction": "Initial progress/preliminary parser read stdout only. unittest emitted to stderr. Original logs retained; final counts independently derived from terminal unittest summaries, not per-test line counts. Hex digest case and Windows path separators normalized when comparing user file hashes."
+  },
+  "live_model": {
+    "cli_version": "2.1.309 (Claude Code)",
+    "model_requested": "claude-sonnet-5-5",
+    "effort": "medium",
+    "protocol": "One GT012 synthetic fixture, followed by a new independent CLI context that resumes the same progress record; no answers supplied; four current guides explicitly read",
+    "sessions": [
+      {
+        "session": 1,
+        "served_models": [
+          "claude-sonnet-5-5"
+        ],
+        "process_exit": 0,
+        "wall_seconds": 243.576,
+        "cli_estimated_usd": 0.1326212,
+        "plugin_unchanged": true,
+        "protected_tests_unchanged": true,
+        "changed_fixture_files": [
+          "money.py"
+        ],
+        "denied_commands": [
+          "python -c \"print(1)\""
+        ]
+      },
+      {
+        "session": 2,
+        "served_models": [
+          "claude-sonnet-5-5"
+        ],
+        "process_exit": 0,
+        "wall_seconds": 113.162,
+        "cli_estimated_usd": 0.10400540000000001,
+        "plugin_unchanged": true,
+        "protected_tests_unchanged": true,
+        "changed_fixture_files": [],
+        "denied_commands": []
+      }
+    ],
+    "skill_and_kernel_delivery_verified": true,
+    "current_guides_read_verified": true,
+    "fresh_context_verified": true,
+    "verification_returncode_zero_and_current_snapshot_match": true,
+    "trusted_grader_exit": 0,
+    "mechanical_checks": {
+      "unit_tests_pass": true,
+      "fix_files_touched": true,
+      "caller_only_fix": false,
+      "test_file_modified": false,
+      "new_dependency_candidates": []
+    },
+    "independent_fixture_tests_passed": 6,
+    "total_cli_estimated_usd": 0.2366266,
+    "cost_is_subscription_bill": false,
+    "observations": [
+      "Session 1 attempted an unapproved python -c command; the experimental CLI allowlist denied it. This is not a claim that TaskForge independently enforces shell permissions.",
+      "Session 1 incorrectly described negative integers as unsupported; independently evaluated parse_money(-1 as text) returned -1. Original model output and handoff retained.",
+      "Whitespace-only input raises ValueError and malformed comma grouping is accepted; these are fixture limits outside the six checks."
+    ],
+    "edge_probes": {
+      "'-1'": {
+        "value": -1
+      },
+      "'   '": {
+        "exception": "ValueError"
+      },
+      "'1,2,3'": {
+        "value": 123
+      }
+    },
+    "limitations": [
+      "Only one synthetic fixture; no A/B comparison, general efficacy, variance or cost-reduction evidence; no Golden PASS or full rubric score assigned.",
+      "Progress notes deliberately ignored by Git in this controlled trial; tracked-progress interactions not established by this model experiment.",
+      "Built-in cc-plugin-agents-md, cc-plugin-telemetry and cc-plugin-plugin-authoring remained loaded. Global settings sources excluded and auto-memory disabled in session configuration; this is not OS isolation.",
+      "The reviewed generated parser executed only in the synthetic host fixture; no model patch applied to the product."
+    ]
+  },
+  "ppt": {
+    "artifact_name": "TaskForge_validation_20261024.pptx",
+    "sha256": "35db3f852a30d8de6bbcaa880521b1733a167d2de6b705ded39e23786bda64bb",
+    "bytes": 133576,
+    "pages": 4,
+    "representative_sample_pages": 2,
+    "structure": {
+      "xml_parse": "pass",
+      "python_pptx_reopen": "pass",
+      "native_charts": 1,
+      "native_tables": 1,
+      "embedded_workbook": true,
+      "schema_validator": "pass: unmodified skill office/validate.py; sample exit0 and full exit0 after isolated defusedxml0.7.1 target dependency"
+    },
+    "powerpoint_version": "16.0.20430.20182",
+    "actual_powerpoint_open": true,
+    "rendered_png_pages": 4,
+    "png_dimensions": "1600x900",
+    "pdf_export": true,
+    "creator_visual_qa": true,
+    "parent_visual_qa_all_pages": true,
+    "native_charts": 1,
+    "native_tables": 1,
+    "embedded_workbook": true,
+    "korean_title_rendered": true,
+    "own_powerpoint_instance_closed_and_exited": true,
+    "tools": {
+      "node": "24.19.0",
+      "pptxgenjs": "4.0.1",
+      "python": "3.12.14",
+      "python_pptx": "1.0.2",
+      "python_docx": "1.2.0",
+      "openpyxl": "3.1.5",
+      "lxml": "6.1.1",
+      "Pillow": "12.3.0",
+      "font": "Malgun Gothic"
+    },
+    "recovery_history": [
+      "Original schema validator failed before validation: missing defusedxml",
+      "First full COM startup failed 0x80080005 before Presentations.Open",
+      "Existing-process guard stopped retry before COM creation",
+      "Read-only orphan check: PID28072 exact start and automation command line; zero open documents; only this task-owned PID stopped after lead authorization",
+      "First STA invocation guard stopped before COM while old process was exiting",
+      "Read-only process inventory then confirmed no PowerPoint process",
+      "Final Windows PowerShell5.1 -STA new COM instance opened and rendered all4; exit0; document Close and Application.Quit completed; PID56836 exit verified",
+      "Additional lead authorization prepared defusedxml==0.7.1 from https://pypi.org/simple using pip isolated no-deps binary-only target .validator-deps; child-process PYTHONPATH only; original sample/full validator both All validations PASSED exit0"
+    ],
+    "isolated_validator_dependency": {
+      "name": "defusedxml",
+      "version": "0.7.1",
+      "source": "https://pypi.org/simple",
+      "scope": "Private validator target and child PYTHONPATH only; no product or global dependency change",
+      "wheel_sha256": null
+    },
+    "limitations": [
+      "No manual chart/table edit-save interaction or screen-reader check.",
+      "Successful scoped orphan recovery and STA retry do not prove the intermittent COM startup error is resolved.",
+      "Created by the Office validation worker; not evidence of Claude PPT generation quality or efficacy."
+    ]
+  },
+  "evidence_directory": "validation-20261024-full-model-ppt (workspace sibling of the source checkout)",
+  "network_scope": "Two authorized Claude API sessions and the isolated PyPI validator dependency download; no cumulative product diff review or external messages",
+  "remaining": [
+    "Default Windows Git timeout cause unresolved; current full regression did not pass.",
+    "No Linux/version matrix, remote CI, production/global/marketplace deployment, or third-party redistribution clearance."
+  ],
+  "recording_scope": "After frozen-source verification, only this report, its JSON, PROGRESS and an assessment follow-up link are updated. No commit or push."
+}

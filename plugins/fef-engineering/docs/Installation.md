@@ -1,4 +1,7 @@
-# Installation
+# TaskForge for Claude — Installation
+
+Formerly FEF, maintained by yjj3019. This is a display-name change; keep the
+existing IDs and follow [naming compatibility](ClaudeCode.md#product-name-and-retained-identifiers).
 
 For the native Claude Code plugin, use `fef-engineering@fef-marketplace` and the
 [plugin migration guide](ClaudeCode.md#plugin-validation-and-compatibility).
@@ -40,7 +43,7 @@ python3 /path/to/claude/scripts/install_pack.py --siblings /other/project
 3. Hooks under `.claude/settings.json` remind you to test before stopping when using this repo as workspace. Their exec-form `command` is `python`; if that executable is unavailable, set all four interpreter fields to the available Python executable (often `python3` on Linux/macOS). Missing interpreters leave verification unavailable; see `docs/ClaudeCode.md`.
 
 The installed `SKILL.md` declares only the common `name: fef-claude` and a narrow
-description for explicit FEF requests. It emits no Claude Code extension fields;
+description for explicit TaskForge for Claude or FEF requests. It emits no Claude Code extension fields;
 manual-only invocation controls belong to the active host's configuration. A
 description is not an enforced invocation restriction. The body keeps the
 existing selective loading map and budget. These metadata checks do not prove
@@ -65,7 +68,43 @@ From this clone, `python scripts/install_pack.py --pack ai-delegation-loop --des
 
 For tool-specific user/project paths and reproducible ZIPs see [delegation installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md). The root FEF instructions are not replaced. See [provenance and licensing](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md).
 
-## FEF replacement and recovery
+## Optional Git executable for verification
+
+Verification hooks and the verification wrapper accept `FEF_GIT_EXECUTABLE`.
+Unset or empty retains the existing `git` lookup through PATH, including custom
+wrappers. There is no automatic replacement of the selected Git installation.
+The setting affects Git used for repository/snapshot observation, including HEAD
+and recursive submodules; it does not rewrite the verification child command.
+
+Set it in the terminal before launching the host, using a trusted existing
+absolute executable path. On Windows it must be an `.exe` file. Do not include
+shell quotes, arguments or a `~` abbreviation in the value. For example, only
+if this exact Git for Windows installation exists:
+
+```powershell
+$env:FEF_GIT_EXECUTABLE = 'C:\Program Files\Git\mingw64\bin\git.exe'
+```
+
+This is a process/child environment setting, not a global PATH change.
+[Git for Windows documents direct absolute-path invocation](https://gitforwindows.org/git-wrapper.html).
+Use a supported installation and check local helper/configuration compatibility;
+this option does not promise a speedup on other systems. A wrong path or failed
+Git command leaves verification unavailable, with no retry through another Git
+and no inferred successful result. Existing snapshot format, timeout and
+sanitized operation diagnostics remain unchanged. To return to default behavior
+for subsequently launched hosts in this PowerShell session:
+
+```powershell
+Remove-Item Env:\FEF_GIT_EXECUTABLE -ErrorAction SilentlyContinue
+```
+
+An already running host retains its inherited environment. Changing the setting
+does not migrate state or update an installed plugin; install the updated pack
+before using the option. These instructions do not change global settings.
+
+<a id="fef-replacement-and-recovery"></a>
+
+## TaskForge for Claude replacement and recovery
 
 The FEF branch of this installer stages inside the selected skills root, hashes
 the copied payload against its source snapshot and verifies the manifest before

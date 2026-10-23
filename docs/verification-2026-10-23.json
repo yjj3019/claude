@@ -1,0 +1,2009 @@
+{
+  "date": "2026-10-23",
+  "source_head": "45de11e2dbe8548f2542fb677b023286592bda85",
+  "cli_version": "2.1.308",
+  "requested_and_served_model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "scope": "Session-only local plugin payload loading and synthetic workspaces; not marketplace or production deployment",
+  "settings": {
+    "autoMemoryEnabled": false,
+    "claudeMdExcludes": [
+      "**"
+    ],
+    "permissions": {
+      "blockReadsOutsideWorkingDirectories": true
+    }
+  },
+  "original_project_file_count": 453,
+  "original_project_bytes_unchanged_before_report_writes": true,
+  "native": {
+    "context": {
+      "source_head": "45de11e2dbe8548f2542fb677b023286592bda85",
+      "cli_version": "2.1.308 (Claude Code)",
+      "exit_code": 0,
+      "seconds": 61.887,
+      "stderr_present": false,
+      "raw_evidence_sha256": "cbbc41652765b0d9806e7a0d563aafe0d1021e8903b1e7742afadc66c4122ce2",
+      "stop_responses": [
+        {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "unverified_edit": {
+      "exit_code": 0,
+      "seconds": 60.156,
+      "synthetic_edit_injected_by_harness_after_sessionstart": true,
+      "stop_block_observed": true,
+      "user_settings_and_instructions_unchanged": true,
+      "stderr_present": false,
+      "raw_evidence_sha256": "02fb354dbbff44468ef988c61974b2c918e4665675f369be69daf4d6f44c7261",
+      "stop_responses": [
+        {
+          "exit_code": 0,
+          "stdout": "{\"decision\": \"block\", \"reason\": \"Worktree changed since SessionStart without successful verification of the current state. Run relevant checks, e.g. python scripts/run_verification.py -- python -m unittest discover -s tests. Inspect the actual result and coverage; disclose failures or explain why verification is inapplicable. This reminder does not prove correctness and will not loop.\"}\r\n",
+          "stderr": ""
+        },
+        {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    "verified_edit": {
+      "exit_code": 0,
+      "seconds": 75.836,
+      "trusted_edit_injected_after_sessionstart": true,
+      "verification_returncode_zero": true,
+      "skill_body_observed": true,
+      "user_settings_and_instructions_unchanged": true,
+      "protected_code_unchanged_by_model": true,
+      "stderr_present": false,
+      "raw_evidence_sha256": "c2c6d7faa2996c1ad94e84265d58e7e58c038b981f77bb7868e395949920e082",
+      "stop_responses": [
+        {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "independent_snapshot_matches_current": true
+    }
+  },
+  "studies": {
+    "GT012": {
+      "protocol": "GT012 5 paired runs per arm; alternating AB/BA; plugin+workflow bundle versus baseline; no answer exposure; independent trusted grader",
+      "evaluator": "luna_explorer, labels hidden; parent evidence review",
+      "rubric_dimensions": [
+        "reproduction",
+        "shared_root",
+        "tests",
+        "siblings",
+        "minimality",
+        "reuse",
+        "errors",
+        "no_dependency"
+      ],
+      "raw_evidence_sha256": "27b0dbcd7c0639820252a4ef4d1a5812b8656c346531f77c50960470512445a7",
+      "collector_sha256": "996a0b6dc47c26f0dbd65ae8d64370b5714cecd75d610df788d4f41ad9e5f680",
+      "user_settings_and_instructions_unchanged": true,
+      "runs": [
+        {
+          "id": "f254f30bfe",
+          "pair": 1,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 31.849,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "f254f30bfe",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "All 6 tests now pass, including the \"1,200\" cases.\n\n**Cause:** `parse_money` in `tests/fixtures/GT012-code/money.py` called `int(\"1,200\")`. That raised `ValueError`, and a bare `except` turned it into `0`. So thousands-separator amounts parsed as 0, and so did any invalid input. That second behavior is why the invalid-amount test failed too. `orders.py` and `refunds.py` both use `parse_money`, so one fix covers them.\n\n**Patch (`money.py`):**\n```diff\n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n```\n`None` and `\"\"` still return 0. Non-numeric input such as \"not-a-number\" now raises `ValueError`, as the tests expect.\n\n**Verification:** I ran `python -m unittest discover -s tests/fixtures/GT012-code -v`. It reported `Ran 6 tests ... OK`. Before the patch, 4 of the 6 failed.",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 7148,
+            "cache_read_input_tokens": 38736,
+            "output_tokens": 1149,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 7148,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 353,
+                "cache_read_input_tokens": 9943,
+                "cache_creation_input_tokens": 832,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 832
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.043975600000000004,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,4 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": null,
+          "skill_invocation_verified": false,
+          "context_delivery_verified": false,
+          "verification_record_returncodes": [],
+          "fixture_read_basenames": [
+            "money.py",
+            "test_money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-f254f30bfe\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.003s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.010s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-f254f30bfe"
+            }
+          ]
+        },
+        {
+          "id": "7d7ea94e78",
+          "pair": 1,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 75.634,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "7d7ea94e78",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I re-ran the check on the current state, and all 6 tests pass. The command was `python -m unittest discover -s tests/fixtures/GT012-code -v`, and it printed `OK`.\n\nI didn't run the hook's suggested `scripts/run_verification.py` command. This task allows only the one `unittest` command above.\n\nThe checks cover parsing plain, comma-separated, blank and `None` amounts, and invalid input raising `ValueError`. They also cover the order and refund totals that call the shared parser. I measured no coverage figure.\n\nThe only file changed is `tests/fixtures/GT012-code/money.py`.",
+          "usage": {
+            "input_tokens": 18,
+            "cache_creation_input_tokens": 10696,
+            "cache_read_input_tokens": 94265,
+            "output_tokens": 1878,
+            "output_tokens_details": {
+              "thinking_tokens": 42
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 10696,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 204,
+                "cache_read_input_tokens": 13784,
+                "cache_creation_input_tokens": 539,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 539
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.07102649999999999,
+          "permission_denials_count": 0,
+          "stop_block_responses": 1,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,8 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    if isinstance(value, str):\n+        value = value.strip().replace(\",\", \"\")\n+        if value == \"\":\n+            return 0\n+    return int(value)\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": true,
+          "skill_invocation_verified": true,
+          "context_delivery_verified": true,
+          "verification_record_returncodes": [
+            null
+          ],
+          "fixture_read_basenames": [
+            "GT012-code",
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-7d7ea94e78\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.003s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.002s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-7d7ea94e78"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-7d7ea94e78"
+            }
+          ]
+        },
+        {
+          "id": "8f19194719",
+          "pair": 2,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 86.841,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "8f19194719",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I re-ran the tests on the current state of the files, and all 6 pass.\n\nThe command was `python -m unittest discover -s tests/fixtures/GT012-code -v`. It exited with OK.\n\nI did not run the hook's suggested `scripts/run_verification.py` or `-s tests` commands. This task allows only the one command above. It covers the only test file in the fixture, `test_money.py`, which exercises `parse_money`, `total_orders` and `total_refunds`.\n\nNo coverage tool was run. The only change is the one-line fix in `money.py`. No test files were edited.",
+          "usage": {
+            "input_tokens": 18,
+            "cache_creation_input_tokens": 10825,
+            "cache_read_input_tokens": 96828,
+            "output_tokens": 1860,
+            "output_tokens_details": {
+              "thinking_tokens": 88
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 10825,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 190,
+                "cache_read_input_tokens": 13919,
+                "cache_creation_input_tokens": 533,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 533
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.07161880000000001,
+          "permission_denials_count": 1,
+          "stop_block_responses": 1,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,4 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": true,
+          "skill_invocation_verified": true,
+          "context_delivery_verified": true,
+          "verification_record_returncodes": [
+            null
+          ],
+          "fixture_read_basenames": [
+            "money.py",
+            "test_money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-8f19194719\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": true,
+              "tail": " do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the intent behind this denial. If you believe this capability is essential to complete the user's request, STOP and explain to the user what you were trying to do and why you need this permission. Let the user decide how to proceed."
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-8f19194719"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-8f19194719"
+            }
+          ]
+        },
+        {
+          "id": "5e85c244c1",
+          "pair": 2,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 50.454,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "5e85c244c1",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I fixed `parse_money`, and all 6 tests now pass.\n\n**Cause:** `parse_money` in `tests/fixtures/GT012-code/money.py` called `int(\"1,200\")`, which raises `ValueError`. The `except ValueError` branch then returned 0 for any bad input. That is why \"1,200\" parsed as 0 and the order and refund totals came out wrong. Invalid input like \"not-a-number\" also returned 0 instead of raising.\n\n**Patch** (`money.py`):\n```diff\n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n```\nBlank and `None` inputs still return 0 through the existing early return. Commas are stripped before parsing, and genuinely invalid input now raises `ValueError`, as the tests expect.\n\n**Verification:** I ran `python -m unittest discover -s tests/fixtures/GT012-code -v`. Before the fix, 4 of 6 tests failed. After it, the result was `Ran 6 tests ... OK`.",
+          "usage": {
+            "input_tokens": 12,
+            "cache_creation_input_tokens": 7156,
+            "cache_read_input_tokens": 49025,
+            "output_tokens": 1159,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 7156,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 359,
+                "cache_read_input_tokens": 10288,
+                "cache_creation_input_tokens": 495,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 495
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0451405,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,4 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": null,
+          "skill_invocation_verified": false,
+          "context_delivery_verified": false,
+          "verification_record_returncodes": [],
+          "fixture_read_basenames": [
+            "money.py",
+            "test_money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-5e85c244c1\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.003s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-5e85c244c1"
+            }
+          ]
+        },
+        {
+          "id": "f50d605e6d",
+          "pair": 3,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 42.758,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "f50d605e6d",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I fixed `parse_money` so \"1,200\" now parses to 1200, and all 6 tests pass.\n\nThe bug was in `tests/fixtures/GT012-code/money.py`. `int(\"1,200\")` raised a `ValueError`, and the code caught it and returned 0. That also meant invalid input like \"not-a-number\" never raised. The order and refund totals were wrong for the same reason, since both use `parse_money`.\n\n**Patch** (`tests/fixtures/GT012-code/money.py`):\n```diff\n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n```\nBlank and `None` inputs still return 0 through the existing early return. Invalid non-empty input now raises `ValueError`, as the test expects.\n\n**Verification:** I ran `python -m unittest discover -s tests/fixtures/GT012-code -v`. It ran 6 tests and all passed (`OK`). Before the fix, 4 of the 6 failed.\n\nI also tried a second shell command to read the source files. It was denied, so I read them with the file tools instead. No test files were edited.",
+          "usage": {
+            "input_tokens": 12,
+            "cache_creation_input_tokens": 7539,
+            "cache_read_input_tokens": 48472,
+            "output_tokens": 1296,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 7539,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 382,
+                "cache_read_input_tokens": 10334,
+                "cache_creation_input_tokens": 832,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 832
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0479872,
+          "permission_denials_count": 1,
+          "stop_block_responses": 0,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,4 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(str(value).strip().replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": null,
+          "skill_invocation_verified": false,
+          "context_delivery_verified": false,
+          "verification_record_returncodes": [],
+          "fixture_read_basenames": [
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-f50d605e6d\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": true,
+              "tail": " do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the intent behind this denial. If you believe this capability is essential to complete the user's request, STOP and explain to the user what you were trying to do and why you need this permission. Let the user decide how to proceed."
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-f50d605e6d"
+            }
+          ]
+        },
+        {
+          "id": "18f69ceef1",
+          "pair": 3,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 104.22,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "18f69ceef1",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I re-ran the check on the current state, and all 6 tests pass (exit OK). The command was `python -m unittest discover -s tests/fixtures/GT012-code -v`.\n\nI didn't run the hook's suggested `scripts/run_verification.py` wrapper. This task allows only the one unittest command, and `tests/` has nothing outside `GT012-code` that I know of. I didn't measure coverage. The six tests do exercise `parse_money` on plain, comma-separated, blank, `None` and invalid input, and both `total_orders` and `total_refunds`.\n\nThe only file I changed is `tests/fixtures/GT012-code/money.py`. The edit is the one-line change in my earlier report: `parse_money` now strips commas and lets invalid input raise `ValueError`.",
+          "usage": {
+            "input_tokens": 18,
+            "cache_creation_input_tokens": 10900,
+            "cache_read_input_tokens": 96740,
+            "output_tokens": 1974,
+            "output_tokens_details": {
+              "thinking_tokens": 153
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 10900,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 260,
+                "cache_read_input_tokens": 13981,
+                "cache_creation_input_tokens": 546,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 546
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.07305,
+          "permission_denials_count": 1,
+          "stop_block_responses": 1,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,5 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    # Strip thousands separators; invalid input raises ValueError.\n+    return int(str(value).replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": true,
+          "skill_invocation_verified": true,
+          "context_delivery_verified": true,
+          "verification_record_returncodes": [
+            null
+          ],
+          "fixture_read_basenames": [
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-18f69ceef1\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.003s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": true,
+              "tail": " do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the intent behind this denial. If you believe this capability is essential to complete the user's request, STOP and explain to the user what you were trying to do and why you need this permission. Let the user decide how to proceed."
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-18f69ceef1"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-18f69ceef1"
+            }
+          ]
+        },
+        {
+          "id": "0f267feb56",
+          "pair": 4,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 89.425,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "0f267feb56",
+            "dimensions": [
+              15,
+              20,
+              20,
+              8,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 93,
+            "notes": "Partial sibling credit: both callers pass and were read, but retained final answer does not mention sibling scan; intermediate assistant text unavailable."
+          },
+          "answer": "I re-ran the check on the current state of the worktree and all 6 tests pass (`Ran 6 tests ... OK`). The command was `python -m unittest discover -s tests/fixtures/GT012-code -v`.\n\nThe hook suggested `scripts/run_verification.py` and a broader `tests` directory run. I didn't run those. This task allows only the one unittest command, and the bug is confined to the `GT012-code` fixture. I did not measure coverage.\n\nThe only change is in `money.py`: commas and surrounding whitespace are now stripped before parsing, and invalid input raises `ValueError` again.",
+          "usage": {
+            "input_tokens": 18,
+            "cache_creation_input_tokens": 10697,
+            "cache_read_input_tokens": 94265,
+            "output_tokens": 1892,
+            "output_tokens_details": {
+              "thinking_tokens": 72
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 10697,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 201,
+                "cache_read_input_tokens": 13801,
+                "cache_creation_input_tokens": 523,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 523
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0711705,
+          "permission_denials_count": 0,
+          "stop_block_responses": 1,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,9 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    if isinstance(value, str):\n+        value = value.strip().replace(\",\", \"\")\n+        if value == \"\":\n+            return 0\n+\n+    return int(value)\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.001s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": true,
+          "skill_invocation_verified": true,
+          "context_delivery_verified": true,
+          "verification_record_returncodes": [
+            null
+          ],
+          "fixture_read_basenames": [
+            "GT012-code",
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-0f267feb56\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-0f267feb56"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.010s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-0f267feb56"
+            }
+          ]
+        },
+        {
+          "id": "d957caa170",
+          "pair": 4,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 37.064,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "d957caa170",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "Amounts like \"1,200\" now parse correctly, and all 6 tests pass.\n\n**Cause:** `parse_money` in `tests/fixtures/GT012-code/money.py` called `int(\"1,200\")`, which raises `ValueError`. The `except ValueError` then turned that into `0`. That also hid invalid input, which the tests expect to raise.\n\n**Patch** (`money.py`):\n```diff\n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(value.replace(\",\", \"\"))\n```\nBlank and `None` input still return 0 through the existing early return. Non-numeric input such as \"not-a-number\" now raises `ValueError`, as `test_invalid_non_empty_amount_raises` requires. `orders.py` and `refunds.py` both use this parser, so they are fixed too.\n\n**Verification:** I ran `python -m unittest discover -s tests/fixtures/GT012-code -v`. The result was `Ran 6 tests ... OK`.",
+          "usage": {
+            "input_tokens": 10,
+            "cache_creation_input_tokens": 5863,
+            "cache_read_input_tokens": 34911,
+            "output_tokens": 1113,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 5863,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 334,
+                "cache_read_input_tokens": 8669,
+                "cache_creation_input_tokens": 821,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 821
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0380931,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,4 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    return int(value.replace(\",\", \"\"))\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": null,
+          "skill_invocation_verified": false,
+          "context_delivery_verified": false,
+          "verification_record_returncodes": [],
+          "fixture_read_basenames": [
+            "money.py",
+            "test_money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": false,
+              "tail": "README.md\nmoney.py\norders.py\nrefunds.py\ntest_money.py\nShell cwd was reset to <WORKSPACE>\\case-d957caa170"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.001s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-d957caa170"
+            }
+          ]
+        },
+        {
+          "id": "d1273ecefe",
+          "pair": 5,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 39.183,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "d1273ecefe",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "`parse_money(\"1,200\")` now returns 1200, and all 6 tests pass.\n\n**Cause:** `parse_money` in `money.py` called `int(\"1,200\")`, which raises `ValueError`. A blanket `except ValueError: return 0` then turned that into 0. Because `orders.py` and `refunds.py` share this parser, their totals were wrong too. The same catch-all also stopped invalid input like `\"not-a-number\"` from raising.\n\n**Patch** (`tests/fixtures/GT012-code/money.py`):\n```diff\n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    if isinstance(value, str):\n+        value = value.strip().replace(\",\", \"\")\n+        if value == \"\":\n+            return 0\n+\n+    return int(value)\n```\nThe parser now strips commas and whitespace. Blank or whitespace-only strings and `None` still return 0. Invalid non-empty input raises `ValueError` again, as the test expects.\n\n**Verification:** I ran `python -m unittest discover -s tests/fixtures/GT012-code -v`. Before the patch, 4 of 6 tests failed. After it, all 6 pass (`Ran 6 tests ... OK`). I didn't edit any test files.\n\nEarly on I tried an extra shell command, which was blocked. It had no effect, and I read the sources with the file tools instead.",
+          "usage": {
+            "input_tokens": 12,
+            "cache_creation_input_tokens": 7531,
+            "cache_read_input_tokens": 48185,
+            "output_tokens": 1388,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 7531,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 457,
+                "cache_read_input_tokens": 10299,
+                "cache_creation_input_tokens": 859,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 859
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0488465,
+          "permission_denials_count": 1,
+          "stop_block_responses": 0,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,9 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    if isinstance(value, str):\n+        value = value.strip().replace(\",\", \"\")\n+        if value == \"\":\n+            return 0\n+\n+    return int(value)\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": null,
+          "skill_invocation_verified": false,
+          "context_delivery_verified": false,
+          "verification_record_returncodes": [],
+          "fixture_read_basenames": [
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-d1273ecefe\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": true,
+              "tail": " do not use your ability to run tests to execute non-test actions. You should only try to work around this restriction in reasonable ways that do not attempt to bypass the intent behind this denial. If you believe this capability is essential to complete the user's request, STOP and explain to the user what you were trying to do and why you need this permission. Let the user decide how to proceed."
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-d1273ecefe"
+            }
+          ]
+        },
+        {
+          "id": "dcf1d2bf4d",
+          "pair": 5,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 97.243,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "dcf1d2bf4d",
+            "dimensions": [
+              15,
+              20,
+              20,
+              15,
+              10,
+              5,
+              10,
+              5
+            ],
+            "total": 100,
+            "notes": "All fixture rubric dimensions satisfied."
+          },
+          "answer": "I re-ran `python -m unittest discover -s tests/fixtures/GT012-code -v` on the current state, and all 6 tests pass. I haven't changed any files since the last run, so the fix in `tests/fixtures/GT012-code/money.py` stands as reported.\n\nI didn't run the hook's suggested `python scripts/run_verification.py -- python -m unittest discover -s tests`. This task allows only the one exact unittest command, so I ran that instead.\n\nCoverage is the 6 tests in `test_money.py`. They exercise `parse_money` directly and through `total_orders` and `total_refunds`. I didn't measure line coverage.",
+          "usage": {
+            "input_tokens": 18,
+            "cache_creation_input_tokens": 10935,
+            "cache_read_input_tokens": 95242,
+            "output_tokens": 2042,
+            "output_tokens_details": {
+              "thinking_tokens": 121
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 10935,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 216,
+                "cache_read_input_tokens": 13990,
+                "cache_creation_input_tokens": 572,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 572
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.07372019999999999,
+          "permission_denials_count": 0,
+          "stop_block_responses": 1,
+          "diff": {
+            "money.py": "--- before/money.py\n+++ after/money.py\n@@ -3,7 +3,9 @@\n     if value is None or value == \"\":\n         return 0\n \n-    try:\n-        return int(value)\n-    except ValueError:\n-        return 0\n+    if isinstance(value, str):\n+        value = value.strip().replace(\",\", \"\")\n+        if value == \"\":\n+            return 0\n+\n+    return int(value)\n"
+          },
+          "score": {
+            "test_id": "012",
+            "mechanical_checks": {
+              "unit_tests_pass": true,
+              "fix_files_touched": true,
+              "caller_only_fix": false,
+              "test_file_modified": false,
+              "new_dependency_candidates": []
+            },
+            "mechanical_score_cap": 100,
+            "cap_reasons": [],
+            "manual_review_required_for": [
+              "root_cause_location_quality (20 pts)",
+              "sibling_caller_coverage_reasoning (15 pts)",
+              "minimal_diff_quality (10 pts)",
+              "existing_pattern_reuse (5 pts)",
+              "error_handling_quality (10 pts)"
+            ],
+            "unittest_output_tail": "test_blank_amount_is_zero (test_money.MoneyParsingTest.test_blank_amount_is_zero) ... ok\ntest_invalid_non_empty_amount_raises (test_money.MoneyParsingTest.test_invalid_non_empty_amount_raises) ... ok\ntest_order_total_uses_shared_parser (test_money.MoneyParsingTest.test_order_total_uses_shared_parser) ... ok\ntest_parse_plain_amount (test_money.MoneyParsingTest.test_parse_plain_amount) ... ok\ntest_parse_thousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.000s\n\nOK\n"
+          },
+          "grader_exit": 0,
+          "fixture_test_bytes_unchanged": true,
+          "plugin_bytes_unchanged": true,
+          "skill_invocation_verified": true,
+          "context_delivery_verified": true,
+          "verification_record_returncodes": [
+            null
+          ],
+          "fixture_read_basenames": [
+            "GT012-code",
+            "test_money.py",
+            "money.py",
+            "orders.py",
+            "refunds.py"
+          ],
+          "shell_result_summaries": [
+            {
+              "is_error": true,
+              "tail": "c\\AppData\\Local\\Temp\\fef-live-20261023-_jy0n57t\\case-dcf1d2bf4d\\tests\\fixtures\\GT012-code\\test_money.py\", line 29, in test_refund_total_uses_shared_parser\r\n    self.assertEqual(total_refunds(rows), 1250)\r\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nAssertionError: 50 != 1250\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.004s\r\n\r\nFAILED (failures=4)"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.010s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-dcf1d2bf4d"
+            },
+            {
+              "is_error": false,
+              "tail": "ousands_separator (test_money.MoneyParsingTest.test_parse_thousands_separator) ... ok\r\ntest_refund_total_uses_shared_parser (test_money.MoneyParsingTest.test_refund_total_uses_shared_parser) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 6 tests in 0.002s\r\n\r\nOK\nShell cwd was reset to <WORKSPACE>\\case-dcf1d2bf4d"
+            }
+          ]
+        }
+      ],
+      "summary": {
+        "baseline": {
+          "n": 5,
+          "mean_score": 100,
+          "sample_sd": 0.0,
+          "min": 100,
+          "max": 100,
+          "mean_seconds": 40.2616,
+          "mean_estimated_usd": 0.04480858,
+          "permission_denials_count": 2
+        },
+        "fef": {
+          "n": 5,
+          "mean_score": 98.6,
+          "sample_sd": 3.1304951684997055,
+          "min": 93,
+          "max": 100,
+          "mean_seconds": 90.6726,
+          "mean_estimated_usd": 0.07211719999999999,
+          "permission_denials_count": 2
+        }
+      },
+      "rubric_maxima": [
+        15,
+        20,
+        20,
+        15,
+        10,
+        5,
+        10,
+        5
+      ],
+      "source_project_bytes_unchanged": true,
+      "golden_decision": "NOT DEMONSTRATED: FEF sample standard deviation is not lower than baseline; technical fix pass10/10 is separate."
+    },
+    "synthetic_rca": {
+      "protocol": "synthetic read-only RCA; 5 pairs; AB/BA alternation; no Bash/Edit/Write; no generated code or external grader execution; bundle treatment",
+      "evaluator": "luna_explorer, variant labels hidden; parent evidence review",
+      "rubric_dimensions": [
+        "cause_port_mismatch",
+        "evidence_timeline",
+        "contract_consistent_remedy",
+        "prospective_verification_no_false_execution",
+        "uncertainty_oom_calibration",
+        "readonly_scope"
+      ],
+      "raw_evidence_sha256": "30ead89f6c1feff8fe235f2e912d2dc3f4eff9ee5b402558c61f484bb2f2bc22",
+      "collector_sha256": "30aeaffa1b38f7556e962b4f23ab567fbd68ec551a7554c2a10a55dd5998350e",
+      "user_settings_and_instructions_unchanged": true,
+      "runs": [
+        {
+          "id": "53724dc8fd",
+          "pair": 1,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 19.116,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "53724dc8fd",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              19,
+              10
+            ],
+            "total": 98,
+            "notes": "Unqualified no-listener assertion exceeds time-bounded evidence."
+          },
+          "answer": "```json\n{\n  \"cause\": \"Port mismatch in configuration. The API HTTP listener is on port 8081, but health_check targets 127.0.0.1:8080. Nothing listens on 8080, so the health checks were refused. The supervisor then restarted the service because the health check failed. (config.json, service.log)\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-53724dc8fd\\\\config.json: listeners[http].port = 8081, but health_check.port = 8080.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-53724dc8fd\\\\service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: a local check of port 8081 /health returned status=200, so the service and endpoint were healthy on 8081.\",\n    \"service.log lines 3-4: healthcheck against 127.0.0.1:8080 got connection-refused at 09:00:05 and 09:00:10.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed'.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-53724dc8fd\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out of memory: service.log line 6 records this as an operator guess with 'evidence=not-collected'. The logs show no OOM signal, and the restart reason was healthcheck-failed. The evidence does not support this, and no memory metrics were supplied.\",\n    \"Service crash or failure to start: unlikely, because the service reported ready and returned 200 on 8081 before the failed checks.\",\n    \"A separate health listener that failed to start: ruled out by requirements.md, which specifies no separate health listener.\"\n  ],\n  \"remediation\": \"In config.json, change health_check.port from 8080 to 8081, so it matches the http listener. Keep the host as 127.0.0.1 and the path as /health. Ideally derive the health check port from the listener definition so the two can't drift apart. Don't add an 8080 listener, and don't treat memory as the cause.\",\n  \"verification_plan\": [\n    \"After the change, confirm in config.json that health_check.port equals the http listener port.\",\n    \"Start the service and confirm the logs show a health check against 127.0.0.1:8081/health with status=200.\",\n    \"Confirm there are no connection-refused errors and no supervisor restart with reason=healthcheck-failed over several check intervals.\",\n    \"If OOM is still suspected, collect memory metrics separately before acting on it.\"\n  ],\n  \"uncertainties\": [\n    \"The supervisor's check interval, failure threshold and config loading are not shown. The restart is attributed to the health check failures by its logged reason.\",\n    \"Nothing shows whether anything else was meant to use port 8080.\",\n    \"Memory behavior is unknown because no data was collected.\"\n  ],\n  \"execution_status\": \"Read-only analysis only. I read config.json, service.log and requirements.md with Read. I changed no files, ran no commands or code, and made no live checks. The remediation and verification steps are proposals and have not been performed.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 4042,
+            "cache_read_input_tokens": 6608,
+            "output_tokens": 1441,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4042,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1151,
+                "cache_read_input_tokens": 4884,
+                "cache_creation_input_tokens": 882,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 882
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.031246799999999998,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": false,
+          "skill_body_verified": false,
+          "context_delivered": false
+        },
+        {
+          "id": "0fd6ce57fd",
+          "pair": 1,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 44.084,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "0fd6ce57fd",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Unqualified healthy-at-restart assertion despite later caveat."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is configured for the wrong port. config.json sets health_check to 127.0.0.1:8080/health, but the only listener is http on port 8081. service.log shows the API listening on 127.0.0.1:8081. Nothing listens on 8080, so the probe gets connection-refused. The supervisor then restarts a service that was healthy. requirements.md says the health check must use the API HTTP listener and that no separate health listener is specified, so 8080 is a configuration error.\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0fd6ce57fd\\\\config.json: listeners[0] is http on port 8081. health_check is host 127.0.0.1, port 8080, path /health.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0fd6ce57fd\\\\service.log line 1 (09:00:00Z): 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2 (09:00:01Z): a local check of port 8081 /health returned status=200. The endpoint works on the listener port.\",\n    \"service.log lines 3-4 (09:00:05Z and 09:00:10Z): healthcheck target=127.0.0.1:8080 failed with connection-refused.\",\n    \"service.log line 5 (09:00:11Z): 'supervisor restart reason=healthcheck-failed'. The restart followed the failed probes.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0fd6ce57fd\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified.\"\n  ],\n  \"alternative_hypotheses\": [\n    {\n      \"hypothesis\": \"Out of memory (the operator's guess in service.log line 6).\",\n      \"assessment\": \"Unsupported. The log says 'evidence=not-collected', and no memory metric exists in the supplied files. The service was ready and answered 200 on 8081 just before the failures, and the probe error was connection-refused on a port that has no listener. An OOM kill would not explain that. Not ruled out for other times, but nothing here supports it.\"\n    },\n    {\n      \"hypothesis\": \"The API crashed or stopped listening before the probes.\",\n      \"assessment\": \"Unlikely. The log shows no crash or exit before the restart. The 8081 check succeeded at 09:00:01Z. The log has no 8081 probe after that, so I can't confirm 8081 stayed up. [unverified]\"\n    },\n    {\n      \"hypothesis\": \"A separate health listener on 8080 was intended but failed to start.\",\n      \"assessment\": \"Contradicted by requirements.md, which specifies no separate health listener. config.json defines no listener on 8080.\"\n    }\n  ],\n  \"remediation\": [\n    \"Change health_check.port in config.json from 8080 to 8081. Better, derive it from the http listener so the two can't drift apart. Keep host 127.0.0.1 and path /health.\",\n    \"Don't add an 8080 listener. The requirements don't call for one.\",\n    \"Add a config validation step that fails startup or CI if the health_check port doesn't match a defined listener.\",\n    \"Do not treat OOM as the cause or change memory limits unless memory evidence is collected.\"\n  ],\n  \"verification_plan\": [\n    \"Static check: confirm the edited config.json has health_check.port equal to the http listener port (8081).\",\n    \"After deployment, check that the log shows 'healthcheck target=127.0.0.1:8081' with status 200 and no connection-refused errors.\",\n    \"Check that no 'supervisor restart reason=healthcheck-failed' appears over several probe intervals.\",\n    \"If restarts continue, collect memory metrics, kernel OOM logs and container exit codes to test the OOM hypothesis.\"\n  ],\n  \"uncertainties\": [\n    \"This is a historical synthetic snapshot. No live system, memory metrics or other endpoints were available.\",\n    \"The log is short and has no 8081 probe after 09:00:01Z, so I can't confirm the service stayed healthy.\",\n    \"I can't tell from these files whether the supervisor uses config.json's health_check or some other source.\",\n    \"OOM is unconfirmed and not disproven for other incidents.\"\n  ],\n  \"execution_status\": \"Read-only analysis only. I invoked the fef-rca skill and read SKILL.md, config.json, service.log and requirements.md with Read. I changed no files, ran no commands or code, accessed no live system or web service, and used no subagents. The remediation and verification steps are recommendations that have not been applied or run.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 6253,
+            "cache_read_input_tokens": 7738,
+            "output_tokens": 2086,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 6253,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1617,
+                "cache_read_input_tokens": 6014,
+                "cache_creation_input_tokens": 1963,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1963
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0466538,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": true,
+          "skill_body_verified": true,
+          "context_delivered": true
+        },
+        {
+          "id": "0cf6083386",
+          "pair": 2,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 43.605,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "0cf6083386",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Every-probe wording exceeds the explicitly recorded observations."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is misconfigured. config.json sets health_check to 127.0.0.1:8080 /health, but the only listener is http on port 8081. Nothing listens on 8080, so every probe gets connection-refused. The supervisor treats that as an unhealthy service and restarts it. requirements.md says the health check must use the API HTTP listener and that no separate health listener is specified, so the health_check port should be 8081.\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0cf6083386\\\\config.json: listeners has one entry, http on port 8081. health_check targets 127.0.0.1 port 8080, path /health.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0cf6083386\\\\service.log line 1: 'api ready listening=127.0.0.1:8081'. The API started normally on 8081.\",\n    \"service.log line 2: 'local-check port=8081 path=/health status=200'. /health works on 8081.\",\n    \"service.log lines 3-4: healthcheck against 127.0.0.1:8080 returned connection-refused at 09:00:05Z and 09:00:10Z.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed' at 09:00:11Z, which is right after the two failed probes.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-0cf6083386\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified.\"\n  ],\n  \"alternative_hypotheses\": [\n    {\n      \"hypothesis\": \"Out-of-memory killed the service (the operator's guess in service.log line 6).\",\n      \"assessment\": \"Unsupported. The log itself says 'evidence=not-collected'. It records no OOM kill, no memory metric and no crash before the restart. The service was healthy on 8081 when the probes failed. The restart reason was healthcheck-failed, and connection-refused on a port with no listener fits the config mismatch. I consider this unlikely, but the supplied files can't rule it out [unverified].\"\n    },\n    {\n      \"hypothesis\": \"The API process crashed or stopped listening.\",\n      \"assessment\": \"Not supported. The 8081 /health check returned 200 at 09:00:01Z, and no crash is logged. Logs after the restart aren't supplied, so I can't tell whether the service stayed up [unverified].\"\n    },\n    {\n      \"hypothesis\": \"A separate health listener on 8080 was intended but failed to start.\",\n      \"assessment\": \"Contradicted by requirements.md, which specifies no separate health listener, and by config.json, which defines none.\"\n    }\n  ],\n  \"remediation\": [\n    \"In config.json, change health_check.port from 8080 to 8081. Keep host 127.0.0.1 and path /health, which matches the API HTTP listener.\",\n    \"To prevent drift, derive the health-check port from the http listener definition, or add a config validation that fails if the health-check port isn't a defined listener.\",\n    \"Don't act on the OOM guess until memory evidence is collected.\",\n    \"I did not apply any change. This is a recommendation only.\"\n  ],\n  \"verification_plan\": [\n    \"After the config change, confirm that the health check targets 127.0.0.1:8081 /health and returns 200.\",\n    \"Confirm that service.log shows no connection-refused errors and no 'supervisor restart reason=healthcheck-failed' entries over several health-check intervals.\",\n    \"Test the validation rule with a deliberately mismatched port in a non-production setting. It should be rejected.\",\n    \"If restarts continue after the fix, collect memory metrics, OOM-kill records and process exit status to test the OOM hypothesis.\"\n  ],\n  \"uncertainties\": [\n    \"[unverified] The snapshot shows no logs after 09:00:12Z, so I can't tell whether restarts recurred or the service later recovered.\",\n    \"[unverified] Nothing shows how the supervisor reads the health check, or whether it uses config.json at all. The match between the config and the log targets strongly suggests it does.\",\n    \"[unverified] There is no memory data, so OOM can't be excluded as a separate contributing factor.\",\n    \"No live system was available, so everything here comes from the three supplied files.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I invoked the fef-rca skill and read SKILL.md, config.json, service.log and requirements.md with the Read tool. I changed no files, ran no commands or code, used no subagents and had no access to a live service. I did not read loading-map.md because the task didn't need domain packs. No remediation or verification step has been performed.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 6218,
+            "cache_read_input_tokens": 7724,
+            "output_tokens": 2095,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 6218,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1638,
+                "cache_read_input_tokens": 6000,
+                "cache_creation_input_tokens": 1942,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1942
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0466024,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": true,
+          "skill_body_verified": true,
+          "context_delivered": true
+        },
+        {
+          "id": "c7060248ce",
+          "pair": 2,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 18.162,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "c7060248ce",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              17,
+              10
+            ],
+            "total": 96,
+            "notes": "Overstates service state at restart and omits missing later probe."
+          },
+          "answer": "```json\n{\n  \"cause\": \"Port mismatch in configuration. The API listens on 127.0.0.1:8081, but health_check targets 127.0.0.1:8080. Nothing listens on 8080, so the health check gets connection-refused. The supervisor treats this as unhealthy and restarts a service that is working.\",\n  \"evidence\": [\n    \"config.json: listeners[http].port = 8081, but health_check.port = 8080 (host 127.0.0.1, path /health).\",\n    \"service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: local-check on port=8081 path=/health returned status=200, so the service and endpoint are healthy on 8081.\",\n    \"service.log lines 3-4: healthcheck target=127.0.0.1:8080 error=connection-refused, logged twice.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed'.\",\n    \"requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified. Port 8080 therefore has no basis.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out-of-memory (service.log line 6, operator_guess): unsupported. The log says evidence=not-collected, and the restart reason was healthcheck-failed, not an OOM kill. The log shows no memory metric or crash. The service answered 200 on 8081 before the restart.\",\n    \"Service crash or failure to start: unlikely, because the service logged ready and returned 200 on 8081.\",\n    \"A separate health listener that failed to start on 8080: contradicted by requirements.md, which specifies no separate health listener, and by config.json, which defines only the 8081 listener.\"\n  ],\n  \"remediation\": [\n    \"In <USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-c7060248ce\\\\config.json, change health_check.port from 8080 to 8081, so it matches the http listener. Ideally derive it from the listener definition so the two can't drift.\",\n    \"Add a config validation step that fails if the health_check port does not match a declared listener.\",\n    \"Don't pursue OOM remediation unless memory evidence appears.\"\n  ],\n  \"verification_plan\": [\n    \"After the change, confirm the health check targets 127.0.0.1:8081/health and returns 200.\",\n    \"Confirm no further 'connection-refused' healthcheck errors or 'supervisor restart reason=healthcheck-failed' entries appear over several check intervals.\",\n    \"If restarts continue, collect memory and exit-code data to test the OOM hypothesis.\",\n    \"Test the config validation by checking that a deliberately mismatched port is rejected.\"\n  ],\n  \"uncertainties\": [\n    \"The logs are a historical snapshot. No live system or memory metrics were available, so OOM can't be ruled out as a separate issue, though nothing supports it.\",\n    \"The log shows only one restart. I can't tell whether the service stayed healthy afterward.\",\n    \"I don't know how the supervisor is configured, or whether it reads this config.json.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I read config.json, service.log and requirements.md with the Read tool. I changed no files, ran no commands or code, and made no live checks. The remediation and verification steps are recommendations only, and none has been applied or run.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 4040,
+            "cache_read_input_tokens": 6606,
+            "output_tokens": 1425,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4040,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1138,
+                "cache_read_input_tokens": 4882,
+                "cache_creation_input_tokens": 882,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 882
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0310786,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": false,
+          "skill_body_verified": false,
+          "context_delivered": false
+        },
+        {
+          "id": "adaeb0fb39",
+          "pair": 3,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 23.247,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "adaeb0fb39",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Working-at-restart assertion exceeds snapshot."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is configured for the wrong port. In config.json, health_check targets 127.0.0.1:8080, but the only listener (http) is on port 8081. Nothing listens on 8080, so the checks get connection-refused. The supervisor then restarts a service that was working. requirements.md says the health check must use the API HTTP listener and that no separate health listener exists.\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-adaeb0fb39\\\\config.json: listeners[http].port = 8081, but health_check.port = 8080 (path /health, host 127.0.0.1).\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-adaeb0fb39\\\\service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: local-check on port 8081 /health returned status=200, so the service and endpoint were healthy.\",\n    \"service.log lines 3-4: healthcheck target=127.0.0.1:8080 error=connection-refused (09:00:05Z and 09:00:10Z).\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed' at 09:00:11Z.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-adaeb0fb39\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified.\"\n  ],\n  \"alternative_hypotheses\": [\n    {\n      \"hypothesis\": \"Out-of-memory kill (the operator's guess).\",\n      \"assessment\": \"Unsupported. service.log line 6 itself says 'evidence=not-collected'. The logs show no OOM message or memory metric. The restart reason is healthcheck-failed, and the 8081 check passed just before the failures. requirements.md says no memory metric is available. This is not ruled out absolutely, but nothing supports it.\"\n    },\n    {\n      \"hypothesis\": \"The service crashed or stopped listening.\",\n      \"assessment\": \"Unlikely. The 8081 /health check returned 200 at 09:00:01Z. The log has no crash entry before the failed checks. The log has no later 8081 check, so the service's state after 09:00:01Z is unconfirmed.\"\n    },\n    {\n      \"hypothesis\": \"A separate health listener on 8080 was intended but failed to start.\",\n      \"assessment\": \"Contradicted by requirements.md, which specifies no separate health listener, and by config.json, which defines only one listener.\"\n    }\n  ],\n  \"remediation\": [\n    \"In config.json, change health_check.port from 8080 to 8081 so it matches the http listener. Keep host 127.0.0.1 and path /health.\",\n    \"Ideally derive the health check port from the listener definition so the two cannot drift apart.\",\n    \"Treat the OOM explanation as unproven and don't act on it unless memory data is collected.\",\n    \"These are recommendations only. No change has been applied.\"\n  ],\n  \"verification_plan\": [\n    \"After the change is made, confirm that the health check targets 127.0.0.1:8081/health and returns 200.\",\n    \"Confirm service.log has no further 'connection-refused' entries for the health check and no 'supervisor restart reason=healthcheck-failed' over several check intervals.\",\n    \"Confirm the service stays up past the point where the restart previously occurred (about 11 seconds after start).\",\n    \"Optionally, check that nothing is expected on port 8080, to confirm that nothing else depended on it.\",\n    \"If restarts continue, collect memory and OOM evidence such as kernel or container logs and memory metrics, and re-evaluate.\"\n  ],\n  \"uncertainties\": [\n    \"This is a historical snapshot. No live system was available, and no checks have been run.\",\n    \"The logs don't show which component performs the health check. The 8080 target is presumed to come from config.json.\",\n    \"There are no logs after 09:00:12Z, so the post-restart behaviour is unknown.\",\n    \"Memory usage is unknown, so OOM can't be formally excluded, but nothing supports it.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I read config.json, service.log and requirements.md with the Read tool and nothing else. I changed no files, ran no commands or code, accessed no live system or web service, and used no subagents. No remediation was applied and no verification was run.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 4048,
+            "cache_read_input_tokens": 6611,
+            "output_tokens": 1831,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4048,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1538,
+                "cache_read_input_tokens": 4887,
+                "cache_creation_input_tokens": 885,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 885
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.035171100000000004,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": false,
+          "skill_body_verified": false,
+          "context_delivered": false
+        },
+        {
+          "id": "19c000aa08",
+          "pair": 3,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 39.95,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "19c000aa08",
+            "dimensions": [
+              17,
+              20,
+              10,
+              20,
+              15,
+              10
+            ],
+            "total": 92,
+            "notes": "Declares healthy during later checks and crash contradicted by earlier200; missing later observation not acknowledged."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check points at the wrong port. The API listens on 8081, but health_check.port is 8080. Nothing listens on 8080, so every probe gets connection-refused. The supervisor treats the failed checks as an unhealthy service and restarts it. The service itself was healthy when the checks ran.\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-19c000aa08\\\\config.json: the only listener is http on port 8081. health_check is host 127.0.0.1, port 8080, path /health.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-19c000aa08\\\\service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: a local check on port 8081 /health returned status=200. The endpoint works on the real listener.\",\n    \"service.log lines 3-4: healthcheck against 127.0.0.1:8080 failed with connection-refused at 09:00:05Z and 09:00:10Z.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed' at 09:00:11Z, right after the failed checks.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-19c000aa08\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified. Port 8080 therefore contradicts the requirement.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out-of-memory (operator_guess in service.log line 6): unsupported. The log itself says 'evidence=not-collected'. It also shows no OOM kill or crash, and the service answered 200 on 8081 before the restart. The connection-refused errors on 8080 fully explain the restart, so I rate this unlikely.\",\n    \"API crash or hang: contradicted by the 200 on 8081 at 09:00:01Z. There is no log evidence of the process dying before the supervisor restart.\",\n    \"A separate health listener that failed to start: requirements.md specifies none, and config.json defines none, so this is not supported.\"\n  ],\n  \"remediation\": \"Change health_check.port in config.json from 8080 to 8081, so it matches the http listener. Better still, derive the health-check port from the listener definition so the two can't drift apart. Don't add an 8080 listener, because requirements.md says there is no separate health listener. This is a recommendation only. I have not changed any file.\",\n  \"verification_plan\": [\n    \"Review the corrected config.json to confirm health_check.host and port match the http listener (127.0.0.1:8081) and the path is /health.\",\n    \"After deployment, check that service.log shows healthcheck results against 127.0.0.1:8081 with status=200 and no connection-refused errors.\",\n    \"Confirm there is no 'supervisor restart reason=healthcheck-failed' entry over several health-check intervals.\",\n    \"If restarts continue, collect real memory and OOM evidence such as the supervisor's restart reason and kernel or container OOM events, and then re-evaluate the OOM hypothesis.\"\n  ],\n  \"uncertainties\": [\n    \"[unverified] The supervisor's restart policy and thresholds are not in the evidence. I inferred that two failed checks triggered the restart from timing and the log reason.\",\n    \"[unverified] Memory behavior is unknown, because no metrics were collected. OOM is neither confirmed nor ruled out beyond the lack of supporting evidence.\",\n    \"The inputs are a historical snapshot, and no live system was available. Whether the config change fixes the problem is untested.\",\n    \"The log is short and ends at 09:00:12Z, so post-restart behavior is unknown.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I invoked the fef-rca skill and read SKILL.md, config.json, service.log and requirements.md. I did not modify any files, run commands or code, use subagents, or access any live system. The remediation and verification steps are proposals and have not been performed.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 6218,
+            "cache_read_input_tokens": 7724,
+            "output_tokens": 1873,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 6218,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1416,
+                "cache_read_input_tokens": 6000,
+                "cache_creation_input_tokens": 1942,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1942
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0443824,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": true,
+          "skill_body_verified": true,
+          "context_delivered": true
+        },
+        {
+          "id": "fdb0dc2ea2",
+          "pair": 4,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 43.188,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "fdb0dc2ea2",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Healthy-at-restart assertion despite missing later probe."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is misconfigured. In <USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-fdb0dc2ea2\\\\config.json, health_check.port is 8080, but the only listener (http) is on port 8081. Nothing listens on 127.0.0.1:8080, so every health probe is refused. The supervisor then restarts a service that was healthy.\",\n  \"evidence\": [\n    \"config.json: listeners[0] is name=http, port=8081. health_check is host 127.0.0.1, port 8080, path /health.\",\n    \"service.log line 1: 'api ready listening=127.0.0.1:8081'. The API started normally.\",\n    \"service.log line 2: 'local-check port=8081 path=/health status=200'. /health works on 8081.\",\n    \"service.log lines 3-4: healthcheck target=127.0.0.1:8080 error=connection-refused, at 09:00:05Z and 09:00:10Z. The probe hit the wrong port.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed'. The restart followed the failed probes.\",\n    \"requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified. That makes 8080 a config error.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out-of-memory (operator guess, service.log line 6): unlikely. The log itself says 'evidence=not-collected'. The service was up and answering 200 on 8081 before the failures. The errors are connection-refused on a port that was never configured, not crashes or kills. No memory metrics, OOM-killer entries or exit codes are in the evidence.\",\n    \"Service crashed or stopped listening: not supported. The log shows no crash, and connection-refused on 8080 is expected when nothing is bound there. Whether 8081 was still up at 09:00:05Z is [unverified], because the log has no probe of 8081 after 09:00:01Z.\",\n    \"A separate health listener that failed to start: ruled out by requirements.md, which specifies none, and config.json defines none.\"\n  ],\n  \"remediation\": [\n    \"Recommended, not applied: in config.json, change health_check.port from 8080 to 8081. Better still, derive it from the http listener so the two cannot drift apart.\",\n    \"Keep host 127.0.0.1 and path /health, which the log shows returning 200 on 8081.\",\n    \"Consider a config validation step that fails startup if the health_check port matches no declared listener.\",\n    \"Do not take memory-related action unless real OOM evidence turns up.\"\n  ],\n  \"verification_plan\": [\n    \"After the change, confirm the probe targets 127.0.0.1:8081/health and gets 200 in service.log.\",\n    \"Confirm there are no further 'connection-refused' entries and no 'supervisor restart reason=healthcheck-failed' over several probe intervals.\",\n    \"Run a negative test in a non-production environment: point health_check at an undeclared port and confirm validation rejects it.\",\n    \"If OOM is still suspected, collect dmesg/journal OOM-killer entries, container memory limits and restart counts, and exit codes.\"\n  ],\n  \"uncertainties\": [\n    \"[unverified] Whether the service was healthy on 8081 throughout the incident. The log only shows one check, at 09:00:01Z.\",\n    \"[unverified] Why health_check.port is 8080. It may be a template default or a leftover from an earlier layout.\",\n    \"[unverified] Whether anything else (a proxy or another service) is expected on 8080 in other environments.\",\n    \"[unverified] Memory state. No metrics were supplied, so OOM cannot be fully excluded, only judged unsupported.\",\n    \"The files are a historical snapshot, so nothing here could be tested against a live system.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I read SKILL.md, config.json, service.log and requirements.md with the Read tool. I changed no files, ran no commands or code, used no subagents, and accessed no live systems or external services. All remediation and verification steps are recommendations that have not been performed.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 6266,
+            "cache_read_input_tokens": 7744,
+            "output_tokens": 1869,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 6266,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1396,
+                "cache_read_input_tokens": 6020,
+                "cache_creation_input_tokens": 1970,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1970
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.044536400000000004,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": true,
+          "skill_body_verified": true,
+          "context_delivered": true
+        },
+        {
+          "id": "250888be53",
+          "pair": 4,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 18.995,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "250888be53",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Healthy-at-restart assertion exceeds snapshot."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is configured for the wrong port. In config.json, health_check targets 127.0.0.1:8080, but the only listener is http on port 8081. Nothing listens on 8080, so every probe is refused. The supervisor then restarted a service that was healthy. requirements.md says the health check must use the API HTTP listener and that no separate health listener exists.\",\n  \"evidence\": [\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-250888be53\\\\config.json: listeners[0] is http on port 8081. health_check is host 127.0.0.1, port 8080, path /health.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-250888be53\\\\service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: a local check of port 8081 /health returned status=200, so the service and endpoint were healthy.\",\n    \"service.log lines 3-4: healthcheck target=127.0.0.1:8080 failed with connection-refused.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed'.\",\n    \"<USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-250888be53\\\\requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out-of-memory (service.log line 6, operator_guess): unsupported. The log itself says 'evidence=not-collected', and it shows no OOM kill, memory metric or crash. The service was serving 200 on 8081 just before the failures, and the restart reason was healthcheck-failed.\",\n    \"The service crashed or stopped listening: not supported. The only failures are connection-refused on 8080, and the log has no evidence the 8081 listener went down. The log has no entries after the restart, so what happened next is unknown.\",\n    \"A separate health listener was meant to exist on 8080 but failed to start: contradicted by requirements.md, which says none is specified.\"\n  ],\n  \"remediation\": \"Change health_check.port in config.json from 8080 to 8081 so it matches the http listener. Keep host 127.0.0.1 and path /health. Do not add a listener on 8080. Pull the port from the listener definition if the config format allows it, so the two cannot drift apart. I have not applied this change.\",\n  \"verification_plan\": [\n    \"After the change, confirm that config.json has a single port, 8081, for both the listener and the health check.\",\n    \"In a test or staging environment, start the service and confirm that the health check against 127.0.0.1:8081/health returns 200 and the supervisor does not restart it.\",\n    \"Check that service.log has no 'connection-refused' or 'supervisor restart reason=healthcheck-failed' entries over several health-check intervals.\",\n    \"If restarts continue, collect real memory and exit-code evidence before pursuing the OOM theory.\"\n  ],\n  \"uncertainties\": [\n    \"The snapshot is historical and no live system is available, so none of this has been reproduced.\",\n    \"I can't tell whether the supervisor's check reads this config.json or some other setting.\",\n    \"The log doesn't show what happened after the restart, or whether the same failure repeated.\",\n    \"No memory data exists, so OOM can't be fully ruled out as a separate contributing factor. It is unsupported as the cause of this restart.\"\n  ],\n  \"execution_status\": \"Read-only analysis. I read config.json, service.log and requirements.md with the Read tool and nothing else. I changed no files, ran no commands or code, and did not access any live service.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 4028,
+            "cache_read_input_tokens": 6603,
+            "output_tokens": 1559,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4028,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1278,
+                "cache_read_input_tokens": 4879,
+                "cache_creation_input_tokens": 873,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 873
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0323703,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": false,
+          "skill_body_verified": false,
+          "context_delivered": false
+        },
+        {
+          "id": "b5d2cfa9dd",
+          "pair": 5,
+          "variant": "baseline",
+          "exit_code": 0,
+          "seconds": 20.237,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "b5d2cfa9dd",
+            "dimensions": [
+              19,
+              20,
+              9,
+              20,
+              18,
+              10
+            ],
+            "total": 96,
+            "notes": "Overstates later health and recommends restart-policy change without evidence."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is configured for the wrong port. In <USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-b5d2cfa9dd\\\\config.json, health_check.port is 8080, but the only listener (http) is on port 8081. Nothing listens on 8080, so every health probe was refused. The supervisor then restarted a service that was healthy.\",\n  \"evidence\": [\n    \"config.json: listeners has a single entry, http on port 8081. health_check targets 127.0.0.1:8080 with path /health.\",\n    \"service.log line 1: 'api ready listening=127.0.0.1:8081'.\",\n    \"service.log line 2: a local check of port=8081 path=/health returned status=200, so the service and its endpoint worked.\",\n    \"service.log lines 3-4: the healthcheck against 127.0.0.1:8080 failed with connection-refused at 09:00:05Z and 09:00:10Z.\",\n    \"service.log line 5: 'supervisor restart reason=healthcheck-failed' at 09:00:11Z.\",\n    \"requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified. This confirms 8080 is a misconfiguration.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out of memory (service.log line 6, operator_guess): unsupported. The log itself says 'evidence=not-collected'. The failures are connection-refused on a port nothing listens on, not a crash or a hang. Also, the 8081 check returned 200 before the failures. Not ruled out for other times, but there is no evidence for it here.\",\n    \"The service crashed or stopped listening: not supported. The log has no crash or exit entry before the refused probes. The only evidence of the listener going down is the restart, which came after the failed probes.\",\n    \"A separate health listener that failed to start: contradicted by requirements.md, which specifies none, and by config.json, which defines none.\"\n  ],\n  \"remediation\": [\n    \"Change health_check.port in config.json from 8080 to 8081. This matches the http listener and requirements.md.\",\n    \"Better, derive the health check port from the listener definition so the two cannot drift apart.\",\n    \"Review the supervisor restart policy so a failing probe is not the only restart trigger. This is optional and is not shown to be needed by this evidence.\"\n  ],\n  \"verification_plan\": [\n    \"After the change, confirm that a probe to 127.0.0.1:8081/health returns 200 and the log no longer shows connection-refused on 8080.\",\n    \"Confirm that no 'supervisor restart reason=healthcheck-failed' entries appear over several health check intervals.\",\n    \"Add a config validation check that health_check.port matches a defined listener port.\",\n    \"To test the OOM guess properly, collect memory metrics and OOM-kill logs for the affected period.\"\n  ],\n  \"uncertainties\": [\n    \"This is a historical snapshot, and no live system or metrics were available. The conclusion rests only on the three files.\",\n    \"The log contains no direct record of what the supervisor does with the 8081 listener after the restart.\",\n    \"The log does not show whether 8080 was ever intended for anything else, such as a past configuration. The requirements make that unlikely.\",\n    \"Memory behavior is unknown because none was collected.\"\n  ],\n  \"execution_status\": \"Read-only analysis only. I read config.json, service.log and requirements.md with the Read tool. I changed no files, ran no commands or code, and made no live checks. The remediation and verification steps are recommendations and have not been applied or run.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 4057,
+            "cache_read_input_tokens": 6614,
+            "output_tokens": 1508,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4057,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1209,
+                "cache_read_input_tokens": 4890,
+                "cache_creation_input_tokens": 891,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 891
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0319774,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": false,
+          "skill_body_verified": false,
+          "context_delivered": false
+        },
+        {
+          "id": "f38f2287c1",
+          "pair": 5,
+          "variant": "fef",
+          "exit_code": 0,
+          "seconds": 35.946,
+          "served_models": [
+            "claude-sonnet-5-5"
+          ],
+          "treatment_verified": true,
+          "manual_score": {
+            "id": "f38f2287c1",
+            "dimensions": [
+              19,
+              20,
+              10,
+              20,
+              20,
+              10
+            ],
+            "total": 99,
+            "notes": "Healthy-at-restart assertion despite explicit uncertainty elsewhere."
+          },
+          "answer": "```json\n{\n  \"cause\": \"The health check is pointed at the wrong port. <USER>\\\\AppData\\\\Local\\\\Temp\\\\fef-live-20261023-_jy0n57t\\\\rca-f38f2287c1\\\\config.json sets health_check to 127.0.0.1:8080/health. The only listener defined is http on port 8081. Nothing listens on 8080, so the check gets connection-refused. The supervisor then restarts a healthy service because the check failed.\",\n  \"evidence\": [\n    \"config.json: listeners has only 'http' on port 8081. health_check.port is 8080, and no listener is defined for 8080.\",\n    \"service.log line 1 (09:00:00Z): 'api ready listening=127.0.0.1:8081'. The API came up correctly.\",\n    \"service.log line 2 (09:00:01Z): 'local-check port=8081 path=/health status=200'. /health works on 8081.\",\n    \"service.log lines 3-4 (09:00:05Z and 09:00:10Z): healthcheck target=127.0.0.1:8080 error=connection-refused. This is the port from config.json, and nothing is bound to it.\",\n    \"service.log line 5 (09:00:11Z): 'supervisor restart reason=healthcheck-failed'. The restart followed the failed checks.\",\n    \"requirements.md: the health check must use the API HTTP listener, and no separate health listener is specified. That means the health_check port should match the listener port, 8081.\"\n  ],\n  \"alternative_hypotheses\": [\n    \"Out-of-memory (the operator_guess in service.log line 6): unlikely. The log says 'evidence=not-collected', so no memory metric, OOM-kill record or crash message supports it. The service was ready and answered 200 on 8081 before the failures, and the failures are connection-refused on a port nothing was configured to serve. The guess is unsupported, not disproven. [unverified]\",\n    \"The API crashed or stopped listening after 09:00:01Z: not supported. The log has no crash or exit entry, and the refusals are on 8080, not 8081. No check against 8081 appears after 09:00:01Z, so I can't rule this out from the log alone. [unverified]\",\n    \"A separate health listener was intended on 8080 but not started: contradicted by requirements.md, which says no separate health listener is specified.\"\n  ],\n  \"remediation\": [\n    \"In config.json, change health_check.port from 8080 to 8081, so the check uses the API HTTP listener. This keeps the host and path unchanged and is the smallest fix.\",\n    \"To prevent drift, derive the health-check port from the http listener definition instead of hard-coding it. [unverified: whether the config format supports this]\",\n    \"Don't act on the OOM guess unless memory evidence is collected.\"\n  ],\n  \"verification_plan\": [\n    \"After the change, confirm the supervisor's health check targets 127.0.0.1:8081/health and returns 200.\",\n    \"Confirm that no 'connection-refused' healthcheck entries and no 'supervisor restart reason=healthcheck-failed' entries appear over several check intervals.\",\n    \"Confirm the service stays up across a period longer than the earlier 09:00:05 to 09:00:11 failure window.\",\n    \"To test the OOM hypothesis separately, collect memory metrics and OOM-kill records from the affected host. None are available in the supplied snapshot.\"\n  ],\n  \"uncertainties\": [\n    \"The evidence is a historical snapshot of three files. No live system was available, so the port mismatch is inferred from config and log only.\",\n    \"The log doesn't show what happened after the restart at 09:00:11Z.\",\n    \"I don't know how the supervisor reads its health-check target. config.json is assumed to be the source of the 8080 value, since the log matches it.\",\n    \"Memory pressure is neither confirmed nor ruled out, because no memory data was collected.\"\n  ],\n  \"execution_status\": \"Analysis only. I read SKILL.md, config.json, service.log and requirements.md with Read, and invoked the fef-rca skill. I changed no files, ran no commands or code, and had no access to a live system. The remediation and verification steps are recommendations and have not been applied or run.\"\n}\n```",
+          "usage": {
+            "input_tokens": 4,
+            "cache_creation_input_tokens": 6230,
+            "cache_read_input_tokens": 7729,
+            "output_tokens": 1864,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 6230,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1403,
+                "cache_read_input_tokens": 6005,
+                "cache_creation_input_tokens": 1949,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1949
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "estimated_usd": 0.0443409,
+          "permission_denials_count": 0,
+          "stop_block_responses": 0,
+          "inputs_unchanged": true,
+          "skill_launch_verified": true,
+          "skill_body_verified": true,
+          "context_delivered": true
+        }
+      ],
+      "summary": {
+        "baseline": {
+          "n": 5,
+          "mean_score": 97.6,
+          "sample_sd": 1.51657508881031,
+          "min": 96,
+          "max": 99,
+          "mean_seconds": 19.9514,
+          "mean_estimated_usd": 0.03236884,
+          "permission_denials_count": 0
+        },
+        "fef": {
+          "n": 5,
+          "mean_score": 97.6,
+          "sample_sd": 3.1304951684997055,
+          "min": 92,
+          "max": 99,
+          "mean_seconds": 41.3546,
+          "mean_estimated_usd": 0.045303180000000005,
+          "permission_denials_count": 0
+        }
+      },
+      "rubric_maxima": [
+        20,
+        20,
+        10,
+        20,
+        20,
+        10
+      ],
+      "input_hashes": {
+        "config.json": "0649bee94073fef07056065600e1bc7fcd4728c95b638331bb83c74bfd7322b9",
+        "service.log": "771e051311dc04238dfc974067c347620886b1a2c0cb5268d79d1b2118585b74",
+        "requirements.md": "6f2d72f1d53b849478e2734a44af612688f6d5581b4040429ae0fda7500ffc53"
+      },
+      "classification": "Custom auxiliary study, not GT011/official Golden evaluation"
+    }
+  },
+  "limitations": [
+    "Five pairs for each of two synthetic tasks; one served model; no general efficacy or statistical significance claim.",
+    "FEF combines plugin, workflow instructions and explicit skill invocation; not component ablation.",
+    "Common builtin CLI plugins; AB/BA alternation does not remove cache/load/order effects.",
+    "GT012 direct unittest constraint excludes wrapper, causing Stop reminders and extra turns. Separate wrapper-positive native test passed.",
+    "Host Python grading is user-approved, not OS-sandboxed; Podman info timed out.",
+    "Labels hidden during independent scoring, but response wording partly unblinds workflow. Intermediate assistant narrative not retained.",
+    "Manual partial credit is judgment; mechanical cap100 is not score100.",
+    "CLI estimates use list-price accounting, not subscription invoices.",
+    "Third-party redistribution permission unresolved. No global/marketplace/production installation verified."
+  ],
+  "pilot_exclusions": [
+    {
+      "study": "GT012",
+      "outputs": 2,
+      "reason": "Collector assumed message dict; string event caused failure. Corrected parser with self-check; pilots excluded and retained locally.",
+      "raw_evidence_sha256": "2e2d15577b46eda40803887531b4ded16cd5322eaf35fa090a8b7f3c6c118a2f"
+    },
+    {
+      "study": "synthetic_rca",
+      "outputs": 1,
+      "reason": "Windows text writer CRLF differed from intended LF bytes; normalized hashes identical, not a model edit. Exact-byte fixture writer then full rerun.",
+      "raw_evidence_sha256": "740c14f0971bcc91ab8c203425cc32815a106b47c3f8b680148a73fb0c6c8226"
+    }
+  ],
+  "authorization": "User explicitly approved synthetic GT012 model-generated Python host execution in temporary workspaces, baseline/FEF five each, after automatic review rejected implicit authorization. No security-policy change."
+}

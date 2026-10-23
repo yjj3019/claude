@@ -1,8 +1,12 @@
-# FEF Claude Framework
+# TaskForge for Claude
 
 [English](README.en.md) · 한국어
 
-Framework for Engineering Excellence(FEF)는 Claude 중심의 엔지니어링 프롬프트 프레임워크입니다. 작은 공통 Kernel과 작업별 지침으로 근거가 있고 검토 가능한 기술 산출물을 만드는 데 도움을 줍니다.
+**by yjj3019 · 이전 이름: FEF (Framework for Engineering Excellence)**
+
+TaskForge for Claude는 Claude Code용 작업 실행·검증 프레임워크입니다. 작은 공통 Kernel과 작업별 지침으로 근거가 있고 검토 가능한 기술 산출물을 만드는 데 도움을 줍니다. Anthropic이 제작·후원·보증하는 공식 제품이 아닌 독립 프로젝트입니다.
+
+제품 표시 이름만 변경했습니다. 설치 ID `fef-engineering@fef-marketplace`, 기존 스킬 호출과 저장 데이터는 유지합니다. 새 이름으로 다시 설치할 필요는 없습니다. [이름 변경과 호환성](docs/ClaudeCode.md#product-name-and-retained-identifiers)을 참고하세요.
 
 ## 기능과 구성
 
@@ -33,7 +37,7 @@ Claude Code 터미널에서:
 
 버전을 올리고 push하면 마켓플레이스에 반영됩니다.  
 사용자는 `/plugin update fef-engineering@fef-marketplace` 또는 플러그인 관리 메뉴에서 업데이트합니다.
-이전 `fef-claude` 설치는 [이관 안내](docs/ClaudeCode.md#plugin-validation-and-compatibility)를 따릅니다. 네이티브 스킬 호출 이름은 `/fef-engineering:fef-coding` 등으로 바뀌며, 별도 설치 팩 `fef-claude/`는 유지합니다.
+과거 네이티브 ID `fef-claude` 사용자만 [기존 ID 이관 안내](docs/ClaudeCode.md#plugin-validation-and-compatibility)를 따릅니다. 현재 네이티브 스킬 호출은 `/fef-engineering:fef-coding` 등이며, 이번 표시 이름 변경으로 호출이 바뀌지는 않습니다. 별도 설치 팩 `fef-claude/`도 유지합니다.
 `plugin.json`의 `version`을 바꾸기 전까지는 해당 버전이 고정됩니다.
 
 ## 기존 방식 (클론 + 스킬 팩)

@@ -17,6 +17,7 @@ class PluginRuntimeTest(unittest.TestCase):
         market = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
         manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["name"], "fef-engineering")
+        self.assertEqual(manifest["displayName"], "TaskForge for Claude")
         self.assertEqual(market["name"], "fef-marketplace")
         self.assertEqual(market["renames"]["fef-claude"], manifest["name"])
         self.assertEqual([entry["name"] for entry in market["plugins"]], [manifest["name"]])
@@ -80,3 +81,53 @@ class PluginRuntimeTest(unittest.TestCase):
                                     capture_output=True, text=True, encoding="utf-8", timeout=30)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)["task_type"], "coding")
+
+    def test_coding_skill_verification_wrapper_from_unrelated_project(self):
+        text = (ROOT / "skills/fef-coding/SKILL.md").read_text(encoding="utf-8")
+        command = re.search(r"`(python [^`]*run_verification\.py[^`]*)`", text).group(1)
+        with tempfile.TemporaryDirectory(prefix="fef verification ") as folder:
+            install = Path(folder) / "installed plugin"
+            shutil.copytree(ROOT / "scripts", install / "scripts",
+                            ignore=shutil.ignore_patterns("__pycache__"))
+            project = Path(folder) / "project"
+            (project / "scripts").mkdir(parents=True)
+            (project / "scripts/run_verification.py").write_text(
+                "raise RuntimeError('wrong project wrapper')\n", encoding="utf-8")
+            (project / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
+            (project / "test_example.py").write_text(
+                "import unittest\nclass Example(unittest.TestCase):\n"
+                "    def test_sum(self): self.assertEqual(1 + 2, 3)\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=project, check=True,
+                           capture_output=True, timeout=30)
+            payload = {"session_id": "wrapper-path-test", "cwd": str(project)}
+            start = subprocess.run(
+                [sys.executable, str(install / "scripts/hooks/session_start.py")],
+                input=json.dumps(payload), cwd=project, capture_output=True,
+                text=True, encoding="utf-8", timeout=60)
+            self.assertEqual(start.returncode, 0, start.stderr)
+            self.assertEqual(start.stderr, "")
+            command = command.replace("${CLAUDE_PLUGIN_ROOT}", install.as_posix())
+            command = command.replace("<verification argv>", "python -m unittest discover -v")
+            argv = shlex.split(command)
+            argv[0] = sys.executable
+            result = subprocess.run(argv, cwd=project, capture_output=True,
+                                    text=True, encoding="utf-8", timeout=60)
+            recorded = subprocess.run(
+                [sys.executable, str(install / "scripts/hooks/record_test_run.py")],
+                input=json.dumps({**payload, "tool_name": "Bash",
+                                  "tool_input": {"command": shlex.join(argv)},
+                                  "tool_response": {"stdout": result.stdout}}),
+                cwd=project, capture_output=True, text=True, encoding="utf-8", timeout=60)
+            self.assertEqual(recorded.returncode, 0, recorded.stderr)
+            self.assertEqual(recorded.stderr, "")
+            states = list((project / ".claude/.verification").glob("*.json"))
+            self.assertEqual(len(states), 1)
+            state = json.loads(states[0].read_text(encoding="utf-8"))
+            self.assertEqual(state["verification"]["returncode"], 0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Ran 1 test", result.stderr)
+        footer = result.stdout.splitlines()[-1]
+        self.assertTrue(footer.startswith("FEF_VERIFY_RESULT="), result.stdout)
+        record = json.loads(footer.split("=", 1)[1])
+        self.assertEqual(record["returncode"], 0)
+        self.assertEqual(record["snapshot_before"], record["snapshot"])

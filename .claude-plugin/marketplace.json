@@ -5,7 +5,7 @@
     "url": "https://github.com/yjj3019"
   },
   "metadata": {
-    "description": "FEF Claude Framework plugins and native Skills"
+    "description": "TaskForge for Claude by yjj3019 (formerly FEF): independent plugins and native Skills"
   },
   "renames": {
     "fef-claude": "fef-engineering"
@@ -14,7 +14,7 @@
     {
       "name": "fef-engineering",
       "source": "./plugins/fef-engineering",
-      "description": "Framework for Engineering Excellence: compact Kernel, selective domain packs, evidence-aware coding/RCA skills, reviewers, and verification hooks",
+      "description": "TaskForge for Claude by yjj3019 (formerly FEF): compact Kernel, selective coding/RCA guidance, native Skills, reviewers and verification reminders. Independent project, not endorsed by Anthropic.",
       "author": {
         "name": "yjj3019"
       },

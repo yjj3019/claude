@@ -13,9 +13,29 @@ STATE_DIR = Path(".claude") / ".verification"
 RESULT_PREFIX = "FEF_VERIFY_RESULT="
 
 
+def git_executable() -> str:
+    selected = os.environ.get("FEF_GIT_EXECUTABLE")
+    if not selected:
+        return "git"
+    path = Path(selected)
+    if (not path.is_absolute() or not path.is_file()
+            or (sys.platform == "win32" and path.suffix.lower() != ".exe")):
+        raise OSError("FEF_GIT_EXECUTABLE must name an absolute executable file")
+    return selected
+
+
+def run_git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[bytes]:
+    try:
+        return subprocess.run([git_executable(), *args], cwd=root, check=check,
+                              capture_output=True, timeout=15)
+    except subprocess.TimeoutExpired as error:
+        # Normalize only our own Git calls for the sanitized operation whitelist.
+        error.cmd = ["git", *args]
+        raise
+
+
 def git(root: Path, *args: str) -> bytes:
-    return subprocess.run(["git", *args], cwd=root, check=True,
-                          capture_output=True, timeout=15).stdout
+    return run_git(root, *args).stdout
 
 
 def repository(cwd: str | Path) -> Path:
@@ -54,8 +74,7 @@ def snapshot(root: Path) -> dict:
         else:
             content = None  # Deletions count as changes.
         paths[name] = [status, content]
-    head = subprocess.run(["git", "rev-parse", "--verify", "HEAD"], cwd=root,
-                          capture_output=True, timeout=15)
+    head = run_git(root, "rev-parse", "--verify", "HEAD", check=False)
     result = {"head": head.stdout.decode("ascii", errors="replace").strip() if head.returncode == 0 else None,
               "files": paths}
     submodules = {}
