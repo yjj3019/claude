@@ -49,7 +49,7 @@ This repository now includes a Claude Code plugin manifest (`.claude-plugin/plug
 
 - `skills/fef-coding/SKILL.md` — ordinary code changes (smallest verified change).
 - `skills/fef-rca/SKILL.md` — evidence-based root-cause analysis.
-- `skills/ai-delegation-loop/` — existing independent skill.
+- `skills/ai-delegation-loop/` is retained only in the source archive; it is not a distributable native skill while permission is unresolved.
 
 To install as a plugin (recommended for reuse across projects):
 
@@ -58,7 +58,10 @@ To install as a plugin (recommended for reuse across projects):
 /plugin install fef-engineering@fef-marketplace
 ```
 
-Or load locally with `--plugin-dir`. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
+For a local native session, load only `--plugin-dir ./plugins/fef-engineering`.
+Do not load the source clone root as a distributable plugin: the preserved archive
+under `skills/` can still be discovered there, and a manifest `skills` field adds
+to the default scan rather than excluding other source folders. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
 
 ### Plugin validation and compatibility
 
@@ -69,9 +72,10 @@ marketplace metadata therefore omit a package-wide license identifier. See the s
 [attribution and license record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md#attribution-and-license).
 
 The root plugin manifest is the single version source; the generated manifest is
-an exact copy and the marketplace omits its redundant version. Version `1.3.1`
-marks the separate native payload so cached `1.3.0` installs can receive the change
-after release. See [manifest precedence](https://code.claude.com/docs/en/plugins-reference#metadata-precedence).
+an exact copy and the marketplace omits its redundant version. Version `2.0.0`
+removes the unlicensed delegation skill from the native payload. Coding/RCA IDs,
+hooks and verification state stay unchanged. Existing caches require an explicit
+marketplace/plugin update and a new session after the release is available. See [manifest precedence](https://code.claude.com/docs/en/plugins-reference#metadata-precedence).
 
 The earlier native-ID migration changed `fef-claude` to `fef-engineering`,
 separately from the display-name change above. The marketplace
@@ -101,7 +105,7 @@ The rename map migrates plugin identity, not documented slash-command aliases:
 |---|---|
 | `/fef-claude:fef-coding` | `/fef-engineering:fef-coding` |
 | `/fef-claude:fef-rca` | `/fef-engineering:fef-rca` |
-| `/fef-claude:ai-delegation-loop` | `/fef-engineering:ai-delegation-loop` |
+| `/fef-claude:ai-delegation-loop` | Unavailable in 2.0.0 pending redistribution clearance |
 
 Plugin reviewer identifiers likewise use the `fef-engineering:` prefix. Skill
 frontmatter names, reviewer file names and the separate standalone pack stay
@@ -131,7 +135,8 @@ The marketplace installs `plugins/fef-engineering/`, generated from canonical
 runtime files. The self-contained payload includes Skills, reviewer agents,
 hooks, scripts, Kernel, packs and runtime docs; it excludes root `CLAUDE.md`,
 marketplace metadata, local verification state and historical model evidence.
-Delegation acceptance guidance remains included. Keep this generated directory in
+Delegation files are excluded. See [clearance](third-party-clearance.md) and
+[skill versioning](skill-versions.md). Keep this generated directory in
 the distributed repository; Git-based installation does not build it for users.
 
 From the source clone, regenerate after changing runtime inputs:

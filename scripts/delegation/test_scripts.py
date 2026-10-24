@@ -4,6 +4,8 @@ Each validator guard is exercised by breaking it in a throwaway copy of the
 repository and checking that the matching check fails.
 """
 import os
+import io
+from contextlib import redirect_stdout
 import shutil
 import subprocess
 import sys
@@ -184,7 +186,8 @@ class ValidatorTests(unittest.TestCase):
         self.assertTrue(module.check_links(self.root))
 
 
-class InstallTests(unittest.TestCase):
+class InstallAlgorithmTests(unittest.TestCase):
+    """Internal transaction checks only; production redistribution stays blocked."""
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
@@ -194,8 +197,15 @@ class InstallTests(unittest.TestCase):
         self.env = {"HOME": str(self.home), "USERPROFILE": str(self.home)}
         self.source = REPO / SKILL_DIR
 
+    def distribute(self, script, *args):
+        module = self.installer_module(script)
+        output = io.StringIO()
+        with patch.object(Path, "home", return_value=self.home), redirect_stdout(output):
+            code = module.main(list(args))
+        return code, output.getvalue()
+
     def install(self, *args):
-        return run(SCRIPTS / "install.py", "install", *args, env=self.env)
+        return self.distribute(SCRIPTS / "install.py", "install", *args)
 
     def test_install_is_idempotent_and_exact(self):
         code, out = self.install("--target", "claude", "codex", "grok", "--scope", "user")
@@ -282,7 +292,8 @@ class InstallTests(unittest.TestCase):
         spec.loader.exec_module(module)
         ancestor = self.home / ".claude"
         ancestor.mkdir()
-        with patch.object(module, "is_link", side_effect=lambda p: p == ancestor):
+        with patch.object(module, "REDISTRIBUTION_BLOCKED", False), \
+                patch.object(module, "is_link", side_effect=lambda p: p == ancestor):
             self.assertFalse(module.install_to(ancestor / "skills", force=True))
         self.assertEqual(list(ancestor.iterdir()), [])
 
@@ -303,41 +314,39 @@ class InstallTests(unittest.TestCase):
         finally:
             link.rmdir()
 
-    def test_explicit_pack_installs_beside_fef_and_preserves_it(self):
+    def test_existing_pack_check_is_read_only_beside_fef(self):
         skills = self.home / "skills"
         fef = skills / "fef-claude"
         fef.mkdir(parents=True)
         (fef / "user-edit.md").write_bytes(b"keep me")
+        module = self.installer_module()
+        self.assertTrue(module.install_to(skills))
         script = REPO / "scripts" / "install_pack.py"
         before = tree(self.home)
-        code, out = run(script, "--pack", SKILL, "--dest", str(skills), "--dry-run", env=self.env)
-        self.assertEqual(code, 0, out)
-        self.assertEqual(tree(self.home), before)
-        code, out = run(script, "--pack", SKILL, "--dest", str(skills), env=self.env)
-        self.assertEqual(code, 0, out)
-        self.assertEqual(tree(fef), {"user-edit.md": b"keep me"})
         self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--check", env=self.env)[0], 0)
+        self.assertEqual(tree(self.home), before)
         changed = skills / SKILL / "SKILL.md"
         changed.write_bytes(b"local edit")
+        before = tree(self.home)
         self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--check", env=self.env)[0], 1)
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), env=self.env)[0], 2)
-        self.assertEqual(changed.read_bytes(), b"local edit")
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--force", env=self.env)[0], 0)
-        self.assertEqual(list((skills.parent / ".backups").glob(SKILL + "-*"))[0].joinpath("SKILL.md").read_bytes(), b"local edit")
-        self.assertEqual(run(script, "--pack", SKILL, "--auto", env=self.env)[0], 2)
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--siblings", str(self.tmp), env=self.env)[0], 2)
+        self.assertEqual(tree(self.home), before)
+        self.assertEqual(tree(fef), {"user-edit.md": b"keep me"})
 
-    def installer_module(self):
-        spec = importlib.util.spec_from_file_location("snapshot_installer", SCRIPTS / "install.py")
+    def installer_module(self, script=None):
+        spec = importlib.util.spec_from_file_location("snapshot_installer", script or SCRIPTS / "install.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
+        policy = patch.object(module, "REDISTRIBUTION_BLOCKED", False)
+        policy.start()
+        self.addCleanup(policy.stop)
         return module
 
     def test_runtime_projection_retains_local_links_and_full_evidence_is_explicit(self):
         root = self.tmp / "runtime"
         skills = root / "skills"
         script = REPO / "scripts/install_pack.py"
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), env=self.env)[0], 0)
+        module = self.installer_module()
+        self.assertTrue(module.install_to(skills))
         dest = skills / SKILL
         self.assertTrue((dest / "tests/acceptance-cases.md").is_file())
         self.assertFalse((dest / "tests/simulation-results.json").exists())
@@ -345,8 +354,8 @@ class InstallTests(unittest.TestCase):
         validator = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(validator)
         self.assertEqual(validator.check_links(root), [])
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", env=self.env)[0], 2)
-        self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", "--force", env=self.env)[0], 0)
+        self.assertFalse(module.install_to(skills, with_evidence=True))
+        self.assertTrue(module.install_to(skills, with_evidence=True, force=True))
         self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--with-evidence", "--check", env=self.env)[0], 0)
         self.assertEqual(run(script, "--pack", SKILL, "--dest", str(skills), "--check", env=self.env)[0], 1)
         self.assertEqual((dest / "tests/simulation-results.json").read_bytes(), (self.source / "tests/simulation-results.json").read_bytes())
@@ -407,8 +416,8 @@ class InstallTests(unittest.TestCase):
         (work / SKILL_DIR / "tests" / "stray.pyc").write_bytes(b"junk")  # only the suffix rule can
         script = work / "scripts" / "delegation" / "install.py"
         first, second = self.tmp / "a.zip", self.tmp / "b.zip"
-        self.assertEqual(run(script, "package", "--output", str(first))[0], 0)
-        self.assertEqual(run(script, "package", "--output", str(second))[0], 0)
+        self.assertEqual(self.distribute(script, "package", "--output", str(first))[0], 0)
+        self.assertEqual(self.distribute(script, "package", "--output", str(second))[0], 0)
         self.assertEqual(first.read_bytes(), second.read_bytes())
         with zipfile.ZipFile(str(first)) as archive:
             names = archive.namelist()
@@ -424,13 +433,102 @@ class InstallTests(unittest.TestCase):
             self.assertIn(SKILL + "/" + needed, names)
         self.assertNotIn(SKILL + "/tests/simulation-results.json", names)
         full = self.tmp / "full.zip"
-        self.assertEqual(run(script, "package", "--output", str(full), "--with-evidence")[0], 0)
+        self.assertEqual(self.distribute(script, "package", "--output", str(full), "--with-evidence")[0], 0)
         with zipfile.ZipFile(str(full)) as archive:
             self.assertEqual(archive.read(SKILL + "/tests/simulation-results.json"),
                              (work / SKILL_DIR / "tests/simulation-results.json").read_bytes())
-        code, out = run(script, "package", "--output", str(first))
+        code, out = self.distribute(script, "package", "--output", str(first))
         self.assertEqual(code, 2, out)
-        self.assertEqual(run(script, "package", "--output", str(first), "--force")[0], 0)
+        self.assertEqual(self.distribute(script, "package", "--output", str(first), "--force")[0], 0)
+
+
+class RedistributionPolicyTests(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name)
+        spec = importlib.util.spec_from_file_location("blocked_installer", SCRIPTS / "install.py")
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        self.assertIs(self.module.REDISTRIBUTION_BLOCKED, True)
+
+    def assert_refusal(self, output):
+        self.assertIn("unresolved redistribution permission", output)
+        self.assertIn("docs/third-party-clearance.md", output)
+
+    def test_direct_install_refuses_before_path_access_and_writes_nothing(self):
+        for existing in (False, True):
+            skills = self.root / ("existing" if existing else "new") / "skills"
+            if existing:
+                dest = skills / SKILL
+                dest.mkdir(parents=True)
+                (dest / "SKILL.md").write_bytes(b"local bytes")
+            before = tree(self.root)
+            entries = sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*"))
+            for force, dry_run, evidence in ((False, False, False), (True, False, False),
+                                              (True, True, True), (False, False, True)):
+                with self.subTest(existing=existing, force=force, dry_run=dry_run, evidence=evidence):
+                    output = io.StringIO()
+                    with redirect_stdout(output):
+                        self.assertFalse(self.module.install_to(skills, force, dry_run, evidence))
+                    self.assert_refusal(output.getvalue())
+                    self.assertEqual(tree(self.root), before)
+                    self.assertEqual(sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*")), entries)
+        with patch.object(self.module, "SOURCE", None), redirect_stdout(io.StringIO()):
+            self.assertFalse(self.module.install_to(None, True, True, True))
+
+    def test_direct_package_refuses_before_argument_access(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            self.assertEqual(self.module.package(None), 2)
+        self.assert_refusal(output.getvalue())
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_direct_package_flags_preserve_existing_bytes_and_parent(self):
+        existing = self.root / "existing.zip"
+        existing.write_bytes(b"keep archive")
+        for output_path in (existing, self.root / "missing-parent" / "new.zip"):
+            for force in (False, True):
+                for evidence in (False, True):
+                    with self.subTest(output=output_path, force=force, evidence=evidence):
+                        args = self.module.argparse.Namespace(output=output_path, force=force,
+                                                              with_evidence=evidence)
+                        output = io.StringIO()
+                        with redirect_stdout(output):
+                            self.assertEqual(self.module.package(args), 2)
+                        self.assert_refusal(output.getvalue())
+                        self.assertEqual(existing.read_bytes(), b"keep archive")
+                        self.assertEqual(list(self.root.iterdir()), [existing])
+
+    def test_cli_install_and_package_cannot_override_policy(self):
+        home = self.root / "home"
+        home.mkdir()
+        env = {"HOME": str(home), "USERPROFILE": str(home)}
+        project = self.root / "project"
+        project.mkdir()
+        existing = project / ".agents" / "skills" / SKILL
+        existing.mkdir(parents=True)
+        (existing / "SKILL.md").write_bytes(b"keep installation")
+        archive = self.root / "existing.zip"
+        archive.write_bytes(b"keep archive")
+        commands = [
+            ("install", "--target", "claude", "codex", "grok", "--scope", "user"),
+            ("install", "--target", "codex", "--scope", "project", "--project-dir", str(project)),
+            ("package", "--output", str(self.root / "missing-parent" / "new.zip")),
+            ("package", "--output", str(archive)),
+        ]
+        before = tree(self.root)
+        entries = sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*"))
+        for command in commands:
+            for flags in ((), ("--force",), ("--with-evidence", "--force")):
+                variants = [flags, flags + ("--dry-run",)] if command[0] == "install" else [flags]
+                for variant in variants:
+                    with self.subTest(command=command, flags=variant):
+                        code, output = run(SCRIPTS / "install.py", *command, *variant, env=env)
+                        self.assertEqual(code, 2, output)
+                        self.assert_refusal(output)
+                        self.assertEqual(tree(self.root), before)
+                        self.assertEqual(sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*")), entries)
 
 
 if __name__ == "__main__":

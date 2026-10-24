@@ -20,6 +20,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SKILL = "ai-delegation-loop"
+# Release only after reviewing rights evidence and changing this source policy.
+REDISTRIBUTION_BLOCKED = True
+REDISTRIBUTION_REFUSAL = (
+    "REFUSED: unresolved redistribution permission for ai-delegation-loop; "
+    "see docs/third-party-clearance.md"
+)
 REPO = Path(__file__).resolve().parents[2]
 SOURCE = REPO / "skills" / SKILL
 TARGET_DIRS = {"claude": ".claude", "codex": ".agents", "grok": ".grok"}
@@ -108,6 +114,9 @@ def install_one(target, base, force, dry_run, with_evidence=False):
 
 
 def install_to(skills_root, force=False, dry_run=False, with_evidence=False):
+    if REDISTRIBUTION_BLOCKED:
+        say(REDISTRIBUTION_REFUSAL)
+        return False
     if not (SOURCE / "SKILL.md").is_file():
         say("REFUSED: canonical skill source is missing")
         return False
@@ -231,6 +240,9 @@ def install(args):
 
 
 def package(args):
+    if REDISTRIBUTION_BLOCKED:
+        say(REDISTRIBUTION_REFUSAL)
+        return 2
     if not (SOURCE / "SKILL.md").is_file():
         say("REFUSED: canonical skill source is missing")
         return 2

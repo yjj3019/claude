@@ -1,5 +1,7 @@
 # AI-Harness 비교 검토와 제한적 반영
 
+최신 재검토: 아래 [업데이트 재검토](#업데이트-재검토-45664d3) 참조. 최초 검토 내용은 당시 revision에 대한 이력으로 보존한다.
+
 검토일: 2026-10-24. 대상: [yjj3019/AI-Harness](https://github.com/yjj3019/AI-Harness/tree/ac4c59adcced5484c9e9c7952b5794c880838a97), commit ac4c59adcced5484c9e9c7952b5794c880838a97. 기본 브랜치의 shallow clone에서 .git을 제외한14파일을 확인했다. 원본 코드·설치 절차는 실행하지 않았다.
 
 ## 판단
@@ -41,3 +43,42 @@
 ## 후속 실제 실행 검증
 
 이후 사용자 요청으로 TaskForge의 전체 Windows 회귀·실제 Claude 합성 코딩/새 세션 재개·PowerPoint 실제 생성물 열기/렌더/OOXML 검사를 수행했다. [후속 검증 보고서](verification-2026-10-24.md)에 성공·실패·한계를 분리했다. 전체 회귀는 Git timeout2건으로 미통과이며, 원본 AI-Harness 스켈레톤의 실행·공식 기능 여부·효능을 검증한 것은 아니다.
+
+
+## 업데이트 재검토 45664d3
+
+2026-10-24 사용자 재요청으로 `ac4c59adcced5484c9e9c7952b5794c880838a97`부터
+[45664d315faa13aab71f3b01bf270d50a42f4906](https://github.com/yjj3019/AI-Harness/tree/45664d315faa13aab71f3b01bf270d50a42f4906)까지 비교했다.
+18커밋·변경32경로이며 최신 고정 snapshot은 일반 파일33개다. 별도 참조 저장소와
+읽기 전용 소스 사본을 사용했고 upstream 코드·테스트·설치기는 실행하지 않았다.
+
+### 이전 발견의 변경 상태
+
+- 에이전트5개에 YAML frontmatter 구분자가 추가됐다. 이전 형식 누락 지적은 최신 snapshot에는 해당하지 않는다. 실제 Claude 호스트 인식은 이번에 검증하지 않았다.
+- 로그 전용 스켈레톤 대신 `phase-gate.js`, `/phase-harness` command, 증거/읽기/파괴적 명령 가드, doctor, 코드 트리·명령 바인딩, attestation 재실행, 테스트와 CI가 추가됐다. gate는 증거 기록/검사를 담당하고 subagent 호출·재시도는 command 지침에 맡긴다. 완전한 자율 실행 보장으로 확대하지 않는다.
+- [Apache-2.0 LICENSE](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/LICENSE)가 추가됐다. 이전의 LICENSE 부재는 최초 revision 한정 관찰이다. 파일 존재만으로 모든 외부 참고 자료의 권리·출처가 검증되거나 별도 보존 DelegationLoop 자료가 허가됐다고 간주하지 않는다. 이번에도 원본 코드·프롬프트는 가져오지 않았다.
+
+### 최신 구현에서 확인한 경계
+
+아래는 고정 소스의 분기와 fixture를 읽은 정적 분석이며 실제 호스트·공격 재현 결과가 아니다.
+
+| 우선순위 | 확인한 구현·조건 | TaskForge 적용 판단 |
+|---|---|---|
+| 높음 | [`run`과 체인 검사](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/workflows/phase-gate.js#L281-L359)는 실행 명령의 exit0을 PASS로 기록한다. 의도한 테스트인지, 테스트0건/전부skip인지는 판별하지 않는다. | 성공한 준비 명령·아무 일도 하지 않는 명령을 기능 검증으로 오인하지 않도록 실제 명령·최종 요약·가능한 실행/실패/skip 수를 기존 Coding 모듈과 스킬에서 확인한다. |
+| 높음 | [CI](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.github/workflows/ci.yml#L21-L29)는 존재하는 attestation만 순회한다. 최신 tree에는 required-test-command.json이 없고, [명령 고정](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/workflows/phase-gate.js#L472-L519)은 선택 사항이다. attestation은 tree 해시 대상에서 제외되므로 핀이 없는 경우 다른 exit0 argv로 바꿔도 명령 불일치를 거부하지 않는다. | 로컬 attestation을 CI 보장으로 광고하지 않는다. 기존 Review 정책/리뷰어에서 실제 필수 작업·검증 명령과 결과를 확인하도록 보완한다. 현재 TaskForge CI를 이 방식으로 교체하지 않는다. |
+| 중간 | [읽기 검사](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/workflows/phase-gate.js#L227-L260)는 설정 문자열로 활성 여부를 판별하고 경로+해시 기록을 찾는다. 읽은 범위·이해·검증 적합성·기록자 권한은 증명하지 않는다. | read receipt와 해시를 내용 검토나 독립 검증의 대체물로 쓰지 않도록 기존 Review 정책에 명시한다. |
+| 중간 | [가드](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/hooks/evidence-guard.sh#L1-L56)는 jq/입력 파싱 실패 시 통과하며 명령 문자열 패턴에 의존한다. main session은 제한하지 않는다. [read-tracker](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/hooks/read-tracker.sh)는 Bash 도구·GNU 경로/해시 도구와 host event 필드를 전제한다. | 보안 경계·OS 격리로 취급하지 않고 기존 Windows/Python 훅을 유지한다. doctor의 진단 아이디어는 유용하지만 새 Node/Bash/jq 의존성은 추가하지 않는다. |
+| 중간 | [treeHash](https://github.com/yjj3019/AI-Harness/blob/45664d315faa13aab71f3b01bf270d50a42f4906/.claude/workflows/phase-gate.js#L84-L108)는 tracked+nonignored 파일 범위다. ignored 의존성/런타임 환경은 별도이며 check는 Git 부재 시 경고로 진행할 수 있다. | 해시가 포괄하는 입력/환경 한계를 공개한다. 기존 TaskForge snapshot/state v1이나 Git 실패 처리를 변경하지 않는다. |
+
+### 선별 반영과 보류
+
+- 기존 Coding 모듈과 native coding 스킬: 의도한 동작을 실행한 명령인지와 최종 결과를 확인한다. 제공되는 테스트/실패/skip 수를 공개하며 zero/all-skipped는 요구 충족으로 취급하지 않는다. 원시 로그는 요약과 별도로 보존하되 비밀정보를 노출하지 않는다.
+- 기존 Review 정책과 CodeChangeReviewer: 원본 로그·최종 요약, 실제 CI 필수 작업/명령을 확인하고 해시·읽기 기록의 보장 범위를 구분한다. 문장은 독자적으로 작성했다.
+- 기존 long-running/handoff/lesson/PPT 지침과 겹치는 내용은 중복 반영하지 않았다. 강제 전체 교훈 로딩·상시 phase 파일·고정70% 컨텍스트 임계값·무조건 TDD/세션 전환·외부 MCP 자동 설치도 도입하지 않았다.
+- 증거 해시 체인·attestation·doctor와 새 guard runtime은 보류했다. 현재 TaskForge 검증 래퍼/훅과 중복되고 명령 의미·신뢰 경계·Windows 의존성까지 설계해야 한다. 필요가 확인되면 별도 영향 검토 후 다룬다.
+
+Coding `1.0.3`/plugin `2.0.4`로 호환 패치 갱신하고 기존 생성기로 배포본을 동기화한다.
+RCA/standalone entry 버전, 기술ID·라우트·권한·Kernel·state v1·검증 래퍼 동작은 유지한다.
+새 런타임 로직이 없어 문장을 그대로 재검사하는 테스트는 추가하지 않는다.
+실제 관련 검증·실패와 제한은 [작업 이력](../PROGRESS.md)의 해당 업데이트 항목에 기록한다.
+이번 지침 보강은 테스트 수 자동 강제·실제 모델 효능·비용 절감·운영 안정성을 보장하지 않는다.

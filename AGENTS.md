@@ -4,23 +4,25 @@ Read `CLAUDE.md` first; do not load a second copy of the inlined Kernel.
 
 ## Guidance Layout
 
-- `kernel/` is the source; policies, modules, domains and reviewers are task-selected.
+- `kernel/` is canonical; select policies/modules/domains/reviewers per task.
 - `config/routes.json` / `scripts/detect_task.py` preview routes; `docs/loading-map.md` supports manual selection.
-- Adaptive Effort preferences: `docs/adaptive-effort.md`, only when choosing models.
+- Model choice only: Adaptive Effort in `docs/adaptive-effort.md`.
 - Validate: `python scripts/validate_repository.py`; tests: `python -m unittest discover -s tests`.
-- Install: `python scripts/install_pack.py --auto` copies host skills only; sibling install is opt-in; existing packs need `--force`.
+- Install: `python scripts/install_pack.py --auto`: host skills only; siblings opt-in; existing packs need `--force`.
 
 ## Subagent Delegation Policy
 
-Prefer existing project reviewers and built-in Explore for context isolation.
+Use project reviewers and built-in Explore for context isolation.
 
-- Broad file/symbol exploration → built-in Explore or direct Read/Grep when volume is low.
-- Verification commands (tests, lint, build) → run directly or via a short-lived Bash call; keep logs summarized.
+- Broad exploration → built-in Explore; low volume → direct Read/Grep.
+- Tests/lint/build → direct or short-lived Bash; summarize logs.
 - Architecture and security reviews → `architecture-reviewer` / `security-reviewer` (opus).
-- Code-change and technical reviews → `code-change-reviewer` / `technical-reviewer` (sonnet).
-- Documentation, prompt, and consistency checks → corresponding reviewers (haiku/sonnet).
-- After non-trivial coding-route changes, call `code-change-reviewer` once before finalizing.
-- Pass only conclusions and evidence back to the main context.
-- Main agent retains final judgment and implementation responsibility.
+- Code/technical review → `code-change-reviewer` / `technical-reviewer` (sonnet).
+- Docs/prompt/consistency → corresponding reviewers (haiku/sonnet).
+- Nontrivial coding-route changes: call `code-change-reviewer` once before delivery.
+- Return conclusions and evidence only.
+- Main agent owns decisions and implementation.
 
-All project reviewers set `omitClaudeMd: true` so they do not reload the full Kernel or AGENTS.md.
+Reviewers use `omitClaudeMd: true` to avoid reloading Kernel/AGENTS.md.
+
+TaskForge source: follow `docs/upstream-review-policy.md` if present.

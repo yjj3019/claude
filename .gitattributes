@@ -10,3 +10,9 @@ docs/delegation-loop/source-history/*.bundle binary
 # Match native payload checkout bytes to the source package and generated README.
 plugins/fef-engineering/README.md text eol=lf
 plugins/fef-engineering/skills/ai-delegation-loop/** text eol=lf
+
+# Do not export uncleared source material in future git-archive distributions.
+/skills/ai-delegation-loop export-ignore
+/scripts/delegation export-ignore
+/docs/delegation-loop export-ignore
+/plugins/fef-engineering/skills/ai-delegation-loop export-ignore

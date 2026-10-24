@@ -24,6 +24,6 @@
     "model_behavior": "UNVERIFIED",
     "model_cli_executed": false,
     "acceptance_results": "tests/acceptance-results.json",
-    "acceptance_results_sha256": "1bd7b6bfb8ae29433c78f1dacae1c6ed37177d84337c9fc989ce557deafdd69e"
+    "acceptance_results_sha256": "24783203082e73595e1904b661fb97c9c0704ceb3888c13b1d29ab3f92c588f0"
   }
 }

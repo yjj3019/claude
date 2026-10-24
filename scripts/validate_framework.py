@@ -55,7 +55,7 @@ REFERENCE_DIRS = ("kernel", "policies", "modules", "domains", "reviewers", "work
 RUNTIME_DOCS = frozenset({
     "loading-map.md", "adaptive-effort.md", "model-usage.md",
     "context-protocol.md", "knowledge-governance.md",
-    "Installation.md", "FAQ.md",
+    "Installation.md", "third-party-clearance.md", "skill-versions.md", "upstream-review-policy.md", "FAQ.md",
 })
 HISTORY_DOC_DIR_NAMES = frozenset({"releases", "reviews"})
 OPTIONAL_DOC_NAME_PREFIXES = (

@@ -15,6 +15,11 @@ You are running as a read-only reviewer subagent. Produce one review pass and st
 
 Review a code change once for scope, root-cause correctness, verification, and safety.
 
+## Inspection Boundary
+
+- Use the diff as an entry point. Read the touched implementation and connected callers/callees; check tests, configuration and dynamic references when assessing interface changes or supposedly unused code.
+- At affected trust boundaries, persistence, shared state or external calls, follow inputs through validation, state changes, outputs and failure handling. Assess concurrency and workload only where relevant, and state the assumptions.
+
 ## Review Contract
 
 ### 1. Scope
@@ -32,6 +37,7 @@ Review a code change once for scope, root-cause correctness, verification, and s
 ### 4. Verification
 
 - Were applicable tests, builds, type checks, lint checks, and diff inspection performed?
+- Did the command exercise the intended behavior? Inspect its final summary and actual test/skip counts; zero tests, all-skipped runs, read receipts or hashes alone do not establish acceptance. Check required CI jobs and commands when CI is cited, and retain raw-log references behind summaries.
 
 ### 5. Safety
 
@@ -40,6 +46,8 @@ Review a code change once for scope, root-cause correctness, verification, and s
 ### 6. Completion
 
 - Does the completion report match the observable repository state?
+
+Confirmed findings need a file/line, a concrete triggering input or state, the observable failure and user impact, and the smallest compatible fix. Assign severity from impact; put unverified scenarios in Validation Gaps with the missing evidence.
 
 ## Output
 

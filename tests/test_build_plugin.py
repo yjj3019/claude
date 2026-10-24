@@ -36,12 +36,16 @@ class PluginBuildTest(unittest.TestCase):
         private = self.source / ".claude/.verification/private.json"
         private.parent.mkdir(parents=True)
         private.write_text("fixture state", encoding="utf-8")
+        excluded = self.source / "skills/ai-delegation-loop/SKILL.md"
+        excluded.parent.mkdir(parents=True, exist_ok=True)
+        excluded.write_text("retained source fixture", encoding="utf-8")
         self.generate()
+        self.assertEqual(excluded.read_text(), "retained source fixture")
+        self.assertFalse((self.dest / "skills/ai-delegation-loop").exists())
         self.assertEqual((self.source / "CLAUDE.md").read_text(), "Retained clone entry.\n")
         for name in ("CLAUDE.md", ".claude-plugin/marketplace.json", ".claude/.verification/private.json",
                      "skills/ai-delegation-loop/tests/run_simulation.py"):
             self.assertFalse((self.dest / name).exists(), name)
-        self.assertTrue((self.dest / "skills/ai-delegation-loop/tests/acceptance-cases.md").is_file())
         before = {rel: (self.dest / rel).stat().st_mtime_ns for rel in build_plugin.files_in(self.dest)}
         self.generate()
         self.assertTrue(build_plugin.build(self.source, check=True))
@@ -60,6 +64,29 @@ class PluginBuildTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unexpected payload files"):
             build_plugin.build(self.source)
         self.assertEqual(before, {rel: (self.dest / rel).read_bytes() for rel in build_plugin.files_in(self.dest)})
+
+    def test_archive_excludes_uncleared_material_without_removing_source(self):
+        import io
+        import tarfile
+        (self.source / ".gitattributes").write_bytes((ROOT / ".gitattributes").read_bytes())
+        blocked = ("skills/ai-delegation-loop", "scripts/delegation", "docs/delegation-loop",
+                   "plugins/fef-engineering/skills/ai-delegation-loop")
+        for folder in blocked:
+            path = self.source / folder / "fixture.txt"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("retained archive fixture", encoding="utf-8")
+        for args in (("init", "-q"), ("add", "-A")):
+            subprocess.run(["git", *args], cwd=self.source, check=True, capture_output=True, timeout=30)
+        tree = subprocess.run(["git", "write-tree"], cwd=self.source, check=True,
+                              capture_output=True, text=True, timeout=30).stdout.strip()
+        archive = subprocess.run(["git", "archive", "--format=tar", "--worktree-attributes", tree],
+                                 cwd=self.source, check=True, capture_output=True, timeout=30)
+        with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as stream:
+            names = stream.getnames()
+        self.assertIn("skills/fef-coding/SKILL.md", names)
+        for folder in blocked:
+            self.assertFalse(any(name == folder or name.startswith(folder + "/") for name in names))
+            self.assertTrue((self.source / folder / "fixture.txt").is_file())
 
     def test_source_change_is_detected_and_regenerated(self):
         self.generate()

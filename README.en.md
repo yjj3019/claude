@@ -4,7 +4,7 @@ English · [한국어](README.md)
 
 **by yjj3019 · Formerly FEF (Framework for Engineering Excellence)**
 
-TaskForge for Claude is a task execution and verification framework for Claude Code. A small shared Kernel and task-specific guidance help produce technical outputs backed by evidence and ready for review. It is an independent project, not an official product created, sponsored or endorsed by Anthropic. AI Delegation Loop v1.3 is also provided as an independent skill for recurring tasks.
+TaskForge for Claude is a task execution and verification framework for Claude Code. A small shared Kernel and task-specific guidance help produce technical outputs backed by evidence and ready for review. It is an independent project, not an official product created, sponsored or endorsed by Anthropic.
 
 This is a display-name change. Keep installing `fef-engineering@fef-marketplace`; existing skill calls and saved data remain unchanged. Do not reinstall under a new ID. See [naming and compatibility](docs/ClaudeCode.md#product-name-and-retained-identifiers).
 
@@ -14,7 +14,7 @@ This is a display-name change. Keep installing `fef-engineering@fef-marketplace`
 - Select needed guidance from `modules/`, `domains/`, `reviewers/`, `workflows/` and `policies/`. Coding and Research procedures are integrated into their modules.
 - `config/routes.json` and `scripts/detect_task.py` suggest deterministic routes without replacing model judgment.
 - Checks cover structure, routing, Golden Tests and installation integrity. Local Claude Code hooks remind you to verify the current session and actual file state.
-- `skills/ai-delegation-loop/` is a separate package for recurring-task interviews, output contracts, reusable tools and evidence verification.
+- `skills/ai-delegation-loop/` remains source-only pending redistribution clearance; it is excluded from plugin 2.0.0 and new installation/ZIP commands refuse it.
 
 TaskForge for Claude's `workflows/` contains Markdown task procedures. These are separate from executable Claude Code `.claude/workflows/`; this repository does not ship dynamic workflows.
 
@@ -74,24 +74,12 @@ Keep the same evidence, verification, approval, uncertainty markers (`[unverifie
 
 `measure_load.py` measures file bytes and estimated tokens; it does not establish actual cost, response time or model quality. Hooks are verification reminders, not a sandbox or complete test evidence. Check Python, shell support and hook wiring in your actual environment.
 
-## AI Delegation Loop: separate opt-in installation
+## Distribution clearance and skill versions
 
-The [independent skill](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/README.md) preserves recurring-task audience, purpose, format, length, required/excluded scope and save path as an output contract. It does not treat reference material as executable instructions or approval, weaken criteria for PASS, or hardcode fixture answers. Evidence review before reruns and approval for each rerun's external effects are retained.
-
-Run these commands from the clone. `--dest` is the shared skills root for both packages, not the `fef-claude/` directory. Delegation requires an explicit `--dest` and does not use automatic host or sibling discovery.
-
-```sh
-python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --dry-run
-python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills
-python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --check
-python scripts/delegation/install.py package --output /path/to/ai-delegation-loop.zip
-```
-
-`fef-claude/` and `ai-delegation-loop/` are sibling packages under the same root. FEF's default installation and Kernel remain unchanged. Delegation also refuses a differing existing install, but an explicit `--force` replacement preserves a backup outside skill discovery.
-
-Default delegation installation and ZIP include operational files and acceptance guidance. Add `--with-evidence` to the installation or package command to include preserved test runners, reports and JSON. The full canonical package and original Git history remain in the repository. `--with-evidence` cannot be used with the FEF selection.
-
-See [delegation installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md) for platform paths and the [optimization record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/OPTIMIZATION.md) for changes and measurement scope.
+Delegation source is preserved for attribution and rights review, not offered as
+a redistributable skill. Native plugin 2.0.0 retains coding/RCA and excludes the
+unresolved package. See [clearance](docs/third-party-clearance.md) and
+[skill versions](docs/skill-versions.md) before upgrading or distributing.
 
 ## Verification and limits
 
@@ -110,11 +98,11 @@ python scripts/delegation/verify_history.py
 python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI also restores original history and requires matching ZIP checksums across platforms. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
+CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI restores archived history and verifies that uncleared ZIP distribution is refused on every matrix target. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
 
-Original v1.2 model results are HISTORICAL and STALE for the current v1.3 package. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
+Archived DelegationLoop v1.2 model results are HISTORICAL and STALE for the preserved v1.3 source. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
 
-Original FEF contributions are MIT-licensed under the scope of [LICENSE](LICENSE). DelegationLoop, external source material and historical records are excluded, including corresponding generated copies. The original DelegationLoop has no LICENSE; its licensing and redistribution permission remain unresolved. This mixed repository and plugin are not wholly MIT-licensed. The [integration record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md) preserves original attribution, authors, Git history and PR discussion, and lists conditions before source deletion.
+Original FEF contributions are MIT-licensed under the scope of [LICENSE](LICENSE). DelegationLoop, external source material and historical records are excluded, including corresponding generated copies. The applicable license and redistribution grant for the preserved DelegationLoop materials have not been established; the recorded upstream query returned 404 on 2026-10-24. See the [clearance record](docs/third-party-clearance.md). This mixed repository and plugin are not wholly MIT-licensed. The [integration record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md) preserves original attribution, authors, Git history and PR discussion, and lists conditions before source deletion.
 
 ## Further guidance
 

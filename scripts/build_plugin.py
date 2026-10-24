@@ -43,11 +43,11 @@ before changing an existing installation.
 Source-maintenance commands in the guides require the original repository clone.
 
 Original FEF contributions are MIT-licensed within the scope of [LICENSE](LICENSE).
-DelegationLoop and third-party materials are excluded; see the local
-[third-party notice](skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md).
-Their licensing and redistribution permissions remain unresolved. Plugin metadata
-therefore omits a package-wide license identifier; the mixed payload is not wholly
-MIT-licensed.
+DelegationLoop is excluded from this payload while redistribution permission is
+unresolved. See [rights clearance](docs/third-party-clearance.md) and
+[skill versions](docs/skill-versions.md). Source archives are retained separately;
+exclusion does not grant third-party rights. Metadata omits a package-wide license
+identifier; do not interpret the scoped grant as a whole-package MIT assertion.
 """
 
 
@@ -69,8 +69,7 @@ def payload_files(root: Path) -> dict[str, bytes]:
         for rel in files_in(folder):
             if rel.suffix not in SUFFIXES:
                 continue
-            if name == "skills" and rel.parts[:2] == ("ai-delegation-loop", "tests") \
-                    and rel.name != "acceptance-cases.md":
+            if name == "skills" and rel.parts[0] == "ai-delegation-loop":
                 continue
             selected.add(Path(name) / rel)
     result = {}

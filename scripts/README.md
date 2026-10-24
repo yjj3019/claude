@@ -30,12 +30,11 @@ python scripts/sync_kernel.py --check
 - `measure_load.py` estimates Kernel-only vs per-route UTF-8 load and the full-tree anti-pattern size. Prints a prominent **SIMPLE Q&A COLD-START** line; optional `--fail-over-cold-start` (default 7000 bytes) fails if CLAUDE.md exceeds the structural budget.
 - `markdown_sections.py` provides fence-aware `##` parsing for validators and load tools.
 
-## Delegation tooling
+## Delegation tooling (retained source)
 
-- `install_pack.py --pack ai-delegation-loop --dest /path/to/skills`: separate opt-in install at the same skills root as FEF; `--check`, `--force`, `--dry-run` supported.
-- `delegation/install.py install --target claude codex --scope user`: explicit tool paths; project scope requires `--project-dir`.
-- `delegation/install.py package --output /path/to/package.zip`: reproducible ZIP, refuses existing output unless `--force`.
-- Delegation installation and ZIP default to operational files plus acceptance guidance. Optional `--with-evidence` includes the preserved test runners/reports/JSON. The canonical Git package and history archive stay complete; local runtime links remain valid in both projections.
+- New `ai-delegation-loop` installation and ZIP distribution are blocked pending rights clearance. `--force`, `--dry-run` and `--with-evidence` cannot override this policy. See [clearance policy](../docs/third-party-clearance.md).
+- From the source clone, `python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills --check` remains a read-only check of an existing installation; it does not install or update files.
+- Canonical sources and history are retained for inspection. The following source validation tools do not authorize distribution or establish real model efficacy.
 - `delegation/validate_skill.py`: scoped format, links, JSON, evidence hashes, version, leak and entry-file validation. Root FEF validation remains separate.
 - `python -m unittest discover -s scripts/delegation -p "test_*.py"`: minimal package fixtures and isolated temporary HOME.
 - `delegation/refresh_evidence.py --check`: reruns static prompt contracts, isolated playbook fixtures and the oracle grader without model execution; verifies current records and preserves historical v1.2 model artifacts. Omit `--check` to regenerate only deterministic current evidence after changes.

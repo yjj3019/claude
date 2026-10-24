@@ -67,3 +67,5 @@ For unrelated work, start a fresh context. For a continuing long task, preserve 
 changed paths, verification results, limits and next action when compacting or handing off.
 Handoff files are for long/multiple-session work and must be explicitly read next time.
 Code commands, hooks and native agents do not execute in Claude Projects.
+
+TaskForge source: follow `docs/upstream-review-policy.md` if present.

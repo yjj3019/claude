@@ -154,6 +154,18 @@ class InstallPackTests(unittest.TestCase):
         pack = self.home / ".agents/skills/fef-claude"
         self.assertTrue((pack / "CLAUDE.md").is_file())
 
+    def test_uncleared_embedded_install_refuses_before_destination_changes(self):
+        dest = self.home / "blocked skills"
+        result = self._run("--pack", "ai-delegation-loop", "--dest", str(dest), "--force")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unresolved redistribution permission", (result.stdout + result.stderr).lower())
+        self.assertFalse(dest.exists())
+        dest.mkdir()
+        (dest / "keep.txt").write_bytes(b"existing user data")
+        result = self._run("--pack", "ai-delegation-loop", "--dest", str(dest), "--with-evidence")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual({p.name: p.read_bytes() for p in dest.iterdir()}, {"keep.txt": b"existing user data"})
+
     def test_skill_metadata_and_selective_loading_contract(self):
         # Minimal fixture: validate the generated host entry without copying a pack.
         pack = self.home / "fef-claude"
@@ -170,6 +182,7 @@ class InstallPackTests(unittest.TestCase):
         self.assertIn("explicitly requests FEF", fields["description"])
         self.assertIn("TaskForge for Claude", fields["description"])
         self.assertIn("# TaskForge for Claude Pack", body)
+        self.assertRegex(body, r"(?m)^Skill version: [0-9]+\.[0-9]+\.[0-9]+$")
         self.assertEqual(set(fields), {"name", "description"})
         self.assertNotIn("allowed-tools", fields)
         self.assertNotIn("context", fields)
@@ -303,6 +316,9 @@ class InstallPackTests(unittest.TestCase):
             "mod-evaluation-scorecard.md",
             "context-protocol.md",
             "knowledge-governance.md",
+            "third-party-clearance.md",
+            "skill-versions.md",
+            "upstream-review-policy.md",
             "Installation.md",
             "ClaudeCode.md",
             "FAQ.md",

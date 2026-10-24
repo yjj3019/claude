@@ -62,11 +62,14 @@ See also [frontmatter outside Claude Code](https://code.claude.com/docs/en/skill
 
 "Use FEF Core Kernel + Proposal Module + RHEL Domain Pack."
 
-## Separate delegation skill
+## Delegation distribution is blocked
 
-From this clone, `python scripts/install_pack.py --pack ai-delegation-loop --dest /path/to/skills` installs only delegation beside `fef-claude/`. `--dest` is the skills root, not an installed FEF directory. This explicit selection requires `--dest`; host/sibling discovery is not used. `--dry-run` writes nothing, differing installs are refused, and `--force` preserves a backup outside skill discovery. `--check` compares all installed bytes with the current canonical package.
-
-For tool-specific user/project paths and reproducible ZIPs see [delegation installation](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/installation.ko.md). The root FEF instructions are not replaced. See [provenance and licensing](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md).
+Native 2.0.0 omits `ai-delegation-loop`. Its standalone install and ZIP commands
+refuse distribution, including force, dry-run and evidence variants, until rights
+are cleared. Existing installations and read-only inspection are preserved.
+Do not copy the source archive as a substitute for a blocked installer.
+See [clearance evidence and restoration criteria](third-party-clearance.md).
+For independently versioned owned skills, see [skill versions](skill-versions.md).
 
 ## Optional Git executable for verification
 

@@ -48,12 +48,13 @@ Critical M7 examples: mod can approve tool calls that settings hooks would block
 
 ## Minimum test protocol
 
-1. Fix Claude Code version (≥ 2.1.287 CLI) and record it.
-2. Run the same 5 tasks twice: baseline (mod disabled) and with mod.
-3. Tasks should cover: code change + verification, RCA-style investigation, documentation edit, multi-file edit, simple Q&A.
-4. Capture for each run: context tokens, usage, wall time, verification reminder accuracy, subjective review completeness.
-5. Run `claude plugin validate` on the mod and archive the hooks/calls output. This is static inspection, not a security certification; review code and actual data access separately.
-6. Do not treat a single session as sufficient.
+1. Record exact host and candidate versions; verify the required APIs and UI on that host. A version threshold alone does not prove that a candidate works.
+2. Hold model, effort, task prompt, initial workspace, active instructions/plugins, tool permissions, verification-wrapper availability, sandbox and grading conditions constant. Change only the candidate being evaluated.
+3. Predeclare matched repetitions and alternate or randomize arm order using fresh isolated sessions. Cover code change + verification, RCA, documentation, multi-file edits and simple Q&A. A single pair is exploratory evidence, not a general improvement claim.
+4. Capture per-run context tokens, usage, measured cost source, wall time, cache reads/writes and cold/warm status, verification reminder accuracy and review results against a fixed rubric. Mark unavailable metrics as missing; separate cold and warm comparisons.
+5. Grade correctness, safety and verification before efficiency. Report denominators explicitly; do not silently discard timeouts, crashes or incomplete runs. Distinguish tests being present, tests executing successfully, and tests detecting regressions or injected faults.
+6. Run `claude plugin validate` on the mod and archive the hooks/calls output. This is static inspection, not a security certification; review code and actual data access separately.
+7. Retain raw per-run results, cwd, relevant non-secret settings and grading rules for recomputation. Label excluded samples and reasons; do not generalize savings from a single session or transfer another project's benchmark percentages.
 
 ## Suggested first mod candidates (optional)
 

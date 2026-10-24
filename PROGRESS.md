@@ -256,3 +256,99 @@ For removed historical progress entries, consult Git history as described in `do
 - 남은 제한: 로컬 기본 Windows 전체 회귀는271개 중265통과/4skip/2실패이며 Git15초 timeout 2건의 OS 근본 원인은 미해결이다. 원격 성공으로 이 실패를 해소했다고 간주하지 않는다. symlink 권한 skip, 실제 모델의 단일 GT012·두 컨텍스트 범위와 보고 오류, PPT COM 최초 실패 원인·수동 편집/스크린리더 미검증도 앞선 원시 증거와 함께 유지한다. 일반 효능·비용 절감·운영 안정성은 보장하지 않는다.
 - CI에는 actions/checkout@v4·actions/setup-python@v5의 Node20 지원 종료/Node24 강제 실행 및 ubuntu-latest 이미지 전환 안내가 남았다. 이번 마감에서 워크플로·의존성 업그레이드는 하지 않았다. 플러그인 버전은1.3.1로 유지되어 기존 캐시 설치의 자동 갱신은 보장되지 않는다. 실운영/marketplace 배포·누적 diff 외부 Claude 리뷰·제3자 재배포 권한·이름/상표 권한은 별도 미검증/미확정이다.
 - 이 마감 기록은 위 제품 변경 커밋 이후 작성했으며, 작성 당시 로컬 미커밋 상태였다. 사용자 후속 요청에 따라 별도 문서 커밋으로 푸시하고 해당 커밋의 원격 CI를 확인한다. 위 CI 링크는 제품 변경 커밋에 대한 결과이며 이 후속 문서 커밋의 결과와 구분한다. 오늘 제품 변경과 실행 검증을 종료한다.
+
+
+## 2026-10-24 Windows 사용자 운영 배포·제외 자료 및 Git 완화
+
+- 사용자 승인으로 권리 미확정 위임 자료14파일을 제외한87파일을 별도 로컬 버전1.3.2-local.20261024로 사용자 범위에 설치했다. 원본101파일·소스77f447e·기술ID·기본스킬·state v1은 보존했고 ai-delegation-loop 호출 제외는 승인받았다. 기존 synced1.3.1은 삭제 없이 비활성화했다. 설치 해시·공식strict검증 통과, 설정·등록부 비공개 백업 완료.
+- Windows Git은 user env의 기존 FEF_GIT_EXECUTABLE을 신뢰한 기존 내부 실행 파일로 명시했다. 관련10/10회귀(123.992초), 설치 훅5개·실제검증1개·통과후Stop허용/재수정차단을 확인했다. 기본 PATH의 OS원인 해결·전체회귀 재통과로 표현하지 않는다.
+- 새 실제Claude/sonnet5.5/medium 세션 exit0/응답확인/85.842초. 운영 플러그인1개·기본2스킬·Kernel로딩·제외스킬부재와 사용자env설정에 의한 FEF형태Git호출8개 명시경로를 Trace2로 확인했다. 관측 hook응답3개 success/exit0. 단일합성 검사이며 일반효능 보장은 아니다.
+- 제3자허가 자체는 미확정이며 이번 운영배포는 제외로 처리했다. 원본/독립installer의 공개재배포 권리까지 해결했다고 주장하지 않는다. 최초 절대Python자식명령 인식차단·.pyc 텍스트검사 인코딩오류는 원문보존 후 검사범위만 바로잡았다. 제품코드·검증정책·보안설정·15초timeout은 바꾸지 않았다.
+- 상세범위·증거·롤백·한계는 docs/deployment-2026-10-24.md에 기록했다. 운영설정은 새세션에서 확인했고 기존실행세션은 강제종료하지 않았다. 이번 소스 커밋·푸시는 하지 않았다.
+
+
+## 2026-10-24 신규 배포 차단·권리 확인 절차·스킬 버전 준비
+
+- 사용자 승인으로 미확정 위임 자료의 native 생성·독립 설치·ZIP 신규배포를 차단했다. 원본은 보존했고 바이트 동일을 확인한 생성 사본14파일만 제외했다. CI는 ZIP 배포 거부를 검사하며 기존 집계 job ID를 유지하고 선행 실패도 전파한다. export-ignore는 향후 git archive에 적용하며 raw clone/기존 공개 이력/수동 복사를 통제하는 보안 경계가 아니다.
+- 권리자·대상revision/hash·허용행위·조건·증빙·검토결론과 코드 변경에 의한 해제 기준을 docs/third-party-clearance.md에 정리했다. 허가 자체를 새로 확보하지 않았고 외부 연락도 하지 않았다. 새 CLI 우회 플래그나 JSON 허가 토글은 없다.
+- 자체 native스킬2개 metadata.version1.0.0 및 standalone본문1.0.0을 최초 명시 버전으로 제공하고 제거기능이 있는 native패키지는2.0.0으로 구분했다. docs/skill-versions.md에 범위/호환/캐시/변경 기준을 기록했다. 기술 ID·Kernel·기본 coding/RCA·설치manifest/state v1은 유지했다.
+- 생성89파일sync·스킬quick_validate2개·공식nativeCLIstrict검사 통과. 배포/아카이브/embedded/표시계약 targeted4개 및 기본정책4개 통과. 정책 worker 초기35개 중5개는 CI evidence drift로 실패했고 원문을 보존했다. 관련 문서계약/oracle self-check를 실행해 증거를 갱신·재검증했으며 현재 모델효능은 UNVERIFIED로 유지했다.
+- 아키텍처 방향·최종 독립 로컬 코드리뷰에서 확정P0-P3 지적 없음. 외부Claude에 새diff를 전송하지 않았다. 스크립트 삽입위치/작업cwd 실수는 제품실패와 구분해 수정했다.
+- WPR CPU 추적은 시스템 전역 활동·민감정보 수집에 대한 명시승인 부족으로 자동 승인 검토가 거절했다. 현재 관리자토큰도 없으며 우회하지 않았다. 별도 승인 질문을 유지한 채 나머지 작업을 진행한다. OS원인 해결이나 기본PATH timeout 부재는 주장하지 않는다. 제품 동결 후 운영 명시Git 환경의 Windows 전체 회귀를 진행한다. 커밋·푸시 없음.
+
+## 2026-10-24 배포 차단·권리 확정 절차·스킬 버전 검증 결과
+
+- 사용자 승인 범위에서 미확정 위임 자료의 신규 native 생성·별도/embedded 설치·ZIP 배포를 차단했다. 원본과 기존 설치 데이터는 보존한다. Git archive의 알려진 자료 경로도 export-ignore로 제외하지만 raw clone·수동 복사·기존 공개본을 회수하는 장치는 아니다. CI는 ZIP 업로드 대신 배포 거부를 검사한다.
+- docs/third-party-clearance.md에 구성요소별 미확정 근거, 권리자/권한·정확한 revision/파일 해시·허용 행위/채널·조건·보호된 증빙·검토 결론을 확인하는 절차를 추가했다. 허가를 새로 취득하거나 제3자 자료에 MIT를 부여하지 않았다. 증빙 JSON이나 사용자 옵션만으로 배포를 해제하지 않는다.
+- 코어 native fef-coding/fef-rca는 metadata.version 문자열 1.0.0, standalone fef-claude는 기존 name/description frontmatter를 유지한 본문 1.0.0을 제공한다. 플러그인 소스/생성본은 제거된 기능을 반영한 2.0.0이며 docs/skill-versions.md에 범위·변경 기준·호환성을 기록했다. 스킬 호출 ID·설치 manifest v1·검증 상태 v1은 유지하고 제3자 원본은 재버전하지 않았다. per-skill 자동 업데이트/설치 잠금 기능을 추가하지 않았다.
+- 배포 정책4개 및 부모 targeted4개 통과, owned skill quick_validate 2개 통과, 공식 CLI strict manifest 검증 통과. 로컬 독립 리뷰에서 확정 P0–P3 지적 없음. 외부 Claude로 현재 누적 diff를 전송하지 않았다.
+- Windows 전체는 명시 FEF_GIT_EXECUTABLE 설정으로 main224개(218통과/2FAIL/2ERROR/2skip,3938.464초), delegation53개(51통과/2skip,81.833초)를 실행했다. 합계277개/269통과/4실패·오류/4skip. Skip은 symlink 권한 WinError1314다. repository·payload89·위임 validator·deterministic evidence·보관 이력·diff 검사 모두 exit0. 최초 로그가 종료 때만 기록되던 하네스의 11분 중단은 미완료로 별도 보존했고 실시간 로그/즉시 baseline 저장으로 재실행했다.
+- 새 문서2개를 test_default_install_keeps_runtime_docs_only 기대 목록에 빠뜨린 결함을 수정했다. 설치기 전체72개 재검증은70통과/2skip(150.422초). 나머지3건은 Git repository 15초 timeout1개와 native Python 실행 부모30초 timeout2개였다. 동일 제한·동일 명시 Git 경로로 해당3개 재검증은3/3통과(216.264초). 최초 실패를 지우거나 전체 재실행이 완전 통과했다고 표현하지 않는다. 제품 timeout/PATH/검증 판정은 완화하지 않았다.
+- 전체 실행 중 저장소454파일·HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf·사용자 CLAUDE.md는 동일했다. 사용자 settings.json은15495바이트/59f9e86b…에서15104바이트/a3a88ebe…로 변했으며 작성 주체는 미확정이다. 부모·runner는 이 파일을 쓰거나 복원하지 않았다. 후속 재검증 동안 settings 해시는 동일했고 FEF Git 경로·코어 활성·synced 비활성 설정은 유지됐다. 최종 fixture와 이 마감 문서는 전체 실행 이후 변경이다.
+- 초기 자동 승인 검토에서 거절된 시스템 전역 WPR CPU 추적은 사용자의 명시적 위험 인지·관리자 세션 승인 뒤 실행했다. 전용 TaskForgeApproved20261024 세션을 시작·종료했고 stop_exit0. 수집 구간68초/8,811,192이벤트/유실0, 원본441,450,496바이트는 checkout 밖 로컬 증거에만 보관한다. 외부 전송 없음. tracerpt 로컬 변환 exit0이며 설치기 follow-up 일부와 겹쳤음을 별도 기록했다.
+- WPR 중 ABBA 순서 Git wrapper4회/직접4회 모두성공·timeout0. 호출 전체 중앙값은2.3297초/1.3317초, Git Trace2 내부 시간은0.101038–0.177794초였다. 이8개 표본은15초 실패를 재현하지 않았으며 OS 원인·CPU 스택 귀속은 확정하지 않았다. WPA 미설치 상태에서 스택 분석·보안 예외·추가 시스템 튜닝을 하지 않았다.
+- 증거는 checkout 옆 validation-20261024-release-gate의 summary.json, followup_summary.json, 명령별 로그 및 wpr-local에 있다. 로컬 candidate는89파일/2.0.0으로 준비했으나 사용자 운영본은 기존1.3.2-local.20261024 그대로다. 새 실제 모델 세션·운영 갱신·새 원격CI·커밋·푸시는 하지 않았다. 제3자 허가와 Windows 안정적인 전체 통과는 미확정이다.
+
+## 2026-10-24 기존 코딩 지침의 최소 구현·변경 소유 범위 보완
+
+- 별도 스킬이나 플러그인을 추가하지 않고 modules/Coding.md 및 skills/fef-coding/SKILL.md에 두 원칙을 같은 문구로 반영했다. 현재 완료 기준에 필요한 기능·옵션·추상화만 추가하고 기존 코드를 재사용하며 신뢰 경계의 입력 검증·실패 처리를 유지한다. 이번 변경으로 미사용이 된 코드만 정리하고 기존의 무관한 미사용 코드는 유지·별도 보고한다.
+- 호환되는 지침 명확화로 coding 스킬1.0.1, native plugin2.0.1로 갱신했다. RCA와 standalone 진입점은1.0.0 유지하되 standalone에 복사되는 Coding 모듈에는 보완 지침이 포함된다. docs/skill-versions.md에 고정 참조 revision2c60614와 변경 범위·호환성을 기록했다. 외부 플러그인·원문 파일을 설치/복사하거나 새 권리를 부여하지 않았다.
+- 기존 생성기로89파일 중4파일을 갱신했다. 원본·생성본4쌍 바이트 일치, 시작 시454파일 기준 제품 변경8파일 외446파일 동일을 확인했다. 플러그인 manifest 변경 키는version뿐이며 호출 ID·시장 이름·라우트·Kernel·훅·설치 manifest/검증 state v1은 유지했다. 이 마감 기록은 제품 검증 후 별도로 추가했다.
+- 원본/생성 코딩 스킬 quick_validate2개 통과. Windows 명시 FEF_GIT_EXECUTABLE 자식 설정에서 build/runtime16개 통과(81.528초), installer/framework/latency/context85개 중83통과·2skip(139.802초): 합계101개 중99통과·2skip·실패/오류0. Skip은 Windows symlink 권한 제한이다. 문구를 그대로 비교하는 테스트를 새로 만들지 않고 기존 생성·설치 무결성·호출 호환성 회귀를 실행했다.
+- repository validator·생성89파일 --check·diff 검사 모두exit0. 독립 로컬 리뷰에서 P0–P3 확정 지적 없음. 이번 전용8파일 diff만 검토했고 누적 이전 변경의 재검증으로 주장하지 않는다. 원시 로그·전후 기준·전용 diff·scope-report는 checkout 옆 validation-20261024-coding-guidance에 있다.
+- 테스트 전후 HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf 및 사용자 settings.json·저장소 CLAUDE.md 해시 동일. 전역 설정·운영 설치·새 실제 모델·전체277회귀·원격CI·커밋·푸시는 수행하지 않았다. 지침의 실제 모델 준수 효과와 기존 Windows 간헐 지연 원인, 제3자 재배포 권한은 이번 검증으로 확정하지 않는다.
+
+
+## 2026-10-24 Ponytail 고정 소스 분석과 선택적 지침 보강
+
+- DietrichGebert/ponytail revision09c434ab73ca43761c5d8b0c5d341926c2fba710(package/plugin5.3.2)의 tracked 일반 텍스트161파일/971,898바이트를 정적 검토했다. 설치기·훅·upstream 테스트·모델 벤치마크는 실행하지 않았다. MIT 저작권/고지 조건을 확인했으며 원문 런타임·전체 프롬프트를 가져오지 않았다. 기존 별도 제3자 자료 권한을 확정하거나 배포 차단을 해제하지 않았다.
+- upstream CSV의 물리적 개행 분할로 인한 동일 키 다중행 갱신 손상, 프로젝트 원장의 비동기 read/modify/write 및 read 오류 빈 원장 대체, benchmark compare/run의 실패 분모 차이를 정적 경로와 구체 조건으로 기록했다. 실제 운영 재현이나 공개 성능 수치 오류로 단정하지 않았다. 상세 근거·고정 링크·비도입 범위는 docs/ponytail-assessment-2026-10-24.md에 있다.
+- 기존 Coding 모듈/스킬에 프로젝트 추상화→표준 기능→설치된 의존성 검토 순서를 추가하되 호환성·보안·접근성을 유지하도록 했다. 기존 CodeChangeReviewer에 연결 실행/실패 경로 및 사례·영향·최소 수정 근거를 보강했다. 기존 Mod 평가 절차에는 동일 도구/권한/검증 래퍼·캐시 조건, 실패·결측 표본의 명시적 분모와 원시 결과 보존을 추가했다. 새 스킬·의존성·대시보드·webhook·상태 원장은 추가하지 않았다.
+- coding1.0.2/plugin2.0.2로 호환 패치 갱신했다. 기존 생성기로 리뷰어 inline과89파일 payload를 동기화했으며 변경7쌍 바이트 일치다. RCA/standalone 진입점1.0.0, 호출ID·라우트·권한·훅·state v1·Kernel은 유지한다. 검증 후 기준454파일 중14파일 변경·440파일 동일·누락0, source-only 분석 문서1개 추가를 확인했다. 이 마감 기록은 검증 후 별도로 추가했다.
+- 원본/생성 coding skill quick_validate2개 통과. Windows 자식 프로세스에만 FEF_GIT_EXECUTABLE 명시 경로를 설정하여 build/runtime16개 통과(143.276초), install/framework/latency/context85개 중83통과·2skip(181.702초): 합계101개 중99통과·2skip·실패/오류0. Skip은 WinError1314 심볼릭 링크 권한 제한이다. repository validator·생성89파일 --check·diff 검사 exit0; diff 검사에는 기존 PROGRESS.md LF→CRLF 경고가 있다. Golden Tests31개는 인덱스 검사이며 실제 모델 실행이 아니다.
+- 독립 로컬 code-change-reviewer에서 수정 필요 지적 없음. upstream 세 가지 근거와 생성본을 교차 확인했다. HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf, 사용자 settings.json 및 저장소 CLAUDE.md 해시 전후 동일. 원시 로그·전용 diff·scope-report·요약은 checkout 옆 validation-20261024-ponytail-adoption에 보관한다. 전체277회귀·새 실제 모델·upstream 실행 재현·전역 설치/운영 배포·외부 diff 전송·원격CI·커밋·푸시는 수행하지 않았다. 실제 효능/절감, 기존 Windows 간헐 지연 원인과 제3자 재배포 권한은 미확정으로 남긴다.
+
+
+## 2026-10-24 upstream 개선 검토의 지속 유지보수 절차 등록
+
+- 사용자 요청에 따라 TaskForge 소스를 추가/변경/업데이트하는 작업 묶음마다 Ponytail과 andrej-karpathy-skills의 기본 브랜치 HEAD를 읽기 전용으로 확인하고 마지막 검토 revision 이후를 선별 검토하도록 docs/upstream-review-policy.md에 등록했다. 초기 검토 기준은 각각09c434ab73ca43761c5d8b0c5d341926c2fba710/2c606141936f1eeef17fa3043a72095b4765b9c2이며 최신 원격 HEAD라는 주장은 아니다. 새 가치가 없으면 불필요한 제품 변경을 만들지 않고 결과를 기록한다.
+- 유효한 호환 개선은 기존 코딩/리뷰 지침에 우선 반영하고, 채택/거부/보류 이유·고정 출처·실제 검증과 제한을 기록하도록 했다. 네트워크/검증 불가 시 기존 검토 기준을 유지한다. 아키텍처/API/스키마/운영/보안/데이터 삭제 등 기존 승인 요건, 제3자 권리 확인, 비공개 diff 외부 전송 제한, 커밋/푸시/설치/배포 권한은 완화하지 않았다. 별도 스킬·상시 프로세스·예약 자동화는 추가하지 않았다.
+- AGENTS.md와 CLAUDE.md에 TaskForge 소스 유지보수일 때만 적용하는 짧은 포인터를 추가했다. 기존 역할/검증/설치 동작은 유지하며 AGENTS 중복 문구를 축약했다. 초기 초안 byte 검사5673/5529는5500 제한을 초과했으나 최종5491바이트(정규화 측정5392바이트/~1348토큰)로 제한을 충족했다. Kernel 본문은 유지했다.
+- 최초 설치 회귀85개 중81통과/2실패/2skip으로 source-only 문서 누락 참조를 재현했다. 문구 검사나 테스트를 약화하지 않고 문서를 설치 allowlist와 검증기 필수 문서 집합에 포함하고 기존 정확한 파일 목록 fixture를 갱신했다. 설치본에서도 TaskForge 소스 유지보수에만 적용되는 조건은 유지한다. plugin2.0.3과 생성90파일을 동기화했으며 스킬 버전·호출ID·라우트·훅·state v1은 유지했다.
+- 수정 후 실패 targeted2개 통과(14.923초). install/framework/latency/context85개 중83통과·2skip(102.446초), build/runtime16개 통과(77.602초): 관련 회귀101개 중99통과·2skip·실패/오류0. Skip은 WinError1314 심볼릭 링크 권한 제한이다. repository validator·90파일 --check·diff 검사exit0; Golden Tests31개는 인덱스 검사이며 실제 모델 실행은 아니다. 기존 PROGRESS.md LF→CRLF 경고는 남는다.
+- 초기3파일 작업 지침의 독립 로컬 리뷰는 수정 필요 지적 없었고, 이후 설치 참조 수정은 메인 diff 검토와 위 회귀로 확인했다. HEAD와 사용자 settings.json/저장소 CLAUDE.md 해시는 테스트 전후 동일하다. 초기 실패와 재검증 원시 로그·전용 diff는 checkout 옆 validation-20261024-upstream-policy에 보존한다. 운영 설치·외부 모델 전송·실제 모델 효능·전체277회귀·원격CI·커밋·푸시는 수행하지 않았다. 자동 검토는 향후 소스 변경 작업에 적용되는 에이전트 지침이며 무인 동기화/자동 merge나 권리 부여를 보장하지 않는다.
+
+
+## 2026-10-24 누적 최종 리뷰 및 Windows 전체 회귀
+
+- 누적 코드·문서·설치/배포 차단·생성 배포본을 로컬에서 교차 검토했다. 초기457파일은 네 번의 전체 실행 동안 바이트 변경이 없었고, 코드 리뷰에서 추가 P0–P2 런타임 결함은 확인하지 못했다. 생성90파일은 원본과 정합하며, 기술ID·호출·라우트·state/설치 manifest v1·Kernel은 유지했다. plugin2.0.3/coding1.0.2/RCA·standalone1.0.0은 그대로다.
+- 확인된 문서 불일치를 scripts/README.md와 README.en.md에서 수정했다. 신규 위임 설치/ZIP 차단과 기존 설치의 읽기 전용 --check 예외, ZIP 비교 대신 차단을 검사하는 CI, 고정 시점의 권리 확인 실패와 미확정 재배포 상태를 구분했다. 보존된 v1.3 소스를 현재 운영 배포본으로 오인하지 않도록 표현을 정리했다. 원본·이력·기존 누적 변경은 보존했다.
+- Windows 기본 설정(FEF_GIT_EXECUTABLE 자식 환경에서 해제) 전체277개는273통과/4skip/실패·오류0이다. main224개222통과/2skip(2489.549초), delegation53개51통과/2skip(59.048초)다. 명시 Git 경로(C:/Program Files/Git/mingw64/bin/git.exe) 전체277개는272통과/1실패/4skip/오류0이다. main224개221통과/1실패/2skip(1594.437초), delegation53개51통과/2skip(84.321초)다. Skip은 Windows symlink 생성 권한 제한이다.
+- 명시 경로 실패는 tests/test_hooks.py:183의 ignored-submodule 테스트에서 Stop snapshot의 Git 인덱스 조회가 기존15초 제한을 넘겨 stderr 진단을 출력한 것이다. 루트/하위 저장소 중 어느 호출인지와 OS 근본 원인은 미확정이며, submodule digest 결함이라고 단정하지 않는다. 판정·15/30초 제한을 완화하거나 오류를 숨기지 않았다.
+- 동일 테스트를 기본→명시→명시→기본 순서로 독립 실행한4회는 모두 통과했다(146.906/89.187/86.847/151.796초). 자식 Git에만 적용한 로컬 Trace2에서 각89개 Git 시작/정상 종료와 짧은 내부 index region을 확인했으나 전체 실행의 실패는 재현하지 못했다. temp fixture의 root 표시는 하위 모듈 재귀 여부를 증명하지 않으며 Trace2 시작 전/프로세스 바깥 지연도 제외할 수 없다. 이 단독 통과로 전체 실패를 해소 또는 안정화했다고 주장하지 않는다. 시스템 전역 추적·외부 전송은 하지 않았다.
+- 문서 수정 후 repository validator, 생성90파일 --check, diff 검사, delegation 형식·evidence --check·Git 이력/복원/fsck 검사를 모두 exit0으로 확인했다. 새 격리 --dest 설치 및 --check도 exit0이며 scripts/README.md·README.md·README.en.md 설치본이 원본과 바이트 일치한다. diff에는 기존 PROGRESS.md LF→CRLF 경고만 남았다. Golden 인덱스/fixture는 실제 모델 실행이 아니다.
+- upstream 두 원격 HEAD는 기존 검토 기준 Ponytail09c434ab73ca43761c5d8b0c5d341926c2fba710 및 andrej-karpathy-skills2c606141936f1eeef17fa3043a72095b4765b9c2와 동일하여 새 채택 변경은 없었다. 원시 로그·초기 실패·ABBA 집계·전후 해시·설치 증거는 checkout 옆 validation-20261024-cumulative-final에 보존했다.
+- HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf와 사용자 settings.json·저장소 CLAUDE.md 해시는 전후 동일하다. 이번 묶음은 README2파일과 이 이력만 수정하며 기존 누적 변경을 유지한다. 운영본1.3.2-local.20261024 갱신·실제 모델/PPT·새 원격CI·외부 diff 전송·커밋·푸시는 하지 않았다. 제3자 재배포 권한, 명시 경로 전체 회귀의 간헐 timeout 원인 및 Windows symlink 권한으로 생략한 동작은 미확정/미검증으로 남긴다.
+
+
+## 2026-10-24 AI-Harness 업데이트 재검토·검증 증거 명확화
+
+- 사용자 요청으로 AI-Harness ac4c59adcced5484c9e9c7952b5794c880838a97→45664d315faa13aab71f3b01bf270d50a42f4906의18커밋·변경32경로 및 최신33파일 snapshot을 비교했다. 별도 참조 저장소와 고정 소스 사본을 사용하고 upstream 코드·설치기·테스트·MCP를 실행하지 않았다. 에이전트 frontmatter·실제 command/gate·훅·테스트/CI·Apache-2.0 LICENSE 추가를 확인하여 최초 검토의 미구현/라이선스 부재 지적을 과거 revision 한정으로 명확히 했다. 상세 고정 출처·채택/보류표는 docs/ai-harness-assessment-2026-10-24.md에 추가했다.
+- 최신 gate의 exit0→PASS는 테스트 의미·0건/전부skip을 구별하지 않고, attestation 명령 고정은 선택이며 CI는 attestation0개도 허용한다. read receipt/해시는 이해·검증 적합성·권한을 증명하지 않고 패턴 가드는 OS 보안 경계가 아니다. 코드 분기/fixture/CI의 정적 확인이며 실제 호스트·공격 재현 주장은 아니다. 원본 LICENSE 추가로 별도 보존 자료의 재배포 권한이 확정되지는 않는다.
+- 유용한 부분만 독자 문구로 기존 Coding 모듈/native coding 스킬과 Review 정책/CodeChangeReviewer에 반영했다. 의도한 동작을 실행한 명령·최종 요약·가능한 실행/실패/skip 수·원시 로그를 확인하고, 로컬 attestation 대신 실제 CI 필수 작업/명령을 점검하도록 했다. 기존 handoff/lesson/PPT와 중복되는 항목은 다시 추가하지 않았다. 새 스킬·Node/Bash/jq runtime·상태 원장·해시 체인·권한/보안 정책·CI 변경은 없다.
+- coding1.0.3/plugin2.0.4 호환 패치 및 생성90파일 중7파일을 동기화했다. 원본/생성7쌍과 reviewer inline을 독립 리뷰에서 확인했으며 수정 필요 지적은 없었다. RCA/standalone entry1.0.0, 기술ID·라우트·Kernel·검증 래퍼/훅·state/설치 manifest v1은 유지한다. 지침을 그대로 따라 읽는 문자열 테스트나 새 런타임 테스트는 추가하지 않고 기존 배포/설치/프레임워크/예산 회귀를 실행했다.
+- Windows 자식 FEF_GIT_EXECUTABLE 명시 경로에서 build9개 OK(37.524초), runtime7개 OK(22.943초), install72개 중70통과/2skip(104.099초), framework5·latency5·context3개 OK다. 합계101개 중99통과/2skip/실패0이며 skip은 symlink 권한 제한이다. build9개 직후 실행 도구의 skip 요약 파싱 오류로 해당 child exit/전체 walltime을 보존하지 못했고 재실행하지 않았다. 나머지5개 suite와 repository validator·생성 --check·diff 검사 exit0은 기록됐다. 원본/생성 coding quick_validate2개 통과다. 최초 wrapper 오류와 원시 로그를 보존하고 Python으로 원문 요약을 재확인한 verification.json을 최종 집계로 사용한다.
+- 이전 누적 작업트리457파일을 기준으로 이번 소유 변경은15파일과 검증 후 추가한 이 이력뿐이다. 기존 누적 변경·미확정 자료 배포 차단을 유지했다. HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf 및 저장소 CLAUDE.md·settings는 유지한다. 사용자 settings의 최종 해시는 이전 누적 검증값과 같지만 이번 runner의 초기 출력은 축약되어 독립적인 전후 해시 증거로 주장하지 않는다. 원시 증거·scope·소스 사본은 checkout 옆 validation-20261024-ai-harness-update에 있다.
+- 유지보수 정책에 따른 Ponytail/andrej-karpathy-skills 원격 HEAD는 기존09c434ab73ca43761c5d8b0c5d341926c2fba710/2c606141936f1eeef17fa3043a72095b4765b9c2와 동일하여 추가 채택은 없었다. 이번 전체277회귀·upstream 실행·실제 모델/PPT·운영 설치·외부 diff 전송·새 원격CI·커밋·푸시는 하지 않았다. 기존 Windows 간헐 index timeout, symlink 미검증, 제3자 권리·실제 모델 효능은 이 지침 변경으로 해소됐다고 보지 않는다.
+
+
+## 2026-10-24 첫9건 종료 코드 보완·AI-Harness 포함 누적 Windows 전체 검증
+
+- 사용자 요청에 따라 이전 AI-Harness 반영 검증에서 exit가 누락된 build9건을 별도 재실행했다. test_build_plugin.py9개 모두 OK(73.850초), 실제 child returncode0/wall76.004초를 원시 로그와 runs.json에 저장했다. 이전 누락 기록을 소급해서0으로 바꾸지 않고 이번 후속 증거로 보완했다. 새 로컬 검증 helper는 subprocess 종료 직후 returncode/시간을 먼저 원자 저장하고 이후 선택 요약을 파싱하므로 요약 오류가 종료 코드 기록을 지우지 않는다. 제품 런타임 변경은 없다.
+- 최신 plugin2.0.4/coding1.0.3 및 기존 누적 코드·문서·생성90파일을 포함한 작업트리를 동결했다. 기본 Windows 자식 환경에서 FEF_GIT_EXECUTABLE을 해제한 main224개는222통과/2skip/실패·오류0(2370.468초, exit0), delegation53개는51통과/2skip/실패·오류0(54.417초, exit0)이다. 합계277개273통과/4skip/실패·오류0이다.
+- 명시 FEF_GIT_EXECUTABLE=C:/Program Files/Git/mingw64/bin/git.exe의 main224개는222통과/2skip/실패·오류0(1394.155초, exit0), delegation53개는51통과/2skip/실패·오류0(53.365초, exit0)이다. 합계277개273통과/4skip/실패·오류0이다. 명시 main에만 자식 Git Trace2를 로컬 적용했으며 env/config 값 캡처 옵션은 제거했다. 전역 환경·시스템 전역 추적·외부 전송은 변경/실행하지 않았다. 두 환경의4skip은 Windows symlink 생성 권한 제한이다. 첫9건은 별도 반복 검증이며 전체277건에 새로운 고유 테스트로 더하지 않는다.
+- 이전 명시 경로에서 실패했던 ignored-submodule 테스트는 두 main 원시 로그에서 모두 ok임을 메인이 확인했다. 이번 전체 실행에서는15초 index timeout이 재현되지 않았다. 다만 이전 실패와 ABBA 증거는 그대로 보존하며, 이번 각1회의 전체 통과/계측으로 OS 근본 원인 해소·장기 안정성을 보장하지 않는다. 기존15/30초 제한·오류 처리·판정·테스트는 변경하지 않았다. Trace2의 revision 조회/비저장소 오류 및 줄바꿈 경고 이벤트는 unittest 실패와 구분하며 로그를 로컬 보존한다.
+- 전체 후 repository validator, 생성90파일 --check, delegation format·deterministic evidence --check·Git history 복원/해시/fsck, diff 검사6개 모두 실제 exit0이다. Golden31개는 인덱스 검사이고 모델 실행이 아니다. 이번 모든11명령의 실제returncode가0으로 기록됐다. 기존 PROGRESS.md LF→CRLF 안내는 whitespace 실패가 아니다.
+- 누적 코드/설치/배포 차단/테스트/CI의 독립 읽기 전용 리뷰에서 추가 actionable P0–P3 결함은 확인하지 못했다. 문서/스킬/생성본 리뷰도 중대한 불일치 없이 source/generated11쌍 해시와 manifest2.0.4를 확인했다. README의2.0.0은 정책 도입 시점의 정확한 역사적 설명이므로 선택적 스타일 변경을 만들지 않았다. 추가 제품 코드 수정이나 버전 변경은 하지 않았다.
+- 모든 검증이 끝날 때까지 시작 기준457파일이 바이트 단위로 동일했고, HEAD77f447e9bb673fc4bd68f6bea1b3559964004ddf 및 사용자 settings.json·저장소 settings.json·CLAUDE.md 해시도 전후 동일하다. 검증 후 이 PROGRESS 기록만 추가했다. 기존 누적 변경과 source/배포 제외 정책은 보존했다. 원시 로그·각 실제exit·전후/범위 해시·리뷰 요약·Trace2·마감 요약은 checkout 옆 validation-20261024-post-harness-full에 있다.
+- 유지보수 참조 원격 HEAD는 Ponytail09c434ab73ca43761c5d8b0c5d341926c2fba710, andrej-karpathy-skills2c606141936f1eeef17fa3043a72095b4765b9c2로 이전 검토와 같았다. 실모델/PPT·upstream 실행·운영 설치 갱신·외부 diff 리뷰·새 원격CI·커밋·푸시는 하지 않았다. 운영본은 기존1.3.2-local.20261024이며 제3자 재배포 권한은 여전히 미확정이다. symlink 생략 범위와 이전 간헐 Windows timeout 원인을 이번 통과로 해소했다고 보지 않는다.

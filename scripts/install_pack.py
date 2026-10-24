@@ -67,7 +67,7 @@ RUNTIME_DOCS = frozenset(
         "mod-evaluation-scorecard.md",
         "context-protocol.md",
         "knowledge-governance.md",
-        "Installation.md",
+        "Installation.md", "third-party-clearance.md", "skill-versions.md", "upstream-review-policy.md",
         "ClaudeCode.md",
         "FAQ.md",
     }
@@ -326,6 +326,8 @@ name: fef-claude
 description: Apply TaskForge for Claude when the user explicitly requests FEF or TaskForge for Claude guidance, or invokes /fef-claude. Load only the task packs selected by the loading map.
 ---
 # TaskForge for Claude Pack
+
+Skill version: 1.0.0
 
 by yjj3019. Formerly FEF; the skill name and `/fef-claude` invocation are retained.
 

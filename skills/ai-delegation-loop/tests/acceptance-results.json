@@ -19,7 +19,7 @@
     "tests/acceptance-cases.md": "37a192aad3a1fa3f9f18ef6483f5b1cb8fe65b0124611c8551c8cfe4ad92c94a"
   },
   "context_sha256": {
-    ".github/workflows/delegation.yml": "b8e240c69ba40efe733f95a16076fcedd7d2edf4ea47c882e653c77c2735f8e1"
+    ".github/workflows/delegation.yml": "a62b5c92121b0c74ab05b1d2dac2e3915768f9248a2046771912294510b8b010"
   },
   "runner_sha256": {
     "scripts/delegation/test_prompt_contract.py": "7611366b6aa27fe33b794dbf8c9d1adef17b55e907834702feee220214550dd9",

@@ -1,7 +1,7 @@
 {
   "name": "fef-engineering",
   "displayName": "TaskForge for Claude",
-  "version": "1.3.1",
+  "version": "2.0.4",
   "description": "TaskForge for Claude by yjj3019 (formerly FEF): a compact Kernel, selective task packs, native Skills, reviewers and verification reminders for Claude Code. Independent project, not endorsed by Anthropic.",
   "author": {
     "name": "yjj3019",
@@ -10,7 +10,9 @@
   "homepage": "https://github.com/yjj3019/claude",
   "repository": "https://github.com/yjj3019/claude",
   "keywords": ["claude-code", "skills", "engineering", "evidence", "review", "hooks", "kernel"],
-  "skills": ["./skills/"],
+  "skills": [
+    "./skills/"
+  ],
   "agents": [
     "./.claude/agents/architecture-reviewer.md",
     "./.claude/agents/security-reviewer.md",
