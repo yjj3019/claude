@@ -1,5 +1,7 @@
 # Roadmap
 
+The version groups below record earlier plans; consult [skill versions](docs/skill-versions.md) for current package and skill versions.
+
 ## Completed
 
 ### v1.0

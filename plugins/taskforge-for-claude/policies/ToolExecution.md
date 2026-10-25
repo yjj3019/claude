@@ -14,6 +14,7 @@ Make command and tool use observable, bounded, and verifiable.
 - Treat analysis, review, diagnosis, and status requests as read-only unless the user also requests a change.
 - Inspect command output, exit status, changed files, and generated artifacts before reporting success.
 - If a command fails, identify the likely cause and use only limited retries with a materially different method.
+- When diagnosing a tool-dependent failure, check prerequisites in the same selected interpreter or shell, cwd and environment as the failing action. Availability elsewhere is not proof; report missing or unverified prerequisites without declaring the whole platform unsupported or relaxing permissions.
 - Do not repeat the same failed command without a reason.
 - Do not report failed or unverified execution as successful.
 - If execution remains blocked, report the failure, evidence, attempted methods, and safest next action.

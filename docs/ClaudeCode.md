@@ -6,132 +6,131 @@ TaskForge for Claude (formerly FEF) is maintained by yjj3019. It is independent
 of Anthropic and is not an official, sponsored or endorsed Anthropic product.
 Its workflows are Markdown procedures, not executable .claude/workflows.
 
-## Product name and retained identifiers
+<a id="product-name-and-retained-identifiers"></a>
+## Product name and migration
 
-The product display name is **TaskForge for Claude**. The former name is
-**FEF (Framework for Engineering Excellence)**. This is a branding change, not
-a new plugin ID, an alias command or a stored-data migration.
+**TaskForge for Claude**, formerly **FEF (Framework for Engineering Excellence)**,
+uses the following native identities starting with plugin 3.0.0:
 
-| Surface | Retained compatibility contract |
+| Surface | Current contract |
 |---|---|
-| Native installation | `fef-engineering@fef-marketplace` |
-| Old native ID migration | `fef-claude` → `fef-engineering` in the existing marketplace renames map |
-| Native skills | `/fef-engineering:fef-coding`, `/fef-engineering:fef-rca`; other skill IDs unchanged |
-| Standalone pack | `fef-claude/`, skill `name: fef-claude`, invocation `/fef-claude` |
-| Installer configuration | Existing options, `FEF_SIBLING_ROOTS`, `FEF_SIBLING_PARENT`, `.fef-manifest.json` |
-| Verification | `.claude/.verification/`, state v1, `FEF_VERIFY_RESULT=` footer and existing failure markers |
+| Native installation | `taskforge-for-claude@taskforge-marketplace` |
+| Native skills | `/taskforge-for-claude:coding`, `/taskforge-for-claude:rca` |
+| Reviewer namespace | `taskforge-for-claude:`; reviewer file names unchanged |
+| Generated distribution | `plugins/taskforge-for-claude/` |
+| Legacy standalone pack | `fef-claude/`, `name: fef-claude`, `/fef-claude` unchanged |
+| Installer configuration | Existing options, `FEF_SIBLING_ROOTS`, `FEF_SIBLING_PARENT`, `.fef-manifest.json` unchanged |
+| Verification | `.claude/.verification/`, state v1, `FEF_VERIFY_RESULT=` and failure markers unchanged |
 
-Do not install a new `taskforge` plugin or invoke `/taskforge` for this project:
-neither is an alias supplied here. Old FEF requests still match the standalone
-entry; explicit TaskForge for Claude requests are also described there. Legacy
-FEF skill labels, diagnostics, evaluation-arm names and dated results remain
-for compatibility and provenance. The name does not imply shared package IDs,
-versions or runtime behavior with other TaskForge distributions.
-
-Existing cached installations do not change merely because this working tree
-was edited. This change does not bump the version or publish a release; use
-the retained install ID when a new release becomes available. Standalone copies
-still require explicit `--force` for a differing update, retaining the old copy
-under the installer's existing recovery contract.
+This is a public native-interface change, not just a display-name update.
+Former qualified calls are not aliases. Update saved prompts, automation,
+permission rules and reviewer references using the migration section below.
+The standalone installer remains separate to preserve installed data and callers.
+Editing this clone does not update a user's installed cache or publish a release.
 
 Naming review, 2026-10-23: public search surfaced a separate
-[`taskforge` listing](https://claudecodemods.dev/mods/taskforge), so name
-uniqueness is not established. The
-[Anthropic trademark guidelines](https://www.anthropic.com/legal/trademark-guidelines)
-also restrict permitted use and implied affiliation. Publisher attribution and
-the independence statement do not establish trademark permission. Registration,
-permission and public-release clearance have not been confirmed. No Anthropic
-logo was added. The existing LICENSE scope and third-party exclusions are unchanged.
+[taskforge listing](https://claudecodemods.dev/mods/taskforge); uniqueness and
+trademark permission are not established. See the
+[Anthropic trademark guidelines](https://www.anthropic.com/legal/trademark-guidelines).
+No Anthropic logo was added. Licensing scope and third-party exclusions are unchanged.
+
+### Local validator advisories
+
+Claude Code 2.1.310 accepts the current marketplace and generated plugin manifests
+with exit 0, but warns that the approved `taskforge-for-claude` name may read as
+an Anthropic-owned plugin. The independent-project disclaimer does not remove
+that warning or establish trademark permission. The directory check also reports
+a missing listing icon; no icon is added by this change. These are recorded
+advisories, not a security review, directory approval or proof of installed behavior.
 
 ## Native Skills and Plugin
 
 This repository now includes a Claude Code plugin manifest (`.claude-plugin/plugin.json`) and example native Skills under `skills/`:
 
-- `skills/fef-coding/SKILL.md` — ordinary code changes (smallest verified change).
-- `skills/fef-rca/SKILL.md` — evidence-based root-cause analysis.
+- `skills/coding/SKILL.md` — ordinary code changes (smallest verified change).
+- `skills/rca/SKILL.md` — evidence-based root-cause analysis.
 - `skills/ai-delegation-loop/` is retained only in the source archive; it is not a distributable native skill while permission is unresolved.
 
 To install as a plugin (recommended for reuse across projects):
 
 ```bash
 /plugin marketplace add yjj3019/claude
-/plugin install fef-engineering@fef-marketplace
+/plugin install taskforge-for-claude@taskforge-marketplace
 ```
 
-For a local native session, load only `--plugin-dir ./plugins/fef-engineering`.
+For a local native session, load only `--plugin-dir ./plugins/taskforge-for-claude`.
 Do not load the source clone root as a distributable plugin: the preserved archive
 under `skills/` can still be discovered there, and a manifest `skills` field adds
 to the default scan rather than excluding other source folders. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
 
 ### Plugin validation and compatibility
 
-Original FEF contributions are MIT-licensed within the scope of the root `LICENSE`.
-DelegationLoop, external source material and archived records are excluded.
-Their licensing and redistribution permissions remain unresolved. Plugin and
-marketplace metadata therefore omit a package-wide license identifier. See the source repository's
-[attribution and license record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md#attribution-and-license).
+Original FEF contributions have the scoped MIT grant in `LICENSE`.
+DelegationLoop, external source material and historical records remain excluded;
+redistribution clearance is unresolved. Package metadata does not claim a
+whole-package license. Since 2.0.0 the native payload excludes the delegation skill.
+Version 3.0.0 changes native identities; hooks, authorization and verification state v1 remain intact.
 
-The root plugin manifest is the single version source; the generated manifest is
-an exact copy and the marketplace omits its redundant version. Version `2.0.0`
-removes the unlicensed delegation skill from the native payload. Coding/RCA IDs,
-hooks and verification state stay unchanged. Existing caches require an explicit
-marketplace/plugin update and a new session after the release is available. See [manifest precedence](https://code.claude.com/docs/en/plugins-reference#metadata-precedence).
+The append-only plugin rename history is:
 
-The earlier native-ID migration changed `fef-claude` to `fef-engineering`,
-separately from the display-name change above. The marketplace
-keeps `"renames": {"fef-claude": "fef-engineering"}` as append-only migration
-history. The standalone installer still ships `fef-claude/` and `/fef-claude`.
-
-Only users of the old native `fef-claude` ID need this ID migration: update the
-marketplace, install `fef-engineering` once, and restart the session:
-
-```text
-/plugin marketplace update fef-marketplace
-/plugin install fef-engineering@fef-marketplace
+```json
+{"fef-claude": "fef-engineering", "fef-engineering": "taskforge-for-claude"}
 ```
 
-For testing uncommitted changes, add this clone's absolute local path as the
-marketplace in an isolated Claude configuration; GitHub still serves the published
-revision. Do not install both names as separate plugins to emulate an alias.
-The [official migration procedure](https://code.claude.com/docs/en/plugins/host-marketplace#migrate-users-with-a-renames-map)
-describes host migration of `enabledPlugins` and `pluginConfigs` in user, project
-and local settings; managed settings require an administrator update. Git/URL
-marketplaces require the explicit install above to populate the new cache.
+The [official renames mechanism](https://code.claude.com/docs/en/plugins/host-marketplace#migrate-users-with-a-renames-map)
+resolves plugin-name chains and can rewrite scoped `enabledPlugins` and
+`pluginConfigs` keys. It does not establish automatic migration between different
+marketplace registrations, skill calls or arbitrary plugin-owned data. Explicit
+installation is required to populate a renamed Git/URL plugin cache. Managed
+settings require an administrator update.
 
-Native skill names change as follows; update saved prompts and automation calls.
-The rename map migrates plugin identity, not documented slash-command aliases:
+#### Preserve, verify in isolation, then cut over
+
+1. Record every installed old copy's source, version and enabled scope, including
+   aliases such as `fef-engineering@synced`. Preserve the applicable settings and
+   an independently usable old payload. Back up any custom plugin-owned data
+   without exposing credentials. Do not uninstall or delete registrations/caches
+   as a migration shortcut; uninstall can remove saved data.
+2. Check the new payload first in a separate, temporary Claude configuration and
+   project. For uncommitted work use this clone's absolute local marketplace path;
+   GitHub still serves the published revision. Check discovery and hook loading
+   without sharing the active installation's settings, state or plugin data.
+3. Register `taskforge-marketplace` in the intended scope, without installing
+   the new plugin into the active configuration yet. If the host
+   rejects registration because the same source is already registered, **stop**
+   with the old registration/cache intact. Resolve that host-specific conflict
+   before cutover; no cross-marketplace migration is assumed here.
+4. After the isolated check, disable **all applicable old copies** and confirm
+   their scopes before installing `taskforge-for-claude@taskforge-marketplace`
+   into the active configuration: installation may enable it immediately. Do not
+   run both hook sets in a normal project session. Review
+   scoped `pluginConfigs`, permission rules, reviewer references and custom data
+   individually; do not blindly copy old namespace keys or secrets.
+5. Restart the session. Check the two new skills, reviewers and hooks, then perform
+   a small relevant verification in a disposable project. Retain the old payload
+   and settings for rollback; disable the new copy before re-enabling the old one.
 
 | Former call | Current call |
 |---|---|
-| `/fef-claude:fef-coding` | `/fef-engineering:fef-coding` |
-| `/fef-claude:fef-rca` | `/fef-engineering:fef-rca` |
-| `/fef-claude:ai-delegation-loop` | Unavailable in 2.0.0 pending redistribution clearance |
+| `/fef-engineering:fef-coding`, `/fef-claude:fef-coding` | `/taskforge-for-claude:coding` |
+| `/fef-engineering:fef-rca`, `/fef-claude:fef-rca` | `/taskforge-for-claude:rca` |
+| Old native `ai-delegation-loop` calls | Unavailable since 2.0.0 pending clearance |
 
-Plugin reviewer identifiers likewise use the `fef-engineering:` prefix. Skill
-frontmatter names, reviewer file names and the separate standalone pack stay
-unchanged. Old fully qualified plugin calls are not promised to resolve.
-
-FEF verification state stays in the consuming repository's `.claude/.verification/`,
+Verification records stay in the consuming repository's `.claude/.verification/`,
 keyed by session ID. The hooks do not use `CLAUDE_PLUGIN_DATA` or plugin-specific
-user options. A rename/resume regression test checks existing verification records
-and confirms that a subsequent edit still requires new verification.
-Host-managed cache and `${CLAUDE_PLUGIN_DATA}` paths depend on plugin identity;
-FEF does not migrate custom data placed there by users. Preserve any such data
-before migration and check it separately. Do not uninstall the old plugin as a
-cleanup step: uninstall can delete its saved data. See
+user options. Host-managed cache and `${CLAUDE_PLUGIN_DATA}` paths depend on plugin
+identity; this project does not migrate user data stored there. See
 [plugin storage](https://code.claude.com/docs/en/plugins/manifest-reference#environment-variables).
-No real user settings, credentials or saved data are changed by this repository edit.
+Repository edits do not alter real user settings, credentials or installed data.
 
-On 2026-10-18, a local-marketplace fixture under an isolated `CLAUDE_CONFIG_DIR`
-was tested with Claude Code 2.1.302, without model calls. Installing the old ID,
-updating the renamed catalog and installing the new ID left only the new installed
-ID and migrated both settings keys. A marker in the old data directory survived;
-no new data directory was created by those commands. This checks that CLI path,
-not arbitrary data migration, older clients or old slash-command alias resolution.
+Historical observation only: the 2026-10-18 isolated Claude Code 2.1.302 fixture
+verified the earlier single-marketplace `fef-claude` → `fef-engineering` rename
+without model calls. That result does not prove the new marketplace transition,
+current CLI behavior, old-command aliases or arbitrary data migration.
 
 ### Generated native distribution
 
-The marketplace installs `plugins/fef-engineering/`, generated from canonical
+The marketplace installs `plugins/taskforge-for-claude/`, generated from canonical
 runtime files. The self-contained payload includes Skills, reviewer agents,
 hooks, scripts, Kernel, packs and runtime docs; it excludes root `CLAUDE.md`,
 marketplace metadata, local verification state and historical model evidence.
@@ -145,7 +144,7 @@ From the source clone, regenerate after changing runtime inputs:
 python scripts/build_plugin.py
 python scripts/build_plugin.py --check
 claude plugin validate .claude-plugin/marketplace.json
-claude plugin validate plugins/fef-engineering
+claude plugin validate plugins/taskforge-for-claude
 ```
 
 The check compares the exact managed file set and bytes without writing. It also
@@ -159,7 +158,7 @@ before release. Source-maintenance scripts are not part of the runtime payload.
 
 Repository validation and CI check generated-file drift. Test the payload alone,
 outside the clone, to ensure routing and hooks cannot fall back to source files.
-For local plugin development, use `claude --plugin-dir ./plugins/fef-engineering`.
+For local plugin development, use `claude --plugin-dir ./plugins/taskforge-for-claude`.
 The existing `claude --plugin-dir .`, root manifest, clone `CLAUDE.md` and standalone
 `fef-claude/` remain available. The plugin ID, skill namespaces and plugin data ID
 do not change when the marketplace source moves. Installation paths do change;

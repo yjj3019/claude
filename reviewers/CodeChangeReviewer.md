@@ -26,6 +26,7 @@ Review a code change once for scope, root-cause correctness, verification, and s
 ### 4. Verification
 
 - Were applicable tests, builds, type checks, lint checks, and diff inspection performed?
+- For changed guards, persistence or tool orchestration, do relevant success and rejection/failure tests exercise the connected boundary? State affected path/shell and default/override assumptions, and distinguish a simulated flow from actual host or model execution.
 - Did the command exercise the intended behavior? Inspect its final summary and actual test/skip counts; zero tests, all-skipped runs, read receipts or hashes alone do not establish acceptance. Check required CI jobs and commands when CI is cited, and retain raw-log references behind summaries.
 
 ### 5. Safety

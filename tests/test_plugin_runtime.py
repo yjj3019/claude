@@ -16,13 +16,14 @@ class PluginRuntimeTest(unittest.TestCase):
     def test_plugin_rename_preserves_marketplace_migration(self):
         market = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
         manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
-        self.assertEqual(manifest["name"], "fef-engineering")
+        self.assertEqual(manifest["name"], "taskforge-for-claude")
         self.assertEqual(manifest["displayName"], "TaskForge for Claude")
-        self.assertEqual(market["name"], "fef-marketplace")
-        self.assertEqual(market["renames"]["fef-claude"], manifest["name"])
+        self.assertEqual(market["name"], "taskforge-marketplace")
+        self.assertEqual(market["renames"]["fef-claude"], "fef-engineering")
+        self.assertEqual(market["renames"]["fef-engineering"], manifest["name"])
         self.assertEqual([entry["name"] for entry in market["plugins"]], [manifest["name"]])
-        self.assertEqual(market["plugins"][0]["source"], "./plugins/fef-engineering")
-        shipped = json.loads((ROOT / "plugins/fef-engineering/.claude-plugin/plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(market["plugins"][0]["source"], "./plugins/taskforge-for-claude")
+        shipped = json.loads((ROOT / "plugins/taskforge-for-claude/.claude-plugin/plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(shipped, manifest)
 
     def test_unresolved_license_is_not_advertised_as_mit(self):
@@ -32,11 +33,13 @@ class PluginRuntimeTest(unittest.TestCase):
         self.assertTrue(all("license" not in plugin for plugin in market["plugins"]))
 
     def test_plugin_skill_names_and_standalone_entry_remain_distinct(self):
-        # Only the plugin namespace changes. Keep public skill names and the
-        # independently installed pack entry stable for existing consumers.
-        for name in ("fef-coding", "fef-rca", "ai-delegation-loop"):
+        # Native skill names follow the approved public rename; the independently
+        # installed pack keeps its persisted directory and entry contract.
+        for name in ("coding", "rca", "ai-delegation-loop"):
             text = (ROOT / "skills" / name / "SKILL.md").read_text(encoding="utf-8")
             self.assertRegex(text, rf"(?m)^name: {re.escape(name)}\s*$")
+            if name in ("coding", "rca"):
+                self.assertIn('version: "2.0.0"', text)
         sys.path.insert(0, str(ROOT / "scripts"))
         try:
             import install_pack
@@ -64,7 +67,7 @@ class PluginRuntimeTest(unittest.TestCase):
         self.assertTrue(found)
 
     def test_coding_skill_routes_from_unrelated_project(self):
-        text = (ROOT / "skills/fef-coding/SKILL.md").read_text(encoding="utf-8")
+        text = (ROOT / "skills/coding/SKILL.md").read_text(encoding="utf-8")
         command = re.search(r"`(python [^`]*detect_task\.py[^`]*)`", text).group(1)
         self.assertIn('"${CLAUDE_PLUGIN_ROOT}/scripts/detect_task.py"', command)
         # Use a path containing spaces, as real plugin caches can have them.
@@ -83,7 +86,7 @@ class PluginRuntimeTest(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)["task_type"], "coding")
 
     def test_coding_skill_verification_wrapper_from_unrelated_project(self):
-        text = (ROOT / "skills/fef-coding/SKILL.md").read_text(encoding="utf-8")
+        text = (ROOT / "skills/coding/SKILL.md").read_text(encoding="utf-8")
         command = re.search(r"`(python [^`]*run_verification\.py[^`]*)`", text).group(1)
         with tempfile.TemporaryDirectory(prefix="fef verification ") as folder:
             install = Path(folder) / "installed plugin"

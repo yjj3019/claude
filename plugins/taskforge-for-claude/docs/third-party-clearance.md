@@ -68,7 +68,7 @@ native copies from supported future `git archive` exports. This does not remove
 tracked source, Git history, existing caches, already published downloads or raw
 clones. Loading the source root with `--plugin-dir .` can discover preserved
 source skills and is not the supported native distribution; load the generated
-`plugins/fef-engineering` folder instead. Manual copying and Git host release
+`plugins/taskforge-for-claude` folder instead. Manual copying and Git host release
 settings are outside the script gate.
 Do not redistribute the full mixed source clone under a package-wide MIT claim.
 The source [attribution notice](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md)

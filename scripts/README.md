@@ -13,7 +13,7 @@ python -m unittest tests/test_harness.py
 - `detect_task.py` returns a deterministic candidate route as JSON. It is advisory and does not replace model judgment.
 - `validate_routes.py` checks route IDs, Pack paths, and load limits.
 - `validate_repository.py` runs structural, routing, Golden Test, orphan-Pack, and version/tag checks. Ambiguous maintenance findings are warnings.
-- `build_plugin.py` generates the self-contained `plugins/fef-engineering/` distribution from explicit runtime inputs. `--check` compares file names and bytes without writing; repository validation includes it when native marketplace metadata is present. Preserve the generated directory in Git distributions; do not edit it directly. See [native distribution and compatibility](../docs/ClaudeCode.md#generated-native-distribution).
+- `build_plugin.py` generates the self-contained `plugins/taskforge-for-claude/` distribution from explicit runtime inputs. `--check` compares file names and bytes without writing; repository validation includes it when native marketplace metadata is present. Preserve the generated directory in Git distributions; do not edit it directly. See [native distribution and compatibility](../docs/ClaudeCode.md#generated-native-distribution).
 - `run_golden_tests.py --validate-only` checks test metadata, fixtures, and scorecard schema without calling Claude or another API. Use `--output <path>` to save its JSON summary.
 
 

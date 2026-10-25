@@ -1,20 +1,21 @@
 {
-  "name": "fef-marketplace",
+  "name": "taskforge-marketplace",
   "owner": {
     "name": "yjj3019",
     "url": "https://github.com/yjj3019"
   },
   "metadata": {
-    "description": "TaskForge for Claude by yjj3019 (formerly FEF): independent plugins and native Skills"
+    "description": "TaskForge for Claude by yjj3019: independent plugins and native skills"
   },
   "renames": {
-    "fef-claude": "fef-engineering"
+    "fef-claude": "fef-engineering",
+    "fef-engineering": "taskforge-for-claude"
   },
   "plugins": [
     {
-      "name": "fef-engineering",
-      "source": "./plugins/fef-engineering",
-      "description": "TaskForge for Claude by yjj3019 (formerly FEF): compact Kernel, selective coding/RCA guidance, native Skills, reviewers and verification reminders. Independent project, not endorsed by Anthropic.",
+      "name": "taskforge-for-claude",
+      "source": "./plugins/taskforge-for-claude",
+      "description": "TaskForge for Claude by yjj3019: selective coding/RCA guidance, native skills, reviewers and verification reminders. Independent project, not endorsed by Anthropic.",
       "author": {
         "name": "yjj3019"
       },

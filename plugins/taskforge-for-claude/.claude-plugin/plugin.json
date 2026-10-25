@@ -1,8 +1,8 @@
 {
-  "name": "fef-engineering",
+  "name": "taskforge-for-claude",
   "displayName": "TaskForge for Claude",
-  "version": "2.0.4",
-  "description": "TaskForge for Claude by yjj3019 (formerly FEF): a compact Kernel, selective task packs, native Skills, reviewers and verification reminders for Claude Code. Independent project, not endorsed by Anthropic.",
+  "version": "3.0.0",
+  "description": "TaskForge for Claude by yjj3019 (formerly FEF): a compact Kernel, task guidance, native skills, reviewers and verification reminders. Independent project, not endorsed by Anthropic.",
   "author": {
     "name": "yjj3019",
     "url": "https://github.com/yjj3019"

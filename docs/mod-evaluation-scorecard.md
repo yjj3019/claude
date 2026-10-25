@@ -1,67 +1,75 @@
-# Mod 성능 평가 지표 (수치)
+<a id="mod-성능-평가-지표-수치"></a>
+# Mod Performance Evaluation Metrics (Numeric)
 
-현재 저장소 baseline 대비 Mod 적용 결과를 **1–5점**으로 평가하고 가중 점수로 요약합니다. 이 기준과 가중치는 저장소의 사용자 정의 의사결정 도구이며 공식 벤치마크나 검증된 개선 효과가 아닙니다. 기능·설계 구분은 [Mods와 3계층 위임](mods-and-tiered-agents.md)을 참고하세요.
+Rate results with a Mod against the repository's current baseline run on a **1–5 scale**, then summarize them as a weighted score. These criteria and weights are a custom decision tool for this repository, not an official benchmark or verified evidence of improvement. For the distinction between features and designs, see [Mods and Three-Tier Delegation](mods-and-tiered-agents.md).
 
-## 1. 차원별 점수 규모
+<a id="1-차원별-점수-규모"></a>
+## 1. Scoring Dimensions
 
-| ID | 차원 | 가중치 | 최대 | 측정 방식 |
+| ID | Dimension | Weight | Maximum | Measurement |
 |----|------|--------|------|-----------|
-| M1 | 컨텍스트 효율 | 15% | 15 | 메인 컨텍스트 토큰 증감률 |
-| M2 | 비용 | 15% | 15 | 태스크당 청구 토큰 증감률 |
-| M3 | 지연 | 10% | 10 | 총 소요 시간 감소률 |
-| M4 | 검증 신뢰 | 15% | 15 | 누락·오탐 감소율 |
-| M5 | 리뷰 품질 | 15% | 15 | 중요 이슈 발견률 |
-| M6 | 개발 마찰 | 10% | 10 | 추가 조작·재시도 감소 |
-| M7 | 보안 표면 | 10% | 10 | 신규 권한·비샌드박스 위험 점수 |
-| M8 | 안정성 | 10% | 10 | 세션 실패·부분 로드 비율 |
-| | **합계** | **100%** | **100** | |
+| M1 | Context efficiency | 15% | 15 | Percentage change in main context tokens |
+| M2 | Cost | 15% | 15 | Percentage change in billed tokens per task |
+| M3 | Latency | 10% | 10 | Percentage reduction in total elapsed time |
+| M4 | Verification confidence | 15% | 15 | Reduction in omissions and false positives |
+| M5 | Review quality | 15% | 15 | Detection rate for important issues |
+| M6 | Development friction | 10% | 10 | Reduction in additional actions and retries |
+| M7 | Security surface | 10% | 10 | Risk score for new permissions and unsandboxed execution |
+| M8 | Stability | 10% | 10 | Rate of session failures and partial loads |
+| | **Total** | **100%** | **100** | |
 
-## 2. 점수 환산
+<a id="2-점수-환산"></a>
+## 2. Score Conversion
 
-각 차원은 1–5점으로 채점한 뒤 가중치를 곱합니다.
+Rate each dimension from 1–5, then apply its weight.
 
 ```
-차원 점수 = (1–5 점 / 5) × (가중치 × 100)
-총점 = Σ 차원 점수   (최대 100)
+Dimension score = (1–5 rating / 5) × (weight × 100)
+Total = Σ dimension scores   (maximum 100)
 ```
 
-가중치는 15% = 0.15처럼 대입합니다. 모든 차원이 1–5점이면 총점 범위는 20–100점이며, 모든 차원이 baseline과 같은 3점이면 60점입니다. 이 점수는 성능 개선 백분율이 아닙니다. 미측정 항목은 N/A로 남기고 총점·판정을 내리지 않습니다.
+Enter weights as fractions, such as 15% = 0.15. If all dimensions are rated from 1–5, the total ranges from 20–100; if all dimensions match the baseline with a rating of 3, the total is 60. This score is not a percentage improvement in performance. Leave unmeasured items as N/A and do not assign a total or verdict.
 
-| 1–5 점 | 의미 | 예시 (M1, 가중 15%) |
+| 1–5 rating | Meaning | Example (M1, weight 15%) |
 |---------|------|----------------------|
-| 5 | 매우 우수 | 15.0 |
-| 4 | 우수 | 12.0 |
-| 3 | 동일 | 9.0 |
-| 2 | 부족 | 6.0 |
-| 1 | 나쁨 | 3.0 |
+| 5 | Excellent | 15.0 |
+| 4 | Good | 12.0 |
+| 3 | Unchanged | 9.0 |
+| 2 | Below baseline | 6.0 |
+| 1 | Poor | 3.0 |
 
-## 3. 판정 기준 (수치)
+<a id="3-판정-기준-수치"></a>
+## 3. Decision Criteria (Numeric)
 
-| 총점 | 판정 | 조건 |
+| Total | Verdict | Conditions |
 |------|------|------|
-| **80–100** | Adopt | 모든 차원 ≥ 3점, 치명적 M7 문제 없음 |
-| **65–100** 중 Adopt 조건 미충족 | Trial | M4·M7·M8 ≥ 3, 치명적 M7 문제 없음 |
-| **20–64** 또는 필수 조건 실패 | Reject | 총점 부족, M4·M7·M8 < 3, 또는 치명적 M7 문제 |
+| **80–100** | Adopt | All dimensions ≥ 3, with no critical M7 issue |
+| **65–100**, when adoption conditions are not met | Trial | M4·M7·M8 ≥ 3, with no critical M7 issue |
+| **20–64**, or a required condition fails | Reject | Insufficient total, M4·M7·M8 < 3, or a critical M7 issue |
 
-치명적 보안 문제와 필수 조건 실패는 총점보다 우선합니다. 이 임계값은 로컬 도입 판단용이며 개선 효과를 입증하는 통계 기준이 아닙니다.
+Critical security issues and failed required conditions take precedence over the total. These thresholds support local adoption decisions; they are not statistical criteria that demonstrate improvement.
 
-## 4. 측정 기록
+<a id="4-측정-기록"></a>
+## 4. Measurement Records
 
-실제 baseline과 Mod 적용 실행의 원본 근거를 확보한 뒤 점수를 입력합니다. 가상의 성능 점수나 절감 목표를 측정 결과로 재사용하지 않습니다.
+Enter scores only after obtaining original evidence from actual baseline and Mod-enabled runs. Do not reuse hypothetical performance scores or savings targets as measurement results.
 
-## 5. Baseline 비교 항목
+<a id="5-baseline-비교-항목"></a>
+<a id="5-기준-실행-비교-항목"></a>
+## 5. Baseline Comparison Items
 
-동일 작업·버전·권한·평가 기준으로 반복 측정합니다. 캐시 조건과 실패·재시도도 포함합니다.
+Repeat measurements with the same tasks, versions, permissions, and evaluation criteria. Include cache conditions, failures, and retries.
 
-| 지표 | 기록할 근거 |
+| Metric | Evidence to record |
 |------|-------------|
-| 컨텍스트 | 메인·하위 에이전트의 입력·출력과 집계 범위 |
-| 비용 | 전체 호출·캐시 쓰기/읽기·재시도·검토 비용 |
-| 완료 시간 | 시작·종료, 콜드 스타트 포함 여부 |
-| 검증·품질 | 성공·실패·누락 수와 작업 수, 회귀 결과 |
-| 재시도·안정성 | 실패·취소·부분 로드와 표본 수 |
+| Context | Main and subagent inputs and outputs, and aggregation scope |
+| Cost | All calls, cache writes/reads, retries, and review costs |
+| Completion time | Start and end times, and whether cold starts are included |
+| Verification and quality | Counts of successes, failures, omissions, and tasks; regression results |
+| Retries and stability | Failures, cancellations, partial loads, and sample size |
 
-## 6. 기록 형식
+<a id="6-기록-형식"></a>
+## 6. Record Format
 
 ```json
 {
@@ -76,4 +84,4 @@
 }
 ```
 
-실측 전에는 예시 수치를 사용하지 마세요. 프로토콜은 [mod-evaluation-metrics.md](mod-evaluation-metrics.md)를 따릅니다.
+Do not use example values before taking actual measurements. Follow the protocol in [mod-evaluation-metrics.md](mod-evaluation-metrics.md).

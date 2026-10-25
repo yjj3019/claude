@@ -2,106 +2,73 @@
 
 [English](README.en.md) · 한국어
 
-**by yjj3019 · 이전 이름: FEF (Framework for Engineering Excellence)**
+Claude Code에서 **코딩과 장애 분석을 작업별 지침·리뷰·검증으로 연결하는 프레임워크**입니다.
+필요한 지침만 선택해 읽고, 변경 근거와 검증 결과를 남기는 작업을 돕습니다.
 
-TaskForge for Claude는 Claude Code용 작업 실행·검증 프레임워크입니다. 작은 공통 Kernel과 작업별 지침으로 근거가 있고 검토 가능한 기술 산출물을 만드는 데 도움을 줍니다. Anthropic이 제작·후원·보증하는 공식 제품이 아닌 독립 프로젝트입니다.
+작성: yjj3019 · 이전 이름: FEF (Framework for Engineering Excellence)
 
-제품 표시 이름만 변경했습니다. 설치 ID `fef-engineering@fef-marketplace`, 기존 스킬 호출과 저장 데이터는 유지합니다. 새 이름으로 다시 설치할 필요는 없습니다. [이름 변경과 호환성](docs/ClaudeCode.md#product-name-and-retained-identifiers)을 참고하세요.
+Anthropic이 제작·후원·보증하는 공식 제품이 아닌 독립 프로젝트입니다.
 
-## 기능과 구성
+## 빠른 시작
 
-- `CLAUDE.md`에 공통 Kernel을 담고, `AGENTS.md`는 이 진입점을 안내합니다.
-- `modules/`, `domains/`, `reviewers/`, `workflows/`, `policies/`에서 필요한 지침만 선택합니다.
-- `config/routes.json`과 `scripts/detect_task.py`는 결정적 라우팅 후보를 제시합니다.
-- 네이티브 Skills, 리뷰어 에이전트, 검증 훅을 플러그인으로 제공합니다.
-- 마켓플레이스를 통해 설치·업데이트를 관리합니다.
+**준비:** Claude Code, Python 3.11 이상, Git.
 
-## 시작과 설치 (권장)
+새로 설치할 때 Claude Code 터미널에서 실행합니다. 기존 사용자는 먼저 [이관 안내(영문)](docs/ClaudeCode.md#plugin-validation-and-compatibility)를 확인하세요.
 
-Claude Code 터미널에서:
-
-```bash
+```text
 /plugin marketplace add yjj3019/claude
-/plugin install fef-engineering@fef-marketplace
+/plugin install taskforge-for-claude@taskforge-marketplace
 ```
 
-설치 후 세션을 재시작하면 Skills, 훅, 리뷰어 에이전트가 사용 가능합니다.
+설치 후 세션을 재시작하면 공통 지침(Kernel), 스킬, 리뷰어 에이전트와 검증 알림 훅을 사용할 수 있습니다.
+훅은 사용자 권한으로 실행되므로 설치 전 [실행 설정](https://github.com/yjj3019/claude/blob/main/hooks/hooks.json)을 확인하세요.
 
-플러그인의 SessionStart 훅이 공통 Kernel을 컨텍스트로 전달합니다. 작업별 팩과 보조 스크립트는 사용자 프로젝트가 아닌 플러그인 설치 경로에서 읽습니다.
+## 사용하기
 
-훅은 사용자 권한으로 실행됩니다. 설치 전 `hooks/hooks.json`을 확인하세요.
+| 작업 | 스킬 호출 |
+|---|---|
+| 코드 구현·수정 | `/taskforge-for-claude:coding` |
+| 장애·오류 원인 분석 | `/taskforge-for-claude:rca` |
 
-마켓플레이스는 원본에서 생성한 `plugins/fef-engineering/` 배포본을 설치합니다. 원본 `CLAUDE.md`와 기존 `--plugin-dir .`는 유지합니다. 런타임 원본을 수정한 뒤에는 `python scripts/build_plugin.py`로 배포본을 갱신하세요. 생성물 검사와 검증 대상은 [플러그인 배포 안내](docs/ClaudeCode.md#generated-native-distribution)에 정리했습니다.
+작업에 따라 필요한 지침과 리뷰어를 선택하고, 실제 검증 결과와 남은 한계를 확인합니다.
+세부 동작은 [Claude Code 사용 안내](docs/ClaudeCode.md), 지침 선택은 [로딩 규약(영문)](docs/loading-map.md)를 참고하세요.
 
-### 업데이트
+### 업데이트와 기존 설치
 
-버전을 올리고 push하면 마켓플레이스에 반영됩니다.  
-사용자는 `/plugin update fef-engineering@fef-marketplace` 또는 플러그인 관리 메뉴에서 업데이트합니다.
-과거 네이티브 ID `fef-claude` 사용자만 [기존 ID 이관 안내](docs/ClaudeCode.md#plugin-validation-and-compatibility)를 따릅니다. 현재 네이티브 스킬 호출은 `/fef-engineering:fef-coding` 등이며, 이번 표시 이름 변경으로 호출이 바뀌지는 않습니다. 별도 설치 팩 `fef-claude/`도 유지합니다.
-`plugin.json`의 `version`을 바꾸기 전까지는 해당 버전이 고정됩니다.
-
-## 기존 방식 (클론 + 스킬 팩)
-
-Python 3.11 이상과 Git이 필요합니다.
-
-```sh
-git clone https://github.com/yjj3019/claude.git
-cd claude
-python scripts/install_pack.py --auto --dry-run
-python scripts/install_pack.py --auto
+```text
+/plugin update taskforge-for-claude@taskforge-marketplace
 ```
 
-`--auto`는 호스트 skills 루트에 `fef-claude/`를 설치합니다.  
-상세 옵션과 형제 설치는 [docs/Installation.md](docs/Installation.md)를 참고하세요.
+`3.0.0`부터 설치 ID와 스킬 호출명을 TaskForge로 통일합니다. 과거 `fef-engineering`·네이티브 `fef-claude` 호출은 새 호출명으로 바꿔야 합니다.
+기존 설정·캐시를 삭제하지 말고 [이관 안내(영문)](docs/ClaudeCode.md#plugin-validation-and-compatibility)에 따라 별도 환경에서 확인한 뒤 전환하세요. 검증 상태·환경 변수와 독립 설치 `fef-claude/`는 유지합니다.
 
-## 선택 로딩
+## 상세 문서
 
-새 세션은 `CLAUDE.md`를 먼저 읽습니다.  
-본격 작업은 [docs/loading-map.md](docs/loading-map.md) 또는 라우팅 후보로 필요한 팩을 선택합니다.
+공통 지침·운영 문서·코드 설명은 영어로 작성합니다. 한국어 README는 자연스러운 한국어로 정리하고, [영문 소개](README.en.md)는 별도로 제공합니다. 명령·설정 키·한국어 테스트 입력은 원문을 유지하며, 위 설치·호출명 변경은 승인된 이관 범위에만 적용합니다. 과거 검증 기록과 제3자 원문은 보존합니다.
 
-```sh
-python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
-```
+| 목적 | 안내 |
+|---|---|
+| 설치 옵션·클론 기반 스킬 팩 설치 | [설치 가이드](docs/Installation.md) |
+| 스킬·훅·리뷰어·이름 변경 호환성 | [Claude Code 사용 안내](docs/ClaudeCode.md) |
+| 작업별 지침 선택·라우팅 | [로딩 안내](docs/loading-map.md) |
+| 스킬 버전·변경 이력 | [스킬 버전](docs/skill-versions.md) |
+| 공식 기능과 사용자 정의 위임 설계 구분 | [Mods와 3계층 에이전트](docs/mods-and-tiered-agents.md) |
+| 스크립트·생성 배포본 관리 | [스크립트 안내](scripts/README.md) |
 
-로드 한도: Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3.
+### 저장소 검증
 
-## 검증
-
-플러그인 매니페스트:
-
-```sh
-claude plugin validate .
-```
-
-저장소 정적 검사:
+소스를 수정한 경우 저장소 루트에서 실행합니다. 아래 검사는 모델 API를 호출하지 않습니다.
 
 ```sh
 python scripts/validate_repository.py
-python scripts/validate_routes.py
 python -m unittest discover -s tests -p "test_*.py"
 ```
 
-정적 검사이며 모델 API를 호출하지 않습니다.
+## 라이선스와 배포 범위
 
-## 라이선스
+FEF 자체 저작분에는 [MIT 라이선스](LICENSE)를 적용합니다.
+DelegationLoop 관련 자료·외부 가이드·인용·보관 기록 및 해당 생성 복제본은 제외되며, 저장소 전체를 MIT로 해석하지 않습니다.
 
-FEF 자체 저작분에는 [MIT 라이선스](LICENSE)를 적용합니다. DelegationLoop 관련 경로,
-외부 가이드·인용·보관 기록과 그 생성 복제본은 제외합니다. 저장소와 플러그인 전체가
-MIT인 것은 아니며, 제외 자료의 재배포 권한은 미확정입니다.
-[제3자 고지](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md)를 확인하세요.
-
-스킬 팩의 새 설치와 명시적 `--force` 갱신에는 `LICENSE`가 포함됩니다. 기존 설치는
-자동 수정하지 않으며, 갱신 시 기존 백업·덮어쓰기 정책을 유지합니다.
-
-## 추가 안내
-
-- [Claude Code 사용](docs/ClaudeCode.md)
-- [Mods 공식 기능과 3계층 위임 설계](docs/mods-and-tiered-agents.md)
-- [설치 상세](docs/Installation.md)
-- [스크립트 안내](scripts/README.md)
-
-## 배포 제한과 스킬 버전
-
-플러그인 2.0.0은 권리 미확정 위임 스킬을 제외합니다. 신규 위임 설치·ZIP 생성도
-차단하며 원본과 기존 설치 데이터는 보존합니다. 기본 coding/RCA 호출은 유지합니다.
-[권리 확정 절차](docs/third-party-clearance.md)와 [스킬 버전](docs/skill-versions.md)을 확인하세요.
+재배포 권한이 미확정인 위임 스킬은 플러그인 배포본에서 제외하고 신규 설치·ZIP 생성을 차단합니다.
+원본과 기존 설치 데이터는 보존하며, 기본 코딩·장애 분석 스킬 호출은 유지합니다.
+[제3자 고지](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md)와 [권리 확정 절차](docs/third-party-clearance.md)를 확인하세요.

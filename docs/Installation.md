@@ -1,12 +1,11 @@
 # TaskForge for Claude — Installation
 
-Formerly FEF, maintained by yjj3019. This is a display-name change; keep the
-existing IDs and follow [naming compatibility](ClaudeCode.md#product-name-and-retained-identifiers).
-
-For the native Claude Code plugin, use `fef-engineering@fef-marketplace` and the
-[plugin migration guide](ClaudeCode.md#plugin-validation-and-compatibility).
-The script-based `fef-claude/` installation below is a separate entry and retains
-its existing directory and invocation name.
+Formerly FEF, maintained by yjj3019. Native plugin 3.0.0 changes the installation
+identity and skill calls to `taskforge-for-claude@taskforge-marketplace`,
+`/taskforge-for-claude:coding` and `/taskforge-for-claude:rca`.
+Existing users must follow [migration and compatibility](ClaudeCode.md#plugin-validation-and-compatibility)
+before cutover. The script-based `fef-claude/` installation below is separate;
+its directory, invocation, manifest and stored data remain unchanged.
 
 ## URL-only (AI hosts)
 

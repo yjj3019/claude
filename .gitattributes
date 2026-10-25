@@ -16,3 +16,8 @@ plugins/fef-engineering/skills/ai-delegation-loop/** text eol=lf
 /scripts/delegation export-ignore
 /docs/delegation-loop export-ignore
 /plugins/fef-engineering/skills/ai-delegation-loop export-ignore
+
+# Current native identity; retain the older exclusions above for historical paths.
+plugins/taskforge-for-claude/README.md text eol=lf
+plugins/taskforge-for-claude/skills/ai-delegation-loop/** text eol=lf
+/plugins/taskforge-for-claude/skills/ai-delegation-loop export-ignore

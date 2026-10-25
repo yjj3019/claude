@@ -70,6 +70,7 @@ class PluginBuildTest(unittest.TestCase):
         import tarfile
         (self.source / ".gitattributes").write_bytes((ROOT / ".gitattributes").read_bytes())
         blocked = ("skills/ai-delegation-loop", "scripts/delegation", "docs/delegation-loop",
+                   "plugins/taskforge-for-claude/skills/ai-delegation-loop",
                    "plugins/fef-engineering/skills/ai-delegation-loop")
         for folder in blocked:
             path = self.source / folder / "fixture.txt"
@@ -83,7 +84,7 @@ class PluginBuildTest(unittest.TestCase):
                                  cwd=self.source, check=True, capture_output=True, timeout=30)
         with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as stream:
             names = stream.getnames()
-        self.assertIn("skills/fef-coding/SKILL.md", names)
+        self.assertIn("skills/coding/SKILL.md", names)
         for folder in blocked:
             self.assertFalse(any(name == folder or name.startswith(folder + "/") for name in names))
             self.assertTrue((self.source / folder / "fixture.txt").is_file())

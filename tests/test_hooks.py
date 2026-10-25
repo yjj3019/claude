@@ -112,7 +112,7 @@ class SessionVerificationTest(unittest.TestCase):
             result = run_hook(START, {"session_id": "missing-kernel"}, self.root)
         self.assertEqual(result.stdout, "")
         self.assertIn("reminder unavailable", result.stderr)
-        self.assertIsNotNone(load_state(self.root, "missing-kernel"))
+        self.assertIsNotNone(load_state(self.root, "missing-kernel"), result.stderr)
 
     def test_plugin_rename_resume_preserves_verification_and_custom_data(self):
         from lib.verification_state import state_path
@@ -129,7 +129,7 @@ class SessionVerificationTest(unittest.TestCase):
             self.record(session=session)
         path = state_path(self.root, session)
         before = path.read_bytes()
-        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT / "fef-engineering"),
+        with patch.dict(os.environ, {"CLAUDE_PLUGIN_ROOT": str(ROOT / "taskforge-for-claude"),
                                      "CLAUDE_PLUGIN_DATA": str(new_data)}):
             self.start(session, source="resume")
             self.assertEqual(path.read_bytes(), before)
@@ -475,7 +475,10 @@ class SessionVerificationTest(unittest.TestCase):
         self.assert_blocked("new-session")
         self.start("new-session", source="clear")
         self.assertFalse(state_path(self.root, "new-session").with_suffix(".failed").exists())
-        self.assertEqual(self.stop("new-session").stdout, "")
+        stopped = self.stop("new-session")
+        if stopped.stderr:
+            sys.stderr.write(stopped.stderr)
+        self.assertEqual(stopped.stdout, "", stopped.stderr)
 
     @unittest.skipUnless(os.name == "nt", "Windows file sharing regression")
     def test_windows_locked_state_does_not_credit_previous_pass(self):

@@ -17,6 +17,8 @@ Use `policies/FileHandling.md` and `policies/ToolExecution.md` for file and exec
 4. Run targeted validation, then relevant lint/typecheck, broader tests or build. Preserve command, cwd, exit status and failure evidence.
 5. Inspect actual diff for unrelated work, secrets and generated artifacts; report behavior, checks, failures and residual risk.
 
+For changes to guards, persistence or tool orchestration, exercise a relevant success and rejection or failure case through the connected path. Cover affected supported path/shell variants and interactions between defaults and explicit overrides. Mocked or simulated orchestration alone does not establish host or model behavior.
+
 Before claiming verification, confirm the command exercised the intended behavior and inspect the final result summary. Report executed, failed and skipped counts when the tool provides them; zero tests, all-skipped runs or a successful setup command do not verify the acceptance criteria. Preserve the full log separately from an abbreviated report, without exposing secrets.
 
 Use Plan Mode for nontrivial work and an optional CodeChangeReviewer for consequential changes.

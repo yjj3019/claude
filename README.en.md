@@ -2,112 +2,75 @@
 
 English · [한국어](README.md)
 
-**by yjj3019 · Formerly FEF (Framework for Engineering Excellence)**
+A framework that connects coding and root-cause analysis in Claude Code with task guidance, review and verification. Load only the guidance a task needs and record evidence, actual checks and remaining limits.
 
-TaskForge for Claude is a task execution and verification framework for Claude Code. A small shared Kernel and task-specific guidance help produce technical outputs backed by evidence and ready for review. It is an independent project, not an official product created, sponsored or endorsed by Anthropic.
+By yjj3019 · Formerly FEF (Framework for Engineering Excellence).
 
-This is a display-name change. Keep installing `fef-engineering@fef-marketplace`; existing skill calls and saved data remain unchanged. Do not reinstall under a new ID. See [naming and compatibility](docs/ClaudeCode.md#product-name-and-retained-identifiers).
+An independent project, not created, sponsored or endorsed by Anthropic.
 
-## Features and layout
+<a id="getting-started-and-installation"></a>
+## Quick start
 
-- `CLAUDE.md` contains the shared Kernel; `AGENTS.md` points to that entry.
-- Select needed guidance from `modules/`, `domains/`, `reviewers/`, `workflows/` and `policies/`. Coding and Research procedures are integrated into their modules.
-- `config/routes.json` and `scripts/detect_task.py` suggest deterministic routes without replacing model judgment.
-- Checks cover structure, routing, Golden Tests and installation integrity. Local Claude Code hooks remind you to verify the current session and actual file state.
-- `skills/ai-delegation-loop/` remains source-only pending redistribution clearance; it is excluded from plugin 2.0.0 and new installation/ZIP commands refuse it.
+Requires Claude Code, Python 3.11+ and Git. In Claude Code, run:
 
-TaskForge for Claude's `workflows/` contains Markdown task procedures. These are separate from executable Claude Code `.claude/workflows/`; this repository does not ship dynamic workflows.
-
-## Getting started and installation
-
-For the native Claude Code plugin, run `/plugin marketplace add yjj3019/claude`
-then `/plugin install fef-engineering@fef-marketplace`. Existing `fef-claude`
-plugin users should follow the [earlier ID migration guide](docs/ClaudeCode.md#plugin-validation-and-compatibility).
-Native skill calls use `/fef-engineering:fef-coding` and
-`/fef-engineering:fef-rca`; the standalone `fef-claude/` pack below keeps its name.
-The marketplace installs the generated `plugins/fef-engineering/` payload. Keep
-that directory in distributions and regenerate it after runtime source edits with
-`python scripts/build_plugin.py`. Root `CLAUDE.md` and `--plugin-dir .` remain
-compatible; see [distribution checks](docs/ClaudeCode.md#generated-native-distribution).
-
-Git and Python 3.11+ are required. Scripts use only the Python standard library. Run these commands from the clone root; use `python3` instead of `python` where your environment requires it.
-
-```sh
-git clone https://github.com/yjj3019/claude.git
-cd claude
-python scripts/install_pack.py --auto --dry-run
-python scripts/install_pack.py --auto
+```text
+/plugin marketplace add yjj3019/claude
+/plugin install taskforge-for-claude@taskforge-marketplace
 ```
 
-`--auto` detects Claude, Codex, Grok, Cursor and AGENTS host markers in the current user's HOME and installs `fef-claude/` into their skills roots. With no detected host, it uses `~/.agents/skills`. The default installs host skills only; it does not scan or install into sibling project folders.
+Restart the session to use the shared Kernel, skills, reviewer agents and verification reminder hooks. Hooks run with your user permissions; inspect [their configuration](https://github.com/yjj3019/claude/blob/main/hooks/hooks.json) before installation.
 
-For Claude Code, open this clone as the workspace so the root `CLAUDE.md` is read. A host skill copy in another project does not replace that project's `CLAUDE.md`. For Claude Projects, paste `CLAUDE.md` into Project Instructions and attach only needed packs as Project Knowledge. Code commands, hooks and native agents do not run in Projects.
+<a id="features-and-layout"></a>
+<a id="selective-loading-and-safety"></a>
+## Usage
 
-### Destinations and existing files
+| Task | Skill call |
+|---|---|
+| Implement or modify code | `/taskforge-for-claude:coding` |
+| Investigate failures | `/taskforge-for-claude:rca` |
 
-```sh
-python scripts/install_pack.py --dest /path/to/skills --dry-run
-python scripts/install_pack.py --dest /path/to/skills
-python scripts/install_pack.py --check --dest /path/to/skills
-python scripts/install_pack.py --siblings /other/project --dry-run
-python scripts/install_pack.py --siblings /other/project
+Select guidance and reviewers for the task, then inspect actual verification and remaining limits. See the [Claude Code guide](docs/ClaudeCode.md) and [loading contract (English)](docs/loading-map.md).
+
+<a id="destinations-and-existing-files"></a>
+### Updates and existing installations
+
+```text
+/plugin update taskforge-for-claude@taskforge-marketplace
 ```
 
-`--dest` is the skills root. FEF is installed beneath it as `fef-claude/`. Sibling installation requires explicit opt-in through `--siblings`, `FEF_SIBLING_ROOTS`, `--siblings-only` or `--scan-sibling-parent`. Parent-folder scanning is off by default. `FEF_SIBLING_ROOTS` uses the operating system's `os.pathsep` between paths.
+Plugin 3.0.0 changes the native installation identity and skill names. Old
+`fef-engineering` and native `fef-claude` calls must be updated. Preserve existing
+settings/caches and follow the [migration guide](docs/ClaudeCode.md#plugin-validation-and-compatibility)
+before cutover. Verification state, environment keys and the separate standalone
+`fef-claude/` pack remain unchanged.
 
-An existing FEF pack is skipped when its shipped-file fingerprint and installation integrity match; otherwise replacement is refused. `--force` verifies a stage before replacing the active pack and retains the entire original, including local edits and extra files, at the printed recovery path. Local edits are not automatically merged into the new pack. Copy/stage verification failure leaves the original intact; publish/post-publish verification failure attempts restoration. If restoration also fails, the retained original path is reported and manual recovery is required. `--dry-run` writes no files. The default install includes runtime documents only; `--with-tests` adds tests and examples.
+<a id="further-guidance"></a>
+## Documentation
 
-`--print-bootstrap` prints installation commands; `--print-claude` prints Projects setup steps. See `python scripts/install_pack.py --help` and the [installation guide](docs/Installation.md) for all options.
+Shared instructions, operational guides and code explanations are maintained in English. The primary README uses natural Korean; this file is its English overview. Commands, configuration keys and Korean test inputs retain their original spelling. The approved native identity changes are documented separately. Historical evidence and third-party originals are preserved.
 
-## Selective loading and safety
+| Purpose | Guide |
+|---|---|
+| Installation options and standalone packs | [Installation](docs/Installation.md) |
+| Skills, hooks, reviewers and compatibility | [Claude Code](docs/ClaudeCode.md) |
+| Task selection and routing | [Loading contract (English)](docs/loading-map.md) |
+| Skill versions and change history | [Versions](docs/skill-versions.md) |
+| Official capabilities and custom delegation | [Mods and three-tier agents](docs/mods-and-tiered-agents.md) |
+| Scripts and generated distributions | [Script guide](scripts/README.md) |
 
-Read `CLAUDE.md` first in a new session. Simple, low-risk tasks start with only the inlined Kernel. For substantial work, use the [loading map](docs/loading-map.md) or a suggested route to select the required packs.
+<a id="verification-and-limits"></a>
+### Repository checks
 
-```sh
-python scripts/detect_task.py --task "RHEL 장애 RCA를 작성해줘"
-python scripts/measure_load.py
-```
-
-Load limits are Module 1 / Domain ≤2 / Workflow 1 / Reviewer 1 / Policies ≤3. Retain the Evidence, FileHandling, Freshness and ToolExecution integrity policies required by the task. Do not preload README, the whole repository, historical reports or model guidance. Do not attach the entire repository to Projects either.
-
-Keep the same evidence, verification, approval, uncertainty markers (`[unverified]`) and budget across models. The model table in [Adaptive Effort](docs/adaptive-effort.md) is a dated advisory preference; it does not guarantee automatic model switching or current availability. Usually keep the active host model, and consider supported effort levels and models when a capability gap is established. Missing evidence requires gathering that evidence.
-
-`measure_load.py` measures file bytes and estimated tokens; it does not establish actual cost, response time or model quality. Hooks are verification reminders, not a sandbox or complete test evidence. Check Python, shell support and hook wiring in your actual environment.
-
-## Distribution clearance and skill versions
-
-Delegation source is preserved for attribution and rights review, not offered as
-a redistributable skill. Native plugin 2.0.0 retains coding/RCA and excludes the
-unresolved package. See [clearance](docs/third-party-clearance.md) and
-[skill versions](docs/skill-versions.md) before upgrading or distributing.
-
-## Verification and limits
-
-Run from the clone root. These checks do not call models or paid APIs.
+Run from the clone root after source changes. These checks do not call model APIs.
 
 ```sh
 python scripts/validate_repository.py
-python scripts/validate_routes.py
-python scripts/run_golden_tests.py --validate-only
-python scripts/sync_kernel.py --check
 python -m unittest discover -s tests -p "test_*.py"
-python scripts/delegation/validate_skill.py
-python -m unittest discover -s scripts/delegation -p "test_*.py"
-python scripts/delegation/refresh_evidence.py --check
-python scripts/delegation/verify_history.py
-python skills/ai-delegation-loop/tests/run_simulation.py --output ./sim --self-check
 ```
 
-CI checks FEF on Ubuntu/Python 3.11, 3.12 and 3.14, FEF installer and hooks on Windows/Python 3.11 and 3.14, and delegation on Ubuntu and Windows/Python 3.11 and 3.14. Delegation CI restores archived history and verifies that uncleared ZIP distribution is refused on every matrix target. Local operating-system constraints such as symlink permissions can skip some checks; inspect the actual results.
+<a id="distribution-clearance-and-skill-versions"></a>
+## License and distribution scope
 
-Archived DelegationLoop v1.2 model results are HISTORICAL and STALE for the preserved v1.3 source. Current document contracts, isolated fixtures and grader self-checks have separate hashes. Current model behavior, prompt injection defense and Codex auxiliary prompt reads are UNVERIFIED. Static checks do not establish real workflows on every platform or improved model quality.
+Original FEF contributions are covered by the scoped [MIT license](LICENSE). DelegationLoop materials, external guides, quotations, archived records and their generated copies are excluded; the repository as a whole is not MIT-licensed.
 
-Original FEF contributions are MIT-licensed under the scope of [LICENSE](LICENSE). DelegationLoop, external source material and historical records are excluded, including corresponding generated copies. The applicable license and redistribution grant for the preserved DelegationLoop materials have not been established; the recorded upstream query returned 404 on 2026-10-24. See the [clearance record](docs/third-party-clearance.md). This mixed repository and plugin are not wholly MIT-licensed. The [integration record](https://github.com/yjj3019/claude/blob/main/docs/delegation-loop/INTEGRATION.md) preserves original attribution, authors, Git history and PR discussion, and lists conditions before source deletion.
-
-## Further guidance
-
-- [Mods capabilities and custom tiered-agent design (Korean)](docs/mods-and-tiered-agents.md)
-- [Claude Code usage, agent selection and hook limits](https://github.com/yjj3019/claude/blob/main/docs/ClaudeCode.md)
-- [Claude Projects setup](https://github.com/yjj3019/claude/blob/main/docs/ClaudeProjects.md)
-- [Script guide](scripts/README.md)
-- [FEF optimization evidence and limits](https://github.com/yjj3019/claude/blob/main/docs/precise-analysis-2026-10-09.md)
+The delegation skill with unresolved redistribution rights is excluded from the plugin; new installation and ZIP generation are blocked. Source and existing installed data are preserved, along with coding/RCA calls. See the [third-party notices](https://github.com/yjj3019/claude/blob/main/skills/ai-delegation-loop/THIRD_PARTY_NOTICES.md) and [clearance procedure](docs/third-party-clearance.md).

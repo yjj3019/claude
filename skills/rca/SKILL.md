@@ -1,11 +1,11 @@
 ---
-name: fef-rca
+name: rca
 description: Perform root-cause analysis for failures, incidents, or unexpected behavior. Use when investigating why something broke, especially in Linux/RHEL/OpenShift environments. Prefer primary evidence.
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
-# TaskForge for Claude — RCA (FEF RCA Skill)
+# TaskForge for Claude — RCA
 
 Conduct evidence-based root cause analysis.
 

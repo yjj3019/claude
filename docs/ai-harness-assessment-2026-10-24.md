@@ -1,6 +1,6 @@
 # AI-Harness 비교 검토와 제한적 반영
 
-최신 재검토: 아래 [업데이트 재검토](#업데이트-재검토-45664d3) 참조. 최초 검토 내용은 당시 revision에 대한 이력으로 보존한다.
+최신 재검토: 아래 [업데이트 재검토](#업데이트-재검토-6bc8e25) 참조. 최초 검토 내용은 당시 revision에 대한 이력으로 보존한다.
 
 검토일: 2026-10-24. 대상: [yjj3019/AI-Harness](https://github.com/yjj3019/AI-Harness/tree/ac4c59adcced5484c9e9c7952b5794c880838a97), commit ac4c59adcced5484c9e9c7952b5794c880838a97. 기본 브랜치의 shallow clone에서 .git을 제외한14파일을 확인했다. 원본 코드·설치 절차는 실행하지 않았다.
 
@@ -82,3 +82,41 @@ RCA/standalone entry 버전, 기술ID·라우트·권한·Kernel·state v1·검�
 새 런타임 로직이 없어 문장을 그대로 재검사하는 테스트는 추가하지 않는다.
 실제 관련 검증·실패와 제한은 [작업 이력](../PROGRESS.md)의 해당 업데이트 항목에 기록한다.
 이번 지침 보강은 테스트 수 자동 강제·실제 모델 효능·비용 절감·운영 안정성을 보장하지 않는다.
+
+
+## 업데이트 재검토 6bc8e25
+
+2026-10-25 재요청으로 [45664d3](https://github.com/yjj3019/AI-Harness/tree/45664d315faa13aab71f3b01bf270d50a42f4906) 이후
+[6bc8e252d9295fcb2b7c3420706ff5e4349307f8](https://github.com/yjj3019/AI-Harness/tree/6bc8e252d9295fcb2b7c3420706ff5e4349307f8)까지
+3커밋·변경18경로를 비교했다. 최신 고정 snapshot은 일반 파일38개다. 별도 참조 저장소와
+읽기 전용 사본을 사용했고 upstream 코드·설치기·테스트·모델은 실행하지 않았다.
+아래는 해당 소스의 정적 분석이며 이전 두 revision의 기록은 당시 상태로 보존한다.
+
+### 확인한 개선과 이전 발견의 갱신
+
+| 변경 | 최신 구현에서 확인한 범위 | 한계와 채택 판단 |
+|---|---|---|
+| 검증 명령 고정 | [required-test-command.json](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/required-test-command.json)은 `bash tests/run-all.sh`를 argv 배열로 고정한다. CI의 기본 verify-attestation 호출이 이를 읽고 다른 argv를 거부하므로 앞선 기본 저장소의 핀 부재 지적은 해소됐다. | 고정한 명령의 적합성은 여전히 검토 대상이다. downstream에서 해당 파일을 빼고 복사하면 선택적 핀 문제는 남는다. CI의 attestation 반복문은 파일0개일 때 비어 있어 특정 Phase의 완료까지 증명하지 않으며, 별도 기본 checks 단계는 계속 실행된다. |
+| Windows 경로 | [read-tracker](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/hooks/read-tracker.sh#L26-L70)는 드라이브 경로를 cygpath/wslpath로 변환하고 realpath의 GNU 플래그 없는 형식으로도 시도한다. [evidence guard](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/hooks/evidence-guard.sh#L33-L40)는 두 경로 구분자를 인식한다. | upstream의 이전 경로 해석 결함에 대응한 변경이다. TaskForge는 이미 Python 경로·실제 wrapper/설치 회귀를 사용하므로 Bash 훅을 복제하지 않고, 영향받는 지원 경로 변형을 연결 테스트에 포함하는 원칙을 보강한다. |
+| 실제 실행 맥락의 사전 점검 | [doctor](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/workflows/phase-gate.js#L396-L440)는 Node PATH의 도구만 찾거나 Windows를 무조건 거부하는 대신 선택 셸에서 도구를 확인한다. | 선택한 probe 셸이 호스트가 실제 쓰는 셸이라는 사실까지 자동 증명되지는 않는다. ToolExecution의 장애 진단 지침에 실제 interpreter/shell·cwd·env의 prerequisite 확인을 추가한다. 매 정상 호출마다 probe를 강제하지 않는다. |
+| 연결·오류 경로 테스트 | [E2E](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/tests/e2e.test.js)·[branch](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/tests/gate-branches.test.js)·[edge](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/tests/gate-edge.test.js)가 추가됐다. 실제 read-tracker 호출, 단계 재시도, 잘못된 증거·핀·경로 거부를 임시 프로젝트에서 확인하는 코드가 있다. | synthetic Node 명령과 작성한 단계 보고서를 잇는 시뮬레이션이며 실제 Claude 호출·모델 효능 검증과 구분한다. 기존 Coding/skill/CodeChangeReviewer에 관련 정상·거부/실패를 실제 연결 경로로 확인하는 지침을 추가한다. |
+| 실행 파일 줄바꿈 | [.gitattributes](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.gitattributes)는 sh/js를 LF로 고정한다. | TaskForge의 기존 archive/payload 속성 및 autocrlf 회귀는 유지한다. 사용하지 않는 upstream 실행 파일용 전역 규칙은 추가하지 않는다. |
+
+### 남은 경계
+
+- `run`은 여전히 실제 테스트 수·의미 대신 exit0을 PASS로 기록한다. hash/read receipt의 적합성·이해·권한 한계와 fail-open 패턴 가드도 남는다. 앞선 TaskForge의 결과 요약·분모·CI 확인 지침을 유지한다.
+- 최신 [파괴적 명령 가드](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/hooks/block-destructive.sh#L18-L29)는 rm·재귀 플래그·광범위 경로를 명령 문자열 전체에서 각각 찾는다. 따라서 `rm -r ./build; printf /`처럼 서로 다른 명령의 토큰을 합쳐 오차단할 수 있고, 따옴표로 감싼 광범위 경로는 해당 패턴에 잡히지 않는다. source의 POSIX whitespace를 Python 정규식으로 대응시킨 ASCII 문자열 검사에서 이를 확인했다. shell이나 삭제 명령을 실행한 재현이 아니며, 해당 가드는 원래 보안 경계가 아니라고 명시한다. 이 구현은 가져오지 않는다.
+- [doctor 등록 검사](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/workflows/phase-gate.js#L440-L475)는 hook command 문자열·실행 비트를 확인한다. 실제 호스트 이벤트에서 필요한 matcher/권한으로 동작했는지는 별도 연결 실행 증거가 필요하다. prototype probe나 Node fixture 통과만으로 실제 호스트 지원을 보장하지 않는다.
+
+- CLI의 명시적 expected argv는 pin보다 우선한다([phase-gate.js](https://github.com/yjj3019/AI-Harness/blob/6bc8e252d9295fcb2b7c3420706ff5e4349307f8/.claude/workflows/phase-gate.js#L514-L544)의 `expected || loadPinnedCommand`). 현재 CI는 override 없이 호출하므로 그 경로의 우회로 분류하지 않는다. pin과 명시 override의 동시 존재를 검사하는 조합 사례는 확인하지 못했다. TaskForge에는 해당 attestation runtime이 없어 새 기능이나 그 전용 테스트를 추가하지 않고, 영향받는 기본값/명시 override 상호작용도 관련 연결 테스트로 확인하도록 기존 지침을 보완했다.
+
+### 이번 반영과 검증 범위
+
+기존 Coding 모듈/native coding 스킬 및 CodeChangeReviewer의 테스트 범위 명확화와
+ToolExecution의 실패 진단 맥락 보완만 독자 문구로 반영했다. 새 skill·hook·runtime·test runner·
+mutation framework·dependency·CI 작업은 추가하지 않았다. 정책이나 권한을 약화하지 않는다.
+Coding `1.0.4`/plugin `2.0.5`로 호환 패치 갱신하고 기존 생성기로 동기화한다.
+RCA/standalone entry `1.0.0`, 기술ID·라우트·Kernel·wrapper·state v1은 유지한다.
+실제 관련 회귀와 한계는 [작업 이력](../PROGRESS.md)에 기록한다. upstream 문서의 실행 수치나
+실모델/성능 주장을 TaskForge의 직접 측정 결과로 사용하지 않는다. 이번 변경은 이전 Windows
+간헐 timeout이나 별도 제3자 권리를 해결한 것으로 간주하지 않는다.

@@ -13,7 +13,7 @@ The following materials are excluded from this grant:
 
 Paths are relative to the directory containing this LICENSE. In the source
 repository the same exclusions also apply to corresponding copies under
-plugins/fef-engineering/. In a generated plugin, paths are relative to the
+plugins/fef-engineering/ and plugins/taskforge-for-claude/. In a generated plugin, paths are relative to the
 plugin root containing its copy of this LICENSE. Generated copies retain
 their source materials' licensing status.
 

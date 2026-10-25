@@ -33,5 +33,5 @@
     }
   },
   "decision": "not_run",
-  "notes": "Schema example only; no model run is claimed. One run entry = one `python scripts/run_golden_test_coding.py --test <id> --edited-dir <copy>` invocation. skill_triggered is read from the transcript (did fef-coding visibly fire?), always \"n/a\" on the control arm since it has no skills. pass_rate filled in only after all runs for that arm are recorded."
+  "notes": "Schema example only; no model run is claimed. One run entry = one `python scripts/run_golden_test_coding.py --test <id> --edited-dir <copy>` invocation. skill_triggered is read from the transcript (did coding visibly fire?), always \"n/a\" on the control arm since it has no skills. pass_rate filled in only after all runs for that arm are recorded."
 }

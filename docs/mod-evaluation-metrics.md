@@ -12,7 +12,7 @@ measured improvement claim. See [official capabilities versus custom design](mod
 | Layer | Implementation |
 |-------|----------------|
 | Instructions | `CLAUDE.md` + selective packs |
-| Skills | `skills/fef-coding`, `skills/fef-rca` |
+| Skills | `skills/coding`, `skills/rca` |
 | Agents | `.claude/agents/*` reviewers |
 | Hooks | `hooks/hooks.json` (shell, verification reminders) |
 | Routing | `config/routes.json` + `scripts/detect_task.py` |

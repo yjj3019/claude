@@ -1,11 +1,11 @@
 ---
-name: fef-coding
+name: coding
 description: Deliver the smallest complete verified code change. Use for code modifications, bug fixes, or feature implementation in a repository. Requires inspecting evidence, callers, tests, and conventions before editing.
 metadata:
-  version: "1.0.3"
+  version: "2.0.0"
 ---
 
-# TaskForge for Claude — Coding (FEF Coding Skill)
+# TaskForge for Claude — Coding
 
 Deliver the smallest complete, verified change in the assigned worktree.
 
@@ -22,6 +22,8 @@ Deliver the smallest complete, verified change in the assigned worktree.
 3. Implement a narrow fix using existing APIs. Add meaningful regression tests for changed behavior; never weaken tests to hide failure.
 4. Run targeted validation, then relevant lint/typecheck, broader tests or build. Preserve command, cwd, exit status and failure evidence.
 5. Inspect actual diff for unrelated work, secrets and generated artifacts; report behavior, checks, failures and residual risk.
+
+For changes to guards, persistence or tool orchestration, exercise a relevant success and rejection or failure case through the connected path. Cover affected supported path/shell variants and interactions between defaults and explicit overrides. Mocked or simulated orchestration alone does not establish host or model behavior.
 
 Before claiming verification, confirm the command exercised the intended behavior and inspect the final result summary. Report executed, failed and skipped counts when the tool provides them; zero tests, all-skipped runs or a successful setup command do not verify the acceptance criteria. Preserve the full log separately from an abbreviated report, without exposing secrets.
 
