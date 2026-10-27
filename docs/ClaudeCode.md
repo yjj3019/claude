@@ -63,6 +63,12 @@ Do not load the source clone root as a distributable plugin: the preserved archi
 under `skills/` can still be discovered there, and a manifest `skills` field adds
 to the default scan rather than excluding other source folders. Native Skills are discovered by name + description and load their body on demand. Prefer them for matching tasks; fall back to `scripts/detect_task.py` or the loading map for complex multi-pack routes.
 
+The native `UserPromptSubmit` hook injects approved guidance for three unambiguous,
+low-risk document routes when the host dispatches it successfully. Existing route
+matches take precedence. Each matching prompt repeats the context; disabled hooks,
+missing guidance or unsupported hosts require manual selection. This is not a
+security enforcement boundary. See [Loading Map](loading-map.md).
+
 ### Plugin validation and compatibility
 
 Original FEF contributions have the scoped MIT grant in `LICENSE`.

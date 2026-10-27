@@ -36,6 +36,8 @@ Required Integrity Policies follow triggers; never trim them to make a route loo
 
 For manual document-task selection, use `modules/Research.md` for research PDF translation, `policies/Writing.md` for Korean prose editing, and `policies/FileHandling.md` for file-backed or formatted-document work. Use `policies/Review.md` when reviewing PR or CI evidence. A request that the detector does not map can return `unknown`; the detector covers specific PDF translation, Korean proofreading and HWPX editing requests when no existing route matches; coverage is not universal and a preview does not prove that a host loaded a pack.
 
+When the native host dispatches UserPromptSubmit and the hook succeeds, it injects the approved guidance for the three unambiguous low-risk document routes. Existing matches take precedence, so some document requests still require manual selection. Matching follow-up prompts repeat the injection and its context cost; missing or unsafe guidance is reported rather than partially loaded. Other hosts, disabled hooks, and hook failures require manual selection.
+
 ## Selection Rules
 
 - Start from the requested outcome. Coding and Research modules include their workflow; `workflows/CodingWorkflow.md` is a compatibility pointer to `modules/Coding.md`, not an additional coding-route load.
