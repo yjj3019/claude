@@ -14,6 +14,7 @@ Review for:
 - rollback
 - troubleshooting
 - reuse
+- for translated documents, preservation of source meaning, numbers, units, citations and formulas, plus page coverage and rendered layout when a PDF is delivered
 
 ## Output
 

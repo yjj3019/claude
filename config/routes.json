@@ -373,7 +373,108 @@
         "policies/Evidence.md"
       ],
       "risk_level": "high"
-    }
+    },
+    {
+        "id": "pdf_translation",
+        "priority": 10,
+        "label": "Research PDF translation",
+        "loading_map_tasks": [
+          "Research PDF translation"
+        ],
+        "keywords": [],
+        "fallback_groups": [
+          [
+            "pdf"
+          ],
+          [
+            "paper",
+            "article",
+            "논문"
+          ],
+          [
+            "translate",
+            "translation",
+            "번역"
+          ]
+        ],
+        "module": "modules/Research.md",
+        "workflow": null,
+        "reviewer": null,
+        "policies": [
+          "policies/FileHandling.md",
+          "policies/Evidence.md"
+        ],
+        "risk_level": "low"
+      },
+      {
+        "id": "korean_proofreading",
+        "priority": 11,
+        "label": "Korean proofreading",
+        "loading_map_tasks": [
+          "Korean proofreading"
+        ],
+        "keywords": [],
+        "fallback_groups": [
+          [
+            "korean",
+            "한국어",
+            "한글",
+            "맞춤법",
+            "띄어쓰기"
+          ],
+          [
+            "proofread",
+            "proofreading",
+            "교정",
+            "수정"
+          ]
+        ],
+        "module": null,
+        "workflow": null,
+        "reviewer": null,
+        "policies": [
+          "policies/Writing.md",
+          "policies/FileHandling.md"
+        ],
+        "risk_level": "low"
+      },
+      {
+        "id": "formatted_document_edit",
+        "priority": 12,
+        "label": "HWPX document editing",
+        "loading_map_tasks": [
+          "HWPX document editing"
+        ],
+        "keywords": [],
+        "fallback_groups": [
+          [
+            "hwpx"
+          ],
+          [
+            "document",
+            "table",
+            "문서",
+            "표를",
+            "표의",
+            "표 수정",
+            "표 편집"
+          ],
+          [
+            "edit",
+            "modify",
+            "update",
+            "편집",
+            "수정"
+          ]
+        ],
+        "module": null,
+        "workflow": null,
+        "reviewer": null,
+        "policies": [
+          "policies/FileHandling.md"
+        ],
+        "risk_level": "low"
+      }
   ],
   "high_risk_gate": {
     "action_verbs": [

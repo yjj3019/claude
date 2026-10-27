@@ -217,6 +217,21 @@ def detect(task: str, config: dict) -> dict:
             fallback_candidates.append(item)
         candidates = fallback_candidates
 
+    coding = next((route for route in config["routes"] if route["id"] == "coding"), {})
+    code_paths = {"fallback_requires_pattern": coding.get("fallback_requires_pattern", [])}
+    code_context = _matches(text, ["code", "script", "function", "parser", "module", "method", "source file", "코드", "스크립트", "함수", "모듈", "메서드"])
+    has_code_path = bool(code_paths["fallback_requires_pattern"]) and _fallback_context_ok(text, code_paths)
+    if not candidates and not high_risk and not code_context and not has_code_path:
+        document_candidates = []
+        for route in config["routes"]:
+            groups = route.get("fallback_groups", [])
+            group_matches = [_matches(text, group) for group in groups]
+            if groups and all(group_matches):
+                matches = [match for group in group_matches for match in group]
+                document_candidates.append((len(matches), -route["priority"], route, matches))
+        if len(document_candidates) == 1:
+            candidates = document_candidates
+
     if not candidates:
         return _unmapped_result(
             risk_level="high" if high_risk else "low",

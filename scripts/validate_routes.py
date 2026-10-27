@@ -120,7 +120,20 @@ def main() -> int:
                     f"route is shadowed or undetectable: {route['id']} "
                     f"(fallback keyword {keyword!r} resolved to {sample['task_type']!r})"
                 )
-        sample = detect(route["keywords"][0], config)
+        groups = route.get("fallback_groups", [])
+        if groups and (not all(isinstance(group, list) and group for group in groups)):
+            errors.append(f"invalid fallback groups: {route['id']}")
+            continue
+        if groups:
+            probe = " ".join(group[0] for group in groups)
+            sample = detect(probe, config)
+            if sample["task_type"] != route["id"]:
+                errors.append(f"fallback groups do not resolve to {route['id']}: {probe!r}")
+        elif route["keywords"]:
+            sample = detect(route["keywords"][0], config)
+        else:
+            errors.append(f"route has no primary keywords or fallback groups: {route['id']}")
+            continue
         errors.extend(
             f"{route['id']}: {error}"
             for error in validate_selection(sample, config, ROOT)

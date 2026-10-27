@@ -61,5 +61,63 @@ class CheckRowMandatoryPacksTest(unittest.TestCase):
         self.assertNotIn(None, route_mandatory_paths(route))
 
 
+class DocumentFallbackTest(unittest.TestCase):
+    def test_document_tasks_select_existing_guidance(self):
+        from lib.routing import detect, load_config, validate_selection
+        config = load_config()
+        cases = (
+            ("Translate this PDF paper into Korean", "pdf_translation", "policies/FileHandling.md"),
+            ("이 PDF 논문을 한국어로 번역해줘", "pdf_translation", "policies/FileHandling.md"),
+            ("Proofread this Korean paragraph", "korean_proofreading", "policies/Writing.md"),
+            ("이 문장의 맞춤법을 교정해줘", "korean_proofreading", "policies/Writing.md"),
+            ("Edit the table in existing HWPX document", "formatted_document_edit", "policies/FileHandling.md"),
+            ("기존 HWPX 문서의 표를 수정해줘", "formatted_document_edit", "policies/FileHandling.md"),
+            ("HWPX 파일의 표 편집해줘", "formatted_document_edit", "policies/FileHandling.md"),
+        )
+        for task, expected, policy in cases:
+            with self.subTest(task=task):
+                result = detect(task, config)
+                self.assertEqual(result["task_type"], expected)
+                self.assertIn(policy, result["policies"])
+                self.assertEqual(validate_selection(result, config), [])
+
+    def test_fallback_does_not_override_other_or_high_risk_tasks(self):
+        from lib.routing import detect, load_config
+        config = load_config()
+        for task, expected in (("fix code in PDF parser", "coding"),
+                               ("security review of HWPX document", "security_review"),
+                               ("What is a PDF?", "unknown"),
+                               ("Edit HWPX conversion code", "unknown"),
+                               ("Edit HWPX document parser in app.py", "unknown")):
+            with self.subTest(task=task):
+                self.assertEqual(detect(task, config)["task_type"], expected)
+
+    def test_document_fallback_handles_missing_code_path_patterns(self):
+        from lib.routing import detect, load_config
+        config = load_config()
+        coding = next(route for route in config["routes"] if route["id"] == "coding")
+        coding["fallback_requires_pattern"] = []
+        result = detect("Translate this PDF paper into Korean", config)
+        self.assertEqual(result["task_type"], "pdf_translation")
+
+    def test_korean_table_keyword_does_not_match_standard(self):
+        from lib.routing import detect, load_config
+        result = detect("HWPX 표준을 수정해줘", load_config())
+        self.assertEqual(result["task_type"], "unknown")
+
+    def test_high_risk_and_ambiguous_requests_remain_unmapped(self):
+        from lib.routing import detect, load_config
+        config = load_config()
+        proofread = detect("Proofread Korean README.md", config)
+        self.assertIn("policies/FileHandling.md", proofread["policies"])
+        high_risk = detect("고객 PDF 논문 번역해줘", config)
+        self.assertEqual(high_risk["task_type"], "unknown")
+        self.assertEqual(high_risk["risk_level"], "high")
+        self.assertFalse(high_risk["kernel_only_safe"])
+        ambiguous = detect("Translate PDF paper and edit HWPX document", config)
+        self.assertEqual(ambiguous["task_type"], "unknown")
+
+
+
 if __name__ == "__main__":
     unittest.main()

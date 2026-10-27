@@ -23,6 +23,12 @@ Ensure file-based work is grounded in the actual assigned files and produces rea
 - Preserve existing conventions unless the task explicitly changes them.
 - Verify that edits landed in the assigned working directory, not only in a scratch copy or temporary worktree.
 
+## Structured document edits
+
+- For an existing formatted document, identify the assigned source and the specific content to change. Prefer a separate output copy unless in-place editing is requested. If the source changes after inspection, re-read it before applying the edit; an unsaved application view is not established by the saved file alone.
+- Preserve the requested format and unrelated content, formatting and embedded objects where supported. Report unsupported or dropped content rather than claiming it was preserved.
+- Distinguish structure and text checks from visual inspection of rendered pages. If rendering or visual review is unavailable, report that limit; successful file creation or parsing alone does not prove the layout is correct.
+
 ## Artifact Completion
 
 - A file-creation request is complete only when the file exists at the reported path and contains the requested content.

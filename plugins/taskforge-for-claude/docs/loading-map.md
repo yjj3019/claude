@@ -26,10 +26,15 @@ Required Integrity Policies follow triggers; never trim them to make a route loo
 | Executive summary (manual-selection only; no keyword route) | `modules/ExecutiveSummary.md` | Relevant domain only | None | Optional `reviewers/DocumentationReviewer.md` for external-facing summaries | `policies/Writing.md`; optional `policies/Decision.md` when the summary carries a recommendation |
 | Meeting notes (manual-selection only; no keyword route) | `modules/Meeting.md` | None | None | None | `policies/Writing.md` |
 | Presentation (manual-selection only; no keyword route) | `modules/Presentation.md` | Relevant domain only | Optional `workflows/ResearchWorkflow.md` for source-heavy decks | Optional `reviewers/DocumentationReviewer.md` | `policies/Writing.md`; optional `policies/Evidence.md` |
+| Research PDF translation | `modules/Research.md` | None | None | None | `policies/FileHandling.md`; `policies/Evidence.md` |
+| Korean proofreading | None | None | None | None | `policies/Writing.md`; `policies/FileHandling.md` |
+| HWPX document editing | None | None | None | None | `policies/FileHandling.md` |
 | Security-focused design/change review | None | Relevant domain only | None | `reviewers/SecurityReviewer.md` | `policies/Evidence.md`; optional `policies/ToolExecution.md` |
 | AI infrastructure or vehicle telemetry task (manual-selection only; no keyword route) | Relevant module for the task | `domains/AI.md` or `domains/Tesla.md` as applicable | Relevant workflow for the task | Relevant reviewer for the task | Relevant policies for the task |
 
 `domains/Ansible.md` and `domains/Satellite.md` are keyword-detected independently of task type (see `config/routes.json`, whose `domains` list applies across every route) and are not tied to a specific Task Map row; combine either with the task's listed domain when the task text names Ansible or Satellite, subject to the domain load limit above.
+
+For manual document-task selection, use `modules/Research.md` for research PDF translation, `policies/Writing.md` for Korean prose editing, and `policies/FileHandling.md` for file-backed or formatted-document work. Use `policies/Review.md` when reviewing PR or CI evidence. A request that the detector does not map can return `unknown`; the detector covers specific PDF translation, Korean proofreading and HWPX editing requests when no existing route matches; coverage is not universal and a preview does not prove that a host loaded a pack.
 
 ## Selection Rules
 
