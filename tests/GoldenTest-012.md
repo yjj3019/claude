@@ -72,6 +72,12 @@ Do not add dependencies.
 - Run `python -m unittest -v` after applying the patch.
 - Record `git diff` or file diff for scoring.
 - Blind evaluator scoring where practical; at minimum hide variant labels during scoring.
+- Record every attempt, including incomplete runs and timeouts; predeclare any
+  exclusions and report their reasons and the attempted and scored denominators.
+- Record wall time, input/output and cache token usage, and cost when available.
+  Identify the measurement and price source, currency, and cold/warm cache state;
+  distinguish billed cost from estimates and mark unavailable values as unknown.
+  Do not infer token counts from file size or compare costs across unmatched settings.
 
 ## Objective Scoring Algorithm
 
@@ -130,7 +136,18 @@ Each result file should include:
 - FEF runs: N
 - Model/environment:
 - Requested and served model, effort, and any fallback:
+- TaskForge source revision or content hash, plugin and skill versions, active instructions, tool permissions,
+  verification wrapper availability, and cache conditions:
 - Evaluator:
+
+## Per-Run Operational Evidence
+
+Record all attempts, including incomplete runs. Use unknown for unavailable values;
+do not treat missing usage or cost as zero. Report attempted and scored counts for
+each variant and any exclusions with reasons. Separate cold and warm comparisons.
+
+| Run ID | Model | Variant | Outcome / failure or timeout | Wall time | Input / output / cache tokens | Cost, currency and billed or estimated | Usage / price source | Cache state | Exclusion reason |
+|---|---|---|---|---:|---|---|---|---|---|
 
 ## Score Summary
 
